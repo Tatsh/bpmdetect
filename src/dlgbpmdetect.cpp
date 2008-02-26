@@ -32,144 +32,11 @@
 #include <qprogressbar.h>
 #include "qdroplistview.h"
 
-#ifdef HAVE_KDE
-#include <kaboutapplication.h>
-#endif
-
-#include "bpmdetectwidget.h"
-#include "testbpm.h"
+#include "dlgbpmdetect.h"
+#include "dlgtestbpm.h"
 
 #include "functions.h"
-
-static const char *topxpm[]={
-"183 16 111 2",
-"#C c #002242",
-".B c #002546",
-"#B c #002b51",
-".z c #003054",
-"#p c #00345a",
-".y c #00375e",
-"#o c #003a62",
-"#n c #003d67",
-".x c #00426c",
-".w c #004470",
-".v c #004874",
-".u c #004d7a",
-".t c #00507e",
-".s c #005483",
-".r c #005787",
-".q c #005b8b",
-".p c #005e90",
-".o c #006294",
-".d c #006699",
-".A c #01284b",
-"#q c #02679a",
-"#A c #053256",
-"#z c #073458",
-"#R c #083c62",
-".e c #086b9d",
-"#m c #094b75",
-"#y c #0a385c",
-"#O c #0b537e",
-".K c #0d314e",
-"#x c #0d3b5e",
-"#Q c #0d5f8b",
-"#t c #0e3c60",
-"#P c #0e4e77",
-".f c #0e6e9f",
-"#l c #115179",
-".Y c #1170a0",
-"#u c #124163",
-"#S c #1271a1",
-"#s c #14476b",
-"#v c #154566",
-"#w c #164768",
-"#k c #16547b",
-".g c #1774a3",
-".F c #193e5c",
-"#j c #1a577e",
-"#c c #205c81",
-".c c #207aa6",
-"#b c #22638a",
-"#d c #245f85",
-"#e c #286286",
-".M c #287ea9",
-".C c #2a4d6b",
-"#r c #2a729a",
-"#f c #2b6588",
-".X c #2c698e",
-".h c #2c81ab",
-".i c #3184ad",
-"#g c #326a8c",
-"#h c #386e8e",
-"#i c #3a6f90",
-".j c #3a89b1",
-".7 c #3c86ab",
-"#a c #3d7394",
-"## c #3d7799",
-"#. c #3d7a9d",
-".9 c #3d7fa2",
-".8 c #3d82a6",
-".b c #418eb4",
-".6 c #438bb0",
-"#D c #4590b5",
-"#N c #487d9d",
-"#M c #4883a4",
-"#L c #4887a9",
-"#K c #488aad",
-".5 c #488fb3",
-".k c #4a93b7",
-".H c #5096b9",
-".l c #5298bb",
-".E c #559abc",
-".4 c #5999b9",
-".m c #5b9dbe",
-".I c #60a0bf",
-".n c #62a2c1",
-".a c #65a3c2",
-".Z c #68a3c0",
-".J c #6aa6c4",
-"#E c #6ea9c6",
-".0 c #71a8c4",
-".1 c #73abc7",
-".2 c #7dafc8",
-"#J c #83a7be",
-".# c #85b6ce",
-".3 c #8ab7ce",
-".W c #95b5c8",
-"#H c #96bbcf",
-"#F c #96bfd4",
-"#I c #97b8cb",
-"#G c #97c2d7",
-"Qt c #9dc5d9",
-".D c #9fc6da",
-".G c #a7c9db",
-".V c #a8c6d6",
-".U c #a8ccde",
-".L c #abcedf",
-".T c #b4d3e2",
-".S c #b7d5e4",
-".N c #bdd8e6",
-".O c #c1dbe8",
-".P c #c4dde9",
-".Q c #c9e0eb",
-".R c #cbe1eb",
-"Qt.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.f.g.c.c.h.i.j.b.k.k.l.m.m.n.n.a.a.n.n.m.m.l.k.k.b.j.i.h.c.c.g.f.e.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.C",
-".D.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.f.g.c.c.h.i.j.b.k.k.E.m.m.n.a.a.a.a.n.m.m.E.k.k.b.j.i.h.c.c.g.f.e.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.F",
-".G.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.f.g.c.c.h.i.j.b.k.H.E.m.I.n.a.J.J.a.n.I.m.E.H.k.b.j.i.h.c.c.g.f.e.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.K",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.f.g.c.c.h.i.j.b.k.H.E.m.I.n.a.J.J.a.n.I.m.E.H.k.b.j.i.h.c.c.g.f.e.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.A",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.f.g.c.M.h.m.L.N.O.P.P.P.Q.R.R.R.R.R.R.Q.P.P.P.O.N.N.N.S.S.T.L.L.L.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.U.G.G.G.G.G.G.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.V.W.X.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.A",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.Y.g.c.M.i.m.Z.J.0.1.2.2.#.#.3.3.3.3.#.#.2.2.1.1.J.Z.I.m.4.H.k.5.6.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.j.7.7.7.7.7.7.7.7.7.7.8.8.8.8.8.8.8.8.8.9.9.9.9.9.9#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#.#####a#a#a#a#a.X.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.C",
-"Qt.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d.d.e.Y.g.c.M.i#b#c#d#e#f#g#g#g#h#h#i#i#h#h#g#g#g#f#e#d#c#c#j#k#l#m#m.v.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x#n#o#o#o#o#o#o#o#o#o#o#o#o#o#o#o#o#o.y.y.y#p#p#p#p#p#p#p#p#p#p#p#o.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.F",
-".D.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.Y.g.c.M.i#r#s#t#u#u#u#u#v#w#w#w#w#w#w#v#u#u#u#u#t#x#y#y#z#z#A.z#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.B.B.B.B.B.B.B#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C.A.x.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.K",
-".G.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.Y.g.c.M.i.7.b.b.k.l.m.m.n.J.J.J.J.J.J.a.I.m.l.k#D.b.j.i.M.c.g.Y.e#q.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.C",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.Y.g.c.M.i.j.b#D.k.l.m.I.a.J.J#E#E.J.J.a.I.m.l.k#D.b.j.i.M.c.g.Y.e#q.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.F",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.j#F.U.U.L.L.L.T.S.S.N.N.O.P.P.P.P.P.P.O.N.N.S.S.T.L.L.L.U.U.G.DQt#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#G#F#F#F#F#F#F#F#F#F#F#F#F#F#F#F#F#F#F#F#F#H#H#H#H#H#H#H#H#H#H#H#H#H#H#H#H#I#I#I#I#I#I#I#I#I#I#I#I#I#I.W.W#J#f.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.K",
-"Qt.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.5.4.m.I.Z.J.1.1.2.#.#.3.3#H#F#F#F#F#H.3.3.#.#.2.1.1.J.Z.I.m.4.H.k.k.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5.5#K#K#K#K#K#K#K#K#K#K#K#K#K#K#L#L#M#M#M#M#M#M#M#M#M#M#M#M#M#M#M#M#M#M#M#N#N#N#N#N#N#N#N#N#N#N#N#N#N#g.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.A",
-".D.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e#O#P#l#k#j#c#c#e#e#f#g#g#h#i#a#a#a#a#i#h#g#g#f#e#e#c#c#j#k#l#P#m#m.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.w.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x.x#n#o#o#o#o#o#o#o#o#o#o#o#o#o#o#o#o#o.y.y.y#p#p#p#p#p#p#p#p#p#p#p#p#p.z.z.z.y.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.A",
-".G.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e#Q#R#z#y#y#y#t#t#u#u#u#u#w#w#w#w#w#w#w#w#u#u#u#u#u#t#y#y#y#z#A.z.z#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B#B.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.B.B.B.B.B.B.B#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C#C.A.x.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.K",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.Y.g.c.M.i.j.b.k.k.E.m.n.J.J.1.1.1.1.J.J.n.m.E.H.k.b.j.i.M.c.g.Y.e#q.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.A",
-".L.#.a.b.c.d.d.d.d.d.d.d.d.d.d.d#q.e.Y.g.c.M.i.j.b.k.H.E.m.n.J#E.1.1.1.1#E.J.n.m.E.H.k.b.j.i.M.c.g#S.e#q.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.d.o.o.o.o.o.o.o.o.o.o.o.o.o.p.q.q.q.q.q.q.q.q.q.q.q.q.r.s.s.s.s.s.s.s.s.s.s.t.t.t.t.t.u.u.u.u.u.u.u.v.v.v.v.v.v.v.v.v.w.w.w.x.x.x.x.x.x.x.y.z.A.B.A"};
+#include "images.h"
 
 extern const char* description;
 extern const char* version;
@@ -180,10 +47,13 @@ extern const char* version;
  * @param name name of widget
  * @param fl window flags
  */
-BPMDetectWidget::BPMDetectWidget( QWidget* parent, const char* name, WFlags fl )
-    : BPMDetectWidgetBase( parent, name, fl ) {
+dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
+    : dlgBPMDetectdlg( parent, name, fl ) {
   stop = TRUE;
   citem = 0;
+
+  setCaption("BPM Detect"); // TODO: append version
+
   Load_Settings();
 //  chbSkipScanned->setChecked( !force );
 //  chbSave->setChecked( bpmsave );
@@ -197,10 +67,10 @@ BPMDetectWidget::BPMDetectWidget( QWidget* parent, const char* name, WFlags fl )
 #endif
 */
 
-  /// Createing TrackList menu
+  /// Create TrackList menu
   ListMenu = new QPopupMenu( this );
   QLabel* caption = new QLabel(0);
-  caption->setPixmap( topxpm );
+  caption->setPixmap( menutop_xpm );
   caption->setScaledContents(true);
   ListMenu->insertItem( caption );
   ListMenu->insertItem( "Add files", this, SLOT( addFiles() ) );
@@ -228,7 +98,7 @@ BPMDetectWidget::BPMDetectWidget( QWidget* parent, const char* name, WFlags fl )
 }
 
 /// @brief Destructor
-BPMDetectWidget::~BPMDetectWidget() {
+dlgBPMDetect::~dlgBPMDetect() {
   /// Stop detection
   if ( !stop ) start();
   /// Sae settings
@@ -243,7 +113,7 @@ BPMDetectWidget::~BPMDetectWidget() {
  * @param ms miliseconds
  * @return time string
  */
-inline QString BPMDetectWidget::msec2time( uint ms ) {
+inline QString dlgBPMDetect::msec2time( uint ms ) {
   static SONGTIME sTime;
   QString timestr;
   sTime.msecs = ms / 10;
@@ -260,7 +130,7 @@ inline QString BPMDetectWidget::msec2time( uint ms ) {
   return timestr;
 }
 
-void BPMDetectWidget::enableControls(bool e) {
+void dlgBPMDetect::enableControls(bool e) {
   btnAddFiles->setEnabled( e );
   btnAddDir->setEnabled( e );
   btnRemoveSelected->setEnabled( e );
@@ -286,7 +156,7 @@ void BPMDetectWidget::enableControls(bool e) {
  * @brief Start/Stop detection
  * Detect BPM of all tracks in TrackList
  */
-void BPMDetectWidget::start() {
+void dlgBPMDetect::start() {
   if ( !stop ) {      // Stop scanning
     stop = TRUE;
     enableControls( true );
@@ -397,7 +267,7 @@ void BPMDetectWidget::start() {
  *
  * @param files is list of file names to add
  */
-void BPMDetectWidget::addFiles( QStringList &files ) {
+void dlgBPMDetect::addFiles( QStringList &files ) {
   QStringList::Iterator it = files.begin();
   while ( it != files.end() ) {
     QString bpm, artist, title, length;
@@ -461,7 +331,7 @@ void BPMDetectWidget::addFiles( QStringList &files ) {
  * @brief Add files to TrackList
  * Open file dialog and add selected files to TrackList
  */
-void BPMDetectWidget::addFiles() {
+void dlgBPMDetect::addFiles() {
   QStringList files;
   files += QFileDialog::getOpenFileNames(
             "Audio files (*.wav *.mp3 *.ogg *.flac)",
@@ -476,7 +346,7 @@ void BPMDetectWidget::addFiles() {
  * Open file dialog to select path and add files from
  * directory including subdirectories to TrackList
  */
-void BPMDetectWidget::addDir() {
+void dlgBPMDetect::addDir() {
   QString path = QFileDialog::getExistingDirectory (
             recentpath, this, 0, "Add directory" );
 
@@ -504,7 +374,7 @@ void BPMDetectWidget::addDir() {
  * @param item TrackList item
  * @param p popup point
  */
-void BPMDetectWidget::listMenuPopup( QListViewItem* item, const QPoint &p ) {
+void dlgBPMDetect::listMenuPopup( QListViewItem* item, const QPoint &p ) {
   ListMenu->popup( p );
   citem = item;
 }
@@ -516,7 +386,7 @@ void BPMDetectWidget::listMenuPopup( QListViewItem* item, const QPoint &p ) {
  * @return QStringList of files with relative paths
  * to @param path
  */
-QStringList BPMDetectWidget::filesFromDir( QString path ) {
+QStringList dlgBPMDetect::filesFromDir( QString path ) {
   QDir d( path ), f( path ); QStringList files;
 
   if ( d.exists( path ) ) {
@@ -547,7 +417,7 @@ QStringList BPMDetectWidget::filesFromDir( QString path ) {
 }
 
 /// @brief Remove selected tracks from TrackList
-void BPMDetectWidget::removeSelected() {
+void dlgBPMDetect::removeSelected() {
   QListViewItemIterator it( TrackList );
   for ( ; it.current(); it++ ) {
     if ( it.current() != TrackList->firstChild() && it.current() ->isSelected() ) {
@@ -560,10 +430,10 @@ void BPMDetectWidget::removeSelected() {
 }
 
 /// @brief Show dialog to test detected BPM of current track
-void BPMDetectWidget::testBPM() {
+void dlgBPMDetect::testBPM() {
   if ( citem != NULL && citem->text( 0 ).toFloat() != 0. ) {
     float bpm = citem->text( 0 ).toFloat();
-    TestBPM tbpmd( SoundSystem, citem->text( TrackList->columns() - 1 ), bpm, this );
+    dlgTestBPM tbpmd( SoundSystem, citem->text( TrackList->columns() - 1 ), bpm, this );
     int ret;
     ret = tbpmd.exec();
     tbpmd.stop();
@@ -571,7 +441,7 @@ void BPMDetectWidget::testBPM() {
 }
 
 /// @brief Show about dialog
-void BPMDetectWidget::showAbout() {
+void dlgBPMDetect::showAbout() {
   QString abouttext = " \
 Version:    \t%1 \n \
 Description:\t%2 \n \
@@ -586,12 +456,12 @@ License:    \tGNU General Public License \
 
 
 /// @brief Clear the TrackList
-void BPMDetectWidget::clearTrackList() {
+void dlgBPMDetect::clearTrackList() {
   TrackList->clear();
 }
 
 /// @brief Clear tracks with detected BPM
-void BPMDetectWidget::clearDetected() {
+void dlgBPMDetect::clearDetected() {
   QListViewItemIterator it( TrackList );
   for ( ; it.current(); it++ ) {
     if ( it.current() != TrackList->firstChild() ) {
@@ -608,15 +478,15 @@ void BPMDetectWidget::clearDetected() {
   }
 }
 
-void BPMDetectWidget::formatChanged(const QString &f) {
+void dlgBPMDetect::formatChanged(const QString &f) {
   set_format = f;
 }
 
-void BPMDetectWidget::trackListKeyPressed(QKeyEvent *e) {
+void dlgBPMDetect::trackListKeyPressed(QKeyEvent *e) {
   if(e->key() == Qt::Key_Delete) removeSelected();
 }
 
-void BPMDetectWidget::dropped(QDropEvent* e) {
+void dlgBPMDetect::dropped(QDropEvent* e) {
   e->accept(1);
   QStringList files;
   if ( QUriDrag::decodeLocalFiles( e, files ) )
@@ -624,5 +494,5 @@ void BPMDetectWidget::dropped(QDropEvent* e) {
   return;
 }
 
-#include "bpmdetectwidget.moc"
+#include "dlgbpmdetect.moc"
 

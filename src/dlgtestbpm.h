@@ -20,30 +20,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef _BPMDETECT_H_
-#define _BPMDETECT_H_
+#ifndef DLGTESTBPM_H
+#define DLGTESTBPM_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif  // HAVE_CONFIG_H
+#include <fmodex/fmod.h>
+#include "dlgTestBPMdlg.h"
 
-#include <qmainwindow.h>
-
-#include "bpmdetectwidget.h"
-
-/// @short Application Main Window
-class BPMDetectWindow : public QMainWindow {
+/**
+ * @brief Dialog for testing detected BPM
+ */
+class dlgTestBPM: public dlgTestBPMdlg {
    Q_OBJECT
 public:
-   /// Constructor
-   BPMDetectWindow();
-   /// Destructor
-   virtual ~BPMDetectWindow();
+  /// Constructor
+  dlgTestBPM( FMOD_SYSTEM* sys, QString file, float dBPM,
+           QWidget *parent = 0, const char *name = 0 );
 
-  /// Add files from list
-  void addFiles(QStringList &files);
-protected:
-  BPMDetectWidget* bpmwid;
+public slots:
+  /// 1st testing position
+  void setPos1();
+  /// 2nd testing position
+  void setPos2();
+  /// 3rd testing position
+  void setPos3();
+  /// 4th testing position
+  void setPos4();
+  /// Custom testing position
+  void setCustomPos( uint msec );
+  /// Stop playing track
+  void stop();
+  /// Set number of beats to loop
+  void setNumBeats( const QString& );
+
+private:
+  float bpm;             ///< BPM to test
+  FMOD_SOUND	 *sound;   ///< FMOD sound object
+  FMOD_CHANNEL *channel; ///< FMOD channel object
 };
 
-#endif // _BPMDETECT_H_
+#endif // DLGTESTBPM_H

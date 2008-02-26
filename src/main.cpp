@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 #ifndef NO_GUI
-#include "bpmdetectwindow.h"
+#include "dlgbpmdetect.h"
 #include <qapplication.h>
 #include <qlocale.h>
 #endif
@@ -50,7 +50,7 @@ void display_help() {
 #endif
   printf("-h     - show this help\n"\
          "-s     - save BPM to tag\n"\
-         "-f     - detect BPM even if stored in tag\n");
+         "-f     - redetect BPMs stored in tag\n");
 }
 
 int main( int argc, char **argv ) {
@@ -70,9 +70,11 @@ int main( int argc, char **argv ) {
         console = true;
         break;
       case '?':
+      #ifdef NO_GUI
         fprintf (stderr, "Unknown option '-%c'.\n", optopt);
         display_help();
         return 1;
+      #endif
       default:
         break;
     }
@@ -98,7 +100,7 @@ int main( int argc, char **argv ) {
   QStringList filelist;
   QApplication app(argc, argv);
 
-  BPMDetectWindow *mainWin = new BPMDetectWindow();
+  dlgBPMDetect *mainWin = new dlgBPMDetect();
   app.setMainWidget( mainWin );
   #ifdef __WIN32
     app.setStyle("Keramik");

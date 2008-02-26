@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>testbpmdialog</class>
+<class>dlgTestBPMdlg</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>testbpmdialog</cstring>
+        <cstring>dlgTestBPMdlg</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -31,27 +31,6 @@
         <property name="resizeMode">
             <enum>Fixed</enum>
         </property>
-        <widget class="SongProgress" row="1" column="0" rowspan="1" colspan="6">
-            <property name="name">
-                <cstring>songPosition</cstring>
-            </property>
-        </widget>
-        <widget class="QLabel" row="2" column="0">
-            <property name="name">
-                <cstring>textLabel2</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>7</hsizetype>
-                    <vsizetype>5</vsizetype>
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                </sizepolicy>
-            </property>
-            <property name="text">
-                <string>Position</string>
-            </property>
-        </widget>
         <widget class="QLayoutWidget" row="4" column="0" rowspan="1" colspan="6">
             <property name="name">
                 <cstring>layout1</cstring>
@@ -259,6 +238,13 @@
             <property name="name">
                 <cstring>lblBPM</cstring>
             </property>
+            <property name="paletteBackgroundColor">
+                <color>
+                    <red>220</red>
+                    <green>220</green>
+                    <blue>220</blue>
+                </color>
+            </property>
             <property name="font">
                 <font>
                     <pointsize>14</pointsize>
@@ -281,12 +267,33 @@
                 <set>AlignCenter</set>
             </property>
         </widget>
+        <widget class="ProgressBar" row="1" column="0" rowspan="1" colspan="6">
+            <property name="name">
+                <cstring>trackPosition</cstring>
+            </property>
+        </widget>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="text">
+                <string>Position</string>
+            </property>
+        </widget>
     </grid>
 </widget>
 <customwidgets>
     <customwidget>
-        <class>SongProgress</class>
-        <header location="local">songprogress.h</header>
+        <class>ProgressBar</class>
+        <header location="local">progressbar.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
@@ -313,37 +320,37 @@
     <connection>
         <sender>btnOk</sender>
         <signal>clicked()</signal>
-        <receiver>testbpmdialog</receiver>
+        <receiver>dlgTestBPMdlg</receiver>
         <slot>accept()</slot>
     </connection>
     <connection>
         <sender>btnPos1</sender>
         <signal>clicked()</signal>
-        <receiver>testbpmdialog</receiver>
+        <receiver>dlgTestBPMdlg</receiver>
         <slot>setPos1()</slot>
     </connection>
     <connection>
         <sender>btnPos2</sender>
         <signal>clicked()</signal>
-        <receiver>testbpmdialog</receiver>
+        <receiver>dlgTestBPMdlg</receiver>
         <slot>setPos2()</slot>
     </connection>
     <connection>
         <sender>btnPos3</sender>
         <signal>clicked()</signal>
-        <receiver>testbpmdialog</receiver>
+        <receiver>dlgTestBPMdlg</receiver>
         <slot>setPos3()</slot>
     </connection>
     <connection>
         <sender>btnPos4</sender>
         <signal>clicked()</signal>
-        <receiver>testbpmdialog</receiver>
+        <receiver>dlgTestBPMdlg</receiver>
         <slot>setPos4()</slot>
     </connection>
     <connection>
         <sender>cbNBeats</sender>
         <signal>activated(const QString&amp;)</signal>
-        <receiver>testbpmdialog</receiver>
+        <receiver>dlgTestBPMdlg</receiver>
         <slot>setNumBeats(const QString&amp;)</slot>
     </connection>
 </connections>

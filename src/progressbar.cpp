@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "songprogress.h"
+#include "progressbar.h"
 #include <iostream>
 
 using namespace std;
@@ -30,7 +30,7 @@ using namespace std;
  * @param parent parent widget
  * @param name widget name
   */
-SongProgress::SongProgress( QWidget *parent, const char *name )
+ProgressBar::ProgressBar( QWidget *parent, const char *name )
     : QProgressBar( parent, name ) {
   setPercentageVisible( FALSE );
   setFrameShape( QFrame::Box );
@@ -40,14 +40,14 @@ SongProgress::SongProgress( QWidget *parent, const char *name )
 }
 
 /// @brief Destructor
-SongProgress::~SongProgress() {}
+ProgressBar::~ProgressBar() {}
 
 /**
  * @brief Receiving mouse press events
  * Set change status to true if progressbar is enabled
  * @param e is received mouse event
  */
-void SongProgress::mousePressEvent( QMouseEvent *e ) {
+void ProgressBar::mousePressEvent( QMouseEvent *e ) {
   if ( enabled() ) {
     if ( e->button() == Qt::LeftButton ) {
       setChange( TRUE );
@@ -64,7 +64,7 @@ void SongProgress::mousePressEvent( QMouseEvent *e ) {
  * and progressbar is enabled 
  * @param e is received mouse event
  */
-void SongProgress::mouseMoveEvent( QMouseEvent *e ) {
+void ProgressBar::mouseMoveEvent( QMouseEvent *e ) {
   if ( enabled() && change() ) {
     if ( e->pos().x() <= 0 )
       setProgress( 0 );
@@ -80,7 +80,7 @@ void SongProgress::mouseMoveEvent( QMouseEvent *e ) {
  * Set Change status to false if progressbar is enabled
  * @param e is received mouse event
  */
-void SongProgress::mouseReleaseEvent( QMouseEvent *e ) {
+void ProgressBar::mouseReleaseEvent( QMouseEvent *e ) {
   if ( enabled() ) {
     if ( e->button() == Qt::RightButton && e->state() == Qt::LeftButton )
       setChange( TRUE );
@@ -95,7 +95,7 @@ void SongProgress::mouseReleaseEvent( QMouseEvent *e ) {
  * @brief Set total steps (length of track)
  * @param len is track length
  */
-void SongProgress::setLength( uint len ) {
+void ProgressBar::setLength( uint len ) {
   setTotalSteps( len );
 }
 
@@ -103,7 +103,7 @@ void SongProgress::setLength( uint len ) {
  * @brief Set current progressbar position
  * @param pos is position to set
  */
-void SongProgress::setPosition( uint pos ) {
+void ProgressBar::setPosition( uint pos ) {
   if ( ! change() )
     setProgress( pos );
 }
@@ -112,7 +112,7 @@ void SongProgress::setPosition( uint pos ) {
  * @brief Return change status
  * @return true if changing the position by mouse moving
  */
-bool SongProgress::change() {
+bool ProgressBar::change() {
   return chng;
 }
 
@@ -120,7 +120,7 @@ bool SongProgress::change() {
  * @brief Set change status
  * @param s change status
  */
-void SongProgress::setChange( bool s ) {
+void ProgressBar::setChange( bool s ) {
   chng = s;
 }
 
@@ -128,7 +128,7 @@ void SongProgress::setChange( bool s ) {
  * @brief Return eneble status
  * @return true if the progressbar is enabled
  */
-bool SongProgress::enabled() {
+bool ProgressBar::enabled() {
   return enable;
 }
 
@@ -136,7 +136,7 @@ bool SongProgress::enabled() {
  * @brief Set enabled status
  * @param s is true to enable, false to disable the progressbar
  */
-void SongProgress::setEnabled( bool s ) {
+void ProgressBar::setEnabled( bool s ) {
   enable = s;
 }
 
@@ -144,8 +144,8 @@ void SongProgress::setEnabled( bool s ) {
  * @brief Return length of track (total progressbar steps)
  * @return track length
  */
-uint SongProgress::length() {
+uint ProgressBar::length() {
   return totalSteps();
 }
 
-#include "songprogress.moc"
+#include "progressbar.moc"

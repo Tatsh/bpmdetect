@@ -54,6 +54,11 @@ QString set_format;
 bool    set_skip;
 bool    set_save;
 
+
+#ifdef NO_GUI
+
+#endif
+
 /**
  * @brief Create and init FMOD sound system
  * @return true if initialized successfully
@@ -89,7 +94,7 @@ bool Init_FMOD_System() {
       result = FMOD_System_SetDriver(SoundSystem, i);
       if(result == FMOD_OK) {
         char name[256];
-        result = FMOD_System_GetDriverName(SoundSystem, i, name, 256);
+        result = FMOD_System_GetDriverInfo(SoundSystem, i, name, 256, 0);
         if(result == FMOD_OK) qDebug("Driver: %s", name);
         break;
       }

@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>BPMDetectWidgetBase</class>
+<class>dlgBPMDetectdlg</class>
 <widget class="QWidget">
     <property name="name">
-        <cstring>bpmdetectwidgetbase</cstring>
+        <cstring>dlgBPMDetectdlg</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -492,43 +492,43 @@
     <connection>
         <sender>btnAddFiles</sender>
         <signal>clicked()</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>addFiles()</slot>
     </connection>
     <connection>
         <sender>btnAddDir</sender>
         <signal>clicked()</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>addDir()</slot>
     </connection>
     <connection>
         <sender>btnStart</sender>
         <signal>clicked()</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>start()</slot>
     </connection>
     <connection>
         <sender>btnRemoveSelected</sender>
         <signal>clicked()</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>removeSelected()</slot>
     </connection>
     <connection>
         <sender>btnAbout</sender>
         <signal>clicked()</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>showAbout()</slot>
     </connection>
     <connection>
         <sender>btnClearList</sender>
         <signal>clicked()</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>clearTrackList()</slot>
     </connection>
     <connection>
         <sender>cbFormat</sender>
         <signal>activated(const QString&amp;)</signal>
-        <receiver>bpmdetectwidgetbase</receiver>
+        <receiver>dlgBPMDetectdlg</receiver>
         <slot>formatChanged(const QString&amp;)</slot>
     </connection>
 </connections>

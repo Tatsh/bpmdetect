@@ -23,19 +23,18 @@
 #ifndef _BPMDETECTWIDGET_H_
 #define _BPMDETECTWIDGET_H_
 
-#include "bpmdetectwidgetbase.h"
-
 #include <qpopupmenu.h>
 #include <qlistview.h>
 #include <qevent.h>
 
 #include <fmodex/fmod.hpp>
 #include <fmodex/fmod_errors.h>
-#include <soundtouch/BPMDetect.h>
-
-#include "functions.h"
+#include <BPMDetect.h>
 
 #include <iostream>
+
+#include "dlgbpmdetectdlg.h"
+#include "functions.h"
 
 using namespace std;
 using namespace soundtouch;
@@ -46,14 +45,14 @@ struct SONGTIME {
   uint mins;   ///< minutes
 };
 
-class BPMDetectWidget : public BPMDetectWidgetBase {
+class dlgBPMDetect : public dlgBPMDetectdlg {
   Q_OBJECT
 
 public:
   /// Constructor
-  BPMDetectWidget( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+  dlgBPMDetect( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
   /// Destructor
-  ~BPMDetectWidget();
+  ~dlgBPMDetect();
 
 public slots:
   /// Start/Stop BPM detection

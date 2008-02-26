@@ -20,42 +20,54 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TESTBPM_H
-#define TESTBPM_H
+#ifndef SONGPROGRESS_H
+#define SONGPROGRESS_H
 
-#include "testbpmdialog.h"
-#include <fmodex/fmod.h>
+#include <qwidget.h>
+#include <qprogressbar.h>
+#include <qevent.h>
 
-/**
- * @brief Dialog for testing detected BPM
- */
-class TestBPM: public testbpmdialog {
-   Q_OBJECT
+/// @brief Progressbar controlled by mouse
+class ProgressBar : public QProgressBar {
+  Q_OBJECT
+
 public:
   /// Constructor
-  TestBPM( FMOD_SYSTEM* sys, QString file, float dBPM,
-           QWidget *parent = 0, const char *name = 0 );
+  ProgressBar( QWidget *parent = 0, const char *name = 0 );
+  /// Destructor
+  ~ProgressBar();
+  /// Return change status
+  bool change();
+  /// Return enabled status
+  bool enabled();
+  /// Return total steps (track length)
+  uint length();
 
 public slots:
-  /// 1st testing position
-  void setPos1();
-  /// 2nd testing position
-  void setPos2();
-  /// 3rd testing position
-  void setPos3();
-  /// 4th testing position
-  void setPos4();
-  /// Custom testing position
-  void setCustomPos( uint msec );
-  /// Stop playing track
-  void stop();
-  /// Set number of beats to loop
-  void setNumBeats( const QString& );
+  /// Set current position
+  void setPosition( uint pos );
+  /// Set total steps
+  void setLength( uint len );
+  /// Set enabled status
+  void setEnabled( bool s );
+
+protected slots:
+  /// Receiving mouse press events
+  void mousePressEvent( QMouseEvent *e );
+  /// Receiving mouse move events
+  void mouseMoveEvent( QMouseEvent *e );
+  /// Receiving mouse release events
+  void mouseReleaseEvent( QMouseEvent *e );
+  /// Set change status
+  void setChange( bool s );
+
+signals:
+  /// Current position changed
+  void positionChanged( uint pos );
 
 private:
-  float bpm;             ///< BPM to test
-  FMOD_SOUND	 *sound;   ///< FMOD sound object
-  FMOD_CHANNEL *channel; ///< FMOD channel object
+  bool chng;    ///< true if left mouse button is down
+  bool enable;  ///< enable status
 };
 
-#endif // TESTBPM_H
+#endif  // SONGPROGRESS_H

@@ -27,13 +27,13 @@ PeakFinder.cpp
 FIFOSampleBuffer.cpp
 """
 bpmdetect_sources_gui="""
-bpmdetectwidgetbase.ui
-testbpmdialog.ui
-bpmdetectwindow.cpp
-bpmdetectwidget.cpp
-songprogress.cpp
-testbpm.cpp
+dlgbpmdetectdlg.ui
+dlgtestbpmdlg.ui
+progressbar.cpp
 qdroplistview.cpp
+dlgbpmdetect.cpp
+dlgtestbpm.cpp
+images.cpp
 """
 
 import re
@@ -241,7 +241,7 @@ env.Tool('qt3')
 if env['CONSOLEONLY']:
   env.Append(CPPDEFINES = 'NO_GUI')
 else:
-  bpmdetect_sources += bpmdetect_sources_gui
+  bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
 
 env.Append(LIBS = ['id3', 'fmodex', 'z'])
 if sys.platform.startswith('win') or env['MINGWBUILD']:
