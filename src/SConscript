@@ -1,0 +1,257 @@
+#! /usr/bin/env python
+import os, sys
+
+if not sys.platform.startswith('win'):
+  BOLD   ="\033[1m"
+  RED    ="\033[91m"
+  GREEN  ="\033[92m"
+  YELLOW ="\033[93m" # unreadable on white backgrounds
+  CYAN   ="\033[96m"
+  NORMAL ="\033[0m"
+else:
+  BOLD   =""
+  RED    =""
+  GREEN  =""
+  YELLOW =""
+  CYAN   =""
+  NORMAL =""
+
+#######################
+## Source files
+#######################
+bpmdetect_sources="""
+main.cpp
+functions.cpp
+BPMDetect.cpp
+PeakFinder.cpp
+FIFOSampleBuffer.cpp
+"""
+bpmdetect_sources_gui="""
+bpmdetectwidgetbase.ui
+testbpmdialog.ui
+bpmdetectwindow.cpp
+bpmdetectwidget.cpp
+songprogress.cpp
+testbpm.cpp
+qdroplistview.cpp
+"""
+
+import re
+def makeHashTable(args):
+  table = { }
+  for arg in args:
+    if len(arg) > 1:
+      lst=arg.split('=')
+      if len(lst) < 2:
+        continue
+      key=lst[0]
+      value=lst[1]
+      if len(key) > 0 and len(value) >0:
+        table[key] = value
+  return table
+
+def check_pkgconfig(env):
+  print "Checking for pkg-config           : ",
+
+  pkg_config = env.WhereIs("pkg-config").strip()
+  if not pkg_config:
+    pkg_config = ""
+  if len(pkg_config):
+    print GREEN+pkg_config+NORMAL,
+    pkgcver = os.popen("pkg-config --version").read().strip()
+    print ' version '+pkgcver
+    env['PKGCONFIG'] = 1
+  else:
+    print RED+'not found'+NORMAL
+    env['PKGCONFIG'] = 0
+
+def check_taglib(env):
+  if env['PKGCONFIG']:
+    print "Checking for taglib               : ",
+    tagprefix = os.popen("pkg-config --variable=prefix taglib").read().strip()
+    if len(tagprefix):
+      tagver = os.popen("pkg-config --modversion taglib").read().strip()
+      print GREEN+"found "+NORMAL+ "version "+tagver
+      # includes
+      print "taglib includes                   : ",
+      tagincludes = os.popen('pkg-config --cflags-only-I taglib').read().strip()[2:]
+      print YELLOW+tagincludes+NORMAL
+      # libs
+      print "taglib library                    : ",
+      taglibpath = os.popen('pkg-config --libs-only-L taglib').read().strip()[2:]
+      if not len(taglibpath):
+        taglibpath = tagprefix + '/lib'
+      print YELLOW+taglibpath+NORMAL
+
+      env.Append(CPPDEFINES = 'HAVE_TAGLIB')
+      env.Append(CPPPATH = tagincludes)
+      env.Append(LIBS = ['tag', 'z'])
+      env.Append(LIBPATH = taglibpath)
+    else:
+      print RED+"not found"+NORMAL
+  else:
+    print RED+"not found"+NORMAL
+    # TODO: check without pkg-config
+
+def configure(env):
+  # unset existing variables
+  if env.has_key('PREFIX'):
+    env.__delitem__('PREFIX')
+  if env.has_key('EXTRAINCLUDES'):
+    env.__delitem__('EXTRAINCLUDES')
+  if env.has_key('ISCONFIGURED'):
+    env.__delitem__('ISCONFIGURED')
+  if env.has_key('PKGCONFIG'):
+    env.__delitem__('PKGCONFIG')
+  if env.has_key('MINGWBUILD'):
+    env.__delitem__('MINGWBUILD')
+  if env.has_key('CONSOLEONLY'):
+    env.__delitem__('CONSOLEONLY')
+  if env.has_key('CPPPATH'):
+    env.__delitem__('CPPPATH')
+  if env.has_key('CPPDEFINES'):
+    env.__delitem__('CPPDEFINES')
+  if env.has_key('CXXFLAGS'):
+    env.__delitem__('CXXFLAGS')
+  if env.has_key('LIBPATH'):
+    env.__delitem__('LIBPATH')
+  if env.has_key('LIBS'):
+    env.__delitem__('LIBS')
+
+  if env['ARGS'].get('debug', None):
+    debuglevel = env['ARGS'].get('debug', None)
+    print CYAN+'** Enabling debug **' + NORMAL
+    env.Append(CPPDEFINES = 'DEBUG')
+    if (debuglevel == "full"):
+      env.Append(CXXFLAGS   = '-g3')
+    else:
+      env.Append(CXXFLAGS   = '-g')
+  else:
+    env.Append(CXXFLAGS = '-O2' )
+    env.Append(CPPDEFINES = ['NDEBUG', 'NO_DEBUG'])
+
+  if env['ARGS'].get('mingw', None):
+    if not sys.platform.startswith('win'):
+      print CYAN+"** Using mingw compiler **"+NORMAL
+    env['MINGWBUILD'] = 1
+  else:
+    env['MINGWBUILD'] = 0
+
+  check_pkgconfig(env)
+
+  # User-specified prefix
+  if env['ARGS'].get('prefix', None):
+    env['PREFIX'] = env['ARGS'].get('prefix', None)
+    print CYAN+'** installation prefix                        : ' + env['PREFIX'] +' **'+ NORMAL
+  elif env.has_key('PREFIX'):
+    env.__delitem__('PREFIX')
+
+  # Console mode only
+  print 'GUI                               : ',
+  if env['ARGS'].get('console', None):
+    env['CONSOLEONLY'] = 1
+    print 'disabled'
+  else:
+    env['CONSOLEONLY'] = 0
+    print 'enabled'
+
+  # User-specified include paths
+  env['EXTRAINCLUDES'] = env['ARGS'].get('extraincludes', None)
+  if env['ARGS'].get('extraincludes', None):
+    print CYAN+'** extra include paths                    : ' + env['EXTRAINCLUDES'] +' **'+ NORMAL
+    incpaths = []
+    for dir in str(env['EXTRAINCLUDES']).split(':'):
+      incpaths.append( dir )
+    env.Append(CPPPATH = incpaths)
+  elif env.has_key('EXTRAINCLUDES'):
+    env.__delitem__('EXTRAINCLUDES')
+
+  # Check for libraries
+  check_taglib(env)
+
+  env.Append(CPPPATH = ['.', '..', '../includes'])
+  env.Append(LIBPATH = ['.', '../libs'])
+  env['ISCONFIGURED']=1
+  # And finally save the options in the cache
+  opts.Save(cachefile, env)
+
+
+
+#############################
+#############################
+env = Environment(ENV = os.environ,
+      toolpath=['./', '../admin/'])
+
+env['ARGS']=makeHashTable(sys.argv)
+env['HELP']=0
+if '--help' in sys.argv or '-h' in sys.argv or 'help' in sys.argv:
+  env['HELP']=1
+
+## Global cache directory
+## Put all project files in it so a rm -rf cache will clean up the config
+if not env.has_key('CACHEDIR'):
+  env['CACHEDIR'] =os.getcwd()+ '/../cache/'
+if not os.path.isdir(env['CACHEDIR']):
+  os.mkdir(env['CACHEDIR'])
+
+## Avoid spreading .sconsign files everywhere - keep this line
+env.SConsignFile(env['CACHEDIR']+'/scons_signatures')
+
+# load the options
+from SCons.Options import Options, PathOption
+cachefile=env['CACHEDIR']+'cache.py'
+opts = Options(cachefile)
+opts.AddOptions(
+  ( 'CACHEDIR', 'cache directory'),
+  ( 'PREFIX', 'prefix for installation' ),
+  ( 'EXTRAINCLUDES', 'extra include paths for the project' ),
+  ( 'ISCONFIGURED', 'project configured' ),
+  ( 'PKGCONFIG', 'pkg-config found' ),
+  ( 'MINGWBUILD', 'build using mingw compiler' ),
+  ( 'CONSOLEONLY', 'build console mode only' ),
+  ( 'CPPPATH', 'include directories' ),
+  ( 'CPPDEFINES', 'preprocessor definitions' ),
+  ( 'CXXFLAGS', 'C++ compiler options' ),
+  ( 'LIBPATH', 'library directories' ),
+  ( 'LIBS', 'libraries' ),
+)
+
+opts.Update(env)
+
+# to avoid an error message 'how to make target configure ?'
+env.Alias('configure', None)
+
+import SCons.Util
+
+if 'install' in sys.argv:
+  env['_INSTALL']=1
+else:
+  env['_INSTALL']=0
+if 'configure' in sys.argv:
+  env['_CONFIGURE']=1
+else:
+  env['_CONFIGURE']=0
+
+# configure the environment if needed
+if not env['HELP'] and (env['_CONFIGURE'] or not env.has_key('ISCONFIGURED')):
+  configure(env)
+
+env.Tool('qt3')
+
+if env['CONSOLEONLY']:
+  env.Append(CPPDEFINES = 'NO_GUI')
+else:
+  bpmdetect_sources += bpmdetect_sources_gui
+
+env.Append(LIBS = ['id3', 'fmodex', 'z'])
+if sys.platform.startswith('win') or env['MINGWBUILD']:
+  env.Tool('crossmingw')
+  env.Append(LIBS = ['kkeramikstyle','kdefx'])
+  # FIXME
+  os.popen('windres -i src/icon.rc -o build/icon.o')
+  env.Append(LINKFLAGS = ['build/icon.o'])
+  env.Append(LINKFLAGS = ['-mwindows'])
+
+sources = (bpmdetect_sources).split()
+env.Program('bpmdetect', sources)
+

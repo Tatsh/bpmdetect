@@ -1,0 +1,361 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>testbpmdialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>testbpmdialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>265</width>
+            <height>171</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Test BPM</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>5</number>
+        </property>
+        <property name="spacing">
+            <number>5</number>
+        </property>
+        <property name="resizeMode">
+            <enum>Fixed</enum>
+        </property>
+        <widget class="SongProgress" row="1" column="0" rowspan="1" colspan="6">
+            <property name="name">
+                <cstring>songPosition</cstring>
+            </property>
+        </widget>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="text">
+                <string>Position</string>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget" row="4" column="0" rowspan="1" colspan="6">
+            <property name="name">
+                <cstring>layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>26</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>btnOk</cstring>
+                    </property>
+                    <property name="text">
+                        <string>O&amp;k</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+K</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1_2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>56</width>
+                            <height>26</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
+        </widget>
+        <widget class="QPushButton" row="2" column="5">
+            <property name="name">
+                <cstring>btnPos4</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>30</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="text">
+                <string>&amp;4.</string>
+            </property>
+            <property name="accel">
+                <string>Alt+4</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="2" column="3" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>btnPos3</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>30</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="text">
+                <string>&amp;3</string>
+            </property>
+            <property name="accel">
+                <string>Alt+3</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="2" column="2">
+            <property name="name">
+                <cstring>btnPos2</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>30</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="text">
+                <string>&amp;2</string>
+            </property>
+            <property name="accel">
+                <string>Alt+2</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="2" column="1">
+            <property name="name">
+                <cstring>btnPos1</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>30</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="text">
+                <string>&amp;1</string>
+            </property>
+            <property name="accel">
+                <string>Alt+1</string>
+            </property>
+        </widget>
+        <widget class="QComboBox" row="3" column="4" rowspan="1" colspan="2">
+            <item>
+                <property name="text">
+                    <string>1</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>2</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>4</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>8</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>cbNBeats</cstring>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>50</width>
+                    <height>32767</height>
+                </size>
+            </property>
+            <property name="editable">
+                <bool>false</bool>
+            </property>
+            <property name="currentItem">
+                <number>2</number>
+            </property>
+        </widget>
+        <widget class="QLabel" row="3" column="0" rowspan="1" colspan="4">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <property name="text">
+                <string>Number of beats to loop:</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="0" column="0" rowspan="1" colspan="6">
+            <property name="name">
+                <cstring>lblBPM</cstring>
+            </property>
+            <property name="font">
+                <font>
+                    <pointsize>14</pointsize>
+                    <bold>1</bold>
+                </font>
+            </property>
+            <property name="frameShape">
+                <enum>Panel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Sunken</enum>
+            </property>
+            <property name="margin">
+                <number>5</number>
+            </property>
+            <property name="text">
+                <string>000.00</string>
+            </property>
+            <property name="alignment">
+                <set>AlignCenter</set>
+            </property>
+        </widget>
+    </grid>
+</widget>
+<customwidgets>
+    <customwidget>
+        <class>SongProgress</class>
+        <header location="local">songprogress.h</header>
+        <sizehint>
+            <width>-1</width>
+            <height>-1</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>5</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+        </sizepolicy>
+        <pixmap>image1</pixmap>
+    </customwidget>
+</customwidgets>
+<images>
+    <image name="image0">
+        <data format="PNG" length="369">89504e470d0a1a0a0000000d4948445200000020000000200806000000737a7af400000138494441545885cd57bb1183300c7dcef9c806dcd1320e3de3842219273d1b300b437017a720242024fcc186bc0ef9c94f9640c8c0c950a18e45dd1b69ad7f16cefb7a074085a9d87cdd271067f1ad93737c1bc739c269b3f9a93881e8a7e684a64c7001f8642828802402a1e2f34c9c1ad81e2818ac3752e1fdc117fa23f8c3b189c4e558b935346be5ca725800b4fa46b0fb72043f0d005555899c162d6270243f0d0065595ac9b138141a00f23c070034b7e6bb707fdc17c4bd1cc94f0340d775abc8a8cd9ba3c61e63b38d8d687a79e6ef3eb165d70cc330c0bc8cc8593c2b666fc6b6347008f90a3c02f89346e4db76243e67b7d8dc5a072dd394ce08485602d72186ff1770b094499a968bba3749e64417d04929f9bc48855dc4a3a4c6369e73237d74c12dee163fcadd70cff56c774a625d524fc31ba244cd0084ec98ff0000000049454e44ae426082</data>
+    </image>
+    <image name="image1">
+        <data format="XBM.GZ" length="79">789c534e494dcbcc4b554829cdcdad8c2fcf4c29c95030e0524611cd48cd4ccf28010a1797249664262b2467241641a592324b8aa363156c15aab914146aadb90067111b1f</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>btnOk</sender>
+        <signal>clicked()</signal>
+        <receiver>testbpmdialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>btnPos1</sender>
+        <signal>clicked()</signal>
+        <receiver>testbpmdialog</receiver>
+        <slot>setPos1()</slot>
+    </connection>
+    <connection>
+        <sender>btnPos2</sender>
+        <signal>clicked()</signal>
+        <receiver>testbpmdialog</receiver>
+        <slot>setPos2()</slot>
+    </connection>
+    <connection>
+        <sender>btnPos3</sender>
+        <signal>clicked()</signal>
+        <receiver>testbpmdialog</receiver>
+        <slot>setPos3()</slot>
+    </connection>
+    <connection>
+        <sender>btnPos4</sender>
+        <signal>clicked()</signal>
+        <receiver>testbpmdialog</receiver>
+        <slot>setPos4()</slot>
+    </connection>
+    <connection>
+        <sender>cbNBeats</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>testbpmdialog</receiver>
+        <slot>setNumBeats(const QString&amp;)</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>setPos1()</slot>
+    <slot>setPos2()</slot>
+    <slot>setPos4()</slot>
+    <slot>setPos3()</slot>
+    <slot>setNumBeats(const QString&amp;)</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>songprogress.h</includehint>
+</includehints>
+</UI>

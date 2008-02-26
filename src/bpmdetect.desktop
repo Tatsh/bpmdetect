@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BPMDetect
+Exec=bpmdetect
+Icon=bpmdetect
+Type=Application
+Comment=BPM detection utility
+Categories=Application;AudioVideo;
