@@ -45,23 +45,23 @@ generateMakefile()
 SCONS=$SCONS
 
 all:
-  @\$(SCONS)
+	@\$(SCONS)
 
 install:
-  @\$(SCONS) install
+	@\$(SCONS) install
 
 clean:
-  @\$(SCONS) -c
+	@\$(SCONS) -c
 
 uninstall:
-  @\$(SCONS) -c install
+	@\$(SCONS) -c install
 
 dist:
-  @\$(SCONS) dist
+	@\$(SCONS) dist
 
 distclean:
-  @\$(SCONS) -c
-  rm -rf cache/
+	@\$(SCONS) -c
+	rm -rf cache/
 EOF
 }
 
@@ -76,4 +76,4 @@ fi
 SCONS="$SCONS $@"
 
 generateMakefile
-
+$SCONS configure
