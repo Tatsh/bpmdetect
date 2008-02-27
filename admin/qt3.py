@@ -37,7 +37,7 @@ def detect_qt3(env):
   elif env['PKGCONFIG']:
     qtdir = os.popen('pkg-config --variable=prefix qt-mt').read().strip()
     if len(qtdir):
-      print GREEN+"found in "+YELLOW+qtdir+NORMAL
+      print GREEN+"found in " + NORMAL+BOLD + qtdir + NORMAL
     else:
       # QT not found
       print RED+"not found"+NORMAL
@@ -58,13 +58,13 @@ def detect_qt3(env):
     uic = qtdir + "/bin/uic"
 
   if os.path.isfile(uic):
-    print GREEN+"found as "+YELLOW+uic+NORMAL
+    print GREEN+"found as " + NORMAL+BOLD + uic + NORMAL
   else:
     uic = env.WhereIs("uic")
     if not uic:
       uic = ""
     if len(uic):
-      print GREEN+"found as "+YELLOW+uic+NORMAL
+      print GREEN+"found as " + NORMAL+BOLD + uic + NORMAL
     else:
       print RED+"not found"+NORMAL
       env.Exit(1)
@@ -77,13 +77,13 @@ def detect_qt3(env):
     moc = qtdir + "/bin/moc"
 
   if os.path.isfile(moc):
-    print GREEN + "found as "+ YELLOW + moc + NORMAL
+    print GREEN + "found as " + NORMAL+BOLD + moc + NORMAL
   else:
     moc = env.WhereIs("moc")
     if not moc:
       moc = ""
     if len(moc):
-      print GREEN + "found as "+ YELLOW + moc + NORMAL
+      print GREEN + "found as " + NORMAL+BOLD + moc + NORMAL
     else:
       print RED + "not found" + NORMAL
       env.Exit(1)
@@ -93,7 +93,7 @@ def detect_qt3(env):
   print "Checking for the qt includes      : ",
   if qtincludes and os.path.isfile(qtincludes + "/qlayout.h"):
     # The user told where to look for and it looks valid
-    print GREEN + "ok " + YELLOW + qtincludes + NORMAL
+    print GREEN + "ok " + NORMAL+BOLD + qtincludes + NORMAL
   else:
     if os.path.isfile(qtdir + "/include/qlayout.h"):
       # Automatic detection
@@ -101,7 +101,7 @@ def detect_qt3(env):
       qtincludes = qtdir + "/include/"
     elif os.path.isfile("/usr/include/qt3/qlayout.h"):
       # Debian probably
-      print YELLOW + GREEN+"found in "+YELLOW+"/usr/include/qt3/ " + NORMAL
+      print GREEN+"found in " + NORMAL+BOLD + "/usr/include/qt3/ " + NORMAL
       qtincludes = "/usr/include/qt3"
     else:
       print RED + "not found" + NORMAL
@@ -116,13 +116,7 @@ def detect_qt3(env):
 def generate(env):
   """"Set up the qt and kde environment and builders - the moc part is difficult to understand """
   if env['HELP']:
-    print """
-"""+BOLD+"""*** QT3 options ***
--------------------"""+NORMAL+"""
-"""+BOLD+"""* qtdir      """+NORMAL+""": for qtdir
-"""+BOLD+"""* qtincludes """+NORMAL+""": for qt includes (/usr/include/qt3 on debian, ...)
-"""+BOLD+"""* qtlibs     """+NORMAL+""": for qt libraries
-"""+NORMAL
+    return
 
   import SCons.Defaults
   import SCons.Tool

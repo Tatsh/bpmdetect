@@ -27,22 +27,6 @@ else:
   NORMAL =""
 
 ###################################################################
-# LOAD THE ENVIRONMENT AND SET UP THE TOOLS
-###################################################################
-
-
-"""
-## Load the builders in config
-env = Environment( ENV = os.environ, tools=['default','generic',
-      'qt3','kde','taglib'], toolpath=['./', './admin/'])
-
-if sys.platform.startswith('win') or env['MINGWBUILD']:
-  env.Tool('crossmingw')
-  env.Append(LINKFLAGS = ['-lkkeramikstyle','-lkdefx','-lz'])
-  env.Append(LINKFLAGS = ['-mwindows','icon.o'])
-  os.popen("windres icon.rc icon.o");
-"""
-###################################################################
 # SCRIPTS FOR BUILDING THE TARGETS
 ###################################################################
 
@@ -104,7 +88,7 @@ if 'dist' in COMMAND_LINE_TARGETS:
 
   env.Default(None)
   env.Exit(0)
-"""
+
 ### Emulate "make distclean"
 if 'distclean' in COMMAND_LINE_TARGETS:
   ## Remove the cache directory
@@ -112,7 +96,4 @@ if 'distclean' in COMMAND_LINE_TARGETS:
   if os.path.isdir(env['CACHEDIR']):
     shutil.rmtree(env['CACHEDIR'])
   os.popen("find . -name \"*.pyc\" | xargs rm -rf")
-"""
-  env.Default(None)
-  env.Exit(0)
 """

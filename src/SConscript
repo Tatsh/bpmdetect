@@ -5,6 +5,7 @@ if not sys.platform.startswith('win'):
   BOLD   ="\033[1m"
   RED    ="\033[91m"
   GREEN  ="\033[92m"
+  BLUE   ="\033[94m"
   YELLOW ="\033[93m" # unreadable on white backgrounds
   CYAN   ="\033[96m"
   NORMAL ="\033[0m"
@@ -12,6 +13,7 @@ else:
   BOLD   =""
   RED    =""
   GREEN  =""
+  BLUE   =""
   YELLOW =""
   CYAN   =""
   NORMAL =""
@@ -36,6 +38,22 @@ dlgtestbpm.cpp
 images.cpp
 """
 
+def display_help():
+  print """
+"""+BOLD+"""  Options
+--------------------------------------------------"""+NORMAL+"""
+"""+BOLD+"""* prefix        """+NORMAL+""": installation prefix (/usr/local)
+"""+BOLD+"""* console       """+NORMAL+""": build only console mode
+"""+BOLD+"""* mingw         """+NORMAL+""": use MinGW compiler
+"""+BOLD+"""* debug         """+NORMAL+""": enable debug (debug=1 or debug=full)
+"""+BOLD+"""* extraincludes """+NORMAL+""": extra includes separated by colon (':')
+
+"""+BOLD+"""* qtdir         """+NORMAL+""": where the QT3 is installed
+"""+BOLD+"""* qtincludes    """+NORMAL+""": path to QT3 includes (/usr/include/qt3 on debian, ...)
+"""+BOLD+"""* qtlibs        """+NORMAL+""": path to QT3 libraries (/usr/lib, ...)
+"""+NORMAL
+  return
+
 import re
 def makeHashTable(args):
   table = { }
@@ -59,7 +77,7 @@ def check_pkgconfig(env):
   if len(pkg_config):
     print GREEN+pkg_config+NORMAL,
     pkgcver = os.popen("pkg-config --version").read().strip()
-    print ' version '+pkgcver
+    print BOLD+' version '+pkgcver+NORMAL
     env['PKGCONFIG'] = 1
   else:
     print RED+'not found'+NORMAL
@@ -71,17 +89,17 @@ def check_taglib(env):
     tagprefix = os.popen("pkg-config --variable=prefix taglib").read().strip()
     if len(tagprefix):
       tagver = os.popen("pkg-config --modversion taglib").read().strip()
-      print GREEN+"found "+NORMAL+ "version "+tagver
+      print GREEN+"found "+NORMAL+BOLD+"version "+tagver+NORMAL
       # includes
       print "taglib includes                   : ",
       tagincludes = os.popen('pkg-config --cflags-only-I taglib').read().strip()[2:]
-      print YELLOW+tagincludes+NORMAL
+      print BOLD+tagincludes+NORMAL
       # libs
       print "taglib library                    : ",
       taglibpath = os.popen('pkg-config --libs-only-L taglib').read().strip()[2:]
       if not len(taglibpath):
         taglibpath = tagprefix + '/lib'
-      print YELLOW+taglibpath+NORMAL
+      print BOLD+taglibpath+NORMAL
 
       env.Append(CPPDEFINES = 'HAVE_TAGLIB')
       env.Append(CPPPATH = tagincludes)
@@ -118,47 +136,63 @@ def configure(env):
   if env.has_key('LIBS'):
     env.__delitem__('LIBS')
 
+  print BOLD + """
+--------------------------------------------------""" + NORMAL
+  if not sys.platform.startswith('win'):
+    print "Use MinGW compiler                : ",
+  if env['ARGS'].get('mingw', None):
+    env['MINGWBUILD'] = 1
+    print BOLD+'yes'+NORMAL
+  else:
+    env['MINGWBUILD'] = 0
+    print 'no'
+
+  if sys.platform.startswith('win') or env['MINGWBUILD']:
+    env.Tool('crossmingw')
+    env.Append(LIBS = ['kkeramikstyle','kdefx'])
+    # FIXME
+    os.popen(env['RC'] + ' -i src/icon.rc -o build/icon.o')
+    env.Append(LINKFLAGS = ['build/icon.o'])
+    env.Append(LINKFLAGS = ['-mwindows'])
+
+  print 'Enable debug                      : ',
   if env['ARGS'].get('debug', None):
     debuglevel = env['ARGS'].get('debug', None)
-    print CYAN+'** Enabling debug **' + NORMAL
+    print BLUE + 'yes ' + NORMAL + debuglevel
     env.Append(CPPDEFINES = 'DEBUG')
     if (debuglevel == "full"):
       env.Append(CXXFLAGS   = '-g3')
     else:
       env.Append(CXXFLAGS   = '-g')
   else:
+    print 'no '
     env.Append(CXXFLAGS = '-O2' )
     env.Append(CPPDEFINES = ['NDEBUG', 'NO_DEBUG'])
-
-  if env['ARGS'].get('mingw', None):
-    if not sys.platform.startswith('win'):
-      print CYAN+"** Using mingw compiler **"+NORMAL
-    env['MINGWBUILD'] = 1
-  else:
-    env['MINGWBUILD'] = 0
 
   check_pkgconfig(env)
 
   # User-specified prefix
   if env['ARGS'].get('prefix', None):
     env['PREFIX'] = env['ARGS'].get('prefix', None)
-    print CYAN+'** installation prefix                        : ' + env['PREFIX'] +' **'+ NORMAL
-  elif env.has_key('PREFIX'):
-    env.__delitem__('PREFIX')
+  else:
+    if sys.platform.startswith('win'):
+      env['PREFIX'] = '../install'
+    else:
+      env['PREFIX'] = '/usr/local'
+  print 'installation prefix               :  '+BOLD + env['PREFIX'] +NORMAL
 
   # Console mode only
   print 'GUI                               : ',
   if env['ARGS'].get('console', None):
     env['CONSOLEONLY'] = 1
-    print 'disabled'
+    print BLUE+'disabled'+NORMAL
   else:
     env['CONSOLEONLY'] = 0
-    print 'enabled'
+    print GREEN+'enabled'+NORMAL
 
   # User-specified include paths
   env['EXTRAINCLUDES'] = env['ARGS'].get('extraincludes', None)
   if env['ARGS'].get('extraincludes', None):
-    print CYAN+'** extra include paths                    : ' + env['EXTRAINCLUDES'] +' **'+ NORMAL
     incpaths = []
     for dir in str(env['EXTRAINCLUDES']).split(':'):
       incpaths.append( dir )
@@ -169,6 +203,7 @@ def configure(env):
   # Check for libraries
   check_taglib(env)
 
+  env.Append(LIBS = ['id3', 'fmodex', 'z'])
   env.Append(CPPPATH = ['.', '..', '../includes'])
   env.Append(LIBPATH = ['.', '../libs'])
   env['ISCONFIGURED']=1
@@ -215,11 +250,11 @@ opts.AddOptions(
   ( 'LIBPATH', 'library directories' ),
   ( 'LIBS', 'libraries' ),
 )
-
 opts.Update(env)
 
 # to avoid an error message 'how to make target configure ?'
 env.Alias('configure', None)
+env.Alias('help', None)
 
 import SCons.Util
 
@@ -238,20 +273,14 @@ if not env['HELP'] and (env['_CONFIGURE'] or not env.has_key('ISCONFIGURED')):
 
 env.Tool('qt3')
 
-if env['CONSOLEONLY']:
-  env.Append(CPPDEFINES = 'NO_GUI')
+if env['HELP']:
+  display_help()
 else:
-  bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
-
-env.Append(LIBS = ['id3', 'fmodex', 'z'])
-if sys.platform.startswith('win') or env['MINGWBUILD']:
-  env.Tool('crossmingw')
-  env.Append(LIBS = ['kkeramikstyle','kdefx'])
-  # FIXME
-  os.popen('windres -i src/icon.rc -o build/icon.o')
-  env.Append(LINKFLAGS = ['build/icon.o'])
-  env.Append(LINKFLAGS = ['-mwindows'])
-
-sources = (bpmdetect_sources).split()
-env.Program('bpmdetect', sources)
+  if env.has_key('CONSOLEONLY') and env['CONSOLEONLY']:
+    env.Append(CPPDEFINES = 'NO_GUI')
+  else:
+    bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources 
+  print BOLD + """--------------------------------------------------
+""" + NORMAL
+  env.Program('bpmdetect', bpmdetect_sources.split())
 
