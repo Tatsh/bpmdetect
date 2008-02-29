@@ -24,7 +24,7 @@
 #define DLGTESTBPM_H
 
 #include <fmodex/fmod.h>
-#include "dlgTestBPMdlg.h"
+#include "dlgtestbpmdlg.h"
 
 /**
  * @brief Dialog for testing detected BPM

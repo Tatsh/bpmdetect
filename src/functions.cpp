@@ -94,7 +94,11 @@ bool Init_FMOD_System() {
       result = FMOD_System_SetDriver(SoundSystem, i);
       if(result == FMOD_OK) {
         char name[256];
-        result = FMOD_System_GetDriverInfo(SoundSystem, i, name, 256, 0);
+        #if (FMOD_VERSION >= 0x00041100)
+          result = FMOD_System_GetDriverInfo(SoundSystem, i, name, 256, 0);
+        #else
+          result = FMOD_System_GetDriverName(SoundSystem, i, name, 256);
+        #endif
         if(result == FMOD_OK) qDebug("Driver: %s", name);
         break;
       }

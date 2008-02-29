@@ -20,8 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef SONGPROGRESS_H
-#define SONGPROGRESS_H
+#ifndef PROGRESSBAR_H
+#define PROGRESSBAR_H
 
 #include <qwidget.h>
 #include <qprogressbar.h>
@@ -70,4 +70,4 @@ private:
   bool enable;  ///< enable status
 };
 
-#endif  // SONGPROGRESS_H
+#endif  //PROGRESSBAR_H
