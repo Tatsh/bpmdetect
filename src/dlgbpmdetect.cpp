@@ -30,6 +30,7 @@
 #include <qdragobject.h>
 #include <qapplication.h>
 #include <qprogressbar.h>
+#include <qsettings.h>
 #include "qdroplistview.h"
 
 #include "dlgbpmdetect.h"
@@ -54,12 +55,8 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
 
   setCaption("BPM Detect"); // TODO: append version
 
-  Load_Settings();
-//  chbSkipScanned->setChecked( !force );
-//  chbSave->setChecked( bpmsave );
-  chbSkipScanned->setChecked( set_skip );
-  chbSave->setChecked( set_save );
-  cbFormat->setCurrentText( set_format );
+  loadSettings();
+
 /*
 #ifndef HAVE_TAGLIB
   chbSave->setChecked( false );
@@ -101,11 +98,7 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
 dlgBPMDetect::~dlgBPMDetect() {
   /// Stop detection
   if ( !stop ) start();
-  /// Sae settings
-  set_skip = chbSkipScanned->isChecked();
-  set_save = chbSave->isChecked();
-  set_format = cbFormat->currentText();
-  Save_Settings();
+  saveSettings();
 }
 
 /**
@@ -128,6 +121,25 @@ inline QString dlgBPMDetect::msec2time( uint ms ) {
   s.sprintf( "%d", sTime.msecs );
   timestr.append( s.rightJustify( 2, '0' ) );
   return timestr;
+}
+
+void dlgBPMDetect::loadSettings() {
+  qDebug("Loading settings");
+  QSettings settings(QSettings::Ini);
+  QString format = settings.readEntry("/BPMDetect/TBPMFormat", "0.00");
+  bool skip = settings.readBoolEntry("/BPMDetect/SkipScanned", true);
+  bool save = settings.readBoolEntry("/BPMDetect/SaveBPM", true);
+  chbSkipScanned->setChecked( skip );
+  chbSave->setChecked( save );
+  cbFormat->setCurrentText( format );
+}
+
+void dlgBPMDetect::saveSettings() {
+  QSettings settings(QSettings::Ini);
+  settings.writeEntry("/BPMDetect/TBPMFormat", cbFormat->currentText());
+  settings.writeEntry("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
+  settings.writeEntry("/BPMDetect/SaveBPM", chbSave->isChecked());
+  qDebug("Settings saved");
 }
 
 void dlgBPMDetect::enableControls(bool e) {
@@ -186,7 +198,6 @@ void dlgBPMDetect::start() {
       if( chbSkipScanned->isChecked() &&
           it.current()->text( 0 ).toFloat() > 50. &&
           it.current()->text( 0 ).toFloat() < 250.) {
-        Print_BPM(it.current()->text( 0 ).toFloat());
         continue;
       }
       result = FMOD_System_CreateStream( SoundSystem,
@@ -195,7 +206,6 @@ void dlgBPMDetect::start() {
       if ( result != FMOD_OK ) {
         cerr << FMOD_ErrorString( result ) << " : " <<
         it.current()->text( 4 ).local8Bit() << endl;
-        Print_BPM(0);
         continue;
       }
 
@@ -213,7 +223,6 @@ void dlgBPMDetect::start() {
 
         if ( bits != 16 && bits != 8 ) {
           cerr << bits << " bit samples are not supported!" << endl;
-          Print_BPM( 0 );
           cout << endl;
           continue;
         }
@@ -245,12 +254,11 @@ void dlgBPMDetect::start() {
 
         if ( !stop ) {
           float BPM = bpmd.getBpm();
-          if ( BPM != 0. ) BPM = Correct_BPM( BPM );
-          it.current()->setText( 0, BPM2str(BPM) );
+          if ( BPM != 0. ) BPM = correctBPM( BPM );
+          it.current()->setText( 0, bpm2str(BPM, "000.00") );
           /// Save BPM
           if ( BPM != 0. && chbSave->isChecked() )
-            Save_BPM( it.current()->text( TrackList->columns() - 1 ), BPM );
-          Print_BPM( BPM );
+            saveBPM( it.current()->text( TrackList->columns() - 1 ), BPM );
         }
       }
       lblCurrentTrack->setText( "" );
@@ -297,20 +305,20 @@ void dlgBPMDetect::addFiles( QStringList &files ) {
 
     if( type == FMOD_SOUND_TYPE_WAV) {
       FMOD_Sound_Release(sound); sound = 0;
-      TAGINFO tinf = GetTagInfoWAV( *it );
+      taginfo_t tinf = getTagInfoWAV( *it );
       artist = tinf.Artist;
       title = tinf.Title;
       bpm = tinf.BPM;
     } else if( type == FMOD_SOUND_TYPE_MPEG) {
       FMOD_Sound_Release(sound); sound = 0;
-      TAGINFO tinf = GetTagInfoMPEG( *it);
+      taginfo_t tinf = getTagInfoMPEG( *it);
       artist = tinf.Artist;
       title = tinf.Title;
       bpm = tinf.BPM;
     } else {
       if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
         QString s = ( char* ) tag.data;
-        bpm = BPM2str(Str2BPM(s));
+        bpm = bpm2str(str2bpm(s), "000.00");
       } else bpm = "000.00";
       if ( FMOD_Sound_GetTag( sound, "ARTIST", -1, &tag ) == FMOD_OK )
         artist = ( char* ) tag.data;
@@ -476,10 +484,6 @@ void dlgBPMDetect::clearDetected() {
     float fBPM = TrackList->firstChild()->text(0).toFloat();
     if(fBPM >= 50.) TrackList->removeItem( TrackList->firstChild() );
   }
-}
-
-void dlgBPMDetect::formatChanged(const QString &f) {
-  set_format = f;
 }
 
 void dlgBPMDetect::trackListKeyPressed(QKeyEvent *e) {

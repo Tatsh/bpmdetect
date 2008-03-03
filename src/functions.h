@@ -23,29 +23,25 @@
 #ifndef _FUNCTIONS_H_
 #define _FUNCTIONS_H_
 
+#define MINIMUM_BPM 80.
+#define MAXIMUM_BPM 185.
+
 #include <iostream>
-#include <qfile.h>
 #include <fmodex/fmod.h>
-#include <fmodex/fmod_errors.h>
 #include "BPMDetect.h"
 
-#include <qsettings.h>
-
 // Settings
-extern QString set_format;
-extern bool    set_skip;
-extern bool    set_save;
 extern bool    force, bpmsave;
 
 using namespace std;
 using namespace soundtouch;
 extern FMOD_SYSTEM* SoundSystem;
 
-struct TAGINFO {
-  QString BPM;
-  QString Artist;
-  QString Title;
-};
+typedef struct taginfo_s {
+  string BPM;
+  string Artist;
+  string Title;
+} taginfo_t;
 
 /// Initialize FMOD sound system
 bool Init_FMOD_System();
@@ -53,26 +49,21 @@ bool Init_FMOD_System();
 void Close_FMOD_System();
 
 /// Save BPM to file
-void Save_BPM( QString file, float fBPM );
+void saveBPM( string filename, double dBPM, string format = "0.00" );
 /// Correct detected BPM
-float Correct_BPM( float BPM );
+double correctBPM( double dBPM, double min = MINIMUM_BPM, double max = MAXIMUM_BPM );
 /// Print detected BPM to stdout
-void Print_BPM( float BPM );
-/// Detect BPM of one track
-void Detect_BPM( QString filename );
+void printBPM( double dBPM, string format = "0.00" );
+double Detect_BPM( string filename );
 /// Convert string to BPM (detect tag format)
-float Str2BPM( QString str );
-/// Convert BPM to string
-QString BPM2str( float BPM );
+double str2bpm( string sBPM );
 /// Convert BPM to string using selected format
-QString Format_BPM( float BPM );
+string bpm2str( double dBPM, string format = "0.00");
 
 /// Read ID3v2 tag (mp3 file)
-TAGINFO GetTagInfoMPEG(QString file);
+taginfo_t getTagInfoMPEG(string filename);
 /// Read ID3v2 tag (wav file)
-TAGINFO GetTagInfoWAV(QString file);
+taginfo_t getTagInfoWAV(string filename);
 
-void Load_Settings();
-void Save_Settings();
 
 #endif  // _FUNCTIONS_H_

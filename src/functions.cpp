@@ -22,9 +22,6 @@
 
 #include "functions.h"
 
-#define MINIMUM_BPM 80.
-#define MAXIMUM_BPM 185.
-
 // #ifdef HAVE_TAGLIB
 #include <mpegfile.h>
 #include <vorbisfile.h>
@@ -46,14 +43,10 @@
 #include <id3/misc_support.h>
 // #endif   // HAVE_ID3LIB
 
+
+#include <fmodex/fmod_errors.h>
 #include <math.h>
-#include <qregexp.h>
-
-// Settings
-QString set_format;
-bool    set_skip;
-bool    set_save;
-
+#include <stdlib.h>
 
 #ifdef NO_GUI
 
@@ -69,26 +62,27 @@ bool Init_FMOD_System() {
   unsigned int version;
   int numdrivers = 0;
 
-  qDebug("Initializing FMOD sound system");
+  clog << "Initializing FMOD sound system" << endl;
   if(SoundSystem) return true;
 
   // create FMOD system
   result = FMOD_System_Create( &SoundSystem );
   if( result != FMOD_OK ) {
-    qDebug(FMOD_ErrorString(result));
+    cerr << FMOD_ErrorString(result) << endl;
     return false;
   }
   // check FMOD version
   result = FMOD_System_GetVersion(SoundSystem, &version);
   if(result != FMOD_OK) {
-    qDebug("Can not get FMOD version");
+    clog << "Can not get FMOD version" << endl;
   } else if (version < FMOD_VERSION) {
-    qDebug("You are using an old version of FMOD %08x.  This program requires %08x", version, FMOD_VERSION);
-  } else qDebug("FMOD version %08x.", version);
-  // get number of drivers
+    clog << "You are using an old version of FMOD (" << version << "). "
+         << "This program requires " << FMOD_VERSION << endl;
+  } else clog << "FMOD version: " << version << endl;
+
   result = FMOD_System_GetNumDrivers(SoundSystem, &numdrivers);
-  if(result != FMOD_OK) qDebug("Can't get number of drivers");
-  // set driver
+  if(result != FMOD_OK) clog << "Can't get number of drivers" << endl;
+
   if(numdrivers > 0) {
     for( int i = 0; i < numdrivers; ++i ) {
       result = FMOD_System_SetDriver(SoundSystem, i);
@@ -99,13 +93,13 @@ bool Init_FMOD_System() {
         #else
           result = FMOD_System_GetDriverName(SoundSystem, i, name, 256);
         #endif
-        if(result == FMOD_OK) qDebug("Driver: %s", name);
+        if(result == FMOD_OK) clog << "Driver: " << name << endl;
         break;
       }
     }
   } else {
-    qDebug("Error: No soundcard found");
-    qDebug(FMOD_ErrorString(result));
+    cerr << "No soundcard found" << endl;
+    cerr << FMOD_ErrorString(result) << endl;
     return false;
   }
 
@@ -114,7 +108,7 @@ bool Init_FMOD_System() {
   if ( result == FMOD_OK ) {
     return true;
   } else {
-    qDebug(FMOD_ErrorString(result));
+    clog << FMOD_ErrorString(result) << endl;
     return false;
   }
 }
@@ -123,7 +117,7 @@ bool Init_FMOD_System() {
 void Close_FMOD_System() {
   if(!SoundSystem) return;
 
-  qDebug("Closing FMOD sound system");
+  clog << "Closing FMOD sound system" << endl;
   FMOD_CHANNELGROUP* masterchgrp = 0;
   if(FMOD_OK == FMOD_System_GetMasterChannelGroup(SoundSystem, &masterchgrp)) {
     FMOD_ChannelGroup_Stop(masterchgrp);
@@ -136,10 +130,9 @@ void Close_FMOD_System() {
   SoundSystem = 0;
 }
 
-
 /// Save BPM to ID3v2 tag using ID3 library
-static void ID3SaveMPEG(QString BPM, QString file) {
-  ID3_Tag tag( file.local8Bit() );              // Open file
+static void ID3SaveMPEG(string sBPM, string filename) {
+  ID3_Tag tag( filename.c_str() );              // Open file
 
   ID3_Frame* bpmframe = tag.Find( ID3FID_BPM ); // find BPM frame
 
@@ -148,14 +141,14 @@ static void ID3SaveMPEG(QString BPM, QString file) {
 
   ID3_Frame newbpmframe;                        // create BPM frame
   newbpmframe.SetID( ID3FID_BPM );
-  newbpmframe.Field( ID3FN_TEXT ).Add( BPM.ascii() );
+  newbpmframe.Field( ID3FN_TEXT ).Add( sBPM.c_str() );
   tag.AddFrame( newbpmframe );                  // add it to tag
   tag.Update(ID3TT_ID3V2);                      // save
 }
 
 /// Save BPM to ID3v2 tag using ID3 library
-static void ID3SaveWAV(QString BPM, QString file) {
-  ID3_Tag tag( file.local8Bit() );              // Open file
+static void ID3SaveWAV(string sBPM, string filename) {
+  ID3_Tag tag( filename.c_str() );              // Open file
 
   ID3_Frame* bpmframe = tag.Find( ID3FID_BPM ); // find BPM frame
 
@@ -164,15 +157,14 @@ static void ID3SaveWAV(QString BPM, QString file) {
 
   ID3_Frame newbpmframe;                        // create BPM frame
   newbpmframe.SetID( ID3FID_BPM );
-  newbpmframe.Field( ID3FN_TEXT ).Add( BPM.ascii() );
+  newbpmframe.Field( ID3FN_TEXT ).Add( sBPM.c_str() );
   tag.AddFrame( newbpmframe );                  // add it to tag
   tag.Update(ID3TT_ID3V2);                      // save
 }
-
 
 /// @brief Save BPM to MPEG file (ID3v2 tag)
-static void TAGSaveMPEG(QString BPM, QString file) {
-  TagLib::MPEG::File f(file.local8Bit(), false);// open file
+static void TAGSaveMPEG(string sBPM, string filename) {
+  TagLib::MPEG::File f(filename.c_str(), false);
   TagLib::ID3v2::Tag* tag = f.ID3v2Tag(true);
   if(tag == NULL) {
     cerr << "BPM not saved !" << endl;
@@ -181,22 +173,22 @@ static void TAGSaveMPEG(QString BPM, QString file) {
   tag->removeFrames("TBPM");                    // remove existing BPM frames
   TagLib::ID3v2::TextIdentificationFrame* bpmframe =
       new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-  bpmframe->setText(BPM.ascii());
+  bpmframe->setText(sBPM.c_str());
   tag->addFrame(bpmframe);                      // add new BPM frame
   f.save();                                     // save file
 }
 
 /// @brief Save BPM to WAV file (ID3v2 tag)
-static void TAGSaveWAV(QString BPM, QString file) {
-  TagLib::MPEG::File f(file.local8Bit(), false);// open file
-  long offset = f.rfind("ID3", TagLib::File::End);// ID3 tag offset
-  if(offset < 0) offset = f.length();
+static void TAGSaveWAV(string sBPM, string filename) {
+  TagLib::MPEG::File f(filename.c_str(), false);
+  long offset = f.rfind("ID3", TagLib::File::End);
+  if(offset < 0) offset = f.length();           // ID3 tag offset
   TagLib::ID3v2::Tag tag(&f, offset);
   tag.removeFrames("TBPM");                     // remove existing BPM frames
 
   TagLib::ID3v2::TextIdentificationFrame* bpmframe =
       new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-  bpmframe->setText(BPM.ascii());
+  bpmframe->setText(sBPM.c_str());
   tag.addFrame(bpmframe);                       // add new BPM frame
 
   TagLib::ByteVector tdata = tag.render();      // render tag to binary data
@@ -206,224 +198,212 @@ static void TAGSaveWAV(QString BPM, QString file) {
 }
 
 /// @brief Save BPM to OGG file (xiphcomment)
-static void TAGSaveOGG(QString BPM, QString file) {
-  TagLib::Ogg::Vorbis::File f(file.local8Bit(), false);
+static void TAGSaveOGG(string sBPM, string filename) {
+  TagLib::Ogg::Vorbis::File f(filename.c_str(), false);
   TagLib::Ogg::XiphComment* tag = f.tag();
   if(tag == NULL) {
     cerr << "BPM not saved ! (failed)" << endl;
     return;
   }
-  tag->addField("TBPM", BPM.ascii(), true); // add new BPM field (replace existing)
+  tag->addField("TBPM", sBPM.c_str(), true);    // add new BPM field (replace existing)
   f.save();
 }
 
 /// @brief Save BPM to FLAC file (ID3v2 tag and xiphcomment)
-static void TAGSaveFLAC(QString BPM, QString file) {
-  TagLib::FLAC::File f(file.local8Bit(), false);
-  // XiphComment
+static void TAGSaveFLAC(string sBPM, string filename) {
+  TagLib::FLAC::File f(filename.c_str(), false);
   TagLib::Ogg::XiphComment* xiph = f.xiphComment(true);
-  if(xiph == NULL) {
-    cerr << "BPM not saved to XiphComment ! (failed)" << endl;
-    return;
+  if(xiph != NULL) {
+    xiph->addField("TBPM", sBPM.c_str(), true);  // add new BPM field (replace existing)
   }
-  xiph->addField("TBPM", BPM.ascii(), true); // add new BPM field (replace existing)
 
-  // ID3v2 Tag
   TagLib::ID3v2::Tag* tag = f.ID3v2Tag(true);
-  if(tag == NULL) {
-    cerr << "BPM not saved to ID3v2 tag ! (failed)" << endl;
-    return;
+  if(tag != NULL) {
+    tag->removeFrames("TBPM");                  // remove existing BPM frames
+    TagLib::ID3v2::TextIdentificationFrame* bpmframe =
+        new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
+    bpmframe->setText(sBPM.c_str());
+    tag->addFrame(bpmframe);                    // add new BPM frame
   }
-  tag->removeFrames("TBPM");                    // remove existing BPM frames
-  TagLib::ID3v2::TextIdentificationFrame* bpmframe =
-      new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-  bpmframe->setText(BPM.ascii());
-  tag->addFrame(bpmframe);                      // add new BPM frame
+
   f.save();
 }
 
 /**
  * @brief Save BPM to file
- * @param file name of the file
- * @param fBPM BPM to save
+ * @param filename track filename
+ * @param dBPM BPM to save
  */
-void Save_BPM( QString file, float fBPM ) {
-  QFile f( file );
-  if ( ! f.exists() )
-    return ;
-
+void saveBPM( string filename, double dBPM, string format ) {
   FMOD_SOUND *sound;
   FMOD_RESULT result;
-  result = FMOD_System_CreateStream( SoundSystem, file.local8Bit(),
-                    FMOD_OPENONLY | FMOD_ACCURATETIME, 0, &sound );
+  // open track with FMOD to get the type
+  result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
+                    FMOD_OPENONLY, 0, &sound );
   if ( result != FMOD_OK ) {
-    cout << FMOD_ErrorString( result ) << " : " << file.local8Bit() << endl;
-    return ;
+    cerr << "Save BPM: " << FMOD_ErrorString( result ) << " : " << filename << endl;
+    return;
   }
 
   FMOD_SOUND_TYPE type;
   FMOD_Sound_GetFormat ( sound, &type, 0, 0, 0 );
   FMOD_Sound_Release(sound);
 
-  QString BPM = Format_BPM( fBPM );
+  string BPM = bpm2str( dBPM, format );
 
   if ( type == FMOD_SOUND_TYPE_MPEG ) {
     // taglib
-    //TAGSaveMPEG( BPM, file);
+    //TAGSaveMPEG( BPM, filename);
     // ID3 lib
-    ID3SaveMPEG( BPM, file );
+    ID3SaveMPEG( BPM, filename );
   } else if ( type == FMOD_SOUND_TYPE_WAV ) {
     // taglib
-    TAGSaveWAV( BPM, file );
+    TAGSaveWAV( BPM, filename );
     // ID3 lib
-    // ID3SaveWav( BPM, file );
+    // ID3SaveWav( BPM, filename );
   } else if ( type == FMOD_SOUND_TYPE_OGGVORBIS ) {
     // taglib
-    TAGSaveOGG( BPM, file );
+    TAGSaveOGG( BPM, filename );
   } else if ( type == FMOD_SOUND_TYPE_FLAC ) {
     // taglib
-    TAGSaveFLAC( BPM, file );
+    TAGSaveFLAC( BPM, filename );
   } else {
-    cerr << "BPM not saved !" << endl;
+    clog << "BPM not saved !" << endl;
   }
 }
 
-/**
- * @brief Read ID3v2 tag (MPEG file)
- * @param file file name
- */
-TAGINFO GetTagInfoMPEG(QString file) {
-  TAGINFO t;
-  QString s;
+
+/// @brief Read ID3v2 tag (MPEG file)
+taginfo_t getTagInfoMPEG(string filename) {
+  taginfo_t tagnfo;
 
   // id3lib
-  ID3_Tag tag( file.local8Bit() );
-  t.Artist = QString::fromLocal8Bit(ID3_GetArtist(&tag));
-  t.Title = QString::fromLocal8Bit(ID3_GetTitle(&tag));
-  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM );
+  ID3_Tag tag( filename.c_str() );
+  tagnfo.Artist = ID3_GetArtist(&tag);
+  tagnfo.Title  = ID3_GetTitle(&tag);
 
+  string sbpm = "000.00";
+  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM );
   if ( NULL != bpmframe ) {
     ID3_Field* bpmfield = bpmframe->GetField(ID3FN_TEXT);
     if(NULL != bpmfield) {
       char buffer[1024];
       bpmfield->Get( buffer, 1024 );
-      s = buffer;
+      sbpm = buffer;
     }
   }
 
 /*
   // taglib
-  TagLib::MPEG::File f(file, false);
+  TagLib::MPEG::File f(filename, false);
 
   TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
   if(tag != NULL) {
-    t.Artist = tag->artist().toCString();
-    t.Title = tag->title().toCString();
+    tagnfo.Artist = tag->artist().toCString();
+    tagnfo.Title = tag->title().toCString();
 
     TagLib::List<TagLib::ID3v2::Frame*> lst = tag->frameList("TBPM");
     if(lst.size() > 0) {
       TagLib::ID3v2::Frame* frame = lst[0];
-      s = frame->toString().toCString();
+      sbpm = frame->toString().toCString();
     }
   }
 */
-  t.BPM = BPM2str(Str2BPM(s));
-  if(t.Title.isEmpty())
-    t.Title = file.right(file.length() - file.findRev("/") - 1);
+  // set filename (without path) as title if the title is empty
+  if(tagnfo.Title.empty())
+    tagnfo.Title = filename.substr(filename.find_last_of("/") + 1);
+  tagnfo.BPM = bpm2str(str2bpm(sbpm), "000.00");
 
-  return t;
+  return tagnfo;
 }
 
 /**
  * @brief Read ID3v2 tag (WAV file)
  * @param file file name
  */
-TAGINFO GetTagInfoWAV(QString file) {
-  TAGINFO t;
+taginfo_t getTagInfoWAV(string filename) {
+  taginfo_t tagnfo;
 
-  TagLib::MPEG::File f(file, false);
+  TagLib::MPEG::File f(filename.c_str(), false);
   long pos = f.rfind("ID3", TagLib::File::End);
   if(pos < 0) pos = f.length();
 
   TagLib::ID3v2::Tag tag(&f, pos);
-  t.Artist = tag.artist().toCString();
-  t.Title = tag.title().toCString();
+  tagnfo.Artist = tag.artist().toCString();
+  tagnfo.Title  = tag.title().toCString();
 
   TagLib::List<TagLib::ID3v2::Frame*> lst = tag.frameList("TBPM");
-  QString s;
+  string sbpm = "000.00";
   if(lst.size() > 0) {
     TagLib::ID3v2::Frame* frame = lst[0];
-    s = frame->toString().toCString();
+    sbpm = frame->toString().toCString();
   }
 
-  if(t.Title.isEmpty())
-    t.Title = file.right(file.length() - file.findRev("/") - 1);
-  t.BPM = BPM2str(Str2BPM(s));
+  // set filename (without path) as title if the title is empty
+  if(tagnfo.Title.empty())
+    tagnfo.Title = filename.substr(filename.find_last_of("/") + 1);
+  tagnfo.BPM = bpm2str(str2bpm(sbpm), "000.00");
 
-  return t;
+  return tagnfo;
 }
 
 
 /**
  * @brief Correct BPM
- * if value is lower than MINIMUM_BPM or higher than MAXIMUM_BPM
+ * if value is lower than min or higher than max
  * @param BPM BPM to correct
+ * @param min minimum BPM
+ * @param max maximum BPM
  * @return corrected BPM
  */
-float Correct_BPM( float BPM ) {
-  if ( BPM == 0. )
-    return BPM;
+double correctBPM( double dBPM, double min, double max ) {
+  if ( dBPM < 10. && dBPM > 1000. )
+    return 0.;
 
-  while ( BPM > MAXIMUM_BPM )
-    BPM /= 2;
-  while ( BPM < MINIMUM_BPM )
-    BPM *= 2;
+  while ( dBPM > min )
+    dBPM /= 2.;
+  while ( dBPM < max )
+    dBPM *= 2.;
 
-  return BPM;
+  return dBPM;
 }
 
 /**
  * @brief Print BPM to stdout
- * @param BPM BPM to print
+ * @param dBPM BPM to print
+ * @param format BPM format
  */
-void Print_BPM( float BPM ) {
-  QString sbpm;
-  sbpm.sprintf( "%.2f", BPM );
-  sbpm = sbpm.rightJustify( 6, '0' );
-  cout << sbpm << " BPM found" << endl << endl;
+void printBPM( double dBPM, string format ) {
+  cout << bpm2str(dBPM, format) << " BPM" << endl;
 }
 
 /**
  * @brief Detect BPM of one track
  * @param filename is name of the file
+ * @return detected BPM
  */
-void Detect_BPM( QString filename ) {
+double Detect_BPM( string filename ) {
   FMOD_SOUND * sound;
   FMOD_RESULT result;
   FMOD_TAG tag;
 
-  result = FMOD_System_CreateStream( SoundSystem, filename.local8Bit(),
+  result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
                         FMOD_OPENONLY | FMOD_ACCURATETIME, 0, &sound );
   if ( result != FMOD_OK ) {
     cerr << FMOD_ErrorString( result ) << endl;
-    Print_BPM(0);
-    return;
+    return 0;
   }
 
   float oldbpm = 0.0;
   if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
-    QString s = ( char* ) tag.data;
-    oldbpm = s.toFloat() / 100. ;
+    oldbpm = str2bpm(( char* ) tag.data);
   }
   if ( !force && oldbpm != 0 ) {
-    Print_BPM( oldbpm );
-    return ;
+    return oldbpm;
   }
 
   {
 #define CHUNKSIZE 4096
-    int16_t data16[ CHUNKSIZE / 2 ];  // for 16 bit samples
-    int8_t  data8[ CHUNKSIZE ];       // for 8 bit samples
     SAMPLETYPE samples[ CHUNKSIZE / 2 ];
     unsigned int length = 0, read, totalsteps = 0;
     int channels = 2, bits = 16;
@@ -434,20 +414,21 @@ void Detect_BPM( QString filename ) {
     FMOD_Sound_GetFormat ( sound, 0, 0, &channels, &bits );
     if ( bits != 16 && bits != 8 ) {
       cerr << bits << " bit samples are not supported!" << endl;
-      Print_BPM( 0 );
-      return ;
+      return 0;
     }
 
     BPMDetect bpmd( channels, ( int ) frequency );
     int cprogress = 0;
     do {
       if ( bits == 16 ) {
+        int16_t data16[ CHUNKSIZE / 2 ];
         result = FMOD_Sound_ReadData( sound, data16, CHUNKSIZE, &read );
         for ( unsigned int i = 0; i < read / 2; i++ ) {
           samples[ i ] = ( float ) data16[ i ] / 32768;
         }
         bpmd.inputSamples( samples, read / ( 2 * channels ) );
       } else if ( bits == 8 ) {
+        int8_t  data8[ CHUNKSIZE ];
         result = FMOD_Sound_ReadData( sound, data8, CHUNKSIZE, &read );
         for ( unsigned int i = 0; i < read; i++ ) {
           samples[ i ] = ( float ) data8[ i ] / 128;
@@ -456,80 +437,48 @@ void Detect_BPM( QString filename ) {
       }
       cprogress++;
       if ( cprogress % 250 == 0 ) {
-        /// @todo printing status (cprogress/totalsteps)
+        /// @todo status (cprogress/totalsteps)
       }
     } while ( result == FMOD_OK && read == CHUNKSIZE );
     FMOD_Sound_Release(sound); sound = 0;
 
-    float BPM = bpmd.getBpm();
+    double BPM = bpmd.getBpm();
     if ( BPM != 0. ) {
-      BPM = Correct_BPM( BPM );
-      if ( bpmsave ) Save_BPM( filename, BPM );
+      BPM = correctBPM( BPM );
+      if ( bpmsave ) saveBPM( filename, BPM );
     }
-    Print_BPM( BPM );
-  }
-}
-
-float Str2BPM( QString str ) {
-  QRegExp rx("[^\\.\\d]");
-  str.replace(rx, "");
-  if(!str.toFloat()) return 0;
-  if(str.contains(".") >= 1) return str.toFloat();
-  else {
-    float BPM = str.toFloat();
-    while( BPM > 250 ) BPM = BPM / 10;
     return BPM;
   }
-
-  return 0;
 }
 
-QString BPM2str( float BPM ) {
-  QString sbpm; sbpm.sprintf( "%.2f", BPM );
-  sbpm = sbpm.rightJustify( 6, '0' );
-  return sbpm;
+double str2bpm( string sBPM ) {
+  double BPM = 0;
+  BPM = atof(sBPM.c_str());
+  while( BPM > 250 ) BPM = BPM / 10;
+  return BPM;
 }
 
-QString Format_BPM( float BPM ) {
-  QString sbpm;
+string bpm2str( double dBPM, string format ) {
+  #define MAX_LEN 10
+  char buffer[MAX_LEN];
 
-  if( set_format == "0.00" ) {
-    sbpm.sprintf( "%.2f", BPM );
-  } else if( set_format == "0.0" ) {
-    sbpm.sprintf( "%.1f", BPM );
-  } else if( set_format == "0" ) {
-    sbpm.sprintf( "%d", (int) BPM );
-  } else if( set_format == "000.00" ) {
-    sbpm.sprintf( "%.2f", BPM );
-    sbpm = sbpm.rightJustify( 6, '0' );
-  } else if( set_format == "000.0" ) {
-    sbpm.sprintf( "%.1f", BPM );
-    sbpm = sbpm.rightJustify( 5, '0' );
-  } else if( set_format == "000" ) {
-    sbpm.sprintf( "%d", (int) BPM );
-    sbpm = sbpm.rightJustify( 3, '0' );
-  } else if( set_format == "00000" ) {
-    sbpm.sprintf( "%d", (int) (BPM * 100) );
-    sbpm = sbpm.rightJustify( 5, '0' );
-  } else {
-    sbpm.sprintf( "%.2f", BPM );
+  if( format == "0.0" ) {
+    snprintf(buffer, MAX_LEN, "%.1f", dBPM );
+  } else if( format == "0" ) {
+    snprintf(buffer, MAX_LEN, "%d", (int) dBPM );
+  } else if( format == "000.00" ) {
+    snprintf(buffer, MAX_LEN, "%06.2f", dBPM );
+  } else if( format == "000.0" ) {
+    snprintf(buffer, MAX_LEN, "%05.1f", dBPM );
+  } else if( format == "000" ) {
+    snprintf(buffer, MAX_LEN, "%03d", (int) dBPM );
+  } else if( format == "00000" ) {
+    snprintf(buffer, MAX_LEN, "%05d", (int) dBPM * 100. );
+  } else { // all other formats are converted to "0.00"
+    snprintf(buffer, MAX_LEN, "%.2f", dBPM );
   }
 
-  return sbpm;
+  string sBPM = buffer;
+  return sBPM;
 }
 
-void Load_Settings() {
-  qDebug("load settings");
-  QSettings settings(QSettings::Ini);
-  set_format = settings.readEntry("/BPMDetect/TBPMFormat", "0.00");
-  set_skip = settings.readBoolEntry("/BPMDetect/SkipScanned", true);
-  set_save = settings.readBoolEntry("/BPMDetect/SaveBPM", true);
-}
-
-void Save_Settings() {
-  QSettings settings(QSettings::Ini);
-  settings.writeEntry("/BPMDetect/TBPMFormat", set_format);
-  settings.writeEntry("/BPMDetect/SkipScanned", set_skip);
-  settings.writeEntry("/BPMDetect/SaveBPM", set_save);
-  qDebug("settings saved");
-}

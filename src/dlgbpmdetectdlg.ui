@@ -525,12 +525,6 @@
         <receiver>dlgBPMDetectdlg</receiver>
         <slot>clearTrackList()</slot>
     </connection>
-    <connection>
-        <sender>cbFormat</sender>
-        <signal>activated(const QString&amp;)</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
-        <slot>formatChanged(const QString&amp;)</slot>
-    </connection>
 </connections>
 <slots>
     <slot>addFiles()</slot>

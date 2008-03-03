@@ -83,8 +83,10 @@ protected:
   QString msec2time( uint ms );
   void enableControls(bool enable);
 
+  void loadSettings();
+  void saveSettings();
+
 protected slots:
-  void formatChanged(const QString &f);
   void trackListKeyPressed(QKeyEvent *e);
   void dropped(QDropEvent* e);
 

@@ -271,14 +271,13 @@ else:
 if not env['HELP'] and (env['_CONFIGURE'] or not env.has_key('ISCONFIGURED')):
   configure(env)
 
-env.Tool('qt3')
-
 if env['HELP']:
   display_help()
 else:
   if env.has_key('CONSOLEONLY') and env['CONSOLEONLY']:
     env.Append(CPPDEFINES = 'NO_GUI')
   else:
+    env.Tool('qt3')
     bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources 
   print BOLD + """--------------------------------------------------
 """ + NORMAL

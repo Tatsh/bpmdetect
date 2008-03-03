@@ -96,7 +96,6 @@ int main( int argc, char **argv ) {
   }
 
 #ifndef NO_GUI
-/// TODO: initialize GUI here
   QStringList filelist;
   QApplication app(argc, argv);
 
