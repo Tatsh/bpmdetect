@@ -138,8 +138,7 @@ def configure(env):
 
   print BOLD + """
 --------------------------------------------------""" + NORMAL
-  if not sys.platform.startswith('win'):
-    print "Use MinGW compiler                : ",
+  print "Use MinGW compiler                : ",
   if env['ARGS'].get('mingw', None):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
