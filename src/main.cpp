@@ -66,9 +66,11 @@ int main( int argc, char **argv ) {
       case 'f':
         force = 1;
         break;
+    #ifndef NO_GUI
       case 'c':
         console = true;
         break;
+    #endif
       case '?':
       #ifdef NO_GUI
         fprintf (stderr, "Unknown option '-%c'.\n", optopt);
@@ -81,6 +83,7 @@ int main( int argc, char **argv ) {
   }
 
 #ifdef NO_GUI
+  console = true;
   if(argc - optind < 1)
 #else
   if(console && argc - optind < 1)
@@ -91,7 +94,7 @@ int main( int argc, char **argv ) {
   }
 
   if ( !Init_FMOD_System() ) {
-    cerr << "Error initializing FMOD sound system" << endl;
+    cerr << "Error: Your soundcard is either busy or not present" << endl;
     return 1;
   }
 
@@ -109,11 +112,13 @@ int main( int argc, char **argv ) {
 
   for(int idx = optind; idx < argc; idx++) {
     if(console) {
-      cout << "Track " << idx + 1 - optind << " of " << argc - optind << endl;
+      if(optind != argc - 1)
+        cout << "Track " << idx + 1 - optind << " of " << argc - optind << endl;
       cout << argv[idx] << endl;
     }
   #ifdef NO_GUI
-    Detect_BPM(argv[idx]);
+    double BPM = Detect_BPM(argv[idx]);
+    printBPM(BPM);
   #else
     filelist += argv[idx];
   #endif  // NO_GUI

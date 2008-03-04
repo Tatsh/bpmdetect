@@ -1,4 +1,4 @@
-- console mode without QT
 - port to QT4
 - save BPM to wav with ID3lib
 - scons install
+- display progress in console mode

@@ -61,8 +61,9 @@ bool Init_FMOD_System() {
   FMOD_RESULT result;
   unsigned int version;
   int numdrivers = 0;
-
+#ifdef DEBUG
   clog << "Initializing FMOD sound system" << endl;
+#endif
   if(SoundSystem) return true;
 
   // create FMOD system
@@ -73,16 +74,18 @@ bool Init_FMOD_System() {
   }
   // check FMOD version
   result = FMOD_System_GetVersion(SoundSystem, &version);
+#ifdef DEBUG
   if(result != FMOD_OK) {
     clog << "Can not get FMOD version" << endl;
   } else if (version < FMOD_VERSION) {
     clog << "You are using an old version of FMOD (" << version << "). "
          << "This program requires " << FMOD_VERSION << endl;
   } else clog << "FMOD version: " << version << endl;
-
+#endif
   result = FMOD_System_GetNumDrivers(SoundSystem, &numdrivers);
+#ifdef DEBUG
   if(result != FMOD_OK) clog << "Can't get number of drivers" << endl;
-
+#endif
   if(numdrivers > 0) {
     for( int i = 0; i < numdrivers; ++i ) {
       result = FMOD_System_SetDriver(SoundSystem, i);
@@ -108,7 +111,7 @@ bool Init_FMOD_System() {
   if ( result == FMOD_OK ) {
     return true;
   } else {
-    clog << FMOD_ErrorString(result) << endl;
+    cerr << FMOD_ErrorString(result) << endl;
     return false;
   }
 }
@@ -116,8 +119,9 @@ bool Init_FMOD_System() {
 /// @brief Close FMOD sound system
 void Close_FMOD_System() {
   if(!SoundSystem) return;
-
+#ifdef DEBUG
   clog << "Closing FMOD sound system" << endl;
+#endif
   FMOD_CHANNELGROUP* masterchgrp = 0;
   if(FMOD_OK == FMOD_System_GetMasterChannelGroup(SoundSystem, &masterchgrp)) {
     FMOD_ChannelGroup_Stop(masterchgrp);
@@ -268,7 +272,9 @@ void saveBPM( string filename, double dBPM, string format ) {
     // taglib
     TAGSaveFLAC( BPM, filename );
   } else {
+  #ifdef DEBUG
     clog << "BPM not saved !" << endl;
+  #endif
   }
 }
 
@@ -360,9 +366,9 @@ double correctBPM( double dBPM, double min, double max ) {
   if ( dBPM < 10. && dBPM > 1000. )
     return 0.;
 
-  while ( dBPM > min )
+  while ( dBPM > max )
     dBPM /= 2.;
-  while ( dBPM < max )
+  while ( dBPM < min )
     dBPM *= 2.;
 
   return dBPM;
@@ -388,7 +394,7 @@ double Detect_BPM( string filename ) {
   FMOD_TAG tag;
 
   result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
-                        FMOD_OPENONLY | FMOD_ACCURATETIME, 0, &sound );
+                        FMOD_OPENONLY, 0, &sound );
   if ( result != FMOD_OK ) {
     cerr << FMOD_ErrorString( result ) << endl;
     return 0;
@@ -443,7 +449,7 @@ double Detect_BPM( string filename ) {
     FMOD_Sound_Release(sound); sound = 0;
 
     double BPM = bpmd.getBpm();
-    if ( BPM != 0. ) {
+    if ( BPM != 0 ) {
       BPM = correctBPM( BPM );
       if ( bpmsave ) saveBPM( filename, BPM );
     }

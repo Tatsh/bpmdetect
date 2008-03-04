@@ -23,9 +23,6 @@
 #ifndef _FUNCTIONS_H_
 #define _FUNCTIONS_H_
 
-#define MINIMUM_BPM 80.
-#define MAXIMUM_BPM 185.
-
 #include <iostream>
 #include <fmodex/fmod.h>
 #include "BPMDetect.h"
@@ -51,7 +48,7 @@ void Close_FMOD_System();
 /// Save BPM to file
 void saveBPM( string filename, double dBPM, string format = "0.00" );
 /// Correct detected BPM
-double correctBPM( double dBPM, double min = MINIMUM_BPM, double max = MAXIMUM_BPM );
+double correctBPM( double dBPM, double min = 80., double max = 185. );
 /// Print detected BPM to stdout
 void printBPM( double dBPM, string format = "0.00" );
 double Detect_BPM( string filename );
