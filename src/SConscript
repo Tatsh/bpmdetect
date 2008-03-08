@@ -27,6 +27,7 @@ functions.cpp
 BPMDetect.cpp
 PeakFinder.cpp
 FIFOSampleBuffer.cpp
+track.cpp
 """
 bpmdetect_sources_gui="""
 dlgbpmdetectdlg.ui
@@ -135,24 +136,24 @@ def configure(env):
     env.__delitem__('LIBPATH')
   if env.has_key('LIBS'):
     env.__delitem__('LIBS')
+  if env.has_key('LINKFLAGS'):
+    env.__delitem__('LINKFLAGS')
 
   print BOLD + """
 --------------------------------------------------""" + NORMAL
   print "Use MinGW compiler                : ",
-  if env['ARGS'].get('mingw', None):
+  if env['ARGS'].get('mingw', None) or sys.platform.startswith('win'):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
-  else:
-    env['MINGWBUILD'] = 0
-    print 'no'
-
-  if sys.platform.startswith('win') or env['MINGWBUILD']:
     env.Tool('crossmingw')
     env.Append(LIBS = ['kkeramikstyle','kdefx'])
     # FIXME
-    os.popen(env['RC'] + ' -i src/icon.rc -o build/icon.o')
-    env.Append(LINKFLAGS = ['build/icon.o'])
-    env.Append(LINKFLAGS = ['-mwindows'])
+    print os.popen('windres -Isrc -i src/icon.rc -o build/icon.o').read()
+    env.Append(LINKFLAGS = 'build/icon.o')
+    env.Append(LINKFLAGS = '-mwindows')
+  else:
+    env['MINGWBUILD'] = 0
+    print 'no'
 
   print 'Enable debug                      : ',
   if env['ARGS'].get('debug', None):
@@ -248,6 +249,7 @@ opts.AddOptions(
   ( 'CXXFLAGS', 'C++ compiler options' ),
   ( 'LIBPATH', 'library directories' ),
   ( 'LIBS', 'libraries' ),
+  ( 'LINKFLAGS', 'linker flags')
 )
 opts.Update(env)
 
@@ -277,7 +279,7 @@ else:
     env.Append(CPPDEFINES = 'NO_GUI')
   else:
     env.Tool('qt3')
-    bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources 
+    bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
   print BOLD + """--------------------------------------------------
 """ + NORMAL
   env.Program('bpmdetect', bpmdetect_sources.split())

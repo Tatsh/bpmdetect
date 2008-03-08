@@ -363,6 +363,6 @@
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>songprogress.h</includehint>
+    <includehint>progressbar.h</includehint>
 </includehints>
 </UI>
