@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import os, sys
+import os, sys, glob
 
 if not sys.platform.startswith('win'):
   BOLD   ="\033[1m"
@@ -41,7 +41,7 @@ images.cpp
 
 def display_help():
   print """
-"""+BOLD+"""  Options
+"""+BOLD+"""  Configure options
 --------------------------------------------------"""+NORMAL+"""
 """+BOLD+"""* prefix        """+NORMAL+""": installation prefix (/usr/local)
 """+BOLD+"""* console       """+NORMAL+""": build only console mode
@@ -210,9 +210,36 @@ def configure(env):
   # And finally save the options in the cache
   opts.Save(cachefile, env)
 
+def install(env, binary_files):
+  if not os.path.isdir(env['PREFIX']):
+    os.mkdir(env['PREFIX'])
+
+  prefix = env['PREFIX']
+  dotdesktop_files = glob.glob('../src/bpmdetect.desktop')
+  icon_files = glob.glob('../src/bpmdetect-icon.png')
+
+  if sys.platform.startswith('win'):
+    #dlls = env.Install(prefix, dll_files)
+    binary = env.Install(prefix, binary_files)
+
+    #env.Alias('install', dlls)
+    env.Alias('install', binary)
+  else:
+    bin_path   = prefix + "/bin"
+    icon_path = prefix + "/share/pixmaps"
+    dotdesktop_path = prefix + '/share/applications'
+
+    binary = env.Install(bin_path, binary_files)
+    dotdesktop = env.Install(dotdesktop_path, dotdesktop_files)
+    icon = env.Install(icon_path, icon_files)
+
+    env.Alias('install', binary)
+    env.Alias('install', dotdesktop)
+    env.Alias('install', icon)
 
 
 #############################
+# Main
 #############################
 env = Environment(ENV = os.environ,
       toolpath=['./', '../admin/'])
@@ -253,16 +280,12 @@ opts.AddOptions(
 )
 opts.Update(env)
 
-# to avoid an error message 'how to make target configure ?'
+# to avoid an error message 'how to make target configure... ?'
 env.Alias('configure', None)
 env.Alias('help', None)
 
 import SCons.Util
 
-if 'install' in sys.argv:
-  env['_INSTALL']=1
-else:
-  env['_INSTALL']=0
 if 'configure' in sys.argv:
   env['_CONFIGURE']=1
 else:
@@ -282,5 +305,6 @@ else:
     bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
   print BOLD + """--------------------------------------------------
 """ + NORMAL
-  env.Program('bpmdetect', bpmdetect_sources.split())
-
+  bpmdetect_bin = env.Program('bpmdetect', bpmdetect_sources.split())
+  if 'install' in sys.argv:
+    install(env, bpmdetect_bin)

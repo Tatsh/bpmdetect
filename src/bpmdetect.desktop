@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=BPMDetect
 Exec=bpmdetect
-Icon=bpmdetect
+Icon=bpmdetect-icon.png
 Type=Application
 Comment=BPM detection utility
-Categories=Application;AudioVideo;
+Categories=Application;AudioVideo;Audio:
