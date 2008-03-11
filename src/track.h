@@ -31,31 +31,73 @@ typedef struct taginfo_s {
   std::string Title;
 } taginfo_t;
 
+enum TrackType {
+  TYPE_UNKNOWN   = 0,
+  TYPE_MPEG      = 1,
+  TYPE_WAV       = 2,
+  TYPE_OGGVORBIS = 3,
+  TYPE_FLAC      = 4,
+};
+
 /**
 */
 class Track {
 public:
-  Track();
+  Track(std::string filename);
   ~Track();
 
   /// Convert std::string to BPM
   static double str2bpm( std::string sBPM );
   /// Convert BPM to std::string using selected format
   static std::string bpm2str( double dBPM, std::string format = "0.00");
+  static void setMinBPM(double dMin);
+  static void setMaxBPM(double dMax);
+  static double getMinBPM();
+  static double getMaxBPM();
+
+  double detectBPM();
+  /// Save BPM to tag formatted using format
+  void saveBPM( std::string format = "0.00" );
+  /// Print BPM to stdout formatted using format
+  void printBPM( std::string format = "0.00" );
+  /// Return detected BPM
+  double getBPM() const;
+  /// Set the filename
+  void setFilename( std::string filename );
+  /// Return the filename
+  std::string getFilename() const;
+  /// Return BPM as std::string formatted using format
+  std::string strBPM( std::string format = "0.00" );
+  bool isValid() const;
 
 protected:
-  /// Save BPM to file
-  void saveBPM( std::string filename, double dBPM, std::string format = "0.00" );
   /// Correct detected BPM
-  double correctBPM( double dBPM, double min = 80., double max = 185. );
-  /// Print detected BPM to stdout
-  void printBPM( double dBPM, std::string format = "0.00" );
-  double detectBPM( std::string filename );
+  double correctBPM();
+  void setValid( bool bValid );
+  void setBPM( double dBPM );
 
+  TrackType getTrackType();
   /// Read ID3v2 tag (mp3 file)
-  taginfo_t getTagInfoMPEG(std::string filename);
+  taginfo_t getTagInfoMPEG();
   /// Read ID3v2 tag (wav file)
-  taginfo_t getTagInfoWAV(std::string filename);
+  taginfo_t getTagInfoWAV();
+
+// #ifdef HAVE_ID3LIB
+  void saveMPEG_ID3( std::string sBPM, std::string filename );
+  void saveWAV_ID3( std::string sBPM, std::string filename );
+//#endif // HAVE_ID3LIB
+#ifdef HAVE_TAGLIB
+  void saveMPEG_TAG( std::string sBPM, std::string filename );
+  void saveWAV_TAG( std::string sBPM, std::string filename );
+  void saveOGG_TAG( std::string sBPM, std::string filename );
+  void saveFLAC_TAG( std::string sBPM, std::string filename );
+#endif // HAVE_TAGLIB
+
+private:
+  std::string m_sFilename;
+  double m_dBPM;
+  bool m_bValid;
+
 };
 
 #endif
