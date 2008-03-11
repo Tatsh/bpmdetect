@@ -58,7 +58,7 @@ int main( int argc, char **argv ) {
   int c;
   bool console = false;
 
-  while ((c = getopt (argc, argv, "csf")) != -1) {
+  while ((c = getopt (argc, argv, "csfh")) != -1) {
     switch (c) {
       case 's':
         bpmsave = 1;
@@ -66,6 +66,9 @@ int main( int argc, char **argv ) {
       case 'f':
         force = 1;
         break;
+      case 'h':
+        display_help();
+        return 0;
     #ifndef NO_GUI
       case 'c':
         console = true;
@@ -86,6 +89,7 @@ int main( int argc, char **argv ) {
   console = true;
   if(argc - optind < 1)
 #else
+  QStringList filelist;
   if(console && argc - optind < 1)
 #endif
   {
@@ -98,36 +102,37 @@ int main( int argc, char **argv ) {
     return 1;
   }
 
-#ifndef NO_GUI
-  QStringList filelist;
-  QApplication app(argc, argv);
-
-  dlgBPMDetect *mainWin = new dlgBPMDetect();
-  app.setMainWidget( mainWin );
-  #ifdef __WIN32
-    app.setStyle("Keramik");
-  #endif  // __WIN32
-  mainWin->show();
-#endif    // NO_GUI
-
   for(int idx = optind; idx < argc; idx++) {
     if(console) {
       if(optind != argc - 1)
-        cout << "Track " << idx + 1 - optind << " of " << argc - optind << endl;
-      cout << argv[idx] << endl;
+        cout << "[" << idx + 1 - optind << "/" << argc - optind << "] "
+             << argv[idx] << endl;
     }
   #ifdef NO_GUI
     double BPM = Detect_BPM(argv[idx]);
     printBPM(BPM);
   #else
-    filelist += argv[idx];
+    if(console) {
+      double BPM = Detect_BPM(argv[idx]);
+      printBPM(BPM);
+    } else filelist += argv[idx];
   #endif  // NO_GUI
   }
 
 #ifndef NO_GUI
-  mainWin->addFiles( filelist );
-  app.exec();
-  delete mainWin; mainWin = 0;
+  if(!console) {
+    QApplication app(argc, argv);
+  
+    dlgBPMDetect *mainWin = new dlgBPMDetect();
+    app.setMainWidget( mainWin );
+    #ifdef __WIN32
+      app.setStyle("Keramik");
+    #endif  // __WIN32
+    mainWin->show();
+    mainWin->addFiles( filelist );
+    app.exec();
+    delete mainWin; mainWin = 0;
+  }
 #endif  // NO_GUI
 
   Close_FMOD_System();

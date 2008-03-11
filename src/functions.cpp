@@ -96,7 +96,9 @@ bool Init_FMOD_System() {
         #else
           result = FMOD_System_GetDriverName(SoundSystem, i, name, 256);
         #endif
+        #ifdef DEBUG
         if(result == FMOD_OK) clog << "Driver: " << name << endl;
+        #endif
         break;
       }
     }
