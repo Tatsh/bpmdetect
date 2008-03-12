@@ -145,10 +145,7 @@ def configure(env):
   if env['ARGS'].get('mingw', None) or sys.platform.startswith('win'):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
-    env.Tool('crossmingw')
     env.Append(LIBS = ['kkeramikstyle','kdefx'])
-    # FIXME
-    print os.popen('windres -Isrc -i src/icon.rc -o build/icon.o').read()
     env.Append(LINKFLAGS = 'build/icon.o')
     env.Append(LINKFLAGS = '-mwindows')
   else:
@@ -305,6 +302,11 @@ else:
     bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
   print BOLD + """--------------------------------------------------
 """ + NORMAL
+  if env['MINGWBUILD']:
+    env.Tool('crossmingw')
+    # FIXME
+    #print os.popen(env['RC'] + ' -Isrc -i src/icon.rc -o build/icon.o').read()
+    env.RES('icon.rc')
   bpmdetect_bin = env.Program('bpmdetect', bpmdetect_sources.split())
   if 'install' in sys.argv:
     install(env, bpmdetect_bin)
