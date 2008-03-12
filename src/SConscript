@@ -102,7 +102,7 @@ def check_taglib(env):
         taglibpath = tagprefix + '/lib'
       print BOLD+taglibpath+NORMAL
 
-      env.Append(CPPDEFINES = 'HAVE_TAGLIB')
+      env.Append(CPPDEFINES = ['HAVE_TAGLIB'])
       env.Append(CPPPATH = tagincludes)
       env.Append(LIBS = ['tag', 'z'])
       env.Append(LIBPATH = taglibpath)
@@ -156,7 +156,7 @@ def configure(env):
   if env['ARGS'].get('debug', None):
     debuglevel = env['ARGS'].get('debug', None)
     print BLUE + 'yes ' + NORMAL + debuglevel
-    env.Append(CPPDEFINES = 'DEBUG')
+    env.Append(CPPDEFINES = ['DEBUG'])
     if (debuglevel == "full"):
       env.Append(CXXFLAGS   = '-g3')
     else:
@@ -296,7 +296,7 @@ if env['HELP']:
   display_help()
 else:
   if env.has_key('CONSOLEONLY') and env['CONSOLEONLY']:
-    env.Append(CPPDEFINES = 'NO_GUI')
+    env.Append(CPPDEFINES = ['NO_GUI'])
   else:
     env.Tool('qt3')
     bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources

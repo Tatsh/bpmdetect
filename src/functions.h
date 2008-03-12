@@ -34,12 +34,14 @@ using namespace std;
 using namespace soundtouch;
 extern FMOD_SYSTEM* SoundSystem;
 
+#include "track.h" // for taginfo_t
+/*
 typedef struct taginfo_s {
   string BPM;
   string Artist;
   string Title;
 } taginfo_t;
-
+*/
 /// Initialize FMOD sound system
 bool Init_FMOD_System();
 /// Close FMOD sound system

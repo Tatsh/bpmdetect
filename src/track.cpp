@@ -56,7 +56,7 @@ static double _dMaxBPM = 185.;
 // FIXME:
 extern FMOD_SYSTEM* SoundSystem;
 // Settings
-extern bool force, bpmsave;
+extern bool force;
 
 Track::Track(string filename) {
   setFilename(filename);
@@ -116,7 +116,7 @@ void Track::setFilename( string filename ) {
   // TODO: check for validity
   setValid(true);
   if(m_bValid) {
-    m_dBPM = 0;
+    setBPM(0);
     m_sFilename = filename;
   }
 }
@@ -295,17 +295,13 @@ taginfo_t Track::getTagInfoWAV() {
 /**
  * @brief Correct BPM
  * if value is lower than min or higher than max
- * @param BPM BPM to correct
- * @param min minimum BPM
- * @param max maximum BPM
  * @return corrected BPM
  */
-double Track::correctBPM( ) {
-  double dBPM = getBPM();
+double Track::correctBPM( double dBPM ) {
   double min = getMinBPM();
   double max = getMaxBPM();
 
-  if ( dBPM < 20. && dBPM > 500. )
+  if ( dBPM < 20. || dBPM > 500. )
     return 0.;
 
   while ( dBPM > max )
@@ -367,7 +363,7 @@ double Track::detectBPM( ) {
     }
 
     BPMDetect bpmd( channels, ( int ) frequency );
-    int cprogress = 0;
+    int cprogress = 0, pprogress = 0;
     do {
       if ( bits == 16 ) {
         int16_t data16[ CHUNKSIZE / 2 ];
@@ -385,17 +381,16 @@ double Track::detectBPM( ) {
         bpmd.inputSamples( samples, read / channels );
       }
       cprogress++;
-      if ( cprogress % 250 == 0 ) {
-        /// @todo status (cprogress/totalsteps)
+      while ( (100*cprogress/totalsteps) > pprogress ) {
+        if( (++pprogress % 2) ) clog << ".";
       }
     } while ( result == FMOD_OK && read == CHUNKSIZE );
     FMOD_Sound_Release(sound); sound = 0;
+    clog << endl;
 
     double BPM = bpmd.getBpm();
-    if ( BPM != 0 ) {
-      BPM = correctBPM();
-      if ( bpmsave ) saveBPM();
-    }
+    BPM = correctBPM(BPM);
+    setBPM(BPM);
     return BPM;
   }
 }

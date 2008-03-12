@@ -72,7 +72,7 @@ public:
 
 protected:
   /// Correct detected BPM
-  double correctBPM();
+  double correctBPM( double dBPM );
   void setValid( bool bValid );
   void setBPM( double dBPM );
 
