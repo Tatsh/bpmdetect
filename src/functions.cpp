@@ -205,8 +205,12 @@ taginfo_t getTagInfoMPEG(string filename) {
 
   // id3lib
   ID3_Tag tag( filename.c_str() );
-  tagnfo.Artist = ID3_GetArtist(&tag);
-  tagnfo.Title  = ID3_GetTitle(&tag);
+  if(char* sArtist = ID3_GetArtist(&tag)) {
+    tagnfo.Artist = sArtist;
+  }
+  if(char* sTitle = ID3_GetTitle(&tag)) {
+    tagnfo.Title = sTitle;
+  }
 
   string sbpm = "000.00";
   ID3_Frame* bpmframe = tag.Find( ID3FID_BPM );
@@ -309,102 +313,15 @@ void printBPM( double dBPM, string format ) {
  * @return detected BPM
  */
 double Detect_BPM( string filename ) {
-  FMOD_SOUND * sound;
-  FMOD_RESULT result;
-  FMOD_TAG tag;
-
-  result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
-                        FMOD_OPENONLY, 0, &sound );
-  if ( result != FMOD_OK ) {
-    cerr << FMOD_ErrorString( result ) << endl;
-    return 0;
-  }
-
-  float oldbpm = 0.0;
-  if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
-    oldbpm = str2bpm(( char* ) tag.data);
-  }
-  if ( !force && oldbpm != 0 ) {
-    return oldbpm;
-  }
-
-  {
-#define CHUNKSIZE 4096
-    SAMPLETYPE samples[ CHUNKSIZE / 2 ];
-    unsigned int length = 0, read, totalsteps = 0;
-    int channels = 2, bits = 16;
-    float frequency = 44100;
-    result = FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_PCMBYTES );
-    totalsteps = ( length / CHUNKSIZE );
-    FMOD_Sound_GetDefaults( sound, &frequency, 0, 0, 0 );
-    FMOD_Sound_GetFormat ( sound, 0, 0, &channels, &bits );
-    if ( bits != 16 && bits != 8 ) {
-      cerr << bits << " bit samples are not supported!" << endl;
-      return 0;
-    }
-
-    BPMDetect bpmd( channels, ( int ) frequency );
-    int cprogress = 0;
-    do {
-      if ( bits == 16 ) {
-        int16_t data16[ CHUNKSIZE / 2 ];
-        result = FMOD_Sound_ReadData( sound, data16, CHUNKSIZE, &read );
-        for ( unsigned int i = 0; i < read / 2; i++ ) {
-          samples[ i ] = ( float ) data16[ i ] / 32768;
-        }
-        bpmd.inputSamples( samples, read / ( 2 * channels ) );
-      } else if ( bits == 8 ) {
-        int8_t  data8[ CHUNKSIZE ];
-        result = FMOD_Sound_ReadData( sound, data8, CHUNKSIZE, &read );
-        for ( unsigned int i = 0; i < read; i++ ) {
-          samples[ i ] = ( float ) data8[ i ] / 128;
-        }
-        bpmd.inputSamples( samples, read / channels );
-      }
-      cprogress++;
-      if ( cprogress % 250 == 0 ) {
-        /// @todo status (cprogress/totalsteps)
-      }
-    } while ( result == FMOD_OK && read == CHUNKSIZE );
-    FMOD_Sound_Release(sound); sound = 0;
-
-    double BPM = bpmd.getBpm();
-    if ( BPM != 0 ) {
-      BPM = correctBPM( BPM );
-      if ( bpmsave ) saveBPM( filename, BPM );
-    }
-    return BPM;
-  }
+  Track trk(filename);
+  return trk.detectBPM();
 }
 
 double str2bpm( string sBPM ) {
-  double BPM = 0;
-  BPM = atof(sBPM.c_str());
-  while( BPM > 250 ) BPM = BPM / 10;
-  return BPM;
+  return Track::str2bpm(sBPM);
 }
 
 string bpm2str( double dBPM, string format ) {
-  #define MAX_LEN 10
-  char buffer[MAX_LEN];
-
-  if( format == "0.0" ) {
-    snprintf(buffer, MAX_LEN, "%.1f", dBPM );
-  } else if( format == "0" ) {
-    snprintf(buffer, MAX_LEN, "%d", (int) dBPM );
-  } else if( format == "000.00" ) {
-    snprintf(buffer, MAX_LEN, "%06.2f", dBPM );
-  } else if( format == "000.0" ) {
-    snprintf(buffer, MAX_LEN, "%05.1f", dBPM );
-  } else if( format == "000" ) {
-    snprintf(buffer, MAX_LEN, "%03d", (int) dBPM );
-  } else if( format == "00000" ) {
-    snprintf(buffer, MAX_LEN, "%05d", (int) dBPM * 100. );
-  } else { // all other formats are converted to "0.00"
-    snprintf(buffer, MAX_LEN, "%.2f", dBPM );
-  }
-
-  string sBPM = buffer;
-  return sBPM;
+  return Track::bpm2str(dBPM, format);
 }
 

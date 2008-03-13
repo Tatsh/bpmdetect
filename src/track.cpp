@@ -82,8 +82,10 @@ double Track::getMaxBPM() {
 
 double Track::str2bpm( string sBPM ) {
   double BPM = 0;
+cerr << "str2bpm: " << sBPM << " : ";
   BPM = atof(sBPM.c_str());
-  while( BPM > 250 ) BPM = BPM / 10;
+  while( BPM > 300 ) BPM = BPM / 10;
+cerr << BPM << endl;
   return BPM;
 }
 
@@ -220,8 +222,12 @@ taginfo_t Track::getTagInfoMPEG() {
   string filename = getFilename();
 //#ifdef HAVE_ID3LIB
   ID3_Tag tag( filename.c_str() );
-  tagnfo.Artist = ID3_GetArtist(&tag);
-  tagnfo.Title  = ID3_GetTitle(&tag);
+  if(char* sArtist = ID3_GetArtist(&tag)) {
+    tagnfo.Artist = sArtist;
+  }
+  if(char* sTitle = ID3_GetTitle(&tag)) {
+    tagnfo.Title = sTitle;
+  }
 
   string sbpm = "000.00";
   ID3_Frame* bpmframe = tag.Find( ID3FID_BPM );
@@ -339,11 +345,12 @@ double Track::detectBPM( ) {
     return 0;
   }
 
-  float oldbpm = 0.0;
+  double oldbpm = 0;
   if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
     oldbpm = str2bpm(( char* ) tag.data);
   }
   if ( !force && oldbpm != 0 ) {
+    setBPM(oldbpm);
     return oldbpm;
   }
 

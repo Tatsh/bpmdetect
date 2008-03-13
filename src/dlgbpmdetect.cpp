@@ -124,7 +124,9 @@ inline QString dlgBPMDetect::msec2time( uint ms ) {
 }
 
 void dlgBPMDetect::loadSettings() {
+#ifdef DEBUG
   qDebug("Loading settings");
+#endif
   QSettings settings(QSettings::Ini);
   QString format = settings.readEntry("/BPMDetect/TBPMFormat", "0.00");
   bool skip = settings.readBoolEntry("/BPMDetect/SkipScanned", true);
@@ -139,7 +141,9 @@ void dlgBPMDetect::saveSettings() {
   settings.writeEntry("/BPMDetect/TBPMFormat", cbFormat->currentText());
   settings.writeEntry("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
   settings.writeEntry("/BPMDetect/SaveBPM", chbSave->isChecked());
+#ifdef DEBUG
   qDebug("Settings saved");
+#endif
 }
 
 void dlgBPMDetect::enableControls(bool e) {

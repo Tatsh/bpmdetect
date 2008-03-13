@@ -119,7 +119,7 @@ bool Init_FMOD_System() {
   if ( result == FMOD_OK ) {
     return true;
   } else {
-    cerr << FMOD_ErrorString(result) << endl;
+    cerr << "System init: " << FMOD_ErrorString(result) << endl;
     return false;
   }
 }
