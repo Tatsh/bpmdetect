@@ -50,7 +50,7 @@ extern const char* version;
  */
 dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
     : dlgBPMDetectdlg( parent, name, fl ) {
-  stop = TRUE;
+  stop = true;
   citem = 0;
 
   setCaption("BPM Detect"); // TODO: append version
@@ -78,6 +78,7 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
   ListMenu->insertItem( "Clear track list", this, SLOT( clearTrackList() ) );
   ListMenu->insertSeparator();
   ListMenu->insertItem( "Test BPM", this, SLOT( testBPM() ) );
+  ListMenu->insertItem( "Clear BPM", this, SLOT( slotClearBPM() ) );
 
   TrackList->addColumn("BPM", 60);
   TrackList->addColumn("Artist", 200);
@@ -500,6 +501,10 @@ void dlgBPMDetect::dropped(QDropEvent* e) {
   if ( QUriDrag::decodeLocalFiles( e, files ) )
     addFiles(files);
   return;
+}
+
+void dlgBPMDetect::slotClearBPM() {
+  clog << "Clear BPM not yet implemented";
 }
 
 #include "dlgbpmdetect.moc"

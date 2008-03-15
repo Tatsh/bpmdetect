@@ -25,6 +25,10 @@
 
 #include <string>
 
+#ifndef NO_GUI
+# include <qobject.h>
+#endif
+
 typedef struct taginfo_s {
   std::string BPM;
   std::string Artist;
@@ -41,9 +45,17 @@ enum TrackType {
 
 /**
 */
-class Track {
+class Track
+#ifndef NO_GUI
+  : public QObject
+#endif
+{
+#ifndef NO_GUI
+  Q_OBJECT
+#endif
+
 public:
-  Track(std::string filename);
+  Track( std::string filename, bool readtags = false );
   ~Track();
 
   /// Convert std::string to BPM
@@ -63,25 +75,30 @@ public:
   /// Return detected BPM
   double getBPM() const;
   /// Set the filename
-  void setFilename( std::string filename );
+  void setFilename( std::string filename, bool readtags = false );
   /// Return the filename
   std::string getFilename() const;
   /// Return BPM as std::string formatted using format
   std::string strBPM( std::string format = "0.00" );
   bool isValid() const;
+  std::string getArtist() const;
+  std::string getTitle() const;
+  void readTags();
 
 protected:
   /// Correct detected BPM
   double correctBPM( double dBPM );
   void setValid( bool bValid );
   void setBPM( double dBPM );
+  void setArtist( std::string artist );
+  void setTitle( std::string title );
 
   TrackType getTrackType();
-  /// Read ID3v2 tag (mp3 file)
-  taginfo_t getTagInfoMPEG();
-  /// Read ID3v2 tag (wav file)
-  taginfo_t getTagInfoWAV();
 
+  void readTagsMPEG();
+  void readTagsWAV();
+  void readTagsOGG();
+  void readTagsFLAC();
 // #ifdef HAVE_ID3LIB
   void saveMPEG_ID3( std::string sBPM, std::string filename );
   void saveWAV_ID3( std::string sBPM, std::string filename );
@@ -93,11 +110,20 @@ protected:
   void saveFLAC_TAG( std::string sBPM, std::string filename );
 #endif // HAVE_TAGLIB
 
+#ifndef NO_GUI
+signals:
+  void started( std::string filename );
+  void finished( std::string filename );
+  void progress(int percent, std::string filename );
+#endif
+
 private:
   std::string m_sFilename;
+  std::string m_sArtist;
+  std::string m_sTitle;
   double m_dBPM;
   bool m_bValid;
-
+  //TrackType m_eType;
 };
 
 #endif

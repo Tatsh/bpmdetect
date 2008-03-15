@@ -33,14 +33,18 @@
 #endif   // HAVE_TAGLIB
 
 // #ifdef HAVE_ID3LIB
-#ifdef _WIN32
-# define ID3LIB_LINKOPTION 1
-#endif
-#include <id3/tag.h>
-#include <id3/id3lib_streams.h>
-#include <id3/readers.h>
-#include <id3/misc_support.h>
+  #ifdef _WIN32
+  # define ID3LIB_LINKOPTION 1
+  #endif
+  #include <id3/tag.h>
+  #include <id3/id3lib_streams.h>
+  #include <id3/readers.h>
+  #include <id3/misc_support.h>
 // #endif   // HAVE_ID3LIB
+
+#ifndef NO_GUI
+# include <qapplication.h>
+#endif
 
 #include "BPMDetect.h"
 
@@ -53,13 +57,15 @@ using namespace soundtouch;
 static double _dMinBPM = 80.;
 static double _dMaxBPM = 185.;
 
-// FIXME:
+// FIXME: do not use FMOD sound system in Track
 extern FMOD_SYSTEM* SoundSystem;
 // Settings
 extern bool force;
 
-Track::Track(string filename) {
-  setFilename(filename);
+Track::Track( string filename, bool readtags ) {
+  setBPM(0);
+  setValid(false);
+  setFilename( filename, readtags );
 }
 
 Track::~Track() {}
@@ -113,13 +119,14 @@ string Track::bpm2str( double dBPM, string format ) {
   return sBPM;
 }
 
-void Track::setFilename( string filename ) {
+void Track::setFilename( string filename, bool readtags ) {
   if(filename == m_sFilename) return;
   // TODO: check for validity
   setValid(true);
   if(m_bValid) {
     setBPM(0);
     m_sFilename = filename;
+    if(readtags) readTags();
   }
 }
 
@@ -141,6 +148,22 @@ void Track::setBPM(double dBPM) {
 
 double Track::getBPM() const {
   return m_dBPM;
+}
+
+void Track::setArtist( string artist ) {
+  m_sArtist = artist;
+}
+
+string Track::getArtist() const {
+  return m_sArtist;
+}
+
+void Track::setTitle( string title ) {
+  m_sTitle = title;
+}
+
+string Track::getTitle() const {
+  return m_sTitle;
 }
 
 TrackType Track::getTrackType() {
@@ -216,88 +239,6 @@ void Track::saveBPM( string format ) {
 }
 
 
-/// @brief Read ID3v2 tag (MPEG file)
-taginfo_t Track::getTagInfoMPEG() {
-  taginfo_t tagnfo;
-  string filename = getFilename();
-//#ifdef HAVE_ID3LIB
-  ID3_Tag tag( filename.c_str() );
-  if(char* sArtist = ID3_GetArtist(&tag)) {
-    tagnfo.Artist = sArtist;
-  }
-  if(char* sTitle = ID3_GetTitle(&tag)) {
-    tagnfo.Title = sTitle;
-  }
-
-  string sbpm = "000.00";
-  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM );
-  if ( NULL != bpmframe ) {
-    ID3_Field* bpmfield = bpmframe->GetField(ID3FN_TEXT);
-    if(NULL != bpmfield) {
-      char buffer[1024];
-      bpmfield->Get( buffer, 1024 );
-      sbpm = buffer;
-    }
-  }
-
-/*
-//#elif defined(HAVE_TAGLIB)
-  TagLib::MPEG::File f(filename, false);
-
-  TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
-  if(tag != NULL) {
-    tagnfo.Artist = tag->artist().toCString();
-    tagnfo.Title = tag->title().toCString();
-
-    TagLib::List<TagLib::ID3v2::Frame*> lst = tag->frameList("TBPM");
-    if(lst.size() > 0) {
-      TagLib::ID3v2::Frame* frame = lst[0];
-      sbpm = frame->toString().toCString();
-    }
-  }
-//#endif
-*/
-  // set filename (without path) as title if the title is empty
-  if(tagnfo.Title.empty())
-    tagnfo.Title = filename.substr(filename.find_last_of("/") + 1);
-  tagnfo.BPM = bpm2str(str2bpm(sbpm), "000.00");
-
-  return tagnfo;
-}
-
-/**
- * @brief Read ID3v2 tag (WAV file)
- * @param file file name
- */
-taginfo_t Track::getTagInfoWAV() {
-  taginfo_t tagnfo;
-  string filename = getFilename();
-
-#ifdef HAVE_TAGLIB
-  TagLib::MPEG::File f(filename.c_str(), false);
-  long pos = f.rfind("ID3", TagLib::File::End);
-  if(pos < 0) pos = f.length();
-
-  TagLib::ID3v2::Tag tag(&f, pos);
-  tagnfo.Artist = tag.artist().toCString();
-  tagnfo.Title  = tag.title().toCString();
-
-  TagLib::List<TagLib::ID3v2::Frame*> lst = tag.frameList("TBPM");
-  string sbpm = "000.00";
-  if(lst.size() > 0) {
-    TagLib::ID3v2::Frame* frame = lst[0];
-    sbpm = frame->toString().toCString();
-  }
-#endif
-  // set filename (without path) as title if the title is empty
-  if(tagnfo.Title.empty())
-    tagnfo.Title = filename.substr(filename.find_last_of("/") + 1);
-  tagnfo.BPM = bpm2str(str2bpm(sbpm), "000.00");
-
-  return tagnfo;
-}
-
-
 /**
  * @brief Correct BPM
  * if value is lower than min or higher than max
@@ -337,11 +278,16 @@ double Track::detectBPM( ) {
   FMOD_RESULT result;
   FMOD_TAG tag;
   string filename = getFilename();
-
+#ifndef NO_GUI
+  emit started(filename);
+#endif
   result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
                         FMOD_OPENONLY, 0, &sound );
   if ( result != FMOD_OK ) {
     cerr << FMOD_ErrorString( result ) << endl;
+  #ifndef NO_GUI
+    emit finished(filename);
+  #endif
     return 0;
   }
 
@@ -351,6 +297,9 @@ double Track::detectBPM( ) {
   }
   if ( !force && oldbpm != 0 ) {
     setBPM(oldbpm);
+  #ifndef NO_GUI
+    emit finished(filename);
+  #endif
     return oldbpm;
   }
 
@@ -366,6 +315,9 @@ double Track::detectBPM( ) {
     FMOD_Sound_GetFormat ( sound, 0, 0, &channels, &bits );
     if ( bits != 16 && bits != 8 ) {
       cerr << bits << " bit samples are not supported!" << endl;
+    #ifndef NO_GUI
+      emit finished(filename);
+    #endif
       return 0;
     }
 
@@ -388,8 +340,18 @@ double Track::detectBPM( ) {
         bpmd.inputSamples( samples, read / channels );
       }
       cprogress++;
+    // FIXME:
+    #ifndef NO_GUI
+      if(cprogress % 100 == 0) {
+        qApp->processEvents();
+      }
+    #endif
       while ( (100*cprogress/totalsteps) > pprogress ) {
+      #ifdef NO_GUI
         if( (++pprogress % 2) ) clog << ".";
+      #else
+        emit progress( ++pprogress, filename );
+      #endif
       }
     } while ( result == FMOD_OK && read == CHUNKSIZE );
     FMOD_Sound_Release(sound); sound = 0;
@@ -398,8 +360,112 @@ double Track::detectBPM( ) {
     double BPM = bpmd.getBpm();
     BPM = correctBPM(BPM);
     setBPM(BPM);
+  #ifndef NO_GUI
+    emit finished( filename );
+  #endif
     return BPM;
   }
+}
+
+void Track::readTags() {
+  string filename = getFilename();
+  TrackType type = getTrackType();
+
+  if ( type == TYPE_MPEG ) {
+    readTagsMPEG();
+  } else if ( type == TYPE_WAV ) {
+    readTagsWAV();
+  } else if ( type == TYPE_OGGVORBIS ) {
+    readTagsOGG();
+  } else if ( type == TYPE_FLAC ) {
+    readTagsFLAC();
+  } else {
+  #ifdef DEBUG
+    clog << "Reading tags: file type not supported" << endl;
+  #endif
+  }
+}
+
+void Track::readTagsMPEG() {
+  string filename = getFilename();
+//#ifdef HAVE_ID3LIB
+  ID3_Tag tag( filename.c_str() );
+  if(char* sArtist = ID3_GetArtist(&tag)) {
+    setArtist(sArtist);
+  }
+  if(char* sTitle = ID3_GetTitle(&tag)) {
+    setTitle(sTitle);
+  }
+
+  string sbpm = "000.00";
+  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM );
+  if ( NULL != bpmframe ) {
+    ID3_Field* bpmfield = bpmframe->GetField(ID3FN_TEXT);
+    if(NULL != bpmfield) {
+      char buffer[1024];
+      bpmfield->Get( buffer, 1024 );
+      sbpm = buffer;
+    }
+  }
+
+/*
+//#elif defined(HAVE_TAGLIB)
+  TagLib::MPEG::File f(filename, false);
+
+  TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
+  if(tag != NULL) {
+    setArtist(tag->artist().toCString());
+    setTitle(tag->title().toCString());
+
+    TagLib::List<TagLib::ID3v2::Frame*> lst = tag->frameList("TBPM");
+    if(lst.size() > 0) {
+      TagLib::ID3v2::Frame* frame = lst[0];
+      sbpm = frame->toString().toCString();
+    }
+  }
+//#endif
+*/
+  // set filename (without path) as title if the title is empty
+  if(getTitle().empty())
+    setTitle(filename.substr(filename.find_last_of("/") + 1));
+  setBPM(str2bpm(sbpm));
+}
+
+void Track::readTagsWAV() {
+  string filename = getFilename();
+
+#ifdef HAVE_TAGLIB
+  TagLib::MPEG::File f(filename.c_str(), false);
+  long pos = f.rfind("ID3", TagLib::File::End);
+  if(pos < 0) pos = f.length();
+
+  TagLib::ID3v2::Tag tag(&f, pos);
+  setArtist(tag.artist().toCString());
+  setTitle(tag.title().toCString());
+
+  TagLib::List<TagLib::ID3v2::Frame*> lst = tag.frameList("TBPM");
+  string sbpm = "000.00";
+  if(lst.size() > 0) {
+    TagLib::ID3v2::Frame* frame = lst[0];
+    sbpm = frame->toString().toCString();
+  }
+#endif
+  // set filename (without path) as title if the title is empty
+  if(getTitle().empty())
+    setTitle(filename.substr(filename.find_last_of("/") + 1));
+  setBPM(str2bpm(sbpm));
+}
+
+void Track::readTagsOGG() {
+  string filename = getFilename();
+// TODO:
+  setTitle(filename.substr(filename.find_last_of("/") + 1));
+}
+
+void Track::readTagsFLAC() {
+  string filename = getFilename();
+// TODO:
+  setTitle(filename.substr(filename.find_last_of("/") + 1));
 }
 
 //#ifdef HAVE_ID3LIB

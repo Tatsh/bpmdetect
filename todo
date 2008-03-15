@@ -1,3 +1,4 @@
 - port to QT4
 - save BPM to wav with ID3lib
 - use class Track in GUI mode
+- replace FMOD library

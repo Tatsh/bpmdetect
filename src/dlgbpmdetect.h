@@ -34,7 +34,7 @@
 #include <iostream>
 
 #include "dlgbpmdetectdlg.h"
-#include "functions.h"
+
 
 using namespace std;
 using namespace soundtouch;
@@ -89,6 +89,8 @@ protected:
 protected slots:
   void trackListKeyPressed(QKeyEvent *e);
   void dropped(QDropEvent* e);
+  /// Clear BPM frame
+  void slotClearBPM();
 
 private:
   QPopupMenu* ListMenu; ///< TrackList popup menu
