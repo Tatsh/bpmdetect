@@ -62,8 +62,75 @@ extern FMOD_SYSTEM* SoundSystem;
 // Settings
 extern bool force;
 
-Track::Track( string filename, bool readtags ) {
+// FIXME: copied from dlgBPMDetect::addFiles
+/*
+  QStringList::Iterator it = files.begin();
+  while ( it != files.end() ) {
+    Track trk( *it, true );
+    QString bpm, artist, title, length;
+
+    FMOD_SOUND *sound;
+    FMOD_TAG tag;
+    FMOD_RESULT result;
+    unsigned int len;
+
+    result = FMOD_System_CreateStream( SoundSystem,
+               (*it).local8Bit(), FMOD_OPENONLY, 0, &sound );
+    if ( result != FMOD_OK ) {
+      ++it;
+      cerr << FMOD_ErrorString( result ) << " : " << ( *it ) << endl;
+      continue;
+    }
+    FMOD_SOUND_TYPE type;
+    int bits = 0;
+    FMOD_Sound_GetFormat ( sound, &type, 0, 0, &bits );
+    if( bits != 16 && bits != 8 ) {
+      FMOD_Sound_Release(sound);
+      ++it;
+      continue;
+    }
+
+    FMOD_Sound_GetLength( sound, &len, FMOD_TIMEUNIT_MS );
+    length = msec2time( len );
+
+    if( type == FMOD_SOUND_TYPE_WAV) {
+      FMOD_Sound_Release(sound); sound = 0;
+      taginfo_t tinf = getTagInfoWAV( *it );
+      artist = tinf.Artist;
+      title = tinf.Title;
+      bpm = tinf.BPM;
+    } else if( type == FMOD_SOUND_TYPE_MPEG) {
+      FMOD_Sound_Release(sound); sound = 0;
+      taginfo_t tinf = getTagInfoMPEG( *it);
+      artist = tinf.Artist;
+      title = tinf.Title;
+      bpm = tinf.BPM;
+    } else {
+      if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
+        QString s = ( char* ) tag.data;
+        bpm = bpm2str(str2bpm(s), "000.00");
+      } else bpm = "000.00";
+      if ( FMOD_Sound_GetTag( sound, "ARTIST", -1, &tag ) == FMOD_OK )
+        artist = ( char* ) tag.data;
+      if ( FMOD_Sound_GetTag( sound, "TITLE", -1, &tag ) == FMOD_OK )
+        title = ( char* ) tag.data;
+      else
+        title = (*it).right( (*it).length() - (*it).findRev("/") - 1 );
+      FMOD_Sound_Release(sound); sound = 0;
+    }
+
+    new QListViewItem( TrackList, bpm, artist, title, length, *it );
+    ++it;
+    qApp->processEvents();
+  }
+*/
+
+
+
+Track::Track( string filename, bool readtags ) : QThread() {
   setBPM(0);
+  setLength(0);
+  m_bRunning = false;
   setValid(false);
   setFilename( filename, readtags );
 }
@@ -88,46 +155,61 @@ double Track::getMaxBPM() {
 
 double Track::str2bpm( string sBPM ) {
   double BPM = 0;
-cerr << "str2bpm: " << sBPM << " : ";
   BPM = atof(sBPM.c_str());
   while( BPM > 300 ) BPM = BPM / 10;
-cerr << BPM << endl;
   return BPM;
 }
 
 string Track::bpm2str( double dBPM, string format ) {
-  #define MAX_LEN 10
-  char buffer[MAX_LEN];
+  #define BPM_LEN 10
+  char buffer[BPM_LEN];
 
   if( format == "0.0" ) {
-    snprintf(buffer, MAX_LEN, "%.1f", dBPM );
+    snprintf(buffer, BPM_LEN, "%.1f", dBPM );
   } else if( format == "0" ) {
-    snprintf(buffer, MAX_LEN, "%d", (int) dBPM );
+    snprintf(buffer, BPM_LEN, "%d", (int) dBPM );
   } else if( format == "000.00" ) {
-    snprintf(buffer, MAX_LEN, "%06.2f", dBPM );
+    snprintf(buffer, BPM_LEN, "%06.2f", dBPM );
   } else if( format == "000.0" ) {
-    snprintf(buffer, MAX_LEN, "%05.1f", dBPM );
+    snprintf(buffer, BPM_LEN, "%05.1f", dBPM );
   } else if( format == "000" ) {
-    snprintf(buffer, MAX_LEN, "%03d", (int) dBPM );
+    snprintf(buffer, BPM_LEN, "%03d", (int) dBPM );
   } else if( format == "00000" ) {
-    snprintf(buffer, MAX_LEN, "%05d", (int) dBPM * 100. );
+    snprintf(buffer, BPM_LEN, "%05d", (int) dBPM * 100. );
   } else { // all other formats are converted to "0.00"
-    snprintf(buffer, MAX_LEN, "%.2f", dBPM );
+    snprintf(buffer, BPM_LEN, "%.2f", dBPM );
   }
 
   string sBPM = buffer;
   return sBPM;
 }
 
+string Track::strBPM( std::string format) {
+  return bpm2str(getBPM(), format);
+}
+
 void Track::setFilename( string filename, bool readtags ) {
   if(filename == m_sFilename) return;
-  // TODO: check for validity
-  setValid(true);
-  if(m_bValid) {
-    setBPM(0);
-    m_sFilename = filename;
-    if(readtags) readTags();
+
+  setBPM(0);
+  setLength(0);
+  m_sFilename = filename;
+
+  // FIXME: do not use FMOD to get length
+  FMOD_SOUND *sound;
+  FMOD_RESULT result;
+  result = FMOD_System_CreateStream( SoundSystem,
+               filename.c_str(), FMOD_OPENONLY, 0, &sound );
+  if ( result != FMOD_OK ) {
+    setValid(false);
+  } else {
+    unsigned int len;
+    FMOD_Sound_GetLength( sound, &len, FMOD_TIMEUNIT_MS );
+    setLength( len );
+    setValid(true);
   }
+
+  if(readtags) readTags();
 }
 
 string Track::getFilename() const {
@@ -570,3 +652,41 @@ void Track::saveFLAC_TAG( string sBPM, string filename ) {
   f.save();
 }
 #endif // HAVE_TAGLIB
+
+void Track::clearBPM() {
+  cerr << "Clear BPM not implemented" << endl;
+}
+
+unsigned int Track::getLength() const {
+  return m_iLength;
+}
+
+void Track::setLength( unsigned int msec ) {
+  m_iLength = msec;
+}
+
+void Track::stop() {
+  m_bRunning = false;
+}
+
+string Track::strLength() {
+  uint length = getLength();
+
+  uint csecs = length / 10;
+  uint secs = csecs / 100;
+  csecs = csecs % 100;
+  uint mins = secs / 60;
+  secs = secs % 60;
+
+#define TIME_LEN 20
+  char buffer[TIME_LEN];
+  snprintf(buffer, TIME_LEN, "%d:%02d.%02d", mins, secs, csecs);
+  string timestr = buffer;
+  return timestr;
+}
+
+#ifndef NO_GUI
+void Track::run() {
+
+}
+#endif

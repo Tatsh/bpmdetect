@@ -23,27 +23,17 @@
 #ifndef _BPMDETECTWIDGET_H_
 #define _BPMDETECTWIDGET_H_
 
-#include <qpopupmenu.h>
-#include <qlistview.h>
 #include <qevent.h>
-
-#include <fmodex/fmod.hpp>
-#include <fmodex/fmod_errors.h>
 #include <BPMDetect.h>
-
 #include <iostream>
 
 #include "dlgbpmdetectdlg.h"
 
+class QPopupMenu;
+class QListViewItem;
 
 using namespace std;
 using namespace soundtouch;
-
-struct SONGTIME {
-  uint msecs;  ///< miliseconds
-  uint secs;   ///< seconds
-  uint mins;   ///< minutes
-};
 
 class dlgBPMDetect : public dlgBPMDetectdlg {
   Q_OBJECT
@@ -55,48 +45,41 @@ public:
   ~dlgBPMDetect();
 
 public slots:
-  /// Start/Stop BPM detection
-  void start();
-  /// Add files from directory including subdirectories
-  void addDir();
-  /// Add files to TrackList (QFileDialog)
-  void addFiles();
-  /// Add files to TrackList from QStringList
-  void addFiles( QStringList &files );
-  /// Popup list menu
-  void listMenuPopup( QListViewItem*, const QPoint& );
-  /// Remove selected tracks from TrackList
-  void removeSelected();
-  /// Open dialog for BPM testing
-  void testBPM();
-  /// Show about dialog
-  void showAbout();
-  /// Remove all tracks from TrackList
-  void clearTrackList();
-  /// Remove tracks with detected BPM
-  void clearDetected();
+  void slotStartStop();
+
+  void slotAddFiles( QStringList &files );
+  void slotRemoveSelected();
+  void slotTestBPM();
+  void slotShowAbout();
+  void slotClearTrackList();
+  void slotClearDetected();
 
 protected:
-  /// Return list of files from directory (including subdirectories)
+  /// List of files from directory (including files from subdirectories)
   QStringList filesFromDir( QString path );
-  /// Convert miliseconds to time string
-  QString msec2time( uint ms );
-  void enableControls(bool enable);
+  void enableControls( bool enable );
 
   void loadSettings();
   void saveSettings();
 
+  void setStarted( bool started );
+  bool getStarted() const;
+  void setRecentPath( QString path );
+  QString getRecentPath() const;
+
 protected slots:
-  void trackListKeyPressed(QKeyEvent *e);
-  void dropped(QDropEvent* e);
-  /// Clear BPM frame
+  void slotAddDir();
+  void slotAddFiles();
+  void slotListKeyPressed(QKeyEvent *e);
+  void slotListMenuPopup( QListViewItem*, const QPoint& );
+  void slotDropped(QDropEvent* e);
   void slotClearBPM();
 
 private:
-  QPopupMenu* ListMenu; ///< TrackList popup menu
-  QListViewItem* citem; ///< Current TrackList item
-  QString recentpath;   ///< Recent QFileDialog path
-  bool stop;            ///< start or stop BPM detection
+  QPopupMenu* m_pListMenu;
+  QListViewItem* m_pCurItem;
+  QString m_qRecentPath;
+  bool m_bStarted;
 };
 
 #endif // _BPMDETECTWIDGET_H_

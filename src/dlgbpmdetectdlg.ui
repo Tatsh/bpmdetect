@@ -493,47 +493,47 @@
         <sender>btnAddFiles</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
-        <slot>addFiles()</slot>
+        <slot>slotAddFiles()</slot>
     </connection>
     <connection>
         <sender>btnAddDir</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
-        <slot>addDir()</slot>
+        <slot>slotAddDir()</slot>
     </connection>
     <connection>
         <sender>btnStart</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
-        <slot>start()</slot>
+        <slot>slotStartStop()</slot>
     </connection>
     <connection>
         <sender>btnRemoveSelected</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
-        <slot>removeSelected()</slot>
+        <slot>slotRemoveSelected()</slot>
     </connection>
     <connection>
         <sender>btnAbout</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
-        <slot>showAbout()</slot>
+        <slot>slotShowAbout()</slot>
     </connection>
     <connection>
         <sender>btnClearList</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
-        <slot>clearTrackList()</slot>
+        <slot>slotClearTrackList()</slot>
     </connection>
 </connections>
 <slots>
-    <slot>addFiles()</slot>
-    <slot access="protected">formatChanged(const QString&amp;)</slot>
-    <slot>start()</slot>
-    <slot>removeSelected()</slot>
-    <slot>showAbout()</slot>
-    <slot>clearTrackList()</slot>
-    <slot>addDir()</slot>
+    <slot>slotAddFiles()</slot>
+    <slot access="protected">slotFormatChanged(const QString&amp;)</slot>
+    <slot>slotStartStop()</slot>
+    <slot>slotRemoveSelected()</slot>
+    <slot>slotShowAbout()</slot>
+    <slot>slotClearTrackList()</slot>
+    <slot>slotAddDir()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

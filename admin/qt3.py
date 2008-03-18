@@ -276,6 +276,7 @@ def generate(env):
   env.Append(CPPPATH = [env['QTINCLUDEPATH']])
   env.Append(LIBPATH = [env['QTLIBPATH']])
   env.Append(LIBS    = ['qt-mt'])
+  env.Append(CPPDEFINES = ['QT_THREAD_SUPPORT'])
 
   env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
@@ -289,11 +290,6 @@ def generate(env):
 
   env['QT_MOCHPREFIX']        = ''
   env['QT_MOCHSUFFIX']        = '.moc'
-  env['KDE_KCFG_IMPLPREFIX']  = ''
-  env['KDE_KCFG_IMPL_HSUFFIX']= '.h'
-  env['KDE_KCFG_IMPL_CSUFFIX']= '.cpp'
-  env['KDE_SKEL_IMPL_SUFFIX'] = '.skel'
-  env['MEINPROC']             = 'meinproc'
   env['MSGFMT']               = 'msgfmt'
 
   ## ui file processing

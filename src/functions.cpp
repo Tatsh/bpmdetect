@@ -20,6 +20,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifndef NO_GUI
+# include <qvariant.h>
+#endif
 #include "functions.h"
 
 // #ifdef HAVE_TAGLIB
@@ -324,4 +327,5 @@ double str2bpm( string sBPM ) {
 string bpm2str( double dBPM, string format ) {
   return Track::bpm2str(dBPM, format);
 }
+
 

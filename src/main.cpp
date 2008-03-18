@@ -36,9 +36,6 @@
 #include <iostream>
 using namespace std;
 
-const char* description =
-  "Simple BPM (beats per minute) detection utility";
-
 const char* version = "0.5"; ///< App version
 
 bool force   = false,          ///< false to skip tracks with stored BPM
@@ -199,10 +196,10 @@ int main( int argc, char **argv ) {
     }
 
     if(console) {
-      Track trk(argv[idx]);
-      trk.detectBPM();
-      if(bpmsave) trk.saveBPM();
-      trk.printBPM();
+      Track track(argv[idx]);
+      track.detectBPM();
+      if(bpmsave) track.saveBPM();
+      track.printBPM();
     } else {
     #ifndef NO_GUI 
       filelist += argv[idx];
@@ -220,7 +217,7 @@ int main( int argc, char **argv ) {
       app.setStyle("Keramik");
     #endif  // __WIN32
     mainWin->show();
-    mainWin->addFiles( filelist );
+    mainWin->slotAddFiles( filelist );
     app.exec();
     delete mainWin; mainWin = 0;
   }

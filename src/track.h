@@ -27,6 +27,8 @@
 
 #ifndef NO_GUI
 # include <qobject.h>
+# include <qthread.h>
+# include <qvariant.h>
 #endif
 
 typedef struct taginfo_s {
@@ -47,7 +49,7 @@ enum TrackType {
 */
 class Track
 #ifndef NO_GUI
-  : public QObject
+  : public QObject, QThread
 #endif
 {
 #ifndef NO_GUI
@@ -70,6 +72,8 @@ public:
   double detectBPM();
   /// Save BPM to tag formatted using format
   void saveBPM( std::string format = "0.00" );
+  /// Clear stored BPM
+  void clearBPM();
   /// Print BPM to stdout formatted using format
   void printBPM( std::string format = "0.00" );
   /// Return detected BPM
@@ -78,20 +82,25 @@ public:
   void setFilename( std::string filename, bool readtags = false );
   /// Return the filename
   std::string getFilename() const;
+  /// Get track length in miliseconds
+  unsigned int getLength() const;
   /// Return BPM as std::string formatted using format
   std::string strBPM( std::string format = "0.00" );
+  std::string strLength();
   bool isValid() const;
   std::string getArtist() const;
   std::string getTitle() const;
   void readTags();
+  /// Stop detection if started
+  void stop();
 
 protected:
-  /// Correct detected BPM
   double correctBPM( double dBPM );
   void setValid( bool bValid );
   void setBPM( double dBPM );
   void setArtist( std::string artist );
   void setTitle( std::string title );
+  void setLength( unsigned int msec );
 
   TrackType getTrackType();
 
@@ -111,6 +120,8 @@ protected:
 #endif // HAVE_TAGLIB
 
 #ifndef NO_GUI
+  void run();
+
 signals:
   void started( std::string filename );
   void finished( std::string filename );
@@ -122,7 +133,9 @@ private:
   std::string m_sArtist;
   std::string m_sTitle;
   double m_dBPM;
+  unsigned int m_iLength;
   bool m_bValid;
+  bool m_bRunning;
   //TrackType m_eType;
 };
 
