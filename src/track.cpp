@@ -57,10 +57,8 @@ using namespace soundtouch;
 static double _dMinBPM = 80.;
 static double _dMaxBPM = 185.;
 
-// FIXME: do not use FMOD sound system in Track
+// TODO: do not use FMOD sound system in Track
 extern FMOD_SYSTEM* SoundSystem;
-// Settings
-extern bool force;
 
 // FIXME: copied from dlgBPMDetect::addFiles
 /*
@@ -130,8 +128,11 @@ extern bool force;
 Track::Track( string filename, bool readtags ) : QThread() {
   setBPM(0);
   setLength(0);
-  m_bRunning = false;
+  setProgress(0);
   setValid(false);
+#ifndef NO_GUI
+  m_iPriority = QThread::NormalPriority;
+#endif
   setFilename( filename, readtags );
 }
 
@@ -190,7 +191,15 @@ string Track::strBPM( std::string format) {
 
 void Track::setFilename( string filename, bool readtags ) {
   if(filename == m_sFilename) return;
-
+#ifndef NO_GUI
+  // only when the thread is not running
+  if(running()) {
+  #ifdef DEBUG
+    qDebug("setFilename: thread not finished");
+  #endif
+    return;
+  }
+#endif
   setBPM(0);
   setLength(0);
   m_sFilename = filename;
@@ -217,6 +226,9 @@ string Track::getFilename() const {
 }
 
 void Track::setValid(bool bValid) {
+#ifndef NO_GUI
+  QMutexLocker( (QMutex*) &(this->m_qMutex) );
+#endif
   m_bValid = bValid;
 }
 
@@ -225,6 +237,9 @@ bool Track::isValid() const {
 }
 
 void Track::setBPM(double dBPM) {
+#ifndef NO_GUI
+  QMutexLocker( (QMutex*) &(this->m_qMutex) );
+#endif
   m_dBPM = dBPM;
 }
 
@@ -233,6 +248,9 @@ double Track::getBPM() const {
 }
 
 void Track::setArtist( string artist ) {
+#ifndef NO_GUI
+  QMutexLocker( (QMutex*) &(this->m_qMutex) );
+#endif
   m_sArtist = artist;
 }
 
@@ -246,6 +264,23 @@ void Track::setTitle( string title ) {
 
 string Track::getTitle() const {
   return m_sTitle;
+}
+
+void Track::setRedetect(bool redetect) {
+  m_bRedetect = redetect;
+}
+
+bool Track::getRedetect() const {
+  return m_bRedetect;
+}
+
+double Track::getProgress() const {
+  return m_dProgress;
+}
+
+void Track::setProgress(double progress) {
+  if( 0 <= progress && progress <= 100)
+    m_dProgress = progress;
 }
 
 TrackType Track::getTrackType() {
@@ -350,6 +385,15 @@ void Track::printBPM( string format ) {
   cout << bpm2str(getBPM(), format) << " BPM" << endl;
 }
 
+#ifndef NO_GUI
+void Track::startDetection() {
+#ifdef DEBUG
+  if(running()) qDebug("Start: thread is running");
+#endif
+  start(m_iPriority);
+}
+#endif
+
 /**
  * @brief Detect BPM of one track
  * @param filename is name of the file
@@ -360,16 +404,13 @@ double Track::detectBPM( ) {
   FMOD_RESULT result;
   FMOD_TAG tag;
   string filename = getFilename();
-#ifndef NO_GUI
-  emit started(filename);
-#endif
+
+  setProgress(0);
+  m_bStop = false;
   result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
                         FMOD_OPENONLY, 0, &sound );
   if ( result != FMOD_OK ) {
     cerr << FMOD_ErrorString( result ) << endl;
-  #ifndef NO_GUI
-    emit finished(filename);
-  #endif
     return 0;
   }
 
@@ -377,11 +418,8 @@ double Track::detectBPM( ) {
   if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
     oldbpm = str2bpm(( char* ) tag.data);
   }
-  if ( !force && oldbpm != 0 ) {
+  if ( !getRedetect() && oldbpm != 0 ) {
     setBPM(oldbpm);
-  #ifndef NO_GUI
-    emit finished(filename);
-  #endif
     return oldbpm;
   }
 
@@ -397,9 +435,6 @@ double Track::detectBPM( ) {
     FMOD_Sound_GetFormat ( sound, 0, 0, &channels, &bits );
     if ( bits != 16 && bits != 8 ) {
       cerr << bits << " bit samples are not supported!" << endl;
-    #ifndef NO_GUI
-      emit finished(filename);
-    #endif
       return 0;
     }
 
@@ -422,29 +457,22 @@ double Track::detectBPM( ) {
         bpmd.inputSamples( samples, read / channels );
       }
       cprogress++;
-    // FIXME:
-    #ifndef NO_GUI
-      if(cprogress % 100 == 0) {
-        qApp->processEvents();
-      }
-    #endif
-      while ( (100*cprogress/totalsteps) > pprogress ) {
+
+      setProgress(100.*cprogress / (double) totalsteps );
       #ifdef NO_GUI
+      while ( (100*cprogress/totalsteps) > pprogress ) {
         if( (++pprogress % 2) ) clog << ".";
-      #else
-        emit progress( ++pprogress, filename );
-      #endif
       }
-    } while ( result == FMOD_OK && read == CHUNKSIZE );
+      #endif
+    } while ( result == FMOD_OK && read == CHUNKSIZE && !m_bStop);
     FMOD_Sound_Release(sound); sound = 0;
     clog << endl;
+    setProgress(100);
 
+    if(m_bStop) return 0;
     double BPM = bpmd.getBpm();
     BPM = correctBPM(BPM);
     setBPM(BPM);
-  #ifndef NO_GUI
-    emit finished( filename );
-  #endif
     return BPM;
   }
 }
@@ -666,7 +694,7 @@ void Track::setLength( unsigned int msec ) {
 }
 
 void Track::stop() {
-  m_bRunning = false;
+  m_bStop = true;
 }
 
 string Track::strLength() {
@@ -687,6 +715,11 @@ string Track::strLength() {
 
 #ifndef NO_GUI
 void Track::run() {
+  detectBPM();
+  setProgress(0);
+}
 
+void Track::setPriority(QThread::Priority priority) {
+  m_iPriority = priority;
 }
 #endif

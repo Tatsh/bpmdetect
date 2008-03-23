@@ -26,8 +26,10 @@
 #include <qevent.h>
 #include <BPMDetect.h>
 #include <iostream>
+#include <qtimer.h>
 
 #include "dlgbpmdetectdlg.h"
+#include "track.h"
 
 class QPopupMenu;
 class QListViewItem;
@@ -74,12 +76,19 @@ protected slots:
   void slotListMenuPopup( QListViewItem*, const QPoint& );
   void slotDropped(QDropEvent* e);
   void slotClearBPM();
+  void slotStart();
+  void slotStop();
+  void slotDetectNext(bool skipped = false);
+  void slotTimerDone();
+  void slotPriorityChanged(int priority);
 
 private:
   QPopupMenu* m_pListMenu;
   QListViewItem* m_pCurItem;
   QString m_qRecentPath;
   bool m_bStarted;
+  Track* m_pTrack;
+  QTimer m_qTimer;
 };
 
 #endif // _BPMDETECTWIDGET_H_

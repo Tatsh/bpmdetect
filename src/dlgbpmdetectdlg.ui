@@ -79,6 +79,12 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
+                    <property name="totalSteps">
+                        <number>1000</number>
+                    </property>
+                    <property name="progress">
+                        <number>0</number>
+                    </property>
                     <property name="toolTip" stdset="0">
                         <string>Current track progress</string>
                     </property>
@@ -86,6 +92,9 @@
                 <widget class="QProgressBar" row="2" column="0">
                     <property name="name">
                         <cstring>TotalProgress</cstring>
+                    </property>
+                    <property name="progress">
+                        <number>0</number>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Total progress</string>
@@ -310,9 +319,14 @@
                 </widget>
             </hbox>
         </widget>
+        <widget class="QDropListView" row="1" column="0">
+            <property name="name">
+                <cstring>TrackList</cstring>
+            </property>
+        </widget>
         <widget class="QLayoutWidget" row="3" column="0">
             <property name="name">
-                <cstring>layout4</cstring>
+                <cstring>layout3</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -343,6 +357,71 @@
                         <string>Alt+A</string>
                     </property>
                 </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>lblPriority</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Priority:</string>
+                    </property>
+                </widget>
+                <widget class="QComboBox">
+                    <item>
+                        <property name="text">
+                            <string>Idle</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Lowest</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Low</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Normal</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>High</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Highest</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>Time critical</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>cbPriority</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>120</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="currentItem">
+                        <number>3</number>
+                    </property>
+                </widget>
                 <spacer>
                     <property name="name">
                         <cstring>spacer2</cstring>
@@ -355,7 +434,7 @@
                     </property>
                     <property name="sizeHint">
                         <size>
-                            <width>235</width>
+                            <width>40</width>
                             <height>21</height>
                         </size>
                     </property>
@@ -388,7 +467,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Skip tracks with detected BPM</string>
+                        <string>Do not redetect BPM</string>
                     </property>
                 </widget>
                 <widget class="QCheckBox">
@@ -455,11 +534,6 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QDropListView" row="1" column="0">
-            <property name="name">
-                <cstring>TrackList</cstring>
-            </property>
-        </widget>
     </grid>
 </widget>
 <customwidgets>
@@ -502,12 +576,6 @@
         <slot>slotAddDir()</slot>
     </connection>
     <connection>
-        <sender>btnStart</sender>
-        <signal>clicked()</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
-        <slot>slotStartStop()</slot>
-    </connection>
-    <connection>
         <sender>btnRemoveSelected</sender>
         <signal>clicked()</signal>
         <receiver>dlgBPMDetectdlg</receiver>
@@ -529,7 +597,6 @@
 <slots>
     <slot>slotAddFiles()</slot>
     <slot access="protected">slotFormatChanged(const QString&amp;)</slot>
-    <slot>slotStartStop()</slot>
     <slot>slotRemoveSelected()</slot>
     <slot>slotShowAbout()</slot>
     <slot>slotClearTrackList()</slot>

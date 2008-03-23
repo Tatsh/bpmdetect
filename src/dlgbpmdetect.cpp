@@ -40,11 +40,8 @@
 
 #include "images.h"
 
-#include "track.h"
-// FIXME: do not use functions
-#include "functions.h"
-
 extern const char* version;
+extern FMOD_SYSTEM* SoundSystem;
 
 
 dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
@@ -86,11 +83,20 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
     this, SLOT(slotListKeyPressed( QKeyEvent *)));
   connect(TrackList, SIGNAL(drop(QDropEvent *)),
     this, SLOT(slotDropped(QDropEvent *)));
+
+  connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
+  connect(cbPriority, SIGNAL(activated(int)), this, SLOT(slotPriorityChanged(int)));
+
+  m_pTrack = new Track("");
+
+  connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
+  m_qTimer.start(20);
 }
 
 dlgBPMDetect::~dlgBPMDetect() {
-  if ( getStarted() ) slotStartStop();
+  if ( getStarted() ) slotStop();
   saveSettings();
+  delete m_pTrack;
 }
 
 void dlgBPMDetect::loadSettings() {
@@ -102,10 +108,12 @@ void dlgBPMDetect::loadSettings() {
   bool skip = settings.readBoolEntry("/BPMDetect/SkipScanned", true);
   bool save = settings.readBoolEntry("/BPMDetect/SaveBPM", true);
   QString recentpath = settings.readEntry("/BPMDetect/RecentPath", "");
+  QString priority = settings.readEntry("/BPMDetect/Priority", "Normal");
   chbSkipScanned->setChecked( skip );
   chbSave->setChecked( save );
   cbFormat->setCurrentText( format );
   setRecentPath(recentpath);
+  cbPriority->setCurrentText(priority);
 }
 
 void dlgBPMDetect::saveSettings() {
@@ -114,6 +122,7 @@ void dlgBPMDetect::saveSettings() {
   settings.writeEntry("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
   settings.writeEntry("/BPMDetect/SaveBPM", chbSave->isChecked());
   settings.writeEntry("/BPMDetect/RecentPath", getRecentPath());
+  settings.writeEntry("/BPMDetect/Priority", cbPriority->currentText());
 #ifdef DEBUG
   qDebug("Settings saved");
 #endif
@@ -139,104 +148,79 @@ void dlgBPMDetect::enableControls(bool e) {
   }
 
   TrackList->clearSelection();
+  m_pCurItem = 0;
 }
 
+void dlgBPMDetect::slotPriorityChanged(int priority) {
+  m_pTrack->setPriority((QThread::Priority) priority);
+}
 
-// TODO: use Track instead of functions
 void dlgBPMDetect::slotStartStop() {
-  if ( getStarted() ) {      // Stop scanning
-    setStarted(false);
-    enableControls(true);
-  } else {                   // Start scanning
-    setStarted(true);
-    enableControls(false);
+  if ( getStarted() ) {
+    slotStop();
+  } else {
+    slotStart();
+  }
+}
 
-    QListViewItemIterator it( TrackList );
-    if ( TrackList->childCount() )
-      TotalProgress->setTotalSteps( TrackList->childCount() );
+void dlgBPMDetect::slotStart() {
+  if ( getStarted() || !TrackList->childCount() ) return;
 
-    for ( int progress = 0; it.current(); ++it ) {
-      FMOD_SOUND *sound;
-      FMOD_RESULT result;
-      progress++;
+  setStarted(true);
+  enableControls(false);
 
-      TotalProgress->setProgress( progress );
-      TrackList->ensureItemVisible( it.current() );
-      TrackList->setSelected(it.current(), true);
+  TotalProgress->setTotalSteps( TrackList->childCount() );
+  TotalProgress->setProgress(0);
+  slotDetectNext();
+}
 
-      QString cfile = it.current()->text( TrackList->columns() - 1 );
-      cfile = cfile.right( cfile.length() - cfile.findRev( "/" ) - 1 );
-      lblCurrentTrack->setText( cfile );
+void dlgBPMDetect::slotStop() {
+  m_pTrack->stop();
+  setStarted(false);
+  lblCurrentTrack->setText( "" );
+  enableControls(true);
+}
 
-      if( chbSkipScanned->isChecked() &&
-          it.current()->text( 0 ).toFloat() > 50. &&
-          it.current()->text( 0 ).toFloat() < 250.) {
-        continue;
-      }
-      result = FMOD_System_CreateStream( SoundSystem,
-                 it.current()->text( 4 ).local8Bit(),
-                 FMOD_OPENONLY, 0, &sound );
-      if ( result != FMOD_OK ) {
-        continue;
-      }
-
-      {
-#define CHUNKSIZE 4096
-        int16_t data16[ CHUNKSIZE / 2 ];
-        int8_t data8[ CHUNKSIZE ];
-        SAMPLETYPE samples[ CHUNKSIZE / 2 ];
-        unsigned int length = 0, read;
-        int channels = 2, bits = 16;
-        float frequency = 44100;
-        result = FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_PCMBYTES );
-        FMOD_Sound_GetDefaults( sound, &frequency, 0, 0, 0 );
-        FMOD_Sound_GetFormat ( sound, 0, 0, &channels, &bits );
-
-        if ( bits != 16 && bits != 8 ) {
-          cerr << bits << " bit samples are not supported!" << endl;
-          cout << endl;
-          continue;
-        }
-
-        BPMDetect bpmd( channels, ( int ) frequency );
-        CurrentProgress->setTotalSteps( length / CHUNKSIZE );
-        int cprogress = 0;
-        do {
-          if ( cprogress % 20 == 0 )
-            CurrentProgress->setProgress( cprogress );
-          if( bits == 16 ) {
-            result = FMOD_Sound_ReadData( sound, data16, CHUNKSIZE, &read );
-            for ( uint i = 0; i < read / 2; i++ ) {
-              samples[ i ] = ( float ) data16[ i ] / 32768;
-            }
-            bpmd.inputSamples( samples, read / ( 2 * channels ) );
-          } else if ( bits == 8 ) {
-            result = FMOD_Sound_ReadData( sound, data8, CHUNKSIZE, &read );
-            for ( uint i = 0; i < read; i++ ) {
-              samples[ i ] = ( float ) data8[ i ] / 128;
-            }
-            bpmd.inputSamples( samples, read / channels );
-          }
-          cprogress++;
-          if ( cprogress % 25 == 0 )
-            qApp->processEvents();
-        } while ( result == FMOD_OK && read == CHUNKSIZE && getStarted() );
-        FMOD_Sound_Release(sound); sound = 0;
-
-        if ( getStarted() ) {
-          float BPM = bpmd.getBpm();
-          if ( BPM != 0. ) BPM = correctBPM( BPM );
-          it.current()->setText( 0, bpm2str(BPM, "000.00") );
-          /// Save BPM
-          if ( BPM != 0. && chbSave->isChecked() )
-            saveBPM( it.current()->text( TrackList->columns() - 1 ), BPM );
-        }
-      }
-      lblCurrentTrack->setText( "" );
-      if ( !getStarted() ) break;
+void dlgBPMDetect::slotDetectNext(bool skipped) {
+  if(!m_pCurItem) {
+    m_pCurItem = TrackList->firstChild();
+  } else {
+    if(!skipped) {
+      m_pCurItem->setText(0, m_pTrack->strBPM("000.00"));
+      if ( chbSave->isChecked() )
+        m_pTrack->saveBPM(cbFormat->currentText());
     }
-    setStarted(false);
-    enableControls(true);
+    m_pCurItem = m_pCurItem->itemBelow();
+  }
+
+  if(!m_pCurItem) {
+    slotStop();
+    return;
+  }
+
+  TrackList->clearSelection();
+  TrackList->ensureItemVisible(m_pCurItem);
+  TrackList->setSelected(m_pCurItem, true);
+
+  QString file = m_pCurItem->text( TrackList->columns() - 1 );
+  lblCurrentTrack->setText( file.section('/', -1, -1) );
+  double BPM = m_pCurItem->text(0).toDouble();
+  if(chbSkipScanned->isChecked() && BPM > 0) {
+    slotDetectNext(true);
+    return;
+  }
+
+  TotalProgress->setProgress( 1 + TotalProgress->progress() );
+
+  m_pTrack->setFilename(file);
+  m_pTrack->setRedetect(!chbSkipScanned->isChecked());
+  m_pTrack->startDetection();
+}
+
+void dlgBPMDetect::slotTimerDone() {
+  CurrentProgress->setProgress((int) 10 * m_pTrack->getProgress());
+  if(getStarted() && m_pTrack->finished()) {
+    slotDetectNext();
   }
 }
 
@@ -340,13 +324,12 @@ void dlgBPMDetect::slotRemoveSelected() {
   }
   if ( TrackList->firstChild() && TrackList->firstChild() ->isSelected() )
     TrackList->removeItem( TrackList->firstChild() );
-  
+
 }
 
 void dlgBPMDetect::slotTestBPM() {
   if ( m_pCurItem != 0 ) {
     float bpm = m_pCurItem->text( 0 ).toFloat();
-    // TODO:
     if(! bpm ) return;
 
     dlgTestBPM tbpmd( SoundSystem, m_pCurItem->text( TrackList->columns() - 1 ), bpm, this );

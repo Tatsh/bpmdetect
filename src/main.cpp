@@ -37,9 +37,6 @@
 using namespace std;
 
 const char* version = "0.5"; ///< App version
-
-bool force   = false,          ///< false to skip tracks with stored BPM
-     bpmsave = false;          ///< true to save BPM
 FMOD_SYSTEM* SoundSystem = 0;  ///< FMOD sound system object
 
 
@@ -142,7 +139,9 @@ void Close_FMOD_System() {
 int main( int argc, char **argv ) {
   opterr = 0;
   int c;
-  bool console = false;
+  bool console  = false,
+       redetect = false,
+       bpmsave  = false;
 
   while ((c = getopt (argc, argv, "csfh")) != -1) {
     switch (c) {
@@ -150,7 +149,7 @@ int main( int argc, char **argv ) {
         bpmsave = 1;
         break;
       case 'f':
-        force = 1;
+        redetect = 1;
         break;
       case 'h':
         display_help();
@@ -197,6 +196,7 @@ int main( int argc, char **argv ) {
 
     if(console) {
       Track track(argv[idx]);
+      track.setRedetect(redetect);
       track.detectBPM();
       if(bpmsave) track.saveBPM();
       track.printBPM();

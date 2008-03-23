@@ -29,6 +29,7 @@
 # include <qobject.h>
 # include <qthread.h>
 # include <qvariant.h>
+# include <qmutex.h>
 #endif
 
 typedef struct taginfo_s {
@@ -49,7 +50,7 @@ enum TrackType {
 */
 class Track
 #ifndef NO_GUI
-  : public QObject, QThread
+  : public QObject, public QThread
 #endif
 {
 #ifndef NO_GUI
@@ -90,6 +91,10 @@ public:
   bool isValid() const;
   std::string getArtist() const;
   std::string getTitle() const;
+  void setRedetect(bool redetect);
+  bool getRedetect() const;
+  double getProgress() const;
+
   void readTags();
   /// Stop detection if started
   void stop();
@@ -101,6 +106,7 @@ protected:
   void setArtist( std::string artist );
   void setTitle( std::string title );
   void setLength( unsigned int msec );
+  void setProgress(double progress);
 
   TrackType getTrackType();
 
@@ -119,15 +125,6 @@ protected:
   void saveFLAC_TAG( std::string sBPM, std::string filename );
 #endif // HAVE_TAGLIB
 
-#ifndef NO_GUI
-  void run();
-
-signals:
-  void started( std::string filename );
-  void finished( std::string filename );
-  void progress(int percent, std::string filename );
-#endif
-
 private:
   std::string m_sFilename;
   std::string m_sArtist;
@@ -135,8 +132,23 @@ private:
   double m_dBPM;
   unsigned int m_iLength;
   bool m_bValid;
-  bool m_bRunning;
+  bool m_bRedetect;
+  bool m_bStop;
+  double m_dProgress;
   //TrackType m_eType;
+
+#ifndef NO_GUI
+protected:
+  void run();
+
+public:
+  void startDetection();
+  void setPriority(QThread::Priority priority);
+
+private:
+  QMutex m_qMutex;
+  QThread::Priority m_iPriority;
+#endif
 };
 
 #endif

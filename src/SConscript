@@ -23,7 +23,6 @@ else:
 #######################
 bpmdetect_sources="""
 main.cpp
-functions.cpp
 BPMDetect.cpp
 PeakFinder.cpp
 FIFOSampleBuffer.cpp
