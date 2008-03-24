@@ -39,22 +39,13 @@ using namespace soundtouch;
 
 class dlgBPMDetect : public dlgBPMDetectdlg {
   Q_OBJECT
-
 public:
-  /// Constructor
   dlgBPMDetect( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
-  /// Destructor
   ~dlgBPMDetect();
 
 public slots:
   void slotStartStop();
-
   void slotAddFiles( QStringList &files );
-  void slotRemoveSelected();
-  void slotTestBPM();
-  void slotShowAbout();
-  void slotClearTrackList();
-  void slotClearDetected();
 
 protected:
   /// List of files from directory (including files from subdirectories)
@@ -72,19 +63,30 @@ protected:
 protected slots:
   void slotAddDir();
   void slotAddFiles();
+
+  void slotStart();
+  void slotStop();
+
   void slotListKeyPressed(QKeyEvent *e);
   void slotListMenuPopup( QListViewItem*, const QPoint& );
   void slotDropped(QDropEvent* e);
-  void slotClearBPM();
-  void slotStart();
-  void slotStop();
+  void slotPriorityChanged(int priority);
+
   void slotDetectNext(bool skipped = false);
   void slotTimerDone();
-  void slotPriorityChanged(int priority);
+
+  void slotRemoveSelected();
+  void slotClearTrackList();
+  void slotClearDetected();
+  void slotTestBPM();
+  void slotClearBPM();
+  void slotShowAbout();
+
 
 private:
   QPopupMenu* m_pListMenu;
   QListViewItem* m_pCurItem;
+  int m_iCurTrackIdx;  // for total progress
   QString m_qRecentPath;
   bool m_bStarted;
   Track* m_pTrack;

@@ -125,7 +125,7 @@ extern FMOD_SYSTEM* SoundSystem;
 
 
 
-Track::Track( string filename, bool readtags ) : QThread() {
+Track::Track( string filename, bool readtags ) {
   setBPM(0);
   setLength(0);
   setProgress(0);
@@ -466,7 +466,9 @@ double Track::detectBPM( ) {
       #endif
     } while ( result == FMOD_OK && read == CHUNKSIZE && !m_bStop);
     FMOD_Sound_Release(sound); sound = 0;
+  #ifdef NO_GUI
     clog << endl;
+  #endif
     setProgress(100);
 
     if(m_bStop) return 0;

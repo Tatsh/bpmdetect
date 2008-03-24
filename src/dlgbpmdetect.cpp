@@ -48,6 +48,7 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
     : dlgBPMDetectdlg( parent, name, fl ) {
   setStarted(false);
   m_pCurItem = 0;
+  m_iCurTrackIdx = 0;
 
   QString strcaption = "BPM Detect v";
   strcaption.append(version);
@@ -70,13 +71,14 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
   m_pListMenu->insertSeparator();
   m_pListMenu->insertItem( "Test BPM", this, SLOT( slotTestBPM() ) );
   m_pListMenu->insertItem( "Clear BPM", this, SLOT( slotClearBPM() ) );
-
+  /// Add columns to TrackList
   TrackList->addColumn("BPM", 60);
   TrackList->addColumn("Artist", 200);
   TrackList->addColumn("Title", 200);
   TrackList->addColumn("Length", 60);
   TrackList->addColumn("Filename", 400);
 
+  /// Connect signals with slots
   connect(TrackList, SIGNAL(rightButtonPressed(QListViewItem*, const QPoint&, int)),
     this, SLOT(slotListMenuPopup( QListViewItem*, const QPoint& )));
   connect(TrackList, SIGNAL(keyPress(QKeyEvent *)),
@@ -128,15 +130,19 @@ void dlgBPMDetect::saveSettings() {
 #endif
 }
 
-void dlgBPMDetect::enableControls(bool e) {
-  btnAddFiles->setEnabled( e );
-  btnAddDir->setEnabled( e );
-  btnRemoveSelected->setEnabled( e );
-  btnClearList->setEnabled( e );
-  TrackList->setEnabled( e );
-  cbFormat->setEnabled( e );
+/**
+ ** Enable or disable controls
+ ** @param enable true to enable, false to disable
+ **/
+void dlgBPMDetect::enableControls(bool enable) {
+  btnAddFiles->setEnabled( enable );
+  btnAddDir->setEnabled( enable );
+  btnRemoveSelected->setEnabled( enable );
+  btnClearList->setEnabled( enable );
+  TrackList->setEnabled( enable );
+  cbFormat->setEnabled( enable );
 
-  if(e) {
+  if( enable ) {
     btnStart->setText( "Start" );
     lblCurrentTrack->setText("");
     TrackList->setSelectionMode(QListView::Extended);
@@ -149,6 +155,7 @@ void dlgBPMDetect::enableControls(bool e) {
 
   TrackList->clearSelection();
   m_pCurItem = 0;
+  m_iCurTrackIdx = 0;
 }
 
 void dlgBPMDetect::slotPriorityChanged(int priority) {
@@ -169,7 +176,7 @@ void dlgBPMDetect::slotStart() {
   setStarted(true);
   enableControls(false);
 
-  TotalProgress->setTotalSteps( TrackList->childCount() );
+  TotalProgress->setTotalSteps( TrackList->childCount() * 100 );
   TotalProgress->setProgress(0);
   slotDetectNext();
 }
@@ -210,7 +217,7 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
     return;
   }
 
-  TotalProgress->setProgress( 1 + TotalProgress->progress() );
+  TotalProgress->setProgress( 100 * m_iCurTrackIdx++ );
 
   m_pTrack->setFilename(file);
   m_pTrack->setRedetect(!chbSkipScanned->isChecked());
@@ -219,6 +226,7 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
 
 void dlgBPMDetect::slotTimerDone() {
   CurrentProgress->setProgress((int) 10 * m_pTrack->getProgress());
+  TotalProgress->setProgress(100*(m_iCurTrackIdx-1) + (int) m_pTrack->getProgress());
   if(getStarted() && m_pTrack->finished()) {
     slotDetectNext();
   }
