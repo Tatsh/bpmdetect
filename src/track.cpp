@@ -131,7 +131,7 @@ Track::Track( string filename, bool readtags ) {
   setProgress(0);
   setValid(false);
 #ifndef NO_GUI
-  m_iPriority = QThread::NormalPriority;
+  m_iPriority = QThread::IdlePriority;
 #endif
   setFilename( filename, readtags );
 }
@@ -388,7 +388,10 @@ void Track::printBPM( string format ) {
 #ifndef NO_GUI
 void Track::startDetection() {
 #ifdef DEBUG
-  if(running()) qDebug("Start: thread is running");
+  if(running()) {
+    qDebug("Start: thread is running");
+    return;
+  }
 #endif
   start(m_iPriority);
 }

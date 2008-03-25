@@ -359,67 +359,52 @@
                 </widget>
                 <widget class="QLabel">
                     <property name="name">
-                        <cstring>lblPriority</cstring>
+                        <cstring>lblMin</cstring>
                     </property>
                     <property name="text">
-                        <string>Priority:</string>
+                        <string>Min:</string>
                     </property>
                 </widget>
-                <widget class="QComboBox">
-                    <item>
-                        <property name="text">
-                            <string>Idle</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Lowest</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Low</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Normal</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>High</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Highest</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>Time critical</string>
-                        </property>
-                    </item>
+                <widget class="QSpinBox">
                     <property name="name">
-                        <cstring>cbPriority</cstring>
+                        <cstring>spMin</cstring>
                     </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
+                    <property name="maxValue">
+                        <number>120</number>
                     </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>120</width>
-                            <height>0</height>
-                        </size>
+                    <property name="minValue">
+                        <number>50</number>
                     </property>
-                    <property name="currentItem">
-                        <number>3</number>
+                    <property name="value">
+                        <number>80</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Minimum BPM</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>lblMax</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Max:</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>spMax</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>220</number>
+                    </property>
+                    <property name="minValue">
+                        <number>130</number>
+                    </property>
+                    <property name="value">
+                        <number>185</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Maximum BPM</string>
                     </property>
                 </widget>
                 <spacer>
@@ -434,7 +419,7 @@
                     </property>
                     <property name="sizeHint">
                         <size>
-                            <width>40</width>
+                            <width>20</width>
                             <height>21</height>
                         </size>
                     </property>

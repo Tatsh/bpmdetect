@@ -33,6 +33,7 @@
 #include <qpopupmenu.h>
 #include <qlistview.h>
 #include <qsettings.h>
+#include <qspinbox.h>
 #include "qdroplistview.h"
 
 #include "dlgbpmdetect.h"
@@ -87,7 +88,6 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
     this, SLOT(slotDropped(QDropEvent *)));
 
   connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
-  connect(cbPriority, SIGNAL(activated(int)), this, SLOT(slotPriorityChanged(int)));
 
   m_pTrack = new Track("");
 
@@ -110,12 +110,10 @@ void dlgBPMDetect::loadSettings() {
   bool skip = settings.readBoolEntry("/BPMDetect/SkipScanned", true);
   bool save = settings.readBoolEntry("/BPMDetect/SaveBPM", true);
   QString recentpath = settings.readEntry("/BPMDetect/RecentPath", "");
-  QString priority = settings.readEntry("/BPMDetect/Priority", "Normal");
   chbSkipScanned->setChecked( skip );
   chbSave->setChecked( save );
   cbFormat->setCurrentText( format );
   setRecentPath(recentpath);
-  cbPriority->setCurrentText(priority);
 }
 
 void dlgBPMDetect::saveSettings() {
@@ -124,7 +122,6 @@ void dlgBPMDetect::saveSettings() {
   settings.writeEntry("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
   settings.writeEntry("/BPMDetect/SaveBPM", chbSave->isChecked());
   settings.writeEntry("/BPMDetect/RecentPath", getRecentPath());
-  settings.writeEntry("/BPMDetect/Priority", cbPriority->currentText());
 #ifdef DEBUG
   qDebug("Settings saved");
 #endif
@@ -141,6 +138,8 @@ void dlgBPMDetect::enableControls(bool enable) {
   btnClearList->setEnabled( enable );
   TrackList->setEnabled( enable );
   cbFormat->setEnabled( enable );
+  spMin->setEnabled( enable );
+  spMax->setEnabled( enable );
 
   if( enable ) {
     btnStart->setText( "Start" );
@@ -156,10 +155,6 @@ void dlgBPMDetect::enableControls(bool enable) {
   TrackList->clearSelection();
   m_pCurItem = 0;
   m_iCurTrackIdx = 0;
-}
-
-void dlgBPMDetect::slotPriorityChanged(int priority) {
-  m_pTrack->setPriority((QThread::Priority) priority);
 }
 
 void dlgBPMDetect::slotStartStop() {
@@ -178,6 +173,8 @@ void dlgBPMDetect::slotStart() {
 
   TotalProgress->setTotalSteps( TrackList->childCount() * 100 );
   TotalProgress->setProgress(0);
+  m_pTrack->setMinBPM(spMin->value());
+  m_pTrack->setMaxBPM(spMax->value());
   slotDetectNext();
 }
 
@@ -225,7 +222,7 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
 }
 
 void dlgBPMDetect::slotTimerDone() {
-  CurrentProgress->setProgress((int) 10 * m_pTrack->getProgress());
+  CurrentProgress->setProgress((int) (10 * m_pTrack->getProgress()));
   TotalProgress->setProgress(100*(m_iCurTrackIdx-1) + (int) m_pTrack->getProgress());
   if(getStarted() && m_pTrack->finished()) {
     slotDetectNext();
