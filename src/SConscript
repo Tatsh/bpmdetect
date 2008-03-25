@@ -38,6 +38,10 @@ dlgtestbpm.cpp
 images.cpp
 """
 
+bpmdetect_res = """
+icon.rc
+"""
+
 def display_help():
   print """
 """+BOLD+"""  Configure options
@@ -145,8 +149,8 @@ def configure(env):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
     env.Append(LIBS = ['kkeramikstyle','kdefx'])
-    env.Append(LINKFLAGS = 'build/icon.o')
-    env.Append(LINKFLAGS = '-mwindows')
+    env.Append(LINKFLAGS = ['build/icon.o'])
+    env.Append(LINKFLAGS = ['-mwindows'])
   else:
     env['MINGWBUILD'] = 0
     print 'no'
@@ -304,8 +308,10 @@ else:
   if env['MINGWBUILD']:
     env.Tool('crossmingw')
     # FIXME
-    #print os.popen(env['RC'] + ' -Isrc -i src/icon.rc -o build/icon.o').read()
-    env.RES('icon.rc')
+    os.popen(env['RC'] + ' -Isrc -i src/icon.rc -o build/icon.o')
+    #env.RES(bpmdetect_res)
+    env.Append(LINKFLAGS = ['build/icon.o'])
+    env.Append(LINKFLAGS = ['-mwindows'])
   bpmdetect_bin = env.Program('bpmdetect', bpmdetect_sources.split())
   if 'install' in sys.argv:
     install(env, bpmdetect_bin)
