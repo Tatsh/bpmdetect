@@ -34,7 +34,7 @@ public:
 
 public slots:
   /// Remove selected items from list
-  void removeSelected();
+  void slotRemoveSelected();
 
 protected:
   void keyPressEvent( QKeyEvent *e );

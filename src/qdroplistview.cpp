@@ -33,7 +33,7 @@ QDropListView::QDropListView ( QWidget *parent, const char *name )
 
 QDropListView::~QDropListView() {}
 
-void QDropListView::removeSelected() {
+void QDropListView::slotRemoveSelected() {
   QListViewItemIterator it( this );
   for ( ; it.current(); it++ ) {
     if ( it.current() != firstChild() && it.current() ->isSelected() ) {
@@ -42,10 +42,12 @@ void QDropListView::removeSelected() {
   }
   if ( firstChild() && firstChild()->isSelected() )
     removeItem( firstChild() );
+  clearSelection();
 }
 
 void QDropListView::keyPressEvent( QKeyEvent *e ) {
-  QListView::keyPressEvent(e);
+  if(e->key() == Qt::Key_Delete) slotRemoveSelected();
+  else QListView::keyPressEvent(e);
   emit keyPress(e);
 }
 

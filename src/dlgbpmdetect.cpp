@@ -82,8 +82,6 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
   /// Connect signals with slots
   connect(TrackList, SIGNAL(rightButtonPressed(QListViewItem*, const QPoint&, int)),
     this, SLOT(slotListMenuPopup( QListViewItem*, const QPoint& )));
-  connect(TrackList, SIGNAL(keyPress(QKeyEvent *)),
-    this, SLOT(slotListKeyPressed( QKeyEvent *)));
   connect(TrackList, SIGNAL(drop(QDropEvent *)),
     this, SLOT(slotDropped(QDropEvent *)));
 
@@ -321,15 +319,7 @@ QStringList dlgBPMDetect::filesFromDir( QString path ) {
 }
 
 void dlgBPMDetect::slotRemoveSelected() {
-  QListViewItemIterator it( TrackList );
-  for ( ; it.current(); it++ ) {
-    if ( it.current() != TrackList->firstChild() && it.current() ->isSelected() ) {
-      TrackList->removeItem( it.current() ); it--;
-    }
-  }
-  if ( TrackList->firstChild() && TrackList->firstChild() ->isSelected() )
-    TrackList->removeItem( TrackList->firstChild() );
-
+  TrackList->slotRemoveSelected();
 }
 
 void dlgBPMDetect::slotTestBPM() {
@@ -378,10 +368,6 @@ void dlgBPMDetect::slotClearDetected() {
     float fBPM = TrackList->firstChild()->text(0).toFloat();
     if(fBPM > 0) TrackList->removeItem( TrackList->firstChild() );
   }
-}
-
-void dlgBPMDetect::slotListKeyPressed(QKeyEvent *e) {
-  if(e->key() == Qt::Key_Delete) slotRemoveSelected();
 }
 
 void dlgBPMDetect::slotDropped(QDropEvent* e) {

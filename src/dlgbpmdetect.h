@@ -67,7 +67,6 @@ protected slots:
   void slotStart();
   void slotStop();
 
-  void slotListKeyPressed(QKeyEvent *e);
   void slotListMenuPopup( QListViewItem*, const QPoint& );
   void slotDropped(QDropEvent* e);
 
