@@ -214,7 +214,7 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
 
   TotalProgress->setProgress( 100 * m_iCurTrackIdx++ );
 
-  m_pTrack->setFilename(file);
+  m_pTrack->setFilename(file.local8Bit());
   m_pTrack->setRedetect(!chbSkipScanned->isChecked());
   m_pTrack->startDetection();
 }
@@ -230,7 +230,7 @@ void dlgBPMDetect::slotTimerDone() {
 void dlgBPMDetect::slotAddFiles( QStringList &files ) {
   QStringList::Iterator it = files.begin();
   while ( it != files.end() ) {
-    Track track( *it, true );
+    Track track( (*it).local8Bit(), true );
     QString bpm, artist, title, length;
 
     bpm = track.strBPM("000.00");
@@ -335,13 +335,14 @@ void dlgBPMDetect::slotTestBPM() {
 }
 
 void dlgBPMDetect::slotShowAbout() {
-  QString description = "Automatic BPM (Beat Per Minute) detecting application. \n";
+  QString description = "Automatic BPM (Beat Per Minute) detecting application.";
   QString abouttext = " \
 Version:    \t%1 \n \
 Description:\t%2 \n \
+License:    \tGNU General Public License \n\
+ \n\
 Author:     \tMartin Sakmar \n \
 e-mail:     \tmartin.sakmar@gmail.com \n \
-License:    \tGNU General Public License \
 ";
   abouttext.replace("%1", version);
   abouttext.replace("%2", description);
@@ -383,8 +384,9 @@ void dlgBPMDetect::slotClearBPM() {
   QListViewItemIterator it( TrackList );
   for ( ; it.current(); it++ ) {
     if(it.current()->isSelected()) {
-      Track track(it.current()->text(TrackList->columns() - 1));
+      Track track(it.current()->text(TrackList->columns() - 1).local8Bit());
       track.clearBPM();
+      it.current()->setText(0, "000.00");
     }
   }
 }

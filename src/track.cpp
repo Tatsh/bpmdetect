@@ -60,72 +60,18 @@ static double _dMaxBPM = 185.;
 // TODO: do not use FMOD sound system in Track
 extern FMOD_SYSTEM* SoundSystem;
 
-// FIXME: copied from dlgBPMDetect::addFiles
-/*
-  QStringList::Iterator it = files.begin();
-  while ( it != files.end() ) {
-    Track trk( *it, true );
-    QString bpm, artist, title, length;
-
-    FMOD_SOUND *sound;
-    FMOD_TAG tag;
-    FMOD_RESULT result;
-    unsigned int len;
-
-    result = FMOD_System_CreateStream( SoundSystem,
-               (*it).local8Bit(), FMOD_OPENONLY, 0, &sound );
-    if ( result != FMOD_OK ) {
-      ++it;
-      cerr << FMOD_ErrorString( result ) << " : " << ( *it ) << endl;
-      continue;
-    }
-    FMOD_SOUND_TYPE type;
-    int bits = 0;
-    FMOD_Sound_GetFormat ( sound, &type, 0, 0, &bits );
-    if( bits != 16 && bits != 8 ) {
-      FMOD_Sound_Release(sound);
-      ++it;
-      continue;
-    }
-
-    FMOD_Sound_GetLength( sound, &len, FMOD_TIMEUNIT_MS );
-    length = msec2time( len );
-
-    if( type == FMOD_SOUND_TYPE_WAV) {
-      FMOD_Sound_Release(sound); sound = 0;
-      taginfo_t tinf = getTagInfoWAV( *it );
-      artist = tinf.Artist;
-      title = tinf.Title;
-      bpm = tinf.BPM;
-    } else if( type == FMOD_SOUND_TYPE_MPEG) {
-      FMOD_Sound_Release(sound); sound = 0;
-      taginfo_t tinf = getTagInfoMPEG( *it);
-      artist = tinf.Artist;
-      title = tinf.Title;
-      bpm = tinf.BPM;
-    } else {
-      if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
-        QString s = ( char* ) tag.data;
-        bpm = bpm2str(str2bpm(s), "000.00");
-      } else bpm = "000.00";
-      if ( FMOD_Sound_GetTag( sound, "ARTIST", -1, &tag ) == FMOD_OK )
-        artist = ( char* ) tag.data;
-      if ( FMOD_Sound_GetTag( sound, "TITLE", -1, &tag ) == FMOD_OK )
-        title = ( char* ) tag.data;
-      else
-        title = (*it).right( (*it).length() - (*it).findRev("/") - 1 );
-      FMOD_Sound_Release(sound); sound = 0;
-    }
-
-    new QListViewItem( TrackList, bpm, artist, title, length, *it );
-    ++it;
-    qApp->processEvents();
-  }
-*/
-
-
-
 Track::Track( string filename, bool readtags ) {
+  setBPM(0);
+  setLength(0);
+  setProgress(0);
+  setValid(false);
+#ifndef NO_GUI
+  m_iPriority = QThread::IdlePriority;
+#endif
+  setFilename( filename, readtags );
+}
+
+Track::Track( const char* filename, bool readtags ) {
   setBPM(0);
   setLength(0);
   setProgress(0);
@@ -187,6 +133,11 @@ string Track::bpm2str( double dBPM, string format ) {
 
 string Track::strBPM( std::string format) {
   return bpm2str(getBPM(), format);
+}
+
+void Track::setFilename( const char* filename, bool readtags ) {
+  string strfname = filename;
+  setFilename(strfname, readtags);
 }
 
 void Track::setFilename( string filename, bool readtags ) {
@@ -650,7 +601,7 @@ void Track::saveWAV_TAG( string sBPM, string filename ) {
   TagLib::ByteVector tdata = tag.render();      // render tag to binary data
   f.seek(offset);
   f.writeBlock(tdata);                          // write to file
-  f.save();
+  //f.save();
 }
 
 /// Save BPM to OGG file (xiphcomment)
@@ -686,8 +637,81 @@ void Track::saveFLAC_TAG( string sBPM, string filename ) {
 }
 #endif // HAVE_TAGLIB
 
+void Track::clearBPMMPEG() {
+#ifdef HAVE_TAGLIB
+  string filename = getFilename();
+  TagLib::MPEG::File f( filename.c_str(), false );
+  TagLib::ID3v2::Tag* tag = f.ID3v2Tag(true);
+  if(tag == NULL) {
+    return;
+  }
+  tag->removeFrames("TBPM");
+  f.save();
+#endif
+}
+
+void Track::clearBPMWAV() {
+#ifdef HAVE_TAGLIB
+  string filename = getFilename();
+  TagLib::MPEG::File f( filename.c_str(), false );
+  long offset = f.rfind("ID3", TagLib::File::End);
+  if(offset < 0) offset = f.length();           // ID3 tag offset
+  TagLib::ID3v2::Tag tag(&f, offset);
+  tag.removeFrames("TBPM");
+  TagLib::ByteVector tdata = tag.render();
+  f.seek(offset);
+  f.writeBlock(tdata);
+  //f.save();
+#endif
+}
+
+void Track::clearBPMOGG() {
+#ifdef HAVE_TAGLIB
+  string filename = getFilename();
+  TagLib::Ogg::Vorbis::File f( filename.c_str(), false );
+  TagLib::Ogg::XiphComment* tag = f.tag();
+  if(tag == NULL) {
+    return;
+  }
+  tag->removeField("TBPM");
+  f.save();
+#endif
+}
+
+void Track::clearBPMFLAC() {
+#ifdef HAVE_TAGLIB
+  string filename = getFilename();
+  TagLib::FLAC::File f( filename.c_str(), false );
+  TagLib::Ogg::XiphComment* xiph = f.xiphComment(true);
+  if(xiph != NULL) {
+    xiph->removeField("TBPM");
+  }
+
+  TagLib::ID3v2::Tag* tag = f.ID3v2Tag(true);
+  if(tag != NULL) {
+    tag->removeFrames("TBPM");
+  }
+
+  f.save();
+#endif
+}
+
 void Track::clearBPM() {
-  cerr << "Clear BPM not implemented" << endl;
+  TrackType type = getTrackType();
+
+  if ( type == TYPE_MPEG ) {
+    clearBPMMPEG();
+  } else if ( type == TYPE_WAV ) {
+    clearBPMWAV();
+  } else if ( type == TYPE_OGGVORBIS ) {
+    clearBPMOGG();
+  } else if ( type == TYPE_FLAC ) {
+    clearBPMFLAC();
+  } else {
+  #ifdef DEBUG
+    clog << "Clear BPM: file type not supported" << endl;
+  #endif
+  }
 }
 
 unsigned int Track::getLength() const {

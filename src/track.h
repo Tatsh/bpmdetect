@@ -59,6 +59,7 @@ class Track
 
 public:
   Track( std::string filename, bool readtags = false );
+  Track( const char* filename, bool readtags = false );
   ~Track();
 
   /// Convert std::string to BPM
@@ -80,8 +81,8 @@ public:
   /// Return detected BPM
   double getBPM() const;
   /// Set the filename
+  void setFilename( const char* filename, bool readtags = false );
   void setFilename( std::string filename, bool readtags = false );
-  /// Return the filename
   std::string getFilename() const;
   /// Get track length in miliseconds
   unsigned int getLength() const;
@@ -118,6 +119,10 @@ protected:
   void saveMPEG_ID3( std::string sBPM, std::string filename );
   void saveWAV_ID3( std::string sBPM, std::string filename );
 //#endif // HAVE_ID3LIB
+  void clearBPMMPEG();
+  void clearBPMWAV();
+  void clearBPMOGG();
+  void clearBPMFLAC();
 #ifdef HAVE_TAGLIB
   void saveMPEG_TAG( std::string sBPM, std::string filename );
   void saveWAV_TAG( std::string sBPM, std::string filename );

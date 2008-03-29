@@ -36,7 +36,7 @@
 #include <iostream>
 using namespace std;
 
-const char* version = "0.5"; ///< App version
+const char* version = "0.6";   ///< App version
 FMOD_SYSTEM* SoundSystem = 0;  ///< FMOD sound system object
 
 
@@ -49,7 +49,8 @@ void display_help() {
 #endif
   printf("-h     - show this help\n"\
          "-s     - save BPM to tag\n"\
-         "-f     - redetect BPMs stored in tag\n");
+         "-d     - detect (do not use BPMs stored in tag)\n"
+         "-r     - remove stored BPMs\n");
 }
 
 /**
@@ -141,19 +142,25 @@ int main( int argc, char **argv ) {
   int c;
   bool console  = false,
        redetect = false,
-       bpmsave  = false;
+       bpmsave  = false,
+       clear    = false;
 
-  while ((c = getopt (argc, argv, "csfh")) != -1) {
+  while ((c = getopt (argc, argv, "csdrh")) != -1) {
     switch (c) {
       case 's':
         bpmsave = 1;
         break;
-      case 'f':
+      case 'd':
         redetect = 1;
         break;
       case 'h':
         display_help();
         return 0;
+      case 'r':
+        clear = true;
+        // do not start GUI, just clear BPMs
+        console = true;
+        break;
     #ifndef NO_GUI
       case 'c':
         console = true;
@@ -196,10 +203,14 @@ int main( int argc, char **argv ) {
 
     if(console) {
       Track track(argv[idx]);
-      track.setRedetect(redetect);
-      track.detectBPM();
-      if(bpmsave) track.saveBPM();
-      track.printBPM();
+      if(!clear) {
+        track.setRedetect(redetect);
+        track.detectBPM();
+        if(bpmsave) track.saveBPM();
+        track.printBPM();
+      } else {
+        track.clearBPM();
+      }
     } else {
     #ifndef NO_GUI 
       filelist += argv[idx];
