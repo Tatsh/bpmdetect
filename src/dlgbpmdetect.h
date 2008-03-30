@@ -78,6 +78,7 @@ protected slots:
   void slotClearDetected();
   void slotTestBPM();
   void slotClearBPM();
+  void slotSaveBPM();
   void slotShowAbout();
 
 

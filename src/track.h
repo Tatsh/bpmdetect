@@ -78,8 +78,8 @@ public:
   void clearBPM();
   /// Print BPM to stdout formatted using format
   void printBPM( std::string format = "0.00" );
-  /// Return detected BPM
   double getBPM() const;
+  void setBPM( double dBPM );
   /// Set the filename
   void setFilename( const char* filename, bool readtags = false );
   void setFilename( std::string filename, bool readtags = false );
@@ -103,7 +103,6 @@ public:
 protected:
   double correctBPM( double dBPM );
   void setValid( bool bValid );
-  void setBPM( double dBPM );
   void setArtist( std::string artist );
   void setTitle( std::string title );
   void setLength( unsigned int msec );

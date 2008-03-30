@@ -308,7 +308,9 @@ else:
   if env['MINGWBUILD']:
     env.Tool('crossmingw')
     # FIXME
-    os.popen(env['RC'] + ' -Isrc -i src/icon.rc -o build/icon.o')
+    comm = env['RC'] + ' -Isrc -i src/icon.rc -o build/icon.o'
+    print comm
+    print os.popen(comm).read()
     #env.RES(bpmdetect_res)
     env.Append(LINKFLAGS = ['build/icon.o'])
     env.Append(LINKFLAGS = ['-mwindows'])

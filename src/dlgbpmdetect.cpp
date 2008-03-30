@@ -71,6 +71,8 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
   m_pListMenu->insertItem( "Clear list", this, SLOT( slotClearTrackList() ) );
   m_pListMenu->insertSeparator();
   m_pListMenu->insertItem( "Test BPM", this, SLOT( slotTestBPM() ) );
+  m_pListMenu->insertSeparator();
+  m_pListMenu->insertItem( "Save BPM", this, SLOT( slotSaveBPM() ) );
   m_pListMenu->insertItem( "Clear BPM", this, SLOT( slotClearBPM() ) );
   /// Add columns to TrackList
   TrackList->addColumn("BPM", 60);
@@ -108,10 +110,14 @@ void dlgBPMDetect::loadSettings() {
   bool skip = settings.readBoolEntry("/BPMDetect/SkipScanned", true);
   bool save = settings.readBoolEntry("/BPMDetect/SaveBPM", true);
   QString recentpath = settings.readEntry("/BPMDetect/RecentPath", "");
+  int minBPM = settings.readNumEntry("/BPMDetect/MinBPM", 80);
+  int maxBPM = settings.readNumEntry("/BPMDetect/MaxBPM", 190);
   chbSkipScanned->setChecked( skip );
   chbSave->setChecked( save );
   cbFormat->setCurrentText( format );
   setRecentPath(recentpath);
+  spMin->setValue(minBPM);
+  spMax->setValue(maxBPM);
 }
 
 void dlgBPMDetect::saveSettings() {
@@ -120,6 +126,8 @@ void dlgBPMDetect::saveSettings() {
   settings.writeEntry("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
   settings.writeEntry("/BPMDetect/SaveBPM", chbSave->isChecked());
   settings.writeEntry("/BPMDetect/RecentPath", getRecentPath());
+  settings.writeEntry("/BPMDetect/MinBPM", spMin->value());
+  settings.writeEntry("/BPMDetect/MaxBPM", spMax->value());
 #ifdef DEBUG
   qDebug("Settings saved");
 #endif
@@ -379,10 +387,27 @@ void dlgBPMDetect::slotDropped(QDropEvent* e) {
   return;
 }
 
-void dlgBPMDetect::slotClearBPM() {
-  // TODO: message box
+void dlgBPMDetect::slotSaveBPM() {
   QListViewItemIterator it( TrackList );
   for ( ; it.current(); it++ ) {
+    if(it.current()->isSelected()) {
+      Track track(it.current()->text(TrackList->columns() - 1).local8Bit());
+      track.setBPM(it.current()->text(0).toDouble());
+      track.saveBPM();
+    }
+  }
+}
+
+void dlgBPMDetect::slotClearBPM() {
+  int clear = -1;
+  QListViewItemIterator it( TrackList );
+  for ( ; it.current(); it++ ) {
+    if(clear < 0) {
+      clear = QMessageBox::warning(this, "Clear BPM",
+                      "Do you want to clear BPMs?",
+                      QMessageBox::Yes, QMessageBox::No, 0 );
+      if(clear == QMessageBox::No) return;
+    }
     if(it.current()->isSelected()) {
       Track track(it.current()->text(TrackList->columns() - 1).local8Bit());
       track.clearBPM();
