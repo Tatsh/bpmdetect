@@ -63,8 +63,13 @@ extern FMOD_SYSTEM* SoundSystem;
 Track::Track( string filename, bool readtags ) {
   setBPM(0);
   setLength(0);
+  setStartPos(0);
+  setEndPos(0);
   setProgress(0);
   setValid(false);
+  setSamplerate(0);
+  setSampleBits(0);
+  m_sound = 0;
 #ifndef NO_GUI
   m_iPriority = QThread::IdlePriority;
 #endif
@@ -72,17 +77,30 @@ Track::Track( string filename, bool readtags ) {
 }
 
 Track::Track( const char* filename, bool readtags ) {
-  setBPM(0);
-  setLength(0);
-  setProgress(0);
-  setValid(false);
+  init();
 #ifndef NO_GUI
   m_iPriority = QThread::IdlePriority;
 #endif
   setFilename( filename, readtags );
 }
 
-Track::~Track() {}
+Track::~Track() {
+  close();
+}
+
+void Track::init() {
+  setTrackType(TYPE_UNKNOWN);
+  setValid(false);
+  setSamplerate(0);
+  setSampleBits(0);
+  setChannels(0);
+  setBPM(0);
+  m_sound = 0;
+  setProgress(0);
+  setLength(0);
+  setStartPos(0);
+  setEndPos(0);
+}
 
 void Track::setMinBPM(double dMin) {
   if(dMin > 30.) _dMinBPM = dMin;
@@ -151,24 +169,11 @@ void Track::setFilename( string filename, bool readtags ) {
     return;
   }
 #endif
-  setBPM(0);
-  setLength(0);
+
+  close();
+  init();
   m_sFilename = filename;
-
-  // FIXME: do not use FMOD to get length
-  FMOD_SOUND *sound;
-  FMOD_RESULT result;
-  result = FMOD_System_CreateStream( SoundSystem,
-               filename.c_str(), FMOD_OPENONLY, 0, &sound );
-  if ( result != FMOD_OK ) {
-    setValid(false);
-  } else {
-    unsigned int len;
-    FMOD_Sound_GetLength( sound, &len, FMOD_TIMEUNIT_MS );
-    setLength( len );
-    setValid(true);
-  }
-
+  open();
   if(readtags) readTags();
 }
 
@@ -177,9 +182,6 @@ string Track::getFilename() const {
 }
 
 void Track::setValid(bool bValid) {
-#ifndef NO_GUI
-  QMutexLocker( (QMutex*) &(this->m_qMutex) );
-#endif
   m_bValid = bValid;
 }
 
@@ -188,9 +190,6 @@ bool Track::isValid() const {
 }
 
 void Track::setBPM(double dBPM) {
-#ifndef NO_GUI
-  QMutexLocker( (QMutex*) &(this->m_qMutex) );
-#endif
   m_dBPM = dBPM;
 }
 
@@ -199,9 +198,6 @@ double Track::getBPM() const {
 }
 
 void Track::setArtist( string artist ) {
-#ifndef NO_GUI
-  QMutexLocker( (QMutex*) &(this->m_qMutex) );
-#endif
   m_sArtist = artist;
 }
 
@@ -225,6 +221,34 @@ bool Track::getRedetect() const {
   return m_bRedetect;
 }
 
+void Track::setStartPos( uint ms ) {
+  if(ms > getLength()) return;
+  m_iStartPos = ms;
+  if(m_iEndPos < m_iStartPos) {
+    uint tmp = m_iEndPos;
+    m_iEndPos = m_iStartPos;
+    m_iStartPos = tmp;
+  }
+}
+
+uint Track::getStartPos() const {
+  return m_iStartPos;
+}
+
+void Track::setEndPos( uint ms ) {
+  if(ms > getLength()) return;
+  m_iEndPos = ms;
+  if(m_iEndPos < m_iStartPos) {
+    uint tmp = m_iEndPos;
+    m_iEndPos = m_iStartPos;
+    m_iStartPos = tmp;
+  }
+}
+
+uint Track::getEndPos() const {
+  return m_iEndPos;
+}
+
 double Track::getProgress() const {
   return m_dProgress;
 }
@@ -234,22 +258,68 @@ void Track::setProgress(double progress) {
     m_dProgress = progress;
 }
 
-TrackType Track::getTrackType() {
-  FMOD_SOUND *sound;
+void Track::setTrackType( TRACKTYPE type ) {
+  m_eType = type;
+}
+
+TRACKTYPE Track::getTrackType() const {
+  return m_eType;
+}
+
+void Track::setSamplerate( int samplerate ) {
+  m_iSamplerate = samplerate;
+}
+
+int Track::getSamplerate() const {
+  return m_iSamplerate;
+}
+
+void Track::setSampleBits( int bits ) {
+  m_iSampleBits = bits;
+}
+
+int Track::getSampleBits() const {
+  return m_iSampleBits;
+}
+
+void Track::setChannels( int channels) {
+  m_iChannels = channels;
+}
+
+int Track::getChannels() const {
+  return m_iChannels;
+}
+
+void Track::open() {
+  if(isValid()) close();
   FMOD_RESULT result;
-  TrackType ttype = TYPE_UNKNOWN;
+
   string filename = getFilename();
-  // open track with FMOD to get the type
-  result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
-                    FMOD_OPENONLY, 0, &sound );
+  result = FMOD_System_CreateStream( SoundSystem,
+               filename.c_str(), FMOD_OPENONLY, 0, &m_sound );
   if ( result != FMOD_OK ) {
-    return ttype;
+    init();
+    return;
   }
 
   FMOD_SOUND_TYPE type;
-  FMOD_Sound_GetFormat ( sound, &type, 0, 0, 0 );
-  FMOD_Sound_Release(sound);
-  
+  TRACKTYPE ttype = TYPE_UNKNOWN;
+  int channels = 0, 
+      bits = 0;
+  float frequency = 0;
+  uint len;
+  FMOD_Sound_GetLength( m_sound, &len, FMOD_TIMEUNIT_MS );
+  setLength( len );
+  setStartPos( 0 );
+  setEndPos( len );
+  setValid(true);
+
+  FMOD_Sound_GetDefaults( m_sound, &frequency, 0, 0, 0 );
+  FMOD_Sound_GetFormat ( m_sound, &type, 0, &channels, &bits );
+
+  setSamplerate( (int) frequency);
+  setSampleBits(bits);
+  setChannels(channels);
   switch( type ) {
     case FMOD_SOUND_TYPE_MPEG:
       ttype = TYPE_MPEG;
@@ -267,7 +337,46 @@ TrackType Track::getTrackType() {
       ttype = TYPE_UNKNOWN;
       break;
   }
-  return ttype;
+  setTrackType(ttype);
+}
+
+void Track::close() {
+  if(running()) {
+  #ifdef DEBUG
+    clog << "close: detection not finished, stopping..." << endl;
+  #endif
+    stop();
+    wait();
+  }
+
+  if(m_sound) FMOD_Sound_Release(m_sound);
+  init();
+}
+
+void Track::seek( uint ms ) {
+  if(isValid()) {
+    // TODO: seek
+  }
+#ifdef DEBUG
+  else {
+    cerr << "seek failed: track not valid" << endl;
+  }
+#endif
+}
+
+uint Track::currentPos() {
+  if(isValid()) {
+    uint pos = 0;
+    // TODO: return current pos
+    return pos;
+  }
+  return 0;
+}
+
+int Track::readSamples( SAMPLETYPE* buffer, int num ) {
+  if(!isValid()) return -1;
+  // FIXME: read samples
+  return -1;
 }
 
 /**
@@ -277,7 +386,7 @@ TrackType Track::getTrackType() {
 void Track::saveBPM( string format ) {
   string filename = getFilename();
   string sBPM = bpm2str( getBPM(), format );
-  TrackType type = getTrackType();
+  TRACKTYPE type = getTrackType();
 
   if ( type == TYPE_MPEG ) {
   //#ifdef HAVE_ID3LIB
@@ -435,7 +544,7 @@ double Track::detectBPM( ) {
 
 void Track::readTags() {
   string filename = getFilename();
-  TrackType type = getTrackType();
+  TRACKTYPE type = getTrackType();
 
   if ( type == TYPE_MPEG ) {
     readTagsMPEG();
@@ -524,13 +633,13 @@ void Track::readTagsWAV() {
 
 void Track::readTagsOGG() {
   string filename = getFilename();
-// TODO:
+// TODO: read OGG tags
   setTitle(filename.substr(filename.find_last_of("/") + 1));
 }
 
 void Track::readTagsFLAC() {
   string filename = getFilename();
-// TODO:
+// TODO: read FLAC tags
   setTitle(filename.substr(filename.find_last_of("/") + 1));
 }
 
@@ -697,7 +806,7 @@ void Track::clearBPMFLAC() {
 }
 
 void Track::clearBPM() {
-  TrackType type = getTrackType();
+  TRACKTYPE type = getTrackType();
 
   if ( type == TYPE_MPEG ) {
     clearBPMMPEG();
