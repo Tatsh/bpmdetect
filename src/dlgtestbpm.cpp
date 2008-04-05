@@ -29,38 +29,41 @@
 #include "dlgtestbpm.h"
 #include "progressbar.h"
 
+#include <fmodex/fmod_errors.h>
 
 using namespace std;
+
+extern FMOD_SYSTEM* SoundSystem;
 
 /**
  * @brief Constroctor
  *
- * @param sys pointer to FMOD system
  * @param file track file name
  * @param dBPM detected BPM
  * @param parent parent widget
  * @param name widget name
  */
-dlgTestBPM::dlgTestBPM( FMOD_SYSTEM *sys, QString file, float dBPM,
+dlgTestBPM::dlgTestBPM( QString file, float dBPM,
                   QWidget *parent, const char *name )
     : dlgTestBPMdlg( parent, name ) {
   FMOD_RESULT result;
+  system = SoundSystem;
   bpm = dBPM;
   QString sbpm; sbpm.sprintf( "%.2f", bpm );
   sbpm.rightJustify( '0', 6 );
   lblBPM->setText( sbpm );
   channel = 0; sound = 0;
-  if ( !sys || file == "" )
+  if ( file.isEmpty() || !system)
     close();
 
-  result = FMOD_System_CreateStream( sys, file.local8Bit(),
+  result = FMOD_System_CreateStream( system, file.local8Bit(),
                       FMOD_SOFTWARE | FMOD_2D, 0, &sound );
   if ( result != FMOD_OK ) {
     cerr << "Error loading file " << file << " for testing BPM" << endl;
     close();
   }
 
-  FMOD_System_PlaySound( sys, FMOD_CHANNEL_FREE,
+  FMOD_System_PlaySound( system, FMOD_CHANNEL_FREE,
                   sound, TRUE, &channel );
   uint length;
   FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_MS );
@@ -70,7 +73,9 @@ dlgTestBPM::dlgTestBPM( FMOD_SYSTEM *sys, QString file, float dBPM,
            this, SLOT( setCustomPos( uint ) ) );
 }
 
-
+dlgTestBPM::~dlgTestBPM() {
+  stop();
+}
 
 /// @brief Set 1st testing position
 void dlgTestBPM::setPos1() {

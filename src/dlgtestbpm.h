@@ -32,20 +32,15 @@
 class dlgTestBPM: public dlgTestBPMdlg {
    Q_OBJECT
 public:
-  /// Constructor
-  dlgTestBPM( FMOD_SYSTEM* sys, QString file, float dBPM,
+  dlgTestBPM( QString file, float dBPM,
            QWidget *parent = 0, const char *name = 0 );
+  ~dlgTestBPM();
 
 public slots:
-  /// 1st testing position
   void setPos1();
-  /// 2nd testing position
   void setPos2();
-  /// 3rd testing position
   void setPos3();
-  /// 4th testing position
   void setPos4();
-  /// Custom testing position
   void setCustomPos( uint msec );
   /// Stop playing track
   void stop();
@@ -54,6 +49,7 @@ public slots:
 
 private:
   float bpm;             ///< BPM to test
+  FMOD_SYSTEM  *system;  ///< FMOD sound system
   FMOD_SOUND	 *sound;   ///< FMOD sound object
   FMOD_CHANNEL *channel; ///< FMOD channel object
 };

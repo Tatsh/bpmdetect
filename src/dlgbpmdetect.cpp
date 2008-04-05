@@ -42,8 +42,6 @@
 #include "images.h"
 
 extern const char* version;
-extern FMOD_SYSTEM* SoundSystem;
-
 
 dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
     : dlgBPMDetectdlg( parent, name, fl ) {
@@ -335,10 +333,9 @@ void dlgBPMDetect::slotTestBPM() {
     float bpm = m_pCurItem->text( 0 ).toFloat();
     if(! bpm ) return;
 
-    dlgTestBPM tbpmd( SoundSystem, m_pCurItem->text( TrackList->columns() - 1 ), bpm, this );
+    dlgTestBPM tbpmd( m_pCurItem->text( TrackList->columns() - 1 ), bpm, this );
     int ret;
     ret = tbpmd.exec();
-    tbpmd.stop();
   }
 }
 

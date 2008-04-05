@@ -54,22 +54,16 @@
 using namespace std;
 using namespace soundtouch;
 
+extern FMOD_SYSTEM* SoundSystem;
+
 static double _dMinBPM = 80.;
 static double _dMaxBPM = 185.;
 
-// TODO: do not use FMOD sound system in Track
-extern FMOD_SYSTEM* SoundSystem;
-
 Track::Track( string filename, bool readtags ) {
-  setBPM(0);
-  setLength(0);
-  setStartPos(0);
-  setEndPos(0);
-  setProgress(0);
-  setValid(false);
-  setSamplerate(0);
-  setSampleBits(0);
+  init();
   m_sound = 0;
+  m_system = SoundSystem;
+  m_iCurPosBytes = 0;
 #ifndef NO_GUI
   m_iPriority = QThread::IdlePriority;
 #endif
@@ -78,6 +72,9 @@ Track::Track( string filename, bool readtags ) {
 
 Track::Track( const char* filename, bool readtags ) {
   init();
+  m_sound = 0;
+  m_system = SoundSystem;
+  m_iCurPosBytes = 0;
 #ifndef NO_GUI
   m_iPriority = QThread::IdlePriority;
 #endif
@@ -92,10 +89,9 @@ void Track::init() {
   setTrackType(TYPE_UNKNOWN);
   setValid(false);
   setSamplerate(0);
-  setSampleBits(0);
+  setSampleBytes(0);
   setChannels(0);
   setBPM(0);
-  m_sound = 0;
   setProgress(0);
   setLength(0);
   setStartPos(0);
@@ -159,7 +155,6 @@ void Track::setFilename( const char* filename, bool readtags ) {
 }
 
 void Track::setFilename( string filename, bool readtags ) {
-  if(filename == m_sFilename) return;
 #ifndef NO_GUI
   // only when the thread is not running
   if(running()) {
@@ -274,12 +269,28 @@ int Track::getSamplerate() const {
   return m_iSamplerate;
 }
 
-void Track::setSampleBits( int bits ) {
-  m_iSampleBits = bits;
+void Track::setSampleBytes( int bytes ) {
+  if(bytes < 0) return;
+  if(bytes > 4) {
+    if(!(bytes % 8)) {
+      bytes = bytes / 8;
+    } else {
+    #ifdef DEBUG
+      cerr << "Error: setSampleBytes: " << bytes << endl;
+    #endif
+      return;
+    }
+  }
+  if(bytes > 4) return;
+  m_iSampleBytes = bytes;
 }
 
 int Track::getSampleBits() const {
-  return m_iSampleBits;
+  return 8 * getSampleBytes();
+}
+
+int Track::getSampleBytes() const {
+  return m_iSampleBytes;
 }
 
 void Track::setChannels( int channels) {
@@ -293,12 +304,13 @@ int Track::getChannels() const {
 void Track::open() {
   if(isValid()) close();
   FMOD_RESULT result;
-
+  m_iCurPosBytes = 0;
   string filename = getFilename();
-  result = FMOD_System_CreateStream( SoundSystem,
+  result = FMOD_System_CreateStream( m_system,
                filename.c_str(), FMOD_OPENONLY, 0, &m_sound );
   if ( result != FMOD_OK ) {
     init();
+    m_sound = 0;
     return;
   }
 
@@ -318,7 +330,7 @@ void Track::open() {
   FMOD_Sound_GetFormat ( m_sound, &type, 0, &channels, &bits );
 
   setSamplerate( (int) frequency);
-  setSampleBits(bits);
+  setSampleBytes(bits / 8);
   setChannels(channels);
   switch( type ) {
     case FMOD_SOUND_TYPE_MPEG:
@@ -350,33 +362,67 @@ void Track::close() {
   }
 
   if(m_sound) FMOD_Sound_Release(m_sound);
+  m_sound = 0;
+  m_iCurPosBytes = 0;
   init();
 }
 
 void Track::seek( uint ms ) {
   if(isValid()) {
     // TODO: seek
-  }
+    uint pos = (ms * getSamplerate() * getSampleBytes()) / 1000;
+    FMOD_RESULT res = FMOD_Sound_SeekData(m_sound, pos);
+    if(res = FMOD_OK) {
+      m_iCurPosBytes = pos;
+    }
 #ifdef DEBUG
-  else {
+    else {
+      cerr << "seek failed: " << FMOD_ErrorString(res) << endl;
+    }
+  } else {
     cerr << "seek failed: track not valid" << endl;
-  }
 #endif
+  }
 }
 
 uint Track::currentPos() {
   if(isValid()) {
-    uint pos = 0;
-    // TODO: return current pos
-    return pos;
+    unsigned long long pos = 1000*m_iCurPosBytes / (getSamplerate()*getChannels()*getSampleBytes());
+    return (uint) pos;
   }
   return 0;
 }
 
+/**
+ * Read @a num samples into @a buffer
+ * @param buffer pointer to buffer
+ * @param num number of samples (per channel)
+ * @return number of read samples
+ */
 int Track::readSamples( SAMPLETYPE* buffer, int num ) {
   if(!isValid()) return -1;
-  // FIXME: read samples
-  return -1;
+
+  FMOD_RESULT result;
+  uint readbytes = 0;
+  int sbytes = getSampleBytes();
+  uint bytes = num * sbytes;
+
+  if(sbytes == 2) {
+    int16_t data[bytes/2];
+    result = FMOD_Sound_ReadData( m_sound, data, bytes, &readbytes );
+    if(!result == FMOD_OK) return -1;
+    for ( uint i = 0; i < readbytes/sbytes; ++i )
+      buffer[i] = (float) data[i] / 32768;
+  } else if(sbytes == 1) {
+    int8_t data[bytes];
+    result = FMOD_Sound_ReadData( m_sound, data, bytes, &readbytes );
+    if(!result == FMOD_OK) return -1;
+    for ( uint i = 0; i < (readbytes); ++i )
+      buffer[i] = (float) data[i] / 128;
+  }
+
+  m_iCurPosBytes += readbytes;
+  return readbytes / sbytes ;
 }
 
 /**
@@ -459,87 +505,58 @@ void Track::startDetection() {
 
 /**
  * @brief Detect BPM of one track
- * @param filename is name of the file
  * @return detected BPM
  */
-double Track::detectBPM( ) {
-  FMOD_SOUND * sound;
-  FMOD_RESULT result;
-  FMOD_TAG tag;
-  string filename = getFilename();
-
-  setProgress(0);
-  m_bStop = false;
-  result = FMOD_System_CreateStream( SoundSystem, filename.c_str(),
-                        FMOD_OPENONLY, 0, &sound );
-  if ( result != FMOD_OK ) {
-    cerr << FMOD_ErrorString( result ) << endl;
+double Track::detectBPM() {
+  if(!isValid()) {
+  #ifdef DEBUG
+    cerr << "detectBPM: track not valid" << endl;
+  #endif
     return 0;
   }
 
-  double oldbpm = 0;
-  if ( FMOD_Sound_GetTag( sound, "TBPM", 0, &tag ) == FMOD_OK ) {
-    oldbpm = str2bpm(( char* ) tag.data);
-  }
+  setProgress(0);
+  m_bStop = false;
+
+  double oldbpm = getBPM();
   if ( !getRedetect() && oldbpm != 0 ) {
-    setBPM(oldbpm);
     return oldbpm;
   }
 
-  {
-#define CHUNKSIZE 4096
-    SAMPLETYPE samples[ CHUNKSIZE / 2 ];
-    unsigned int length = 0, read, totalsteps = 0;
-    int channels = 2, bits = 16;
-    float frequency = 44100;
-    result = FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_PCMBYTES );
-    totalsteps = ( length / CHUNKSIZE );
-    FMOD_Sound_GetDefaults( sound, &frequency, 0, 0, 0 );
-    FMOD_Sound_GetFormat ( sound, 0, 0, &channels, &bits );
-    if ( bits != 16 && bits != 8 ) {
-      cerr << bits << " bit samples are not supported!" << endl;
-      return 0;
+//#define NUMSAMPLES 16384
+#define NUMSAMPLES 32768
+  int channels = getChannels();
+  int samplerate = getSamplerate();
+  SAMPLETYPE* samples = new SAMPLETYPE[NUMSAMPLES];
+
+  uint totalsteps = getEndPos() - getStartPos();
+  BPMDetect bpmd( channels, samplerate );
+
+  uint cprogress = 0, pprogress = 0;
+  int readsamples = 0;
+  while(!m_bStop && 0 < (readsamples = readSamples(samples, NUMSAMPLES))) {
+    bpmd.inputSamples( samples, readsamples/channels );
+    cprogress = currentPos() - getStartPos();
+
+    setProgress(100.*cprogress / (double) totalsteps );
+    #ifdef NO_GUI
+    while ( (100*cprogress/totalsteps) > pprogress ) {
+      ++pprogress;
+      clog << "\r" << (100*cprogress/totalsteps) << "% " << flush;
     }
-
-    BPMDetect bpmd( channels, ( int ) frequency );
-    int cprogress = 0, pprogress = 0;
-    do {
-      if ( bits == 16 ) {
-        int16_t data16[ CHUNKSIZE / 2 ];
-        result = FMOD_Sound_ReadData( sound, data16, CHUNKSIZE, &read );
-        for ( unsigned int i = 0; i < read / 2; i++ ) {
-          samples[ i ] = ( float ) data16[ i ] / 32768;
-        }
-        bpmd.inputSamples( samples, read / ( 2 * channels ) );
-      } else if ( bits == 8 ) {
-        int8_t  data8[ CHUNKSIZE ];
-        result = FMOD_Sound_ReadData( sound, data8, CHUNKSIZE, &read );
-        for ( unsigned int i = 0; i < read; i++ ) {
-          samples[ i ] = ( float ) data8[ i ] / 128;
-        }
-        bpmd.inputSamples( samples, read / channels );
-      }
-      cprogress++;
-
-      setProgress(100.*cprogress / (double) totalsteps );
-      #ifdef NO_GUI
-      while ( (100*cprogress/totalsteps) > pprogress ) {
-        if( (++pprogress % 2) ) clog << ".";
-      }
-      #endif
-    } while ( result == FMOD_OK && read == CHUNKSIZE && !m_bStop);
-    FMOD_Sound_Release(sound); sound = 0;
-  #ifdef NO_GUI
-    clog << endl;
-  #endif
-    setProgress(100);
-
-    if(m_bStop) return 0;
-    double BPM = bpmd.getBpm();
-    BPM = correctBPM(BPM);
-    setBPM(BPM);
-    return BPM;
+    #endif
   }
+
+  delete [] samples;
+#ifdef NO_GUI
+  clog << "\r" << flush;
+#endif
+  setProgress(100);
+  if(m_bStop) return 0;
+  double BPM = bpmd.getBpm();
+  BPM = correctBPM(BPM);
+  setBPM(BPM);
+  return BPM;
 }
 
 void Track::readTags() {

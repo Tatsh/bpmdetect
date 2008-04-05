@@ -41,8 +41,6 @@ enum TRACKTYPE {
   TYPE_FLAC      = 4,
 };
 
-/**
-*/
 class Track
 #ifndef NO_GUI
   : public QThread
@@ -94,6 +92,7 @@ public:
   void setEndPos( uint ms );
   uint getEndPos() const;
   int getSamplerate() const;
+  int getSampleBytes() const;
   int getSampleBits() const;
   int getChannels() const;
 
@@ -117,9 +116,10 @@ protected:
   void setLength( unsigned int msec );
   void setProgress(double progress);
   void setSamplerate( int samplerate );
-  void setSampleBits( int bits );
+  void setSampleBytes( int bytes );
   void setChannels( int channels );
   void setTrackType( TRACKTYPE type );
+  void setCurrentPos( uint ms );
 
   void readTagsMPEG();
   void readTagsWAV();
@@ -140,6 +140,7 @@ protected:
   void saveFLAC_TAG( std::string sBPM, std::string filename );
 #endif // HAVE_TAGLIB
 
+  FMOD_SYSTEM* m_system;
   FMOD_SOUND* m_sound;
 
 private:
@@ -156,9 +157,10 @@ private:
   double m_dProgress;
   
   int m_iSamplerate;
-  int m_iSampleBits;
+  int m_iSampleBytes;
   int m_iChannels;
   TRACKTYPE m_eType;
+  unsigned long long m_iCurPosBytes;
 
 #ifndef NO_GUI
 protected:

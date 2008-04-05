@@ -53,11 +53,7 @@ void display_help() {
          "-r     - remove stored BPMs\n");
 }
 
-/**
- * @brief Create and init FMOD sound system
- * @return true if initialized successfully
- * @return false on error
- */
+
 bool Init_FMOD_System() {
   FMOD_RESULT result;
   unsigned int version;
@@ -110,7 +106,7 @@ bool Init_FMOD_System() {
   }
 
   // init system
-  result = FMOD_System_Init( SoundSystem, 3, FMOD_INIT_NORMAL, 0 );
+  result = FMOD_System_Init( SoundSystem, 1, FMOD_INIT_NORMAL, 0 );
   if ( result == FMOD_OK ) {
     return true;
   } else {
