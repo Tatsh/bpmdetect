@@ -23,7 +23,7 @@
 #ifndef DLGTESTBPM_H
 #define DLGTESTBPM_H
 
-#include <fmodex/fmod.h>
+#include "trackfmod.h"
 #include "dlgtestbpmdlg.h"
 
 /**
@@ -42,7 +42,7 @@ public slots:
   void setPos3();
   void setPos4();
   void setCustomPos( uint msec );
-  /// Stop playing track
+  /// Stop the track
   void stop();
   /// Set number of beats to loop
   void setNumBeats( const QString& );

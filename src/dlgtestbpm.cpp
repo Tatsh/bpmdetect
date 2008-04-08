@@ -33,8 +33,6 @@
 
 using namespace std;
 
-extern FMOD_SYSTEM* SoundSystem;
-
 /**
  * @brief Constroctor
  *
@@ -47,7 +45,7 @@ dlgTestBPM::dlgTestBPM( QString file, float dBPM,
                   QWidget *parent, const char *name )
     : dlgTestBPMdlg( parent, name ) {
   FMOD_RESULT result;
-  system = SoundSystem;
+  system = TrackFMOD::getFMODSystem();
   bpm = dBPM;
   QString sbpm; sbpm.sprintf( "%.2f", bpm );
   sbpm.rightJustify( '0', 6 );

@@ -28,17 +28,13 @@
 
 #include <unistd.h>
 
-#include <fmodex/fmod.h>
-#include <fmodex/fmod_errors.h>
-
 #include "trackproxy.h"
+#include "trackfmod.h"  // for FMOD system
 
 #include <iostream>
 using namespace std;
 
 const char* version = "0.6";   ///< App version
-FMOD_SYSTEM* SoundSystem = 0;  ///< FMOD sound system object
-
 
 void display_help() {
   printf("BPMDetect %s\n", version);
@@ -54,86 +50,6 @@ void display_help() {
          "-p     - disable proggress\n");
 }
 
-
-bool Init_FMOD_System() {
-  FMOD_RESULT result;
-  unsigned int version;
-  int numdrivers = 0;
-#ifdef DEBUG
-  clog << "Initializing FMOD sound system" << endl;
-#endif
-  if(SoundSystem) return true;
-
-  // create FMOD system
-  result = FMOD_System_Create( &SoundSystem );
-  if( result != FMOD_OK ) {
-    cerr << FMOD_ErrorString(result) << endl;
-    return false;
-  }
-  // check FMOD version
-  result = FMOD_System_GetVersion(SoundSystem, &version);
-#ifdef DEBUG
-  if(result != FMOD_OK) {
-    clog << "Can not get FMOD version" << endl;
-  } else if (version < FMOD_VERSION) {
-    fprintf(stderr, "Warning: You are using an old version of FMOD (%08x)."
-                    "This program requires %08x\n", version, FMOD_VERSION);
-  } else fprintf(stderr, "FMOD version: %08x\n", version);
-#endif
-  result = FMOD_System_GetNumDrivers(SoundSystem, &numdrivers);
-#ifdef DEBUG
-  if(result != FMOD_OK) clog << "Can't get number of drivers" << endl;
-#endif
-  if(numdrivers > 0) {
-    for( int i = 0; i < numdrivers; ++i ) {
-      result = FMOD_System_SetDriver(SoundSystem, i);
-      if(result == FMOD_OK) {
-        char name[256];
-        #if (FMOD_VERSION >= 0x00041100)
-          result = FMOD_System_GetDriverInfo(SoundSystem, i, name, 256, 0);
-        #else
-          result = FMOD_System_GetDriverName(SoundSystem, i, name, 256);
-        #endif
-        #ifdef DEBUG
-        if(result == FMOD_OK) clog << "Driver: " << name << endl;
-        #endif
-        break;
-      }
-    }
-  } else {
-    cerr << "No soundcard found" << endl;
-    cerr << FMOD_ErrorString(result) << endl;
-    return false;
-  }
-
-  // init system
-  result = FMOD_System_Init( SoundSystem, 1, FMOD_INIT_NORMAL, 0 );
-  if ( result == FMOD_OK ) {
-    return true;
-  } else {
-    cerr << "System init: " << FMOD_ErrorString(result) << endl;
-    return false;
-  }
-}
-
-/// @brief Close FMOD sound system
-void Close_FMOD_System() {
-  if(!SoundSystem) return;
-#ifdef DEBUG
-  clog << "Closing FMOD sound system" << endl;
-#endif
-  FMOD_CHANNELGROUP* masterchgrp = 0;
-  if(FMOD_OK == FMOD_System_GetMasterChannelGroup(SoundSystem, &masterchgrp)) {
-    FMOD_ChannelGroup_Stop(masterchgrp);
-    FMOD_ChannelGroup_SetVolume(masterchgrp, 0.0);
-    FMOD_ChannelGroup_Release(masterchgrp);
-    masterchgrp = 0;
-  }
-  FMOD_System_Close(SoundSystem);
-  FMOD_System_Release(SoundSystem);
-  SoundSystem = 0;
-}
-
 int main( int argc, char **argv ) {
   opterr = 0;
   int c;
@@ -143,7 +59,7 @@ int main( int argc, char **argv ) {
        clear    = false,
        progress = true;
 
-  while ((c = getopt (argc, argv, "csdrh")) != -1) {
+  while ((c = getopt (argc, argv, "csdrph")) != -1) {
     switch (c) {
       case 's':
         bpmsave = 1;
@@ -190,7 +106,7 @@ int main( int argc, char **argv ) {
     return 0;
   }
 
-  if ( !Init_FMOD_System() ) {
+  if ( !TrackFMOD::initFMODSystem() ) {
     cerr << "Error: Your soundcard is either busy or not present" << endl;
     return 1;
   }
@@ -236,6 +152,6 @@ int main( int argc, char **argv ) {
   }
 #endif  // NO_GUI
 
-  Close_FMOD_System();
+  TrackFMOD::closeFMODSystem();
   return 0;
 }

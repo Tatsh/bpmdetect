@@ -28,6 +28,10 @@
 
 class TrackFMOD : public Track {
 public:
+  static bool initFMODSystem();
+  static void closeFMODSystem();
+  static FMOD_SYSTEM* getFMODSystem();
+
   TrackFMOD( const char* filename, bool readtags = true );
   TrackFMOD( std::string filename, bool readtags = true );
   ~TrackFMOD();
@@ -63,7 +67,6 @@ protected:
   void saveFLAC_TAG( std::string sBPM );
 #endif // HAVE_TAGLIB
 
-  FMOD_SYSTEM* m_system;
   FMOD_SOUND* m_sound;
 
 private:

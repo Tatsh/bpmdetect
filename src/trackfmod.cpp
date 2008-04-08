@@ -47,18 +47,99 @@
 using namespace std;
 using namespace soundtouch;
 
-extern FMOD_SYSTEM* SoundSystem;
+static FMOD_SYSTEM* m_system;
+
+bool TrackFMOD::initFMODSystem() {
+  FMOD_RESULT result;
+  unsigned int version;
+  int numdrivers = 0;
+#ifdef DEBUG
+  clog << "Initializing FMOD sound system" << endl;
+#endif
+  if(m_system) return true;
+
+  // create FMOD system
+  result = FMOD_System_Create( &m_system );
+  if( result != FMOD_OK ) {
+    cerr << FMOD_ErrorString(result) << endl;
+    return false;
+  }
+  // check FMOD version
+  result = FMOD_System_GetVersion(m_system, &version);
+#ifdef DEBUG
+  if(result != FMOD_OK) {
+    clog << "Can not get FMOD version" << endl;
+  } else if (version < FMOD_VERSION) {
+    fprintf(stderr, "Warning: You are using an old version of FMOD (%08x)."
+                    "This program requires %08x\n", version, FMOD_VERSION);
+  } else fprintf(stderr, "FMOD version: %08x\n", version);
+#endif
+  result = FMOD_System_GetNumDrivers(m_system, &numdrivers);
+#ifdef DEBUG
+  if(result != FMOD_OK) clog << "Can't get number of drivers" << endl;
+#endif
+  if(numdrivers > 0) {
+    for( int i = 0; i < numdrivers; ++i ) {
+      result = FMOD_System_SetDriver(m_system, i);
+      if(result == FMOD_OK) {
+        char name[256];
+        #if (FMOD_VERSION >= 0x00041100)
+          result = FMOD_System_GetDriverInfo(m_system, i, name, 256, 0);
+        #else
+          result = FMOD_System_GetDriverName(m_system, i, name, 256);
+        #endif
+        #ifdef DEBUG
+        if(result == FMOD_OK) clog << "Driver: " << name << endl;
+        #endif
+        break;
+      }
+    }
+  } else {
+    cerr << "No soundcard found" << endl;
+    cerr << FMOD_ErrorString(result) << endl;
+    return false;
+  }
+
+  // init system
+  result = FMOD_System_Init( m_system, 1, FMOD_INIT_NORMAL, 0 );
+  if ( result == FMOD_OK ) {
+    return true;
+  } else {
+    cerr << "System init: " << FMOD_ErrorString(result) << endl;
+    return false;
+  }
+}
+
+/// @brief Close FMOD sound system
+void TrackFMOD::closeFMODSystem() {
+  if(!m_system) return;
+#ifdef DEBUG
+  clog << "Closing FMOD sound system" << endl;
+#endif
+  FMOD_CHANNELGROUP* masterchgrp = 0;
+  if(FMOD_OK == FMOD_System_GetMasterChannelGroup(m_system, &masterchgrp)) {
+    FMOD_ChannelGroup_Stop(masterchgrp);
+    FMOD_ChannelGroup_SetVolume(masterchgrp, 0.0);
+    FMOD_ChannelGroup_Release(masterchgrp);
+    masterchgrp = 0;
+  }
+  FMOD_System_Close(m_system);
+  FMOD_System_Release(m_system);
+  m_system = 0;
+}
+
+FMOD_SYSTEM* TrackFMOD::getFMODSystem() {
+  return m_system;
+}
 
 TrackFMOD::TrackFMOD( const char* fname, bool readtags ) : Track() {
   m_sound = 0;
-  m_system = SoundSystem;
   m_iCurPosBytes = 0;
   setFilename( fname, readtags );
 }
 
 TrackFMOD::TrackFMOD( string fname, bool readtags ) : Track() {
   m_sound = 0;
-  m_system = SoundSystem;
   m_iCurPosBytes = 0;
   setFilename( fname, readtags );
 }
