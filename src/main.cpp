@@ -43,11 +43,12 @@ void display_help() {
 #ifndef NO_GUI
   printf("-c     - console mode\n");
 #endif
-  printf("-h     - show this help\n"\
-         "-s     - save BPM to tag\n"\
-         "-d     - detect (do not use BPMs stored in tag)\n"
-         "-r     - remove stored BPMs\n",
-         "-p     - disable proggress\n");
+  printf("-h     - show this help\n"
+         "-s     - save BPMs to tags\n"
+         "-d     - detect (do not print BPMs stored in tags)\n"
+         "-r     - remove stored BPMs from tags\n"
+         "-p     - disable progress display (console)\n"
+         "\n");
 }
 
 int main( int argc, char **argv ) {
@@ -62,10 +63,10 @@ int main( int argc, char **argv ) {
   while ((c = getopt (argc, argv, "csdrph")) != -1) {
     switch (c) {
       case 's':
-        bpmsave = 1;
+        bpmsave = true;
         break;
       case 'd':
-        redetect = 1;
+        redetect = true;
         break;
       case 'h':
         display_help();
@@ -139,7 +140,7 @@ int main( int argc, char **argv ) {
 #ifndef NO_GUI
   if(!console) {
     QApplication app(argc, argv);
-  
+
     dlgBPMDetect *mainWin = new dlgBPMDetect();
     app.setMainWidget( mainWin );
     #ifdef __WIN32

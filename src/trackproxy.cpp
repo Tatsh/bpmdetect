@@ -46,6 +46,8 @@ void TrackProxy::open() {
   setSamplerate(m_pTrack->samplerate());
   setSampleBytes(m_pTrack->sampleBytes());
   setTrackType((TRACKTYPE) m_pTrack->trackType());
+  m_pTrack->enableConsoleProgress(m_bCProgress);
+  m_pTrack->setRedetect(redetect());
 }
 
 void TrackProxy::close() {
@@ -103,7 +105,7 @@ void TrackProxy::setFormat(std::string format) {
 }
 
 void TrackProxy::enableConsoleProgress(bool enable) {
-  Track::enableConsoleProgress(enable);
+  m_bCProgress = enable;
   if(m_pTrack) m_pTrack->enableConsoleProgress(enable);
 }
 

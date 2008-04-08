@@ -52,6 +52,7 @@ protected:
 
 private:
   Track* m_pTrack;
+  bool m_bCProgress;
 };
 
 #endif  // TRACKPROXY_H

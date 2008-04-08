@@ -378,7 +378,7 @@ double Track::detectBPM() {
 
     setProgress(100.*cprogress / (double) totalsteps );
     if(m_bConProgress) {
-    #ifndef NO_GUI
+    #ifdef NO_GUI
       while ( (100*cprogress/totalsteps) > pprogress ) {
         ++pprogress;
         clog << "\r" << (100*cprogress/totalsteps) << "% " << flush;
