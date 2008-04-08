@@ -87,7 +87,7 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
 
   connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
 
-  m_pTrack = new Track("");
+  m_pTrack = new TrackProxy("");
 
   connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
   m_qTimer.start(20);
@@ -196,7 +196,8 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
     if(!skipped) {
       m_pCurItem->setText(0, m_pTrack->strBPM("000.00"));
       if ( chbSave->isChecked() )
-        m_pTrack->saveBPM(cbFormat->currentText());
+        m_pTrack->setFormat(cbFormat->currentText());
+        if(chbSave->isChecked()) m_pTrack->saveBPM();
     }
     m_pCurItem = m_pCurItem->itemBelow();
   }
@@ -226,8 +227,8 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
 }
 
 void dlgBPMDetect::slotTimerDone() {
-  CurrentProgress->setProgress((int) (10 * m_pTrack->getProgress()));
-  TotalProgress->setProgress(100*(m_iCurTrackIdx-1) + (int) m_pTrack->getProgress());
+  CurrentProgress->setProgress((int) (10 * m_pTrack->progress()));
+  TotalProgress->setProgress(100*(m_iCurTrackIdx-1) + (int) m_pTrack->progress());
   if(getStarted() && m_pTrack->finished()) {
     slotDetectNext();
   }
@@ -236,12 +237,12 @@ void dlgBPMDetect::slotTimerDone() {
 void dlgBPMDetect::slotAddFiles( QStringList &files ) {
   QStringList::Iterator it = files.begin();
   while ( it != files.end() ) {
-    Track track( (*it).local8Bit(), true );
+    TrackProxy track( (*it).local8Bit(), true );
     QString bpm, artist, title, length;
 
     bpm = track.strBPM("000.00");
-    artist = track.getArtist();
-    title = track.getTitle();
+    artist = track.artist();
+    title = track.title();
     length = track.strLength();
     new QListViewItem( TrackList, bpm, artist, title, length, *it );
     ++it;
@@ -388,8 +389,9 @@ void dlgBPMDetect::slotSaveBPM() {
   QListViewItemIterator it( TrackList );
   for ( ; it.current(); it++ ) {
     if(it.current()->isSelected()) {
-      Track track(it.current()->text(TrackList->columns() - 1).local8Bit());
+      TrackProxy track(it.current()->text(TrackList->columns() - 1).local8Bit());
       track.setBPM(it.current()->text(0).toDouble());
+      track.setFormat(cbFormat->currentText());
       track.saveBPM();
     }
   }
@@ -406,7 +408,7 @@ void dlgBPMDetect::slotClearBPM() {
       if(clear == QMessageBox::No) return;
     }
     if(it.current()->isSelected()) {
-      Track track(it.current()->text(TrackList->columns() - 1).local8Bit());
+      TrackProxy track(it.current()->text(TrackList->columns() - 1).local8Bit());
       track.clearBPM();
       it.current()->setText(0, "000.00");
     }

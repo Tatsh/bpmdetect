@@ -27,6 +27,8 @@ BPMDetect.cpp
 PeakFinder.cpp
 FIFOSampleBuffer.cpp
 track.cpp
+trackproxy.cpp
+trackfmod.cpp
 """
 bpmdetect_sources_gui="""
 dlgbpmdetectdlg.ui

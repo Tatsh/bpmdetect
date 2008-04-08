@@ -31,7 +31,7 @@
 #include <fmodex/fmod.h>
 #include <fmodex/fmod_errors.h>
 
-#include "track.h"
+#include "trackproxy.h"
 
 #include <iostream>
 using namespace std;
@@ -50,7 +50,8 @@ void display_help() {
   printf("-h     - show this help\n"\
          "-s     - save BPM to tag\n"\
          "-d     - detect (do not use BPMs stored in tag)\n"
-         "-r     - remove stored BPMs\n");
+         "-r     - remove stored BPMs\n",
+         "-p     - disable proggress\n");
 }
 
 
@@ -139,7 +140,8 @@ int main( int argc, char **argv ) {
   bool console  = false,
        redetect = false,
        bpmsave  = false,
-       clear    = false;
+       clear    = false,
+       progress = true;
 
   while ((c = getopt (argc, argv, "csdrh")) != -1) {
     switch (c) {
@@ -156,6 +158,9 @@ int main( int argc, char **argv ) {
         clear = true;
         // do not start GUI, just clear BPMs
         console = true;
+        break;
+      case 'p':
+        progress = false;
         break;
     #ifndef NO_GUI
       case 'c':
@@ -198,8 +203,9 @@ int main( int argc, char **argv ) {
     }
 
     if(console) {
-      Track track(argv[idx]);
+      TrackProxy track(argv[idx]);
       if(!clear) {
+        track.enableConsoleProgress(progress);
         track.setRedetect(redetect);
         track.detectBPM();
         if(bpmsave) track.saveBPM();

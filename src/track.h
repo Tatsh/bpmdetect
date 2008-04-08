@@ -31,26 +31,22 @@
 # include <qmutex.h>
 #endif
 
-#include <fmodex/fmod.h>
-
-enum TRACKTYPE {
-  TYPE_UNKNOWN   = 0,
-  TYPE_MPEG      = 1,
-  TYPE_WAV       = 2,
-  TYPE_OGGVORBIS = 3,
-  TYPE_FLAC      = 4,
-};
-
 class Track
 #ifndef NO_GUI
   : public QThread
 #endif
 {
+  friend class TrackProxy;
 public:
-  Track( std::string filename, bool readtags = false );
-  Track( const char* filename, bool readtags = false );
-  ~Track();
+  virtual ~Track();
 
+  enum TRACKTYPE {
+    TYPE_UNKNOWN   = 0,
+    TYPE_MPEG      = 1,
+    TYPE_WAV       = 2,
+    TYPE_OGGVORBIS = 3,
+    TYPE_FLAC      = 4,
+  };
   /// Convert std::string to BPM
   static double str2bpm( std::string sBPM );
   /// Convert BPM to std::string using selected format
@@ -60,107 +56,94 @@ public:
   static double getMinBPM();
   static double getMaxBPM();
 
-  double detectBPM();
-  /// Save BPM to tag formatted using format
-  void saveBPM( std::string format = "0.00" );
-  /// Clear stored BPM
   void clearBPM();
-  /// Print BPM to stdout formatted using format
-  void printBPM( std::string format = "0.00" );
+  virtual double detectBPM();
+  void saveBPM();
+  void printBPM();
+  virtual void setBPM( double dBPM );
   double getBPM() const;
-  void setBPM( double dBPM );
-  /// Set the filename
-  void setFilename( const char* filename, bool readtags = false );
-  void setFilename( std::string filename, bool readtags = false );
-  std::string getFilename() const;
+  std::string strBPM();
+  std::string strBPM( std::string format );
+
+  void setFilename( const char* filename, bool readtags = true );
+  void setFilename( std::string filename, bool readtags = true );
+  std::string filename() const;
+
   /// Get track length in miliseconds
-  unsigned int getLength() const;
-  /// Return BPM as std::string formatted using format
-  std::string strBPM( std::string format = "0.00" );
+  unsigned int length() const;
   std::string strLength();
   bool isValid() const;
-  std::string getArtist() const;
-  std::string getTitle() const;
-  void setRedetect(bool redetect);
-  bool getRedetect() const;
-  double getProgress() const;
+  std::string artist() const;
+  std::string title() const;
+  virtual void setRedetect(bool redetect);
+  bool redetect() const;
+  virtual double progress() const;
+  virtual void setFormat(std::string format = "0.00");
+  std::string format() const;
+  virtual void enableConsoleProgress(bool enable = true);
+
   /// Stop detection if running
-  void stop();
+  virtual void stop();
 
-  void setStartPos( uint ms );
-  uint getStartPos() const;
-  void setEndPos( uint ms );
-  uint getEndPos() const;
-  int getSamplerate() const;
-  int getSampleBytes() const;
-  int getSampleBits() const;
-  int getChannels() const;
-
-  TRACKTYPE getTrackType() const;
-
-  virtual void readTags();
+  virtual void setStartPos( uint ms );
+  uint startPos() const;
+  virtual void setEndPos( uint ms );
+  uint endPos() const;
+  int samplerate() const;
+  int sampleBytes() const;
+  int sampleBits() const;
+  int channels() const;
+  int trackType() const;
+  /// Read tags (artist, title, bpm)
+  virtual void readTags() = 0;
 
 protected:
-  void init();
-  virtual void open();
-  virtual void close();
-  virtual void seek( uint ms );
-  virtual uint currentPos();
+  Track();
+  /// Open the track (filename set by setFilename)
+  virtual void open() {};
+  /// Close the track
+  virtual void close() {};
+  /// Seek to @a ms miliseconds
+  virtual void seek( uint ms ) = 0;
+  /// Return the current position from which samples will be read (miliseconds)
+  virtual uint currentPos() = 0;
   /// Read @a num samples from current position into @a buffer
-  virtual int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+  virtual int readSamples( soundtouch::SAMPLETYPE* buffer, int num ) = 0;
+  /// Store @a sBPM into tag
+  virtual void storeBPM( std::string sBPM ) = 0;
+  /// Remove BPM from tag
+  virtual void removeBPM() = 0;
 
+  void init();
   double correctBPM( double dBPM );
   void setValid( bool bValid );
   void setArtist( std::string artist );
   void setTitle( std::string title );
   void setLength( unsigned int msec );
-  void setProgress(double progress);
   void setSamplerate( int samplerate );
   void setSampleBytes( int bytes );
   void setChannels( int channels );
   void setTrackType( TRACKTYPE type );
-  void setCurrentPos( uint ms );
-
-  void readTagsMPEG();
-  void readTagsWAV();
-  void readTagsOGG();
-  void readTagsFLAC();
-// #ifdef HAVE_ID3LIB
-  void saveMPEG_ID3( std::string sBPM, std::string filename );
-  void saveWAV_ID3( std::string sBPM, std::string filename );
-//#endif // HAVE_ID3LIB
-  void clearBPMMPEG();
-  void clearBPMWAV();
-  void clearBPMOGG();
-  void clearBPMFLAC();
-#ifdef HAVE_TAGLIB
-  void saveMPEG_TAG( std::string sBPM, std::string filename );
-  void saveWAV_TAG( std::string sBPM, std::string filename );
-  void saveOGG_TAG( std::string sBPM, std::string filename );
-  void saveFLAC_TAG( std::string sBPM, std::string filename );
-#endif // HAVE_TAGLIB
-
-  FMOD_SYSTEM* m_system;
-  FMOD_SOUND* m_sound;
+  void setProgress(double progress);
 
 private:
   std::string m_sFilename;
   std::string m_sArtist;
   std::string m_sTitle;
   double m_dBPM;
-  unsigned int m_iLength;
-  unsigned int m_iStartPos;
-  unsigned int m_iEndPos;
+  uint m_iLength;
+  uint m_iStartPos;
+  uint m_iEndPos;
   bool m_bValid;
   bool m_bRedetect;
   bool m_bStop;
+  bool m_bConProgress;
   double m_dProgress;
-  
   int m_iSamplerate;
   int m_iSampleBytes;
   int m_iChannels;
   TRACKTYPE m_eType;
-  unsigned long long m_iCurPosBytes;
+  std::string m_sBPMFormat;
 
 #ifndef NO_GUI
 protected:
@@ -168,12 +151,10 @@ protected:
 
 public:
   void startDetection();
-  void setPriority(QThread::Priority priority);
 
 private:
   QMutex m_qMutex;
-  QThread::Priority m_iPriority;
-#endif
+#endif  // NO_GUI
 };
 
-#endif
+#endif  // TRACK_H

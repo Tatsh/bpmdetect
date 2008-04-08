@@ -29,7 +29,7 @@
 #include <qtimer.h>
 
 #include "dlgbpmdetectdlg.h"
-#include "track.h"
+#include "trackproxy.h"
 
 class QPopupMenu;
 class QListViewItem;
@@ -88,7 +88,7 @@ private:
   int m_iCurTrackIdx;  // for total progress
   QString m_qRecentPath;
   bool m_bStarted;
-  Track* m_pTrack;
+  TrackProxy* m_pTrack;
   QTimer m_qTimer;
 };
 
