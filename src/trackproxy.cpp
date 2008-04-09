@@ -48,6 +48,7 @@ void TrackProxy::open() {
   setTrackType((TRACKTYPE) m_pTrack->trackType());
   m_pTrack->enableConsoleProgress(m_bCProgress);
   m_pTrack->setRedetect(redetect());
+  m_pTrack->setFormat(format());
 }
 
 void TrackProxy::close() {

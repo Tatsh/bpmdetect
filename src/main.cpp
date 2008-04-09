@@ -26,41 +26,61 @@
 #include <qlocale.h>
 #endif
 
-#include <unistd.h>
+#include <getopt.h>
 
 #include "trackproxy.h"
 #include "trackfmod.h"  // for FMOD system
 
 #include <iostream>
+#include <string>
 using namespace std;
 
 const char* version = "0.6";   ///< App version
 
 void display_help() {
-  printf("BPMDetect %s\n", version);
+  printf("BPMDetect version %s\n\n", version);
   printf("Usage:\n bpmdetect [switches] [files]\n\n", version);
   printf("Switches:\n");
 #ifndef NO_GUI
-  printf("-c     - console mode\n");
+  printf("-c --console         - run in console mode\n");
 #endif
-  printf("-h     - show this help\n"
-         "-s     - save BPMs to tags\n"
-         "-d     - detect (do not print BPMs stored in tags)\n"
-         "-r     - remove stored BPMs from tags\n"
-         "-p     - disable progress display (console)\n"
+  printf("-h --help            - show this help\n"
+         "-s --save            - save BPMs to tags\n"
+         "-d --detect          - redetect (do not print BPMs stored in tags)\n"
+         "-r --remove          - remove stored BPMs from tags\n"
+         "-p --noprogress      - disable progress display (console)\n"
+         "-f --format <format> - set BPM format (default is 0.00)\n"
          "\n");
 }
 
 int main( int argc, char **argv ) {
-  opterr = 0;
-  int c;
   bool console  = false,
        redetect = false,
        bpmsave  = false,
        clear    = false,
+       bformat  = false,
        progress = true;
+  string format;
 
-  while ((c = getopt (argc, argv, "csdrph")) != -1) {
+  static struct option long_options[] = {
+  #ifndef NO_GUI
+    {"console",    no_argument,       0, 'c'},
+  #endif
+    {"format",     required_argument, 0, 'f'},
+    {"save",       no_argument,       0, 's'},
+    {"detect",     no_argument,       0, 'd'},
+    {"remove",     no_argument,       0, 'r'},
+    {"noprogress", no_argument,       0, 'p'},
+    {"help",       no_argument,       0, 'h'},
+    {0, 0, 0, 0}
+  };
+
+  while ( true ) {
+    int option_index = 0;
+    int c;
+    c = getopt_long(argc, argv, "csdrphf:",
+                    long_options, &option_index);
+    if(c < 0) break;
     switch (c) {
       case 's':
         bpmsave = true;
@@ -73,25 +93,24 @@ int main( int argc, char **argv ) {
         return 0;
       case 'r':
         clear = true;
-        // do not start GUI, just clear BPMs
+        // do not start GUI, just remove BPMs
         console = true;
         break;
       case 'p':
         progress = false;
+        break;
+      case 'f':
+        bformat = true;
+        format = optarg;
         break;
     #ifndef NO_GUI
       case 'c':
         console = true;
         break;
     #endif
-      case '?':
-      #ifdef NO_GUI
-        fprintf (stderr, "Unknown option '-%c'.\n", optopt);
+      case '?': default:
         display_help();
-        return 1;
-      #endif
-      default:
-        break;
+        return 0;
     }
   }
 
@@ -102,7 +121,7 @@ int main( int argc, char **argv ) {
   QStringList filelist;
   if(console && argc - optind < 1)
 #endif
-  {
+  { // no files passed
     display_help();
     return 0;
   }
@@ -115,15 +134,13 @@ int main( int argc, char **argv ) {
   for(int idx = optind; idx < argc; idx++) {
     if(console) {
       if(optind != argc - 1)
-        cout << "[" << idx + 1 - optind << "/" << argc - optind << "] "
+        cout << "[" << idx + 1 - optind << "/" << argc - optind << "] " 
              << argv[idx] << endl;
-    }
-
-    if(console) {
       TrackProxy track(argv[idx]);
       if(!clear) {
         track.enableConsoleProgress(progress);
         track.setRedetect(redetect);
+        if(bformat) track.setFormat(format);
         track.detectBPM();
         if(bpmsave) track.saveBPM();
         track.printBPM();
