@@ -29,6 +29,13 @@ A debug build of the program can be created by running:
 $ scons configure debug=1
 $ scons
 
+To compile only console version run:
+$ scons configure console=1
+$ scons
+
+For more options, run
+scons help
+
 Finally, the software can be removed from your system by running
 
 $ scons -c install
@@ -46,13 +53,6 @@ have to give those paths. You may also want to tune the build.
 
 In these cases, you must first run "scons configure" with some options
 before running "scons" and "scons install"
-
-Here are some examples :
-$   scons configure qtincludes=/usr/include/qt/
-To install in some particular location with additional include paths
-$   scons configure prefix=~/tmp extraincludes=/tmp/include:/usr/local/include
-For AMD64 and platforms where folders are like /usr/lib64
-$   scons configure libsuffix=64
 
 For more options, run
 scons --help

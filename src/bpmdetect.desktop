@@ -4,5 +4,5 @@ Name=BPMDetect
 Exec=bpmdetect
 Icon=bpmdetect-icon.png
 Type=Application
-Comment=BPM detection utility
+Comment=Automatic BPM detection utility
 Categories=Application;AudioVideo;Audio:
