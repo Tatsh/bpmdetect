@@ -345,8 +345,8 @@ void dlgBPMDetect::slotShowAbout() {
   QString abouttext = " \
 Version:    \t%1 \n \
 Description:\t%2 \n \
-License:    \tGNU General Public License \n\
- \n\
+License:    \tGNU General Public License \n \
+\n \
 Author:     \tMartin Sakmar \n \
 e-mail:     \tmartin.sakmar@gmail.com \n \
 ";
