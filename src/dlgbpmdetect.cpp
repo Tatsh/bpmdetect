@@ -239,7 +239,6 @@ void dlgBPMDetect::slotAddFiles( QStringList &files ) {
   while ( it != files.end() ) {
     TrackProxy track( (*it).local8Bit(), true );
     QString bpm, artist, title, length;
-
     bpm = track.strBPM("000.00");
     artist = track.artist();
     title = track.title();

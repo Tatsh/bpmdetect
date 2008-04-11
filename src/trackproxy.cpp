@@ -38,7 +38,7 @@ TrackProxy::~TrackProxy() {
 }
 
 void TrackProxy::open() {
-  if(isValid())
+  if(isValid()) close();
   if(!m_pTrack) m_pTrack = Track::createTrack(filename());
   m_pTrack->open();
   setValid(m_pTrack->isValid());

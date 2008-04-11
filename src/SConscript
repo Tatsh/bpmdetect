@@ -90,37 +90,48 @@ def check_pkgconfig(env):
     env['PKGCONFIG'] = 0
 
 def check_taglib(env):
+  tagprefix = ''
   if env['PKGCONFIG']:
-    print "Checking for taglib               : ",
     tagprefix = os.popen("pkg-config --variable=prefix taglib").read().strip()
-    if len(tagprefix):
-      tagver = os.popen("pkg-config --modversion taglib").read().strip()
-      print GREEN+"found "+NORMAL+BOLD+"version "+tagver+NORMAL
-      # includes
-      print "taglib includes                   : ",
-      tagincludes = os.popen('pkg-config --cflags-only-I taglib').read().strip()[2:]
-      print BOLD+tagincludes+NORMAL
-      # libs
-      print "taglib library                    : ",
-      taglibpath = os.popen('pkg-config --libs-only-L taglib').read().strip()[2:]
-      if not len(taglibpath):
-        taglibpath = tagprefix + '/lib'
-      print BOLD+taglibpath+NORMAL
+  
+  print "Checking for taglib               : ",
+  if len(tagprefix) and env['PKGCONFIG']:
+    tagver = os.popen("pkg-config --modversion taglib").read().strip()
+    print GREEN+"found "+NORMAL+BOLD+"version "+tagver+NORMAL
+    # includes
+    print "taglib includes                   : ",
+    tagincludes = os.popen('pkg-config --cflags-only-I taglib').read().strip()[2:]
+    print BOLD+tagincludes+NORMAL
+    # libs
+    print "taglib library                    : ",
+    taglibpath = os.popen('pkg-config --libs-only-L taglib').read().strip()[2:]
+    if not len(taglibpath):
+      taglibpath = tagprefix + '/lib'
+    print BOLD+taglibpath+NORMAL
 
+    env.Append(CPPDEFINES = ['HAVE_TAGLIB'])
+    env.Append(CPPPATH = tagincludes)
+    env.Append(LIBS = ['tag', 'z'])
+    env.Append(LIBPATH = taglibpath)
+  else:
+    taglibpath = '../libs'
+    tagincludes = '../includes/taglib'
+    # TODO: check lib with header
+    if 1:
       env.Append(CPPDEFINES = ['HAVE_TAGLIB'])
       env.Append(CPPPATH = tagincludes)
       env.Append(LIBS = ['tag', 'z'])
       env.Append(LIBPATH = taglibpath)
+      print BLUE+'OK'+NORMAL
     else:
       print RED+"not found"+NORMAL
-  else:
-    print RED+"not found"+NORMAL
-    # TODO: check without pkg-config
 
 def configure(env):
   # unset existing variables
   if env.has_key('PREFIX'):
     env.__delitem__('PREFIX')
+  if env.has_key('DEBUG'):
+    env.__delitem__('DEBUG')
   if env.has_key('EXTRAINCLUDES'):
     env.__delitem__('EXTRAINCLUDES')
   if env.has_key('ISCONFIGURED'):
@@ -150,9 +161,6 @@ def configure(env):
   if env['ARGS'].get('mingw', None) or sys.platform.startswith('win'):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
-    env.Append(LIBS = ['kkeramikstyle','kdefx'])
-    env.Append(LINKFLAGS = ['build/icon.o'])
-    env.Append(LINKFLAGS = ['-mwindows'])
   else:
     env['MINGWBUILD'] = 0
     print 'no'
@@ -162,6 +170,7 @@ def configure(env):
     debuglevel = env['ARGS'].get('debug', None)
     print BLUE + 'yes ' + NORMAL + debuglevel
     env.Append(CPPDEFINES = ['DEBUG'])
+    env['DEBUG'] = 1
     if (debuglevel == "full"):
       env.Append(CXXFLAGS   = '-g3')
     else:
@@ -170,6 +179,7 @@ def configure(env):
     print 'no '
     env.Append(CXXFLAGS = '-O2' )
     env.Append(CPPDEFINES = ['NDEBUG', 'NO_DEBUG'])
+    env['DEBUG'] = 0
 
   check_pkgconfig(env)
 
@@ -268,6 +278,7 @@ opts = Options(cachefile)
 opts.AddOptions(
   ( 'CACHEDIR', 'cache directory'),
   ( 'PREFIX', 'prefix for installation' ),
+  ( 'DEBUG', 'enable debug' ),
   ( 'EXTRAINCLUDES', 'extra include paths for the project' ),
   ( 'ISCONFIGURED', 'project configured' ),
   ( 'PKGCONFIG', 'pkg-config found' ),
@@ -309,13 +320,15 @@ else:
 """ + NORMAL
   if env['MINGWBUILD']:
     env.Tool('crossmingw')
-    # FIXME
-    comm = env['RC'] + ' -Isrc -i src/icon.rc -o build/icon.o'
-    print comm
+    env.Tool('mingw')
+    env.Append(LIBS = ['kkeramikstyle','kdefx'])
+    # FIXME: resource
+    comm = env['RC'] + ' -I../src -o ../build/icon.o -i ../src/icon.rc 2>&1'
     print os.popen(comm).read()
-    #env.RES(bpmdetect_res)
+    env.RES(bpmdetect_res.split())
     env.Append(LINKFLAGS = ['build/icon.o'])
-    env.Append(LINKFLAGS = ['-mwindows'])
+    if not env['CONSOLEONLY'] and not env['DEBUG']:
+      env.Append(LINKFLAGS = ['-mwindows'])
   bpmdetect_bin = env.Program('bpmdetect', bpmdetect_sources.split())
   if 'install' in sys.argv:
     install(env, bpmdetect_bin)

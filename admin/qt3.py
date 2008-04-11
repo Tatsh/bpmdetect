@@ -67,6 +67,7 @@ def detect_qt3(env):
       print BOLD + qtver + NORMAL,
       if not qtver.startswith('3.'):
         print RED+'QT3 is required'+NORMAL
+        exit(0)
       else:
         print GREEN+'OK'+NORMAL
     else:

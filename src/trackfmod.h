@@ -48,23 +48,23 @@ protected:
   void removeBPM();
 
 
-  void readTagsMPEG();
-  void readTagsWAV();
-  void readTagsOGG();
-  void readTagsFLAC();
+  void readTagsMPEG( std::string fname );
+  void readTagsWAV( std::string fname );
+  void readTagsOGG( std::string fname );
+  void readTagsFLAC( std::string fname );
 // #ifdef HAVE_ID3LIB
-  void saveMPEG_ID3( std::string sBPM );
-  void saveWAV_ID3( std::string sBPM );
+  void saveMPEG_ID3( std::string sBPM, std::string fname );
+  void saveWAV_ID3( std::string sBPM, std::string fname );
 //#endif // HAVE_ID3LIB
-  void clearBPMMPEG();
-  void clearBPMWAV();
-  void clearBPMOGG();
-  void clearBPMFLAC();
+  void clearBPMMPEG( std::string fname );
+  void clearBPMWAV( std::string fname );
+  void clearBPMOGG( std::string fname );
+  void clearBPMFLAC( std::string fname );
 #ifdef HAVE_TAGLIB
-  void saveMPEG_TAG( std::string sBPM );
-  void saveWAV_TAG( std::string sBPM );
-  void saveOGG_TAG( std::string sBPM );
-  void saveFLAC_TAG( std::string sBPM );
+  void saveMPEG_TAG( std::string sBPM, std::string fname );
+  void saveWAV_TAG( std::string sBPM, std::string fname );
+  void saveOGG_TAG( std::string sBPM, std::string fname );
+  void saveFLAC_TAG( std::string sBPM, std::string fname );
 #endif // HAVE_TAGLIB
 
   FMOD_SOUND* m_sound;
