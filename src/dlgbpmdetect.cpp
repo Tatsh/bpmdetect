@@ -88,6 +88,7 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent, const char* name, WFlags fl )
   connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
 
   m_pTrack = new TrackProxy("");
+  m_pTrack->enableConsoleProgress(false);
 
   connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
   m_qTimer.start(20);
