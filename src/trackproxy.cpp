@@ -38,7 +38,8 @@ TrackProxy::~TrackProxy() {
 }
 
 void TrackProxy::open() {
-  if(!m_pTrack) m_pTrack = new TrackFMOD(filename());
+  if(isValid())
+  if(!m_pTrack) m_pTrack = Track::createTrack(filename());
   m_pTrack->open();
   setValid(m_pTrack->isValid());
   setLength(m_pTrack->length());
@@ -56,6 +57,7 @@ void TrackProxy::close() {
     m_pTrack->close();
     delete m_pTrack;
     m_pTrack = 0;
+    setValid(false);
   }
 }
 

@@ -28,7 +28,7 @@
 
 #include <getopt.h>
 
-#include "trackproxy.h"
+#include "track.h"
 #include "trackfmod.h"  // for FMOD system
 
 #include <iostream>
@@ -136,17 +136,18 @@ int main( int argc, char **argv ) {
       if(optind != argc - 1)
         cout << "[" << idx + 1 - optind << "/" << argc - optind << "] " 
              << argv[idx] << endl;
-      TrackProxy track(argv[idx]);
+      Track* track = Track::createTrack(argv[idx]);
       if(!clear) {
-        track.enableConsoleProgress(progress);
-        track.setRedetect(redetect);
-        if(bformat) track.setFormat(format);
-        track.detectBPM();
-        if(bpmsave) track.saveBPM();
-        track.printBPM();
+        track->enableConsoleProgress(progress);
+        track->setRedetect(redetect);
+        if(bformat) track->setFormat(format);
+        track->detectBPM();
+        if(bpmsave) track->saveBPM();
+        track->printBPM();
       } else {
-        track.clearBPM();
+        track->clearBPM();
       }
+      delete track;
     } else {
     #ifndef NO_GUI 
       filelist += argv[idx];

@@ -209,7 +209,7 @@ void TrackFMOD::seek( uint ms ) {
   if(isValid()) {
     uint pos = (ms * samplerate() * sampleBytes()) / 1000;
     FMOD_RESULT res = FMOD_Sound_SeekData(m_sound, pos);
-    if(res = FMOD_OK) {
+    if(res == FMOD_OK) {
       m_iCurPosBytes = pos;
     }
 #ifdef DEBUG
@@ -365,6 +365,7 @@ void TrackFMOD::readTagsWAV() {
   string sbpm = "000.00";
   string fname = filename();
 #ifdef HAVE_TAGLIB
+/*
   TagLib::MPEG::File f(fname.c_str(), false);
   long pos = f.rfind("ID3", TagLib::File::End);
   if(pos < 0) pos = f.length();
@@ -378,6 +379,7 @@ void TrackFMOD::readTagsWAV() {
     TagLib::ID3v2::Frame* frame = lst[0];
     sbpm = frame->toString().toCString();
   }
+*/
 #endif
   // set filename (without path) as title if the title is empty
   if(title().empty())
@@ -394,8 +396,9 @@ void TrackFMOD::readTagsOGG() {
   if(tag != NULL) {
     setArtist(tag->artist().toCString());
     setTitle(tag->title().toCString());
-    //TagLib::Ogg::FieldListMap flmap = tag.fieldListMap();
-    // TODO: read bpm field
+    TagLib::Ogg::FieldListMap flmap = tag->fieldListMap();
+    TagLib::StringList strl = flmap["TBPM"];
+    if(!strl.isEmpty()) sbpm = strl[0].toCString();
   }
 #endif
   if(title().empty()) 
@@ -412,7 +415,23 @@ void TrackFMOD::readTagsFLAC() {
   if(tag != NULL) {
     setArtist(tag->artist().toCString());
     setTitle(tag->title().toCString());
-    // TODO: read bpm field
+  }
+
+  TagLib::Ogg::XiphComment* xiph = f.xiphComment(true);
+  if(xiph != NULL) {
+    TagLib::Ogg::FieldListMap flmap = xiph->fieldListMap();
+    TagLib::StringList strl = flmap["TBPM"];
+    if(!strl.isEmpty()) sbpm = strl[0].toCString();
+    else {
+      TagLib::ID3v2::Tag* tag = f.ID3v2Tag(true);
+      if(tag != NULL) {
+        TagLib::List<TagLib::ID3v2::Frame*> lst = tag->frameList("TBPM");
+        if(lst.size() > 0) {
+          TagLib::ID3v2::Frame* frame = lst[0];
+          sbpm = frame->toString().toCString();
+        }
+      }
+    }
   }
 #endif
   if(title().empty()) 
@@ -473,6 +492,7 @@ void TrackFMOD::saveMPEG_TAG( string sBPM ) {
 
 /// Save BPM to WAV file (ID3v2 tag)
 void TrackFMOD::saveWAV_TAG( string sBPM ) {
+/*
   TagLib::MPEG::File f( filename().c_str(), false );
   long offset = f.rfind("ID3", TagLib::File::End);
   if(offset < 0) offset = f.length();           // ID3 tag offset
@@ -488,6 +508,7 @@ void TrackFMOD::saveWAV_TAG( string sBPM ) {
   f.seek(offset);
   f.writeBlock(tdata);                          // write to file
   //f.save();
+*/
 }
 
 /// Save BPM to OGG file (xiphcomment)
@@ -537,6 +558,7 @@ void TrackFMOD::clearBPMMPEG() {
 
 void TrackFMOD::clearBPMWAV() {
 #ifdef HAVE_TAGLIB
+/*
   TagLib::MPEG::File f( filename().c_str(), false );
   long offset = f.rfind("ID3", TagLib::File::End);
   if(offset < 0) offset = f.length();           // ID3 tag offset
@@ -546,6 +568,7 @@ void TrackFMOD::clearBPMWAV() {
   f.seek(offset);
   f.writeBlock(tdata);
   //f.save();
+*/
 #endif
 }
 

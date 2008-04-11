@@ -1,3 +1,3 @@
 - port to QT4
-- save BPM to wav with ID3lib
+- save BPM to wav
 - replace FMOD library

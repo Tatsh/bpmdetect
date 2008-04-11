@@ -21,6 +21,7 @@
  ***************************************************************************/
 
 #include "track.h"
+#include "trackfmod.h"
 #include "BPMDetect.h"
 
 #include <iostream>
@@ -30,6 +31,15 @@ using namespace soundtouch;
 
 static double _dMinBPM = 80.;
 static double _dMaxBPM = 185.;
+
+Track* Track::createTrack( const char* filename ) {
+  string fname = filename;
+  return Track::createTrack( fname );
+}
+
+Track* Track::createTrack( string filename ) {
+  return new TrackFMOD( filename );
+}
 
 Track::Track() {
   init();
@@ -378,20 +388,20 @@ double Track::detectBPM() {
 
     setProgress(100.*cprogress / (double) totalsteps );
     if(m_bConProgress) {
-    #ifdef NO_GUI
+    //#ifdef NO_GUI
       while ( (100*cprogress/totalsteps) > pprogress ) {
         ++pprogress;
         clog << "\r" << (100*cprogress/totalsteps) << "% " << flush;
       }
-    #endif
+    //#endif
     }
   }
 
   delete [] samples;
   setProgress(100);
-#ifdef NO_GUI
+//#ifdef NO_GUI
   if(m_bConProgress) clog << "\r" << flush;
-#endif
+//#endif
   if(m_bStop) {
     setProgress(0);
     return 0;
@@ -414,7 +424,7 @@ void Track::startDetection() {
     qDebug("Start: thread is running (not starting)");
     return;
   }
-#endif
+#endif  // DEBUG
   start(QThread::IdlePriority);
 }
 
@@ -423,4 +433,4 @@ void Track::run() {
   setProgress(0);
 }
 
-#endif
+#endif  // NO_GUI

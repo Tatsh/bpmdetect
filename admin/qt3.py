@@ -50,6 +50,30 @@ def detect_qt3(env):
     env.Exit(1)
   env['QTDIR'] = qtdir.strip()
 
+  # Check for QT version
+  print "QT version                        : ",
+  if env['PLATFORM'].startswith('win'):
+    lrelease = qtdir + "/bin/lrelease.exe"
+  else:
+    lrelease = qtdir + "/bin/lrelease"
+  if not os.path.isfile(lrelease):
+    lrelease = env.WhereIs("lrelease")
+
+  if len(lrelease):
+    verstr = os.popen(lrelease + ' -version 2>&1').read()
+    qtver = ""
+    if len(verstr):
+      qtver = verstr.split()[-1]
+      print BOLD + qtver + NORMAL,
+      if not qtver.startswith('3.'):
+        print RED+'QT3 is required'+NORMAL
+      else:
+        print GREEN+'OK'+NORMAL
+    else:
+      print RED+"failed"+NORMAL
+  else:
+    print RED+"unable to get qt version"+NORMAL
+
   ## Find the necessary programs uic and moc
   print "Checking for uic                  : ",
   if env['PLATFORM'].startswith('win'):
