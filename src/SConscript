@@ -30,6 +30,15 @@ track.cpp
 trackproxy.cpp
 trackfmod.cpp
 """
+bpmdetect_sources_gui3="""
+dlgbpmdetectdlg3.ui
+dlgtestbpmdlg3.ui
+progressbar3.cpp
+qdroplistview3.cpp
+dlgbpmdetect3.cpp
+dlgtestbpm3.cpp
+images.cpp
+"""
 bpmdetect_sources_gui="""
 dlgbpmdetectdlg.ui
 dlgtestbpmdlg.ui
@@ -315,7 +324,7 @@ else:
     env.Append(CPPDEFINES = ['NO_GUI'])
   else:
     env.Tool('qt3')
-    bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
+    bpmdetect_sources = bpmdetect_sources_gui3 + bpmdetect_sources
   print BOLD + """--------------------------------------------------
 """ + NORMAL
   if env['MINGWBUILD']:

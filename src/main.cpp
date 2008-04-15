@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 #ifndef NO_GUI
-#include "dlgbpmdetect.h"
+#include "dlgbpmdetect3.h"
 #include <qapplication.h>
 #include <qlocale.h>
 #endif
