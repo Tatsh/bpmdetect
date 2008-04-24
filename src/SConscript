@@ -37,14 +37,12 @@ progressbar3.cpp
 qdroplistview3.cpp
 dlgbpmdetect3.cpp
 dlgtestbpm3.cpp
-images.cpp
 """
 bpmdetect_sources_gui="""
 progressbar.cpp
 qdroplistview.cpp
 dlgbpmdetect.cpp
 dlgtestbpm.cpp
-images.cpp
 """
 
 bpmdetect_ui="""
@@ -350,7 +348,8 @@ else:
   if env['MINGWBUILD']:
     env.Tool('crossmingw')
     env.Tool('mingw')
-    env.Append(LIBS = ['kkeramikstyle','kdefx'])
+    if env.has_key('QT3') and env['QT3']:
+      env.Append(LIBS = ['kkeramikstyle','kdefx'])
     # FIXME: resource
     comm = env['RC'] + ' -I../src -o ../build/icon.o -i ../src/icon.rc 2>&1'
     print os.popen(comm).read()

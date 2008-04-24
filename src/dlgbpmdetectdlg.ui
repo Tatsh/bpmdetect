@@ -24,10 +24,19 @@
   <property name="windowTitle" >
    <string>BPM Detect</string>
   </property>
-  <property name="windowIcon" >
-   <iconset/>
-  </property>
   <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>5</number>
+   </property>
+   <property name="topMargin" >
+    <number>5</number>
+   </property>
+   <property name="rightMargin" >
+    <number>5</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>5</number>
+   </property>
    <item row="0" column="0" >
     <layout class="QHBoxLayout" >
      <item>
@@ -490,7 +499,9 @@
  <includes>
   <include location="local" >qdroplistview.h</include>
  </includes>
- <resources/>
+ <resources>
+  <include location="resource.qrc" />
+ </resources>
  <connections>
   <connection>
    <sender>btnAddFiles</sender>

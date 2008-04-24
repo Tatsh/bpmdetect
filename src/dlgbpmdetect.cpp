@@ -39,6 +39,9 @@ dlgBPMDetect::dlgBPMDetect( QWidget* parent )
   m_pCurItem = 0;
   m_iCurTrackIdx = 0;
 
+  QImage img;
+  img.loadFromData(icon_png, sizeof(icon_png), "PNG");
+  setWindowIcon(QPixmap::fromImage(img));
   QString strcaption = "BPM Detect v";
   strcaption.append(version);
   setWindowTitle(strcaption);
