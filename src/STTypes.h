@@ -51,6 +51,10 @@ typedef unsigned long   ulong;
     // if these aren't defined already by Windows headers, define now
 
     typedef int BOOL;
+#if defined(FALSE) || defined(TRUE)
+    #undef FALSE
+    #undef TRUE
+#endif
 
     #define FALSE   0
     #define TRUE    1

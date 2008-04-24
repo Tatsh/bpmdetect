@@ -26,6 +26,10 @@
 
 #include <iostream>
 
+#ifdef USE_QT3
+  #define isRunning running
+#endif
+
 using namespace std;
 using namespace soundtouch;
 
@@ -128,7 +132,7 @@ void Track::setFilename( const char* filename, bool readtags ) {
 
 void Track::setFilename( string filename, bool readtags ) {
 #ifndef NO_GUI
-  if(running()) {
+  if(isRunning()) {
   #ifdef DEBUG
     clog << "setFilename: thread not finished, stopping..." << endl;
   #endif
@@ -420,7 +424,7 @@ void Track::stop() {
 #ifndef NO_GUI
 void Track::startDetection() {
 #ifdef DEBUG
-  if(running()) {
+  if(isRunning()) {
     qDebug("Start: thread is running (not starting)");
     return;
   }

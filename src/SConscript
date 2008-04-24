@@ -40,13 +40,16 @@ dlgtestbpm3.cpp
 images.cpp
 """
 bpmdetect_sources_gui="""
-dlgbpmdetectdlg.ui
-dlgtestbpmdlg.ui
 progressbar.cpp
 qdroplistview.cpp
 dlgbpmdetect.cpp
 dlgtestbpm.cpp
 images.cpp
+"""
+
+bpmdetect_ui="""
+dlgbpmdetectdlg.ui
+dlgtestbpmdlg.ui
 """
 
 bpmdetect_res = """
@@ -62,10 +65,11 @@ def display_help():
 """+BOLD+"""* mingw         """+NORMAL+""": use MinGW compiler
 """+BOLD+"""* debug         """+NORMAL+""": enable debug (debug=1 or debug=full)
 """+BOLD+"""* extraincludes """+NORMAL+""": extra includes separated by colon (':')
+"""+BOLD+"""* qt3           """+NORMAL+""": use QT3 for GUI
 
-"""+BOLD+"""* qtdir         """+NORMAL+""": where the QT3 is installed
-"""+BOLD+"""* qtincludes    """+NORMAL+""": path to QT3 includes (/usr/include/qt3 on debian, ...)
-"""+BOLD+"""* qtlibs        """+NORMAL+""": path to QT3 libraries (/usr/lib, ...)
+"""+BOLD+"""* qtdir         """+NORMAL+""": where the QT is installed
+"""+BOLD+"""* qtincludes    """+NORMAL+""": path to QT includes (/usr/include/qt4 on debian, ...)
+"""+BOLD+"""* qtlibs        """+NORMAL+""": path to QT libraries
 """+NORMAL
   return
 
@@ -85,7 +89,6 @@ def makeHashTable(args):
 
 def check_pkgconfig(env):
   print "Checking for pkg-config           : ",
-
   pkg_config = env.WhereIs("pkg-config").strip()
   if not pkg_config:
     pkg_config = ""
@@ -163,11 +166,13 @@ def configure(env):
     env.__delitem__('LIBS')
   if env.has_key('LINKFLAGS'):
     env.__delitem__('LINKFLAGS')
+  if env.has_key('QT3'):
+    env.__delitem__('QT3')
 
   print BOLD + """
 --------------------------------------------------""" + NORMAL
   print "Use MinGW compiler                : ",
-  if env['ARGS'].get('mingw', None) or sys.platform.startswith('win'):
+  if int(env['ARGS'].get('mingw', 0)) or sys.platform.startswith('win'):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
   else:
@@ -175,7 +180,7 @@ def configure(env):
     print 'no'
 
   print 'Enable debug                      : ',
-  if env['ARGS'].get('debug', None):
+  if env['ARGS'].get('debug', 0):
     debuglevel = env['ARGS'].get('debug', None)
     print BLUE + 'yes ' + NORMAL + debuglevel
     env.Append(CPPDEFINES = ['DEBUG'])
@@ -189,6 +194,11 @@ def configure(env):
     env.Append(CXXFLAGS = '-O2' )
     env.Append(CPPDEFINES = ['NDEBUG', 'NO_DEBUG'])
     env['DEBUG'] = 0
+
+  if int(env['ARGS'].get('qt3', 0)):
+    env['QT3'] = 1
+  else:
+    env['QT3'] = 0
 
   check_pkgconfig(env)
 
@@ -204,7 +214,7 @@ def configure(env):
 
   # Console mode only
   print 'GUI                               : ',
-  if env['ARGS'].get('console', None):
+  if int(env['ARGS'].get('console', 0)):
     env['CONSOLEONLY'] = 1
     print BLUE+'disabled'+NORMAL
   else:
@@ -298,7 +308,8 @@ opts.AddOptions(
   ( 'CXXFLAGS', 'C++ compiler options' ),
   ( 'LIBPATH', 'library directories' ),
   ( 'LIBS', 'libraries' ),
-  ( 'LINKFLAGS', 'linker flags')
+  ( 'LINKFLAGS', 'linker flags'),
+  ( 'QT3', 'use qt3')
 )
 opts.Update(env)
 
@@ -323,8 +334,17 @@ else:
   if env.has_key('CONSOLEONLY') and env['CONSOLEONLY']:
     env.Append(CPPDEFINES = ['NO_GUI'])
   else:
-    env.Tool('qt3')
-    bpmdetect_sources = bpmdetect_sources_gui3 + bpmdetect_sources
+    if env.has_key('QT3') and env['QT3']:
+      env.Tool('qt3')
+      env.Append(CPPDEFINES = ['USE_QT3'])
+      bpmdetect_sources = bpmdetect_sources_gui3 + bpmdetect_sources
+    else:
+      env.Tool('qt4')
+      env.EnableQt4Modules(['QtCore', 'QtGui'], debug = False)
+      for ui in bpmdetect_ui.split():
+          env.Uic4(ui)
+      bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
+
   print BOLD + """--------------------------------------------------
 """ + NORMAL
   if env['MINGWBUILD']:

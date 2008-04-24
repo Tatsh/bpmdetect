@@ -23,13 +23,17 @@
 #ifndef QDROPLISTVIEW_H
 #define QDROPLISTVIEW_H
 
-#include <qlistview.h>
+#include <QTreeWidget>
+#include <QDragLeaveEvent>
+#include <QKeyEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+#include <QDragEnterEvent>
 
-
-class QDropListView : public QListView {
+class QDropListView : public QTreeWidget {
   Q_OBJECT
 public:
-  QDropListView ( QWidget *parent = 0, const char *name = 0 );
+  QDropListView ( QWidget *parent = 0 );
   ~QDropListView();
 
 public slots:

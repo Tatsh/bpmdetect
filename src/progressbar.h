@@ -23,9 +23,9 @@
 #ifndef PROGRESSBAR_H
 #define PROGRESSBAR_H
 
-#include <qwidget.h>
-#include <qprogressbar.h>
-#include <qevent.h>
+#include <QWidget>
+#include <QProgressBar>
+#include <QMouseEvent>
 
 /// @brief Progressbar controlled by mouse
 class ProgressBar : public QProgressBar {
@@ -33,7 +33,7 @@ class ProgressBar : public QProgressBar {
 
 public:
   /// Constructor
-  ProgressBar( QWidget *parent = 0, const char *name = 0 );
+  ProgressBar( QWidget *parent = 0 );
   /// Destructor
   ~ProgressBar();
   /// Return change status

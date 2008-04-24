@@ -23,24 +23,26 @@
 #ifndef _BPMDETECTWIDGET_H_
 #define _BPMDETECTWIDGET_H_
 
-#include <qevent.h>
+#include <QDropEvent>
+#include <QMenu>
+#include <QTimer>
+
 #include <BPMDetect.h>
 #include <iostream>
-#include <qtimer.h>
 
-#include "dlgbpmdetectdlg.h"
+#include "ui_dlgbpmdetectdlg.h"
 #include "trackproxy.h"
 
-class QPopupMenu;
-class QListViewItem;
+class Q3PopupMenu;
+class Q3ListViewItem;
 
 using namespace std;
 using namespace soundtouch;
 
-class dlgBPMDetect : public dlgBPMDetectdlg {
+class dlgBPMDetect : public QWidget, public Ui_dlgBPMDetectdlg {
   Q_OBJECT
 public:
-  dlgBPMDetect( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+  dlgBPMDetect( QWidget* parent = 0 );
   ~dlgBPMDetect();
 
 public slots:
@@ -67,7 +69,7 @@ protected slots:
   void slotStart();
   void slotStop();
 
-  void slotListMenuPopup( QListViewItem*, const QPoint& );
+  void slotListMenuPopup( const QPoint& );
   void slotDropped(QDropEvent* e);
 
   void slotDetectNext(bool skipped = false);
@@ -83,8 +85,8 @@ protected slots:
 
 
 private:
-  QPopupMenu* m_pListMenu;
-  QListViewItem* m_pCurItem;
+  QMenu* m_pListMenu;
+  QTreeWidgetItem* m_pCurItem;
   int m_iCurTrackIdx;  // for total progress
   QString m_qRecentPath;
   bool m_bStarted;

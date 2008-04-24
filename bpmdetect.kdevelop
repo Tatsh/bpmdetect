@@ -3,7 +3,7 @@
   <general>
     <author>Martin Sakmar</author>
     <email>martin.sakmar@gmail.com</email>
-    <version>0.5.1</version>
+    <version>0.6.1</version>
     <projectmanagement>KDevKDEAutoProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
     <keywords>
@@ -15,7 +15,9 @@
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
     <description></description>
-    <ignoreparts/>
+    <ignoreparts>
+      <part>kdevfilter</part>
+    </ignoreparts>
     <versioncontrol>kdevsubversion</versioncontrol>
     <projectname>bpmdetect</projectname>
     <defaultencoding></defaultencoding>
@@ -26,18 +28,18 @@
       <useconfiguration>optimized</useconfiguration>
     </general>
     <run>
-      <mainprogram>build/bpmdetect</mainprogram>
+      <mainprogram></mainprogram>
       <terminal>false</terminal>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <programargs/>
+      <programargs></programargs>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments/>
+      <globaldebugarguments></globaldebugarguments>
       <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <autoinstall>false</autoinstall>
-      <autokdesu>false</autokdesu>
+      <autokdesu>true</autokdesu>
     </run>
     <make>
       <envvars>
@@ -47,7 +49,7 @@
       <abortonerror>false</abortonerror>
       <numberofjobs>1</numberofjobs>
       <dontact>false</dontact>
-      <makebin/>
+      <makebin></makebin>
       <runmultiplejobs>false</runmultiplejobs>
       <prio>0</prio>
     </make>
@@ -134,7 +136,7 @@
   </kdevdoctreeview>
   <kdevdebugger>
     <general>
-      <dbgshell>libtool</dbgshell>
+      <dbgshell>/bin/bash</dbgshell>
       <programargs/>
       <gdbpath></gdbpath>
       <breakonloadinglibs>true</breakonloadinglibs>
@@ -190,7 +192,7 @@
     <projectdoc>
       <docsystem>Doxygen Documentation Collection</docsystem>
       <docurl>bpmdetect.tag</docurl>
-      <usermanualurl></usermanualurl>
+      <usermanualurl/>
     </projectdoc>
   </kdevdocumentation>
   <substmap>
@@ -207,7 +209,9 @@
     <dest>.</dest>
   </substmap>
   <kdevcppsupport>
-    <references/>
+    <references>
+      <pcs>Qt4</pcs>
+    </references>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
       <includeTypes>true</includeTypes>

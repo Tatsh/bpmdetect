@@ -22,47 +22,45 @@
 
 #include "qdroplistview.h"
 
-QDropListView::QDropListView ( QWidget *parent, const char *name )
-    : QListView ( parent, name ) {
+#include <QKeyEvent>
+#include <QDragMoveEvent>
+#include <QDragLeaveEvent>
+#include <QDropEvent>
+#include <QDragEnterEvent>
+
+QDropListView::QDropListView ( QWidget *parent )
+    : QTreeWidget( parent ) {
   setAcceptDrops(true);
-  setShowSortIndicator(true);
   setAllColumnsShowFocus(true);
-  setResizeMode(QListView::NoColumn);
-  setSelectionMode(QListView::Extended);
 }
 
 QDropListView::~QDropListView() {}
 
 void QDropListView::slotRemoveSelected() {
-  QListViewItemIterator it( this );
-  for ( ; it.current(); it++ ) {
-    if ( it.current() != firstChild() && it.current() ->isSelected() ) {
-      removeItem( it.current() ); it--;
-    }
+  QList<QTreeWidgetItem*> items = selectedItems();
+  for(int i = 0; i < items.size(); ++i) {
+    delete items.at(i);
   }
-  if ( firstChild() && firstChild()->isSelected() )
-    removeItem( firstChild() );
-  clearSelection();
 }
 
 void QDropListView::keyPressEvent( QKeyEvent *e ) {
   if(e->key() == Qt::Key_Delete) slotRemoveSelected();
-  else QListView::keyPressEvent(e);
+  else QTreeWidget::keyPressEvent(e);
   emit keyPress(e);
 }
 
 void QDropListView::keyReleaseEvent( QKeyEvent *e ) {
-  QListView::keyReleaseEvent(e);
+  QTreeWidget::keyReleaseEvent(e);
   emit keyRelease(e);
 }
 
 void QDropListView::dragEnterEvent( QDragEnterEvent *e ) {
-  e->accept(true);
+  e->accept();
   emit dragEnter(e);
 }
 
 void QDropListView::dragMoveEvent( QDragMoveEvent *e ) {
-  e->accept(true);
+  e->accept();
   emit dragMove(e);
 }
 
@@ -71,8 +69,6 @@ void QDropListView::dragLeaveEvent( QDragLeaveEvent *e ) {
 }
 
 void QDropListView::dropEvent( QDropEvent *e ) {
-  e->accept(true);
+  e->accept();
   emit drop(e);
 }
-
-#include "qdroplistview.moc"

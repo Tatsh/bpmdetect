@@ -20,9 +20,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qstring.h>
-#include <qcombobox.h>
-#include <qlabel.h>
+#include <QString>
+#include <QComboBox>
+#include <QLabel>
 
 #include <iostream>
 
@@ -33,31 +33,20 @@
 
 using namespace std;
 
-/**
- * @brief Constroctor
- *
- * @param file track file name
- * @param dBPM detected BPM
- * @param parent parent widget
- * @param name widget name
- */
-dlgTestBPM::dlgTestBPM( QString file, float dBPM,
-                  QWidget *parent, const char *name )
-    : dlgTestBPMdlg( parent, name ) {
+dlgTestBPM::dlgTestBPM( QString file, float dBPM, QWidget *parent )
+    : QDialog( parent ) {
+  setupUi(this);
   FMOD_RESULT result;
   system = TrackFMOD::getFMODSystem();
   bpm = dBPM;
-  QString sbpm; sbpm.sprintf( "%.2f", bpm );
-  sbpm.rightJustify( '0', 6 );
-  lblBPM->setText( sbpm );
+  lblBPM->setText( QString::fromStdString(Track::bpm2str(dBPM, "000.00")));
   channel = 0; sound = 0;
-  if ( file.isEmpty() || !system)
-    close();
+  if ( file.isEmpty() || !system) close();
 
-  result = FMOD_System_CreateStream( system, file.local8Bit(),
+  result = FMOD_System_CreateStream( system, file.toLocal8Bit(),
                       FMOD_SOFTWARE | FMOD_2D, 0, &sound );
   if ( result != FMOD_OK ) {
-    cerr << "Error loading file " << file << " for testing BPM" << endl;
+    cerr << "Error loading file " << file.toStdString() << " for testing BPM" << endl;
     close();
   }
 
@@ -67,7 +56,7 @@ dlgTestBPM::dlgTestBPM( QString file, float dBPM,
   FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_MS );
   trackPosition->setLength( length );
   FMOD_Channel_SetMode( channel, FMOD_LOOP_NORMAL );
-  connect( trackPosition, SIGNAL( positionChanged( uint ) ), 
+  connect( trackPosition, SIGNAL( positionChanged( uint ) ),
            this, SLOT( setCustomPos( uint ) ) );
 }
 
@@ -75,7 +64,6 @@ dlgTestBPM::~dlgTestBPM() {
   stop();
 }
 
-/// @brief Set 1st testing position
 void dlgTestBPM::setPos1() {
   if ( channel != NULL ) {
     uint msec = trackPosition->length() / 5;
@@ -89,7 +77,6 @@ void dlgTestBPM::setPos1() {
   }
 }
 
-/// @brief Set 2nd testing position
 void dlgTestBPM::setPos2() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 2 ) / 5;
@@ -103,7 +90,6 @@ void dlgTestBPM::setPos2() {
   }
 }
 
-/// @brief Set 3rd testing position
 void dlgTestBPM::setPos3() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 3 ) / 5;
@@ -117,7 +103,6 @@ void dlgTestBPM::setPos3() {
   }
 }
 
-/// @brief Set 4th testing position
 void dlgTestBPM::setPos4() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 4 ) / 5;
@@ -131,7 +116,6 @@ void dlgTestBPM::setPos4() {
   }
 }
 
-/// @brief Set custom testing position
 void dlgTestBPM::setCustomPos( uint msec ) {
   if ( channel != NULL ) {
     unsigned long beatslen = ( unsigned long ) ( 
@@ -143,7 +127,6 @@ void dlgTestBPM::setCustomPos( uint msec ) {
   }
 }
 
-/// @brief Stop audio track
 void dlgTestBPM::stop() {
   if ( channel != NULL ) {
     FMOD_Channel_Stop(channel);
@@ -155,7 +138,8 @@ void dlgTestBPM::stop() {
 
 /**
  * @brief Set number of beats to loop
- * @param text is number of beats to loop given as QString
+ * called when combobox currentItemChanged is emited
+ * @param text is number of beats to loop (combobox currentText)
  */
 void dlgTestBPM::setNumBeats( const QString &text ) {
   if ( channel != NULL ) {
@@ -167,5 +151,3 @@ void dlgTestBPM::setNumBeats( const QString &text ) {
     FMOD_Channel_SetPosition( channel, loopstart, FMOD_TIMEUNIT_MS );
   }
 }
-
-#include "dlgtestbpm.moc"

@@ -23,26 +23,23 @@
 #ifndef DLGTESTBPM_H
 #define DLGTESTBPM_H
 
-#include "trackfmod.h"
-#include "dlgtestbpmdlg.h"
+#include <QDialog>
 
-/**
- * @brief Dialog for testing detected BPM
- */
-class dlgTestBPM: public dlgTestBPMdlg {
+#include "trackfmod.h"
+#include "ui_dlgtestbpmdlg.h"
+
+class dlgTestBPM: public QDialog, public Ui_dlgTestBPMdlg {
    Q_OBJECT
 public:
-  dlgTestBPM( QString file, float dBPM,
-           QWidget *parent = 0, const char *name = 0 );
+  dlgTestBPM( QString file, float dBPM, QWidget *parent = 0 );
   ~dlgTestBPM();
 
-public slots:
+protected slots:
   void setPos1();
   void setPos2();
   void setPos3();
   void setPos4();
   void setCustomPos( uint msec );
-  /// Stop the track
   void stop();
   /// Set number of beats to loop
   void setNumBeats( const QString& );
@@ -50,7 +47,7 @@ public slots:
 private:
   float bpm;             ///< BPM to test
   FMOD_SYSTEM  *system;  ///< FMOD sound system
-  FMOD_SOUND	 *sound;   ///< FMOD sound object
+  FMOD_SOUND   *sound;   ///< FMOD sound object
   FMOD_CHANNEL *channel; ///< FMOD channel object
 };
 
