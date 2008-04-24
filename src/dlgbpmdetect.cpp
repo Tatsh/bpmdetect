@@ -301,15 +301,17 @@ void dlgBPMDetect::slotListMenuPopup( const QPoint &p ) {
  */
 QStringList dlgBPMDetect::filesFromDir( QString path ) {
   QDir d(path), f(path); QStringList files;
-
+qDebug() << "Get files from dir:" << path;
   if(!d.exists(path)) return files;
   d.setFilter( QDir::Dirs | QDir::Hidden | QDir::NoSymLinks );
   f.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
-  f.setNameFilters( QStringList("*.wav *.mp3 *.ogg *.flac"));
+  QString nameFilters = "*.wav:*.mp3:*.ogg:*.flac";
+  f.setNameFilters(nameFilters.split(':'));
 
   QStringList dirs = d.entryList();
   files = f.entryList();
 
+qDebug() << "Dirs:" << dirs.size() << " Files:" << files.size();
   for(int i = 0; i < dirs.size(); ++i) {
     QString cdir = dirs[i];
     if(cdir == "." || cdir == "..") continue;
