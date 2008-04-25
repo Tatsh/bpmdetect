@@ -53,7 +53,6 @@ Track::Track() {
 
 Track::~Track() {
   setFilename("");
-  //close();
 }
 
 void Track::init() {
@@ -370,11 +369,11 @@ double Track::detectBPM() {
   const uint NUMSAMPLES = 32768;
   int chan = channels();
   int srate = samplerate();
-  if(!srate || !chan) {
   #ifdef DEBUG
-    cerr << "samplerate: " << srate << ", channels: " << chan << endl;
-    cerr << "Invalid samplerate or number of channels" << endl;
+    cerr << "samplerate: " << srate << ", channels: " << chan
+         << ", sample bits: " << sampleBits() << endl;
   #endif
+  if(!srate || !chan) {
     return oldbpm;
   }
   SAMPLETYPE* samples = new SAMPLETYPE[NUMSAMPLES];
@@ -392,12 +391,10 @@ double Track::detectBPM() {
 
     setProgress(100.*cprogress / (double) totalsteps );
     if(m_bConProgress) {
-    //#ifdef NO_GUI
       while ( (100*cprogress/totalsteps) > pprogress ) {
         ++pprogress;
         clog << "\r" << (100*cprogress/totalsteps) << "% " << flush;
       }
-    //#endif
     }
   }
 

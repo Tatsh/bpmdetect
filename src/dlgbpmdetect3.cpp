@@ -178,6 +178,7 @@ void dlgBPMDetect::slotStart() {
 
   TotalProgress->setTotalSteps( TrackList->childCount() * 100 );
   TotalProgress->setProgress(0);
+  CurrentProgress->setTotalSteps(1000);
   m_pTrack->setMinBPM(spMin->value());
   m_pTrack->setMaxBPM(spMax->value());
   slotDetectNext();
@@ -215,12 +216,11 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
   QString file = m_pCurItem->text( TrackList->columns() - 1 );
   lblCurrentTrack->setText( file.section('/', -1, -1) );
   double BPM = m_pCurItem->text(0).toDouble();
+  TotalProgress->setProgress( 100 * m_iCurTrackIdx++ );
   if(chbSkipScanned->isChecked() && BPM > 0) {
     slotDetectNext(true);
     return;
   }
-
-  TotalProgress->setProgress( 100 * m_iCurTrackIdx++ );
 
   m_pTrack->setFilename(file.local8Bit());
   m_pTrack->setRedetect(!chbSkipScanned->isChecked());
@@ -237,6 +237,10 @@ void dlgBPMDetect::slotTimerDone() {
 
 void dlgBPMDetect::slotAddFiles( QStringList &files ) {
   QStringList::Iterator it = files.begin();
+  if(!getStarted()) {
+    TotalProgress->setTotalSteps(files.count());
+  }
+  int i = 0;
   while ( it != files.end() ) {
     TrackProxy track( (*it).local8Bit(), true );
     QString bpm, artist, title, length;
@@ -244,9 +248,21 @@ void dlgBPMDetect::slotAddFiles( QStringList &files ) {
     artist = track.artist();
     title = track.title();
     length = track.strLength();
+    ++i;
+    if(!getStarted()) {
+      lblCurrentTrack->setText("Adding " + (*it));
+      TotalProgress->setProgress(i);
+    }
     new QListViewItem( TrackList, bpm, artist, title, length, *it );
     ++it;
     qApp->processEvents();
+  }
+  if(!getStarted()) {
+    lblCurrentTrack->setText("");
+    int itemcount = TrackList->childCount();
+    if(itemcount) TotalProgress->setTotalSteps( itemcount * 100 );
+    else TotalProgress->setTotalSteps(100);
+    TotalProgress->setProgress(0);
   }
 }
 

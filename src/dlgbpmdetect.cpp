@@ -148,10 +148,12 @@ void dlgBPMDetect::enableControls(bool enable) {
     btnStart->setText( "Start" );
     lblCurrentTrack->setText("");
     TrackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    TrackList->setSortingEnabled(true);
     TotalProgress->setValue( 0 );
     CurrentProgress->setValue( 0 );
   } else {
     btnStart->setText( "Stop" );
+    TrackList->setSortingEnabled(false);
     TrackList->setSelectionMode(QAbstractItemView::SingleSelection);
   }
 
@@ -176,6 +178,7 @@ void dlgBPMDetect::slotStart() {
 
   TotalProgress->setMaximum( TrackList->topLevelItemCount() * 100 );
   TotalProgress->setValue(0);
+  CurrentProgress->setMaximum(1000);
   m_pTrack->setMinBPM(spMin->value());
   m_pTrack->setMaxBPM(spMax->value());
   slotDetectNext();
@@ -213,19 +216,21 @@ void dlgBPMDetect::slotDetectNext(bool skipped) {
   }
 
   TrackList->clearSelection();
-  TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
-  TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
+  if(m_iCurTrackIdx < 10)
+    TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
+  else
+    TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
+
   m_pCurItem->setSelected(true);
 
   QString file = m_pCurItem->text( TrackList->columnCount() - 1 );
   lblCurrentTrack->setText( file.section('/', -1, -1) );
   double BPM = m_pCurItem->text(0).toDouble();
+  TotalProgress->setValue( 100 * m_iCurTrackIdx++ );
   if(chbSkipScanned->isChecked() && BPM > 0) {
     slotDetectNext(true);
     return;
   }
-
-  TotalProgress->setValue( 100 * m_iCurTrackIdx++ );
 
   m_pTrack->setFilename(file.toLocal8Bit());
   m_pTrack->setRedetect(!chbSkipScanned->isChecked());
@@ -241,16 +246,33 @@ void dlgBPMDetect::slotTimerDone() {
 }
 
 void dlgBPMDetect::slotAddFiles( QStringList &files ) {
+  if(!getStarted()) {
+    CurrentProgress->setMaximum(0);
+    TotalProgress->setMaximum(files.size());
+  }
   for( int i = 0; i < files.size(); ++i ) {
     TrackProxy track(files[i].toLocal8Bit(), true);
     QStringList columns;
-    columns << QString::fromStdString(track.strBPM("000.00"));
-    columns << QString::fromStdString(track.artist());
-    columns << QString::fromStdString(track.title());
-    columns << QString::fromStdString(track.strLength());
+    columns << QString::fromLocal8Bit(track.strBPM("000.00").c_str());
+    columns << QString::fromLocal8Bit(track.artist().c_str());
+    columns << QString::fromLocal8Bit(track.title().c_str());
+    columns << QString::fromLocal8Bit(track.strLength().c_str());
     columns << files.at(i);
+    if(!getStarted()) {
+      lblCurrentTrack->setText("Adding " + files.at(i));
+      TotalProgress->setValue(i);
+    }
     new QTreeWidgetItem( TrackList, columns );
     qApp->processEvents();
+  }
+  if(!getStarted()) {
+    lblCurrentTrack->setText("");
+    CurrentProgress->setMaximum(1000);
+    int itemcount = TrackList->topLevelItemCount();
+    if(itemcount) TotalProgress->setMaximum( itemcount * 100 );
+    else TotalProgress->setMaximum(100);
+    CurrentProgress->setValue(0);
+    TotalProgress->setValue(0);
   }
 }
 
@@ -301,7 +323,6 @@ void dlgBPMDetect::slotListMenuPopup( const QPoint &p ) {
  */
 QStringList dlgBPMDetect::filesFromDir( QString path ) {
   QDir d(path), f(path); QStringList files;
-qDebug() << "Get files from dir:" << path;
   if(!d.exists(path)) return files;
   d.setFilter( QDir::Dirs | QDir::Hidden | QDir::NoSymLinks );
   f.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
@@ -311,7 +332,6 @@ qDebug() << "Get files from dir:" << path;
   QStringList dirs = d.entryList();
   files = f.entryList();
 
-qDebug() << "Dirs:" << dirs.size() << " Files:" << files.size();
   for(int i = 0; i < dirs.size(); ++i) {
     QString cdir = dirs[i];
     if(cdir == "." || cdir == "..") continue;

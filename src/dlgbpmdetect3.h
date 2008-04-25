@@ -28,7 +28,7 @@
 #include <iostream>
 #include <qtimer.h>
 
-#include "dlgbpmdetectdlg.h"
+#include "dlgbpmdetectdlg3.h"
 #include "trackproxy.h"
 
 class QPopupMenu;

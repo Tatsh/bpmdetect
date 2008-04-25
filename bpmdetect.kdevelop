@@ -14,13 +14,13 @@
     </keywords>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description/>
+    <description></description>
     <ignoreparts>
       <part>kdevfilter</part>
     </ignoreparts>
     <versioncontrol>kdevsubversion</versioncontrol>
     <projectname>bpmdetect</projectname>
-    <defaultencoding/>
+    <defaultencoding></defaultencoding>
   </general>
   <kdevautoproject>
     <general>
@@ -28,14 +28,14 @@
       <useconfiguration>optimized</useconfiguration>
     </general>
     <run>
-      <mainprogram/>
+      <mainprogram>/disky/net/Projekty/bpmdetect/build/bpmdetect</mainprogram>
       <terminal>false</terminal>
       <directoryradio>executable</directoryradio>
       <customdirectory>/</customdirectory>
-      <programargs/>
+      <programargs></programargs>
       <autocompile>true</autocompile>
       <envvars/>
-      <globaldebugarguments/>
+      <globaldebugarguments></globaldebugarguments>
       <globalcwd>.</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <autoinstall>false</autoinstall>
@@ -138,14 +138,14 @@
     <general>
       <dbgshell>/bin/bash</dbgshell>
       <programargs/>
-      <gdbpath/>
+      <gdbpath></gdbpath>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
       <runappinappdirectory>true</runappinappdirectory>
-      <configGdbScript/>
-      <runShellScript/>
-      <runGdbScript/>
+      <configGdbScript></configGdbScript>
+      <runShellScript></runShellScript>
+      <runGdbScript></runGdbScript>
       <raiseGDBOnStart>false</raiseGDBOnStart>
     </general>
     <display>
@@ -252,7 +252,7 @@
       <designerpluginpaths/>
     </qt>
     <creategettersetter>
-      <prefixGet/>
+      <prefixGet></prefixGet>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>val</parameterName>

@@ -24,7 +24,7 @@
 #define DLGTESTBPM_H
 
 #include "trackfmod.h"
-#include "dlgtestbpmdlg.h"
+#include "dlgtestbpmdlg3.h"
 
 /**
  * @brief Dialog for testing detected BPM
