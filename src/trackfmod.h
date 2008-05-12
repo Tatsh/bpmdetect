@@ -44,28 +44,24 @@ protected:
   void seek( uint ms );
   uint currentPos();
   int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+
   void storeBPM( std::string sBPM );
   void removeBPM();
-
 
   void readTagsMPEG( std::string fname );
   void readTagsWAV( std::string fname );
   void readTagsOGG( std::string fname );
   void readTagsFLAC( std::string fname );
-// #ifdef HAVE_ID3LIB
-  void saveMPEG_ID3( std::string sBPM, std::string fname );
-  void saveWAV_ID3( std::string sBPM, std::string fname );
-//#endif // HAVE_ID3LIB
+
   void clearBPMMPEG( std::string fname );
   void clearBPMWAV( std::string fname );
   void clearBPMOGG( std::string fname );
   void clearBPMFLAC( std::string fname );
-#ifdef HAVE_TAGLIB
-  void saveMPEG_TAG( std::string sBPM, std::string fname );
-  void saveWAV_TAG( std::string sBPM, std::string fname );
-  void saveOGG_TAG( std::string sBPM, std::string fname );
-  void saveFLAC_TAG( std::string sBPM, std::string fname );
-#endif // HAVE_TAGLIB
+
+  void saveBPMMPEG( std::string sBPM, std::string fname );
+  void saveBPMWAV( std::string sBPM, std::string fname );
+  void saveBPMOGG( std::string sBPM, std::string fname );
+  void saveBPMFLAC( std::string sBPM, std::string fname );
 
   FMOD_SOUND* m_sound;
 

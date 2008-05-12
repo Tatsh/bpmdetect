@@ -32,7 +32,7 @@
   #include <xiphcomment.h>
 #endif   // HAVE_TAGLIB
 
-// #ifdef HAVE_ID3LIB
+#ifdef HAVE_ID3LIB
   #ifdef _WIN32
   # define ID3LIB_LINKOPTION 1
   #endif
@@ -40,7 +40,7 @@
   #include <id3/id3lib_streams.h>
   #include <id3/readers.h>
   #include <id3/misc_support.h>
-// #endif   // HAVE_ID3LIB
+#endif   // HAVE_ID3LIB
 
 #include <fmodex/fmod_errors.h>
 
@@ -273,25 +273,13 @@ void TrackFMOD::storeBPM( string format ) {
 
   close();
   if ( type == TYPE_MPEG ) {
-  //#ifdef HAVE_ID3LIB
-    saveMPEG_ID3( sBPM, fname );
-  //#elif defined(HAVE_TAGLIB)
-    //saveMPEG_TAG( sBPM, fname );
-  //#endif
+    saveBPMMPEG( sBPM, fname );
   } else if ( type == TYPE_WAV ) {
-  #ifdef HAVE_TAGLIB
-    saveWAV_TAG( sBPM, fname );
-  #elif defined(HAVE_ID3LIB)
-    // saveWAV_ID3( sBPM, fname );
-  #endif
+    saveBPMWAV( sBPM, fname );
   } else if ( type == TYPE_OGGVORBIS ) {
-  #ifdef HAVE_TAGLIB
-    saveOGG_TAG( sBPM, fname );
-  #endif
+    saveBPMOGG( sBPM, fname );
   } else if ( type == TYPE_FLAC ) {
-  #ifdef HAVE_TAGLIB
-    saveFLAC_TAG( sBPM, fname );
-  #endif
+    saveBPMFLAC( sBPM, fname );
   } else {
   #ifdef DEBUG
     clog << "BPM not saved (file type not supported) !" << endl;
@@ -322,7 +310,21 @@ void TrackFMOD::readTags() {
 
 void TrackFMOD::readTagsMPEG(string fname) {
   string sbpm = "000.00";
-//#ifdef HAVE_ID3LIB
+#ifdef HAVE_TAGLIB
+  TagLib::MPEG::File f(fname.c_str(), false);
+
+  TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
+  if(tag != NULL) {
+    setArtist(tag->artist().toCString());
+    setTitle(tag->title().toCString());
+
+    TagLib::List<TagLib::ID3v2::Frame*> lst = tag->frameList("TBPM");
+    if(lst.size() > 0) {
+      TagLib::ID3v2::Frame* frame = lst[0];
+      sbpm = frame->toString().toCString();
+    }
+  }
+#elif defined(HAVE_ID3LIB)
   ID3_Tag tag( fname.c_str() );
   if(char* sArtist = ID3_GetArtist(&tag)) {
     setArtist(sArtist);
@@ -340,24 +342,7 @@ void TrackFMOD::readTagsMPEG(string fname) {
       sbpm = buffer;
     }
   }
-
-/*
-//#elif defined(HAVE_TAGLIB)
-  TagLib::MPEG::File f(fname, false);
-
-  TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
-  if(tag != NULL) {
-    setArtist(tag->artist().toCString());
-    setTitle(tag->title().toCString());
-
-    TagLib::List<TagLib::ID3v2::Frame*> lst = tag->frameList("TBPM");
-    if(lst.size() > 0) {
-      TagLib::ID3v2::Frame* frame = lst[0];
-      sbpm = frame->toString().toCString();
-    }
-  }
-//#endif
-*/
+#endif
   // set filename (without path) as title if the title is empty
   if(title().empty())
     setTitle(fname.substr(fname.find_last_of("/") + 1));
@@ -439,43 +424,9 @@ void TrackFMOD::readTagsFLAC(string fname) {
   setBPM(str2bpm(sbpm));
 }
 
-//#ifdef HAVE_ID3LIB
-/// Save BPM to ID3v2 tag using ID3 library
-void TrackFMOD::saveMPEG_ID3( string sBPM, string fname ) {
-  ID3_Tag tag( fname.c_str() );                 // Open file
-
-  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM ); // find BPM frame
-
-  if ( NULL != bpmframe )                       // if BPM frame found
-    tag.RemoveFrame(bpmframe);                  // remove BPM frame
-
-  ID3_Frame newbpmframe;                        // create BPM frame
-  newbpmframe.SetID( ID3FID_BPM );
-  newbpmframe.Field( ID3FN_TEXT ).Add( sBPM.c_str() );
-  tag.AddFrame( newbpmframe );                  // add it to tag
-  tag.Update(ID3TT_ID3V2);                      // save
-}
-
-/// Save BPM to ID3v2 tag using ID3 library
-void TrackFMOD::saveWAV_ID3( string sBPM, string fname ) {
-  ID3_Tag tag( fname.c_str() );                 // Open file
-
-  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM ); // find BPM frame
-
-  if ( NULL != bpmframe )                       // if BPM frame found
-    tag.RemoveFrame(bpmframe);                  // remove BPM frame
-
-  ID3_Frame newbpmframe;                        // create BPM frame
-  newbpmframe.SetID( ID3FID_BPM );
-  newbpmframe.Field( ID3FN_TEXT ).Add( sBPM.c_str() );
-  tag.AddFrame( newbpmframe );                  // add it to tag
-  tag.Update(ID3TT_ID3V2);                      // save
-}
-//#endif // HAVE_ID3LIB
-
-#ifdef HAVE_TAGLIB
 /// Save BPM to MPEG file (ID3v2 tag)
-void TrackFMOD::saveMPEG_TAG( string sBPM, string fname ) {
+void TrackFMOD::saveBPMMPEG( string sBPM, string fname ) {
+#ifdef HAVE_TAGLIB
   TagLib::MPEG::File f( fname.c_str(), false );
   TagLib::ID3v2::Tag* tag = f.ID3v2Tag(true);
   if(tag == NULL) {
@@ -488,11 +439,23 @@ void TrackFMOD::saveMPEG_TAG( string sBPM, string fname ) {
   bpmframe->setText(sBPM.c_str());
   tag->addFrame(bpmframe);                      // add new BPM frame
   f.save();                                     // save file
+#elif defined(HAVE_ID3LIB)
+  ID3_Tag tag( fname.c_str() );                 // Open file
+  ID3_Frame* bpmframe = tag.Find( ID3FID_BPM ); // find BPM frame
+  if ( NULL != bpmframe )                       // if BPM frame found
+    tag.RemoveFrame(bpmframe);                  // remove BPM frame
+  ID3_Frame newbpmframe;                        // create BPM frame
+  newbpmframe.SetID( ID3FID_BPM );
+  newbpmframe.Field( ID3FN_TEXT ).Add( sBPM.c_str() );
+  tag.AddFrame( newbpmframe );                  // add it to tag
+  tag.Update(ID3TT_ID3V2);                      // save
+#endif
 }
 
 /// Save BPM to WAV file (ID3v2 tag)
-void TrackFMOD::saveWAV_TAG( string sBPM, string fname ) {
+void TrackFMOD::saveBPMWAV( string sBPM, string fname ) {
 /*
+#ifdef HAVE_TAGLIB
   TagLib::MPEG::File f( fname.c_str(), false );
   long offset = f.rfind("ID3", TagLib::File::End);
   if(offset < 0) offset = f.length();           // ID3 tag offset
@@ -508,11 +471,13 @@ void TrackFMOD::saveWAV_TAG( string sBPM, string fname ) {
   f.seek(offset);
   f.writeBlock(tdata);                          // write to file
   //f.save();
+#endif
 */
 }
 
 /// Save BPM to OGG file (xiphcomment)
-void TrackFMOD::saveOGG_TAG( string sBPM, string fname ) {
+void TrackFMOD::saveBPMOGG( string sBPM, string fname ) {
+#ifdef HAVE_TAGLIB
   TagLib::Ogg::Vorbis::File f( fname.c_str(), false );
   TagLib::Ogg::XiphComment* tag = f.tag();
   if(tag == NULL) {
@@ -521,10 +486,12 @@ void TrackFMOD::saveOGG_TAG( string sBPM, string fname ) {
   }
   tag->addField("TBPM", sBPM.c_str(), true);    // add new BPM field (replace existing)
   f.save();
+#endif
 }
 
 /// Save BPM to FLAC file (ID3v2 tag and xiphcomment)
-void TrackFMOD::saveFLAC_TAG( string sBPM, string fname ) {
+void TrackFMOD::saveBPMFLAC( string sBPM, string fname ) {
+#ifdef HAVE_TAGLIB
   TagLib::FLAC::File f( fname.c_str(), false );
   TagLib::Ogg::XiphComment* xiph = f.xiphComment(true);
   if(xiph != NULL) {
@@ -541,8 +508,8 @@ void TrackFMOD::saveFLAC_TAG( string sBPM, string fname ) {
   }
 
   f.save();
+#endif
 }
-#endif // HAVE_TAGLIB
 
 void TrackFMOD::clearBPMMPEG(string fname) {
 #ifdef HAVE_TAGLIB
