@@ -201,6 +201,7 @@ void TrackFMOD::open() {
 
 void TrackFMOD::close() {
   if(m_sound) FMOD_Sound_Release(m_sound);
+  init();
   m_sound = 0;
   m_iCurPosBytes = 0;
 }

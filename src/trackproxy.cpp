@@ -56,9 +56,9 @@ void TrackProxy::close() {
   if(m_pTrack) {
     m_pTrack->close();
     delete m_pTrack;
-    m_pTrack = 0;
-    setValid(false);
   }
+  m_pTrack = 0;
+  init();
 }
 
 void TrackProxy::seek( uint ms ) {

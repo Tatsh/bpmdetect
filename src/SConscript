@@ -29,6 +29,7 @@ FIFOSampleBuffer.cpp
 track.cpp
 trackproxy.cpp
 trackfmod.cpp
+trackwav.cpp
 """
 bpmdetect_sources_gui3="""
 dlgbpmdetectdlg3.ui
