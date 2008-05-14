@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>dlgBPMDetectdlg</class>
+<class>DlgBPMDetectDlg</class>
 <widget class="QWidget">
     <property name="name">
-        <cstring>dlgBPMDetectdlg</cstring>
+        <cstring>DlgBPMDetectDlg</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -524,7 +524,7 @@
 <customwidgets>
     <customwidget>
         <class>QDropListView</class>
-        <header location="local">qdroplistview3.h</header>
+        <header location="local">qdroplistview.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
@@ -551,31 +551,31 @@
     <connection>
         <sender>btnAddFiles</sender>
         <signal>clicked()</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
+        <receiver>DlgBPMDetectDlg</receiver>
         <slot>slotAddFiles()</slot>
     </connection>
     <connection>
         <sender>btnAddDir</sender>
         <signal>clicked()</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
+        <receiver>DlgBPMDetectDlg</receiver>
         <slot>slotAddDir()</slot>
     </connection>
     <connection>
         <sender>btnRemoveSelected</sender>
         <signal>clicked()</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
+        <receiver>DlgBPMDetectDlg</receiver>
         <slot>slotRemoveSelected()</slot>
     </connection>
     <connection>
         <sender>btnAbout</sender>
         <signal>clicked()</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
+        <receiver>DlgBPMDetectDlg</receiver>
         <slot>slotShowAbout()</slot>
     </connection>
     <connection>
         <sender>btnClearList</sender>
         <signal>clicked()</signal>
-        <receiver>dlgBPMDetectdlg</receiver>
+        <receiver>DlgBPMDetectDlg</receiver>
         <slot>slotClearTrackList()</slot>
     </connection>
 </connections>
@@ -589,6 +589,6 @@
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>qdroplistview3.h</includehint>
+    <includehint>qdroplistview.h</includehint>
 </includehints>
 </UI>

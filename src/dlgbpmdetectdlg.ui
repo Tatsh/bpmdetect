@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>dlgBPMDetectdlg</class>
- <widget class="QWidget" name="dlgBPMDetectdlg" >
+ <class>DlgBPMDetectDlg</class>
+ <widget class="QWidget" name="DlgBPMDetectDlg" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -506,7 +506,7 @@
   <connection>
    <sender>btnAddFiles</sender>
    <signal>clicked()</signal>
-   <receiver>dlgBPMDetectdlg</receiver>
+   <receiver>DlgBPMDetectDlg</receiver>
    <slot>slotAddFiles()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -522,7 +522,7 @@
   <connection>
    <sender>btnAddDir</sender>
    <signal>clicked()</signal>
-   <receiver>dlgBPMDetectdlg</receiver>
+   <receiver>DlgBPMDetectDlg</receiver>
    <slot>slotAddDir()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -538,7 +538,7 @@
   <connection>
    <sender>btnRemoveSelected</sender>
    <signal>clicked()</signal>
-   <receiver>dlgBPMDetectdlg</receiver>
+   <receiver>DlgBPMDetectDlg</receiver>
    <slot>slotRemoveSelected()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -554,7 +554,7 @@
   <connection>
    <sender>btnAbout</sender>
    <signal>clicked()</signal>
-   <receiver>dlgBPMDetectdlg</receiver>
+   <receiver>DlgBPMDetectDlg</receiver>
    <slot>slotShowAbout()</slot>
    <hints>
     <hint type="sourcelabel" >
@@ -570,7 +570,7 @@
   <connection>
    <sender>btnClearList</sender>
    <signal>clicked()</signal>
-   <receiver>dlgBPMDetectdlg</receiver>
+   <receiver>DlgBPMDetectDlg</receiver>
    <slot>slotClearTrackList()</slot>
    <hints>
     <hint type="sourcelabel" >

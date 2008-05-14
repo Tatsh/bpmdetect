@@ -33,7 +33,7 @@
 
 using namespace std;
 
-dlgTestBPM::dlgTestBPM( QString file, float dBPM, QWidget *parent )
+DlgTestBPM::DlgTestBPM( QString file, float dBPM, QWidget *parent )
     : QDialog( parent ) {
   setupUi(this);
   FMOD_RESULT result;
@@ -60,11 +60,11 @@ dlgTestBPM::dlgTestBPM( QString file, float dBPM, QWidget *parent )
            this, SLOT( setCustomPos( uint ) ) );
 }
 
-dlgTestBPM::~dlgTestBPM() {
+DlgTestBPM::~DlgTestBPM() {
   stop();
 }
 
-void dlgTestBPM::setPos1() {
+void DlgTestBPM::setPos1() {
   if ( channel != NULL ) {
     uint msec = trackPosition->length() / 5;
     unsigned long beatslen = ( unsigned long ) ( 
@@ -77,7 +77,7 @@ void dlgTestBPM::setPos1() {
   }
 }
 
-void dlgTestBPM::setPos2() {
+void DlgTestBPM::setPos2() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 2 ) / 5;
     unsigned long beatslen = ( unsigned long ) ( 
@@ -90,7 +90,7 @@ void dlgTestBPM::setPos2() {
   }
 }
 
-void dlgTestBPM::setPos3() {
+void DlgTestBPM::setPos3() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 3 ) / 5;
     unsigned long beatslen = ( unsigned long ) (
@@ -103,7 +103,7 @@ void dlgTestBPM::setPos3() {
   }
 }
 
-void dlgTestBPM::setPos4() {
+void DlgTestBPM::setPos4() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 4 ) / 5;
     unsigned long beatslen = ( unsigned long ) ( 
@@ -116,7 +116,7 @@ void dlgTestBPM::setPos4() {
   }
 }
 
-void dlgTestBPM::setCustomPos( uint msec ) {
+void DlgTestBPM::setCustomPos( uint msec ) {
   if ( channel != NULL ) {
     unsigned long beatslen = ( unsigned long ) ( 
         ( 60000 * cbNBeats->currentText().toInt() ) / bpm );
@@ -127,7 +127,7 @@ void dlgTestBPM::setCustomPos( uint msec ) {
   }
 }
 
-void dlgTestBPM::stop() {
+void DlgTestBPM::stop() {
   if ( channel != NULL ) {
     FMOD_Channel_Stop(channel);
     channel = 0;
@@ -141,7 +141,7 @@ void dlgTestBPM::stop() {
  * called when combobox currentItemChanged is emited
  * @param text is number of beats to loop (combobox currentText)
  */
-void dlgTestBPM::setNumBeats( const QString &text ) {
+void DlgTestBPM::setNumBeats( const QString &text ) {
   if ( channel != NULL ) {
     uint loopstart, loopend;
     FMOD_Channel_GetLoopPoints( channel, &loopstart, FMOD_TIMEUNIT_MS, &loopend, FMOD_TIMEUNIT_MS );

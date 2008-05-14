@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>dlgTestBPMdlg</class>
+<class>DlgTestBPMDlg</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>dlgTestBPMdlg</cstring>
+        <cstring>DlgTestBPMDlg</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -293,7 +293,7 @@
 <customwidgets>
     <customwidget>
         <class>ProgressBar</class>
-        <header location="local">progressbar3.h</header>
+        <header location="local">progressbar.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
@@ -320,37 +320,37 @@
     <connection>
         <sender>btnOk</sender>
         <signal>clicked()</signal>
-        <receiver>dlgTestBPMdlg</receiver>
+        <receiver>DlgTestBPMDlg</receiver>
         <slot>accept()</slot>
     </connection>
     <connection>
         <sender>btnPos1</sender>
         <signal>clicked()</signal>
-        <receiver>dlgTestBPMdlg</receiver>
+        <receiver>DlgTestBPMDlg</receiver>
         <slot>setPos1()</slot>
     </connection>
     <connection>
         <sender>btnPos2</sender>
         <signal>clicked()</signal>
-        <receiver>dlgTestBPMdlg</receiver>
+        <receiver>DlgTestBPMDlg</receiver>
         <slot>setPos2()</slot>
     </connection>
     <connection>
         <sender>btnPos3</sender>
         <signal>clicked()</signal>
-        <receiver>dlgTestBPMdlg</receiver>
+        <receiver>DlgTestBPMDlg</receiver>
         <slot>setPos3()</slot>
     </connection>
     <connection>
         <sender>btnPos4</sender>
         <signal>clicked()</signal>
-        <receiver>dlgTestBPMdlg</receiver>
+        <receiver>DlgTestBPMDlg</receiver>
         <slot>setPos4()</slot>
     </connection>
     <connection>
         <sender>cbNBeats</sender>
         <signal>activated(const QString&amp;)</signal>
-        <receiver>dlgTestBPMdlg</receiver>
+        <receiver>DlgTestBPMDlg</receiver>
         <slot>setNumBeats(const QString&amp;)</slot>
     </connection>
 </connections>
@@ -363,6 +363,6 @@
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>progressbar3.h</includehint>
+    <includehint>progressbar.h</includehint>
 </includehints>
 </UI>

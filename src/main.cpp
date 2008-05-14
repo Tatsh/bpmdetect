@@ -169,7 +169,7 @@ int main( int argc, char **argv ) {
     #ifndef USE_QT3
       app.setStyle("plastique");
     #endif
-    dlgBPMDetect *mainWin = new dlgBPMDetect();
+    DlgBPMDetect *mainWin = new DlgBPMDetect();
   #ifdef USE_QT3
     app.setMainWidget( mainWin );
   #endif

@@ -41,9 +41,9 @@ using namespace std;
  * @param parent parent widget
  * @param name widget name
  */
-dlgTestBPM::dlgTestBPM( QString file, float dBPM,
+DlgTestBPM::DlgTestBPM( QString file, float dBPM,
                   QWidget *parent, const char *name )
-    : dlgTestBPMdlg( parent, name ) {
+    : DlgTestBPMDlg( parent, name ) {
   FMOD_RESULT result;
   system = TrackFMOD::getFMODSystem();
   bpm = dBPM;
@@ -71,12 +71,12 @@ dlgTestBPM::dlgTestBPM( QString file, float dBPM,
            this, SLOT( setCustomPos( uint ) ) );
 }
 
-dlgTestBPM::~dlgTestBPM() {
+DlgTestBPM::~DlgTestBPM() {
   stop();
 }
 
 /// @brief Set 1st testing position
-void dlgTestBPM::setPos1() {
+void DlgTestBPM::setPos1() {
   if ( channel != NULL ) {
     uint msec = trackPosition->length() / 5;
     unsigned long beatslen = ( unsigned long ) ( 
@@ -90,7 +90,7 @@ void dlgTestBPM::setPos1() {
 }
 
 /// @brief Set 2nd testing position
-void dlgTestBPM::setPos2() {
+void DlgTestBPM::setPos2() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 2 ) / 5;
     unsigned long beatslen = ( unsigned long ) ( 
@@ -104,7 +104,7 @@ void dlgTestBPM::setPos2() {
 }
 
 /// @brief Set 3rd testing position
-void dlgTestBPM::setPos3() {
+void DlgTestBPM::setPos3() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 3 ) / 5;
     unsigned long beatslen = ( unsigned long ) (
@@ -118,7 +118,7 @@ void dlgTestBPM::setPos3() {
 }
 
 /// @brief Set 4th testing position
-void dlgTestBPM::setPos4() {
+void DlgTestBPM::setPos4() {
   if ( channel != NULL ) {
     uint msec = ( trackPosition->length() * 4 ) / 5;
     unsigned long beatslen = ( unsigned long ) ( 
@@ -132,7 +132,7 @@ void dlgTestBPM::setPos4() {
 }
 
 /// @brief Set custom testing position
-void dlgTestBPM::setCustomPos( uint msec ) {
+void DlgTestBPM::setCustomPos( uint msec ) {
   if ( channel != NULL ) {
     unsigned long beatslen = ( unsigned long ) ( 
         ( 60000 * cbNBeats->currentText().toInt() ) / bpm );
@@ -144,7 +144,7 @@ void dlgTestBPM::setCustomPos( uint msec ) {
 }
 
 /// @brief Stop audio track
-void dlgTestBPM::stop() {
+void DlgTestBPM::stop() {
   if ( channel != NULL ) {
     FMOD_Channel_Stop(channel);
     channel = 0;
@@ -157,7 +157,7 @@ void dlgTestBPM::stop() {
  * @brief Set number of beats to loop
  * @param text is number of beats to loop given as QString
  */
-void dlgTestBPM::setNumBeats( const QString &text ) {
+void DlgTestBPM::setNumBeats( const QString &text ) {
   if ( channel != NULL ) {
     uint loopstart, loopend;
     FMOD_Channel_GetLoopPoints( channel, &loopstart, FMOD_TIMEUNIT_MS, &loopend, FMOD_TIMEUNIT_MS );

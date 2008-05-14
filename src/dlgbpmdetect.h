@@ -39,11 +39,11 @@ class Q3ListViewItem;
 using namespace std;
 using namespace soundtouch;
 
-class dlgBPMDetect : public QWidget, public Ui_dlgBPMDetectdlg {
+class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetectDlg {
   Q_OBJECT
 public:
-  dlgBPMDetect( QWidget* parent = 0 );
-  ~dlgBPMDetect();
+  DlgBPMDetect( QWidget* parent = 0 );
+  ~DlgBPMDetect();
 
 public slots:
   void slotStartStop();

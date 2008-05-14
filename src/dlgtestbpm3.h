@@ -29,12 +29,12 @@
 /**
  * @brief Dialog for testing detected BPM
  */
-class dlgTestBPM: public dlgTestBPMdlg {
+class DlgTestBPM: public DlgTestBPMDlg {
    Q_OBJECT
 public:
-  dlgTestBPM( QString file, float dBPM,
+  DlgTestBPM( QString file, float dBPM,
            QWidget *parent = 0, const char *name = 0 );
-  ~dlgTestBPM();
+  ~DlgTestBPM();
 
 public slots:
   void setPos1();

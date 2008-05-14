@@ -28,11 +28,11 @@
 #include "trackfmod.h"
 #include "ui_dlgtestbpmdlg.h"
 
-class dlgTestBPM: public QDialog, public Ui_dlgTestBPMdlg {
+class DlgTestBPM: public QDialog, public Ui_DlgTestBPMDlg {
    Q_OBJECT
 public:
-  dlgTestBPM( QString file, float dBPM, QWidget *parent = 0 );
-  ~dlgTestBPM();
+  DlgTestBPM( QString file, float dBPM, QWidget *parent = 0 );
+  ~DlgTestBPM();
 
 protected slots:
   void setPos1();
