@@ -160,7 +160,7 @@ void TrackWav::open() {
     return;
   }
 
-//    m_iCurPosBytes = 0;
+  m_iCurPosBytes = 0;
   setValid(true);
 
   uint numSamples = header.data.data_len / header.format.byte_per_sample;
@@ -195,7 +195,7 @@ void TrackWav::seek( uint ms ) {
     int hdrsOk = readWavHeaders();
     assert(hdrsOk == 0);
     fseek(fptr, (uint) pos, SEEK_CUR);
-    m_iCurPosBytes = (uint) pos;
+    m_iCurPosBytes = pos;
 #ifdef DEBUG
   } else {
     cerr << "seek failed: track not valid" << endl;

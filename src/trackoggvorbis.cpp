@@ -1,0 +1,216 @@
+/***************************************************************************
+     Copyright          : (C) 2008 by Martin Sakmar
+     e-mail             : martin.sakmar@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+#include "trackoggvorbis.h"
+
+#ifdef HAVE_TAGLIB
+  #include <vorbisfile.h>
+  #include <textidentificationframe.h>
+  #include <xiphcomment.h>
+#endif   // HAVE_TAGLIB
+
+#include <assert.h>
+#include <limits.h>
+
+#ifdef __WIN__
+#include <io.h>
+#include <fcntl.h>
+#endif
+
+#ifdef __MACX__
+ #define OV_ENDIAN_ARG 1
+#else
+ #ifdef __LINUX__
+  #include <endian.h>
+  #if __BYTE_ORDER == __LITTLE_ENDIAN
+   #define OV_ENDIAN_ARG 0
+  #else
+   #define OV_ENDIAN_ARG 1
+  #endif
+ #else
+  #define OV_ENDIAN_ARG 0
+ #endif
+#endif
+
+using namespace std;
+using namespace soundtouch;
+
+TrackOggVorbis::TrackOggVorbis( const char* fname, bool readtags ) : Track() {
+  m_iCurPosPCM = 0;
+  fptr = 0;
+  setFilename( fname, readtags );
+}
+
+TrackOggVorbis::TrackOggVorbis( string fname, bool readtags ) : Track() {
+  m_iCurPosPCM = 0;
+  fptr = 0;
+  setFilename( fname, readtags );
+}
+
+TrackOggVorbis::~TrackOggVorbis() {
+  close();
+}
+
+void TrackOggVorbis::open() {
+  if(isValid()) close();
+  string fname = filename();
+
+  // Try to open the file for reading
+  fptr = fopen(fname.c_str(), "rb");
+  if (fptr == NULL) return;
+
+  if(ov_open(fptr, &vf, NULL, 0) < 0) return;
+
+  // extract metadata
+  vorbis_info * vi = ov_info(&vf,-1);
+
+  int channels = vi->channels;
+  uint srate = vi->rate;
+  unsigned long long numSamples = (unsigned long) ov_pcm_total(&vf, -1);
+  uint len =  (1000 * numSamples / (srate*channels));
+  setValid(true);
+
+  setLength( len );
+  setStartPos( 0 );
+  setEndPos( len );
+  setSamplerate(srate);
+  setSampleBytes(2);
+  setChannels(channels);
+  setTrackType(TYPE_WAV);
+  setValid(true);
+}
+
+void TrackOggVorbis::close() {
+  ov_clear(&vf);
+  // note that fclose() is not needed, ov_clear() does this as well
+  fptr = NULL;
+  m_iCurPosPCM = 0;
+  init();
+}
+
+void TrackOggVorbis::seek( uint ms ) {
+  if(isValid()) {
+    unsigned long long pos = (ms * samplerate() * channels()) / 1000;
+    if (ov_pcm_seek(&vf, pos) == 0) {
+      m_iCurPosPCM = pos;
+    }
+#ifdef DEBUG
+    else {
+      cerr << "seek failed: seek ERR.";
+    }
+  } else {
+    cerr << "seek failed: track not valid" << endl;
+#endif
+  }
+}
+
+uint TrackOggVorbis::currentPos() {
+  if(isValid()) {
+    unsigned long long pos = 1000*m_iCurPosPCM / (samplerate()*channels());
+    return (uint) pos;
+  }
+  return 0;
+}
+
+/**
+ * Read @a num samples into @a buffer
+ * @param buffer pointer to buffer
+ * @param num number of samples (per channel)
+ * @return number of read samples
+ */
+int TrackOggVorbis::readSamples( SAMPLETYPE* buffer, int num ) {
+  if(!isValid()) return -1;
+
+  //int nread = read(buffer, num);
+/*
+  int needed = num;
+  // loop until requested number of samples has been retrieved
+    while (needed > 0) {
+        // read samples into buffer
+        ret = ov_read(&vf,(char *) dest+index,needed, OV_ENDIAN_ARG, 2, 1, &current_section);
+        // if eof we fill the rest with zero
+        if (ret == 0) {
+            while (needed > 0) {
+                dest[index] = 0;
+                index++;
+                needed--;
+            }
+        }
+        index += ret;
+        needed -= ret;
+    }
+
+    // return the number of samples in buffer
+    return (index / channels);
+*/
+  return 0;//nread;
+}
+
+void TrackOggVorbis::storeBPM( string format ) {
+  string fname = filename();
+  string sBPM = bpm2str( getBPM(), format );
+#ifdef HAVE_TAGLIB
+  TagLib::Ogg::Vorbis::File f( fname.c_str(), false );
+  TagLib::Ogg::XiphComment* tag = f.tag();
+  if(tag == NULL) {
+    cerr << "BPM not saved ! (failed)" << endl;
+    return;
+  }
+  tag->addField("TBPM", sBPM.c_str(), true);    // add new BPM field (replace existing)
+  f.save();
+#endif
+}
+
+void TrackOggVorbis::readTags() {
+  string fname = filename();
+  string sbpm = "000.00";
+#ifdef HAVE_TAGLIB
+  TagLib::Ogg::Vorbis::File f( fname.c_str(), false );
+  TagLib::Ogg::XiphComment* tag = f.tag();
+  if(tag != NULL) {
+    setArtist(tag->artist().toCString());
+    setTitle(tag->title().toCString());
+    TagLib::Ogg::FieldListMap flmap = tag->fieldListMap();
+    TagLib::StringList strl = flmap["TBPM"];
+    if(!strl.isEmpty()) sbpm = strl[0].toCString();
+  }
+#endif
+  // set filename (without path) as title if the title is empty
+  if(title().empty())
+    setTitle(fname.substr(fname.find_last_of("/") + 1));
+  setBPM(str2bpm(sbpm));
+}
+
+void TrackOggVorbis::removeBPM() {
+  string fname = filename();
+#ifdef HAVE_TAGLIB
+  //close();
+  TagLib::Ogg::Vorbis::File f( fname.c_str(), false );
+  TagLib::Ogg::XiphComment* tag = f.tag();
+  if(tag == NULL) {
+    return;
+  }
+  tag->removeField("TBPM");
+  f.save();
+  //open();
+#endif
+}
