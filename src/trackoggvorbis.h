@@ -57,6 +57,7 @@ private:
   unsigned long long m_iCurPosPCM;
   FILE *fptr;
   OggVorbis_File vf;
+  int current_section;
 };
 
 #endif  // TRACKOGGVORBIS_H

@@ -73,12 +73,22 @@ TrackOggVorbis::~TrackOggVorbis() {
 void TrackOggVorbis::open() {
   if(isValid()) close();
   string fname = filename();
-
   // Try to open the file for reading
   fptr = fopen(fname.c_str(), "rb");
-  if (fptr == NULL) return;
+  if (fptr == NULL) {
+  #ifdef DEBUG
+    cerr << "TrackOggVorbis: can not open file" << endl;
+  #endif
+    return;
+  }
 
-  if(ov_open(fptr, &vf, NULL, 0) < 0) return;
+  if(ov_open(fptr, &vf, NULL, 0) < 0) {
+  #ifdef DEBUG
+    cerr << "TrackOggVorbis: Input does not appear to be an Ogg bitstream" << endl;
+  #endif
+    close();
+    return;
+  }
 
   // extract metadata
   vorbis_info * vi = ov_info(&vf,-1);
@@ -86,7 +96,7 @@ void TrackOggVorbis::open() {
   int channels = vi->channels;
   uint srate = vi->rate;
   unsigned long long numSamples = (unsigned long) ov_pcm_total(&vf, -1);
-  uint len =  (1000 * numSamples / (srate*channels));
+  uint len =  (1000 * numSamples / srate);
   setValid(true);
 
   setLength( len );
@@ -100,7 +110,7 @@ void TrackOggVorbis::open() {
 }
 
 void TrackOggVorbis::close() {
-  ov_clear(&vf);
+  if(isValid()) ov_clear(&vf);
   // note that fclose() is not needed, ov_clear() does this as well
   fptr = NULL;
   m_iCurPosPCM = 0;
@@ -109,7 +119,7 @@ void TrackOggVorbis::close() {
 
 void TrackOggVorbis::seek( uint ms ) {
   if(isValid()) {
-    unsigned long long pos = (ms * samplerate() * channels()) / 1000;
+    unsigned long long pos = (ms * samplerate()/* * channels()*/) / 1000;
     if (ov_pcm_seek(&vf, pos) == 0) {
       m_iCurPosPCM = pos;
     }
@@ -125,7 +135,7 @@ void TrackOggVorbis::seek( uint ms ) {
 
 uint TrackOggVorbis::currentPos() {
   if(isValid()) {
-    unsigned long long pos = 1000*m_iCurPosPCM / (samplerate()*channels());
+    unsigned long long pos = 1000*m_iCurPosPCM / (samplerate()/* *channels()*/);
     return (uint) pos;
   }
   return 0;
@@ -140,13 +150,13 @@ uint TrackOggVorbis::currentPos() {
 int TrackOggVorbis::readSamples( SAMPLETYPE* buffer, int num ) {
   if(!isValid()) return -1;
 
-  //int nread = read(buffer, num);
-/*
+  short dest[num];
+  uint index = 0;
   int needed = num;
   // loop until requested number of samples has been retrieved
     while (needed > 0) {
         // read samples into buffer
-        ret = ov_read(&vf,(char *) dest+index,needed, OV_ENDIAN_ARG, 2, 1, &current_section);
+        int ret = ov_read(&vf,(char *) dest+index,needed, OV_ENDIAN_ARG, 2, 1, &current_section);
         // if eof we fill the rest with zero
         if (ret == 0) {
             while (needed > 0) {
@@ -159,10 +169,14 @@ int TrackOggVorbis::readSamples( SAMPLETYPE* buffer, int num ) {
         needed -= ret;
     }
 
+    int nread = index/2;
+    for(int i = 0; i < nread; ++i) {
+        buffer[i] = (float) dest[i] / 32768;
+    }
+
     // return the number of samples in buffer
-    return (index / channels);
-*/
-  return 0;//nread;
+    m_iCurPosPCM += nread;
+    return nread;
 }
 
 void TrackOggVorbis::storeBPM( string format ) {

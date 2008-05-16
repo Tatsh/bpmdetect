@@ -234,7 +234,7 @@ def configure(env):
   # Check for libraries
   check_taglib(env)
 
-  env.Append(LIBS = ['fmodex', 'z'])
+  env.Append(LIBS = ['vorbisfile', 'fmodex', 'z'])
   env.Append(CPPPATH = ['.', '..', '../includes'])
   env.Append(LIBPATH = ['.', '../libs'])
   env['ISCONFIGURED']=1

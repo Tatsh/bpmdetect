@@ -25,6 +25,8 @@
 #include <assert.h>
 #include <limits.h>
 
+#include <iostream>
+
 #ifdef HAVE_TAGLIB
   #include <mpegfile.h>
   #include <id3v2tag.h>
@@ -163,11 +165,10 @@ void TrackWav::open() {
   m_iCurPosBytes = 0;
   setValid(true);
 
-  uint numSamples = header.data.data_len / header.format.byte_per_sample;
+  unsigned long long numSamples = header.data.data_len / header.format.byte_per_sample;
   uint srate = header.format.sample_rate;
   int channels = header.format.channel_number;
 
-  assert(numSamples < UINT_MAX / 1000);
   uint len =  (1000 * numSamples / srate);
   int sbytes = header.format.bits_per_sample;
 
@@ -182,7 +183,7 @@ void TrackWav::open() {
 }
 
 void TrackWav::close() {
-  fclose(fptr);
+  if(fptr) fclose(fptr);
   fptr = NULL;
   m_iCurPosBytes = 0;
   init();
@@ -194,7 +195,7 @@ void TrackWav::seek( uint ms ) {
     unsigned long long pos = (ms * samplerate() * sampleBytes()) / 1000;
     int hdrsOk = readWavHeaders();
     assert(hdrsOk == 0);
-    fseek(fptr, (uint) pos, SEEK_CUR);
+    fseek(fptr, pos, SEEK_CUR);
     m_iCurPosBytes = pos;
 #ifdef DEBUG
   } else {
