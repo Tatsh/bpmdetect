@@ -39,8 +39,6 @@ class Track
   friend class TrackProxy;
 public:
   virtual ~Track();
-  static Track* createTrack( const char* filename );
-  static Track* createTrack( std::string filename );
 
   enum TRACKTYPE {
     TYPE_UNKNOWN   = 0,

@@ -42,6 +42,8 @@ public:
   void setEndPos( uint ms );
 
 protected:
+  Track* createTrack( const char* filename );
+  Track* createTrack( std::string filename );
   void open();
   void close();
   void seek( uint ms );

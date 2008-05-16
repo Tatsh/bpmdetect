@@ -105,7 +105,7 @@ void TrackOggVorbis::open() {
   setSamplerate(srate);
   setSampleBytes(2);
   setChannels(channels);
-  setTrackType(TYPE_WAV);
+  setTrackType(TYPE_OGGVORBIS);
   setValid(true);
 }
 

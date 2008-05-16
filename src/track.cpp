@@ -21,10 +21,6 @@
  ***************************************************************************/
 
 #include "track.h"
-#include "trackfmod.h"
-#include "trackwav.h"
-#include "trackoggvorbis.h"
-
 #include "BPMDetect.h"
 
 #include <iostream>
@@ -38,23 +34,6 @@ using namespace soundtouch;
 
 static double _dMinBPM = 80.;
 static double _dMaxBPM = 185.;
-
-Track* Track::createTrack( const char* filename ) {
-  const char* ext = strrchr(filename, '.');
-  if(ext && !strcasecmp(ext, ".wav")) {
-    return new TrackWav(filename);
-  }
-
-  if(ext && !strcasecmp(ext, ".ogg")) {
-    return new TrackOggVorbis(filename);
-  }
-
-  return new TrackFMOD(filename);
-}
-
-Track* Track::createTrack( string filename ) {
-  return Track::createTrack(filename.c_str());
-}
 
 Track::Track() {
   init();

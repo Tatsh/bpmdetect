@@ -45,14 +45,6 @@ protected:
   void storeBPM( std::string sBPM );
   void removeBPM();
 
-  int readWavHeaders();
-  int readHeaderBlock();
-  int readRIFFBlock();
-  int checkCharTags();
-  int read(char *buffer, int maxElems);
-  int read(short *buffer, int maxElems);
-  int read(float *buffer, int maxElems);
-
 private:
   unsigned long long m_iCurPosPCM;
   FILE *fptr;
