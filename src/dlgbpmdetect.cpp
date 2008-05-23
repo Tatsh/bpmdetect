@@ -246,7 +246,7 @@ void DlgBPMDetect::slotTimerDone() {
 }
 
 void DlgBPMDetect::slotAddFiles( QStringList &files ) {
-  if(!getStarted()) {
+  if(!getStarted() && files.size()) {
     CurrentProgress->setMaximum(0);
     TotalProgress->setMaximum(files.size());
   }
@@ -267,11 +267,12 @@ void DlgBPMDetect::slotAddFiles( QStringList &files ) {
   }
   if(!getStarted()) {
     lblCurrentTrack->setText("");
-    CurrentProgress->setMaximum(1000);
     int itemcount = TrackList->topLevelItemCount();
     if(itemcount) TotalProgress->setMaximum( itemcount * 100 );
     else TotalProgress->setMaximum(100);
-    CurrentProgress->setValue(0);
+    CurrentProgress->setMaximum(1000);
+    CurrentProgress->reset();
+    TotalProgress->reset();
     TotalProgress->setValue(0);
   }
 }

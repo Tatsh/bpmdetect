@@ -55,13 +55,11 @@ using namespace std;
 using namespace soundtouch;
 
 TrackOggVorbis::TrackOggVorbis( const char* fname, bool readtags ) : Track() {
-  m_iCurPosPCM = 0;
   fptr = 0;
   setFilename( fname, readtags );
 }
 
 TrackOggVorbis::TrackOggVorbis( string fname, bool readtags ) : Track() {
-  m_iCurPosPCM = 0;
   fptr = 0;
   setFilename( fname, readtags );
 }
@@ -72,6 +70,7 @@ TrackOggVorbis::~TrackOggVorbis() {
 
 void TrackOggVorbis::open() {
   if(isValid()) close();
+  m_iCurPosPCM = 0;
   string fname = filename();
   // Try to open the file for reading
   fptr = fopen(fname.c_str(), "rb");
@@ -95,7 +94,7 @@ void TrackOggVorbis::open() {
 
   int channels = vi->channels;
   uint srate = vi->rate;
-  unsigned long long numSamples = (unsigned long) ov_pcm_total(&vf, -1);
+  unsigned long long numSamples = ov_pcm_total(&vf, -1);
   uint len =  (1000 * numSamples / srate);
   setValid(true);
 

@@ -359,10 +359,12 @@ double Track::detectBPM() {
   const uint NUMSAMPLES = 32768;
   int chan = channels();
   int srate = samplerate();
+/*
   #ifdef DEBUG
     cerr << "samplerate: " << srate << ", channels: " << chan
          << ", sample bits: " << sampleBits() << endl;
   #endif
+*/
   if(!srate || !chan) {
     return oldbpm;
   }
