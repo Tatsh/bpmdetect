@@ -487,7 +487,6 @@ void TrackMp3::storeBPM ( string format ) {
 }
 
 void TrackMp3::readTags() {
-  cerr << "TrackMp3 read tags" << endl;
   string fname = filename();
   string sbpm = "000.00";
 #ifdef HAVE_TAGLIB
