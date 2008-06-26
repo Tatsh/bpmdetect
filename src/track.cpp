@@ -356,15 +356,15 @@ double Track::detectBPM() {
     return oldbpm;
   }
 
-  const uint NUMSAMPLES = 32768;
+  const uint NUMSAMPLES = 8192; //32768;
   int chan = channels();
   int srate = samplerate();
-/*
+
   #ifdef DEBUG
     cerr << "samplerate: " << srate << ", channels: " << chan
          << ", sample bits: " << sampleBits() << endl;
   #endif
-*/
+
   if(!srate || !chan) {
     return oldbpm;
   }
@@ -378,6 +378,7 @@ double Track::detectBPM() {
   seek(startPos());
   while(!m_bStop && currentPos() < endPos() &&
         0 < (readsamples = readSamples(samples, NUMSAMPLES))) {
+//cerr << "inputSamples: " << readsamples << endl;
     bpmd.inputSamples( samples, readsamples / chan );
     cprogress = currentPos() - startPos();
 
@@ -414,7 +415,7 @@ void Track::stop() {
 void Track::startDetection() {
 #ifdef DEBUG
   if(isRunning()) {
-    qDebug("Start: thread is running (not starting)");
+    cerr << "Start: thread is running (not starting)" << endl;
     return;
   }
 #endif  // DEBUG
