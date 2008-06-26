@@ -180,7 +180,7 @@ void TrackFlac::storeBPM ( string format ) {
   if (xiph != NULL) {
     xiph->addField ("TBPM", sBPM.c_str(), true); // add new BPM field (replace existing)
   }
-
+/*
   TagLib::ID3v2::Tag* tag = f.ID3v2Tag (true);
   if (tag != NULL) {
     tag->removeFrames ("TBPM");                 // remove existing BPM frames
@@ -189,7 +189,7 @@ void TrackFlac::storeBPM ( string format ) {
     bpmframe->setText (sBPM.c_str() );
     tag->addFrame (bpmframe);                   // add new BPM frame
   }
-
+*/
   f.save();
 #endif
 }
