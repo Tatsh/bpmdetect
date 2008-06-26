@@ -172,7 +172,6 @@ inline unsigned long TrackMp3::madLength() {
   enum mad_units units;
 
   uint srate = samplerate();
-  cerr << "TrackMp3 madLength, samplerate = " << srate << endl;
   switch (srate) {
     case 8000:
       units = MAD_UNITS_8000_HZ;
@@ -203,9 +202,6 @@ inline unsigned long TrackMp3::madLength() {
       break;
     default: // By the MP3 specs, an MP3 _has_ to have one of the above samplerates...
       units = MAD_UNITS_44100_HZ;
-#ifdef DEBUG
-      cerr << "Warning: MP3 with corrupt samplerate, defaulting to 44100" << endl;
-#endif
       setSamplerate (44100);
   }
 
