@@ -232,7 +232,7 @@ uint TrackFMOD::currentPos() {
  * @return number of read samples
  */
 int TrackFMOD::readSamples( SAMPLETYPE* buffer, int num ) {
-  if(!isValid()) return -1;
+  if(!isValid() || num < 2) return -1;
 
   FMOD_RESULT result;
   uint readbytes = 0;

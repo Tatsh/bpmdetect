@@ -55,13 +55,13 @@ Track* TrackProxy::createTrack( const char* filename ) {
   if(ext && !strcasecmp(ext, ".mp3")) {
     return new TrackMp3(filename);
   }
-/*
+
   if(ext && (!strcasecmp(ext, ".flac") ||
              !strcasecmp(ext, ".flc")  ||
              !strcasecmp(ext, ".fla") )) {
     return new TrackFlac(filename);
   }
-*/
+
   // Use TrackFMOD for other file types
   return new TrackFMOD(filename);
 }

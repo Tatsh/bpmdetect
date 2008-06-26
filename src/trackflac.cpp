@@ -135,7 +135,7 @@ uint TrackFlac::currentPos() {
  * @return number of samples read
  */
 int TrackFlac::readSamples ( SAMPLETYPE* buffer, int num ) {
-  if (!isValid() || !m_decoder) return -1;
+  if (!isValid() || !m_decoder || num < 2) return -1;
 
   FLAC__StreamDecoderState state = FLAC__stream_decoder_get_state (m_decoder);
   if ( state == FLAC__STREAM_DECODER_END_OF_STREAM ||

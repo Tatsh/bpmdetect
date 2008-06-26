@@ -48,8 +48,6 @@
 #define math_min(a,b)  (((a) < (b)) ? (a) : (b))
 #endif
 
-#include <assert.h>
-
 #include <iostream>
 
 using namespace std;
@@ -120,7 +118,7 @@ void TrackMp3::open() {
     // Add frame to list of frames
     MadSeekFrameType* p = new MadSeekFrameType;
     p->m_pStreamPos = (unsigned char*) stream.this_frame;
-    //p->pos = length();
+    p->pos = madLength();
     m_qSeekList.push_back (p);
 
     currentframe++;
@@ -300,14 +298,14 @@ uint TrackMp3::currentPos() {
  * Read @a num samples into @a buffer
  * @param buffer pointer to buffer
  * @param num number of samples (per channel)
- * @return number of read samples
+ * @return number of samples in buffer
  */
 int TrackMp3::readSamples ( SAMPLETYPE* buffer, int num ) {
-  if (!isValid() ) return -1;
+  if (!isValid() || num < 2) return -1;
 
   // Ensure that we are reading an even number of samples. Otherwise this function may
   // go into an infinite loop
-  assert (num % 2 == 0);
+  if(num % 2 != 0) num--;
   unsigned nchannels = channels();
   unsigned nsamples = 0;
   short dest[num];
