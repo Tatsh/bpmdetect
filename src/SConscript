@@ -32,6 +32,7 @@ trackfmod.cpp
 trackwav.cpp
 trackoggvorbis.cpp
 trackmp3.cpp
+trackflac.cpp
 """
 bpmdetect_sources_gui3="""
 dlgbpmdetectdlg3.ui
@@ -235,7 +236,7 @@ def configure(env):
   # Check for libraries
   check_taglib(env)
 
-  env.Append(LIBS = ['mad', 'vorbisfile', 'fmodex', 'z'])
+  env.Append(LIBS = ['mad', 'vorbisfile', 'flac', 'fmodex', 'z'])
   env.Append(CPPPATH = ['.', '..', '../includes'])
   env.Append(LIBPATH = ['.', '../libs'])
   env['ISCONFIGURED']=1

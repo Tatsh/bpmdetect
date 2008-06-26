@@ -24,6 +24,7 @@
 #include "trackwav.h"
 #include "trackoggvorbis.h"
 #include "trackmp3.h"
+#include "trackflac.h"
 #include "trackfmod.h"
 
 #include <iostream>
@@ -42,27 +43,32 @@ TrackProxy::~TrackProxy() {
 
 Track* TrackProxy::createTrack( const char* filename ) {
   const char* ext = strrchr(filename, '.');
+
   if(ext && !strcasecmp(ext, ".wav")) {
     return new TrackWav(filename);
   }
+
   if(ext && !strcasecmp(ext, ".ogg")) {
     return new TrackOggVorbis(filename);
   }
-/*
+
   if(ext && !strcasecmp(ext, ".mp3")) {
     return new TrackMp3(filename);
   }
+/*
+  if(ext && (!strcasecmp(ext, ".flac") ||
+             !strcasecmp(ext, ".flc")  ||
+             !strcasecmp(ext, ".fla") )) {
+    return new TrackFlac(filename);
+  }
 */
+  // Use TrackFMOD for other file types
   return new TrackFMOD(filename);
-}
-
-Track* TrackProxy::createTrack( string filename ) {
-  return createTrack(filename.c_str());
 }
 
 void TrackProxy::open() {
   if(isValid()) close();
-  if(!m_pTrack) m_pTrack = createTrack(filename());
+  if(!m_pTrack) m_pTrack = createTrack(filename().c_str());
   setValid(m_pTrack->isValid());
   setLength(m_pTrack->length());
   setChannels(m_pTrack->channels());

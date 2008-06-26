@@ -20,40 +20,53 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TRACKPROXY_H
-#define TRACKPROXY_H
+#ifndef TRACKFLAC_H
+#define TRACKFLAC_H
 
 #include "track.h"
 
-class TrackProxy : public Track {
-public:
-  TrackProxy( const char* filename, bool readtags = true );
-  ~TrackProxy();
+#include "FLAC/stream_decoder.h"
 
+typedef struct {
+    FLAC__uint64 total_samples;
+    int channels;           // number of channels
+    unsigned int srate;     // sample rate
+    unsigned bps;           // bits per sample
+
+    short* buffer;          // buffer of samples (16 bit)
+    uint bufsize;           // buffer size (maximum number of samples)
+    uint numsamples;        // number of samples in buffer
+} FLAC_CLIENT_DATA;
+
+class TrackFlac : public Track {
+public:
+  TrackFlac( const char* filename, bool readtags = true );
+  ~TrackFlac();
   void readTags();
-  double detectBPM();
-  void stop();
-  double progress();
-  void setBPM( double dBPM );
-  void setRedetect(bool redetect);
-  void setFormat(std::string format = "0.00");
-  void enableConsoleProgress(bool enable = true);
-  void setStartPos( uint ms );
-  void setEndPos( uint ms );
 
 protected:
-  Track* createTrack( const char* filename );
   void open();
   void close();
   void seek( uint ms );
   uint currentPos();
   int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+
   void storeBPM( std::string sBPM );
   void removeBPM();
 
 private:
-  Track* m_pTrack;
-  bool m_bCProgress;
+  static FLAC__StreamDecoderWriteStatus writeCallback(const FLAC__StreamDecoder *decoder,
+            const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data);
+  static void metadataCallback(const FLAC__StreamDecoder *decoder,
+            const FLAC__StreamMetadata *metadata, void *client_data);
+  static void errorCallback(const FLAC__StreamDecoder *decoder,
+            FLAC__StreamDecoderErrorStatus status, void *client_data);
+
+  FLAC__StreamDecoder *m_decoder;
+  FLAC_CLIENT_DATA m_cldata;
+
+  unsigned long m_ibufidx;
+  unsigned long long m_iCurPosPCM;
 };
 
-#endif  // TRACKPROXY_H
+#endif  // TRACKFLAC_H

@@ -26,7 +26,7 @@
 #include "track.h"
 #include <mad.h>
 
-#include <list>
+#include <vector>
 
 /** Struct used to store mad frames for seeking */
 typedef struct MadSeekFrameType {
@@ -38,7 +38,6 @@ typedef struct MadSeekFrameType {
 class TrackMp3 : public Track {
 public:
   TrackMp3( const char* filename, bool readtags = true );
-  TrackMp3( std::string filename, bool readtags = true );
   ~TrackMp3();
   void readTags();
 
@@ -57,6 +56,9 @@ protected:
   inline unsigned long madLength();
 
 private:
+  unsigned long discard(unsigned long samples_wanted);
+  int findFrame(int pos);
+
   unsigned long long m_iCurPosPCM;
   FILE *fptr;
   unsigned int inputbuf_len;
@@ -69,15 +71,17 @@ private:
   mad_stream stream;
   mad_frame *frame;
   mad_synth synth;
-  /** Start index in Synth buffer of samples left over from previous call to readSamples */
+  // Start index in Synth buffer of samples left over from previous call to readSamples 
   int rest;
+  // Average frame size used when searching for a frame
+  int m_iAvgFrameSize;
   
   /** It is not possible to make a precise seek in an mp3 file without decoding the whole stream.
    * To have precise seek within a limited range from the current decode position, we keep track
    * of past decodeded frame, and their exact position. If a seek occours and it is within the
    * range of frames we keep track of a precise seek occours, otherwise an unprecise seek is performed
    */
-  std::list<MadSeekFrameType*> m_qSeekList;
+  std::vector<MadSeekFrameType*> m_qSeekList;
 };
 
 #endif  // TRACKMP3_H
