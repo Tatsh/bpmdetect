@@ -31,7 +31,6 @@
 class TrackOggVorbis : public Track {
 public:
   TrackOggVorbis( const char* filename, bool readtags = true );
-  TrackOggVorbis( std::string filename, bool readtags = true );
   ~TrackOggVorbis();
   void readTags();
 

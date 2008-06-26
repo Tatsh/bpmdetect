@@ -59,11 +59,6 @@ TrackOggVorbis::TrackOggVorbis( const char* fname, bool readtags ) : Track() {
   setFilename( fname, readtags );
 }
 
-TrackOggVorbis::TrackOggVorbis( string fname, bool readtags ) : Track() {
-  fptr = 0;
-  setFilename( fname, readtags );
-}
-
 TrackOggVorbis::~TrackOggVorbis() {
   close();
 }
@@ -96,7 +91,6 @@ void TrackOggVorbis::open() {
   uint srate = vi->rate;
   unsigned long long numSamples = ov_pcm_total(&vf, -1);
   uint len =  (1000 * numSamples / srate);
-  setValid(true);
 
   setLength( len );
   setStartPos( 0 );

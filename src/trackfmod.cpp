@@ -138,12 +138,6 @@ TrackFMOD::TrackFMOD( const char* fname, bool readtags ) : Track() {
   setFilename( fname, readtags );
 }
 
-TrackFMOD::TrackFMOD( string fname, bool readtags ) : Track() {
-  m_sound = 0;
-  m_iCurPosBytes = 0;
-  setFilename( fname, readtags );
-}
-
 TrackFMOD::~TrackFMOD() {
   close();
 }

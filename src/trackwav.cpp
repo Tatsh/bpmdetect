@@ -131,12 +131,6 @@ TrackWav::TrackWav( const char* fname, bool readtags ) : Track() {
   setFilename( fname, readtags );
 }
 
-TrackWav::TrackWav( string fname, bool readtags ) : Track() {
-  m_iCurPosBytes = 0;
-  fptr = 0;
-  setFilename( fname, readtags );
-}
-
 TrackWav::~TrackWav() {
   close();
 }

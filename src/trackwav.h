@@ -66,7 +66,6 @@ typedef struct
 class TrackWav : public Track {
 public:
   TrackWav( const char* filename, bool readtags = true );
-  TrackWav( std::string filename, bool readtags = true );
   ~TrackWav();
   void readTags();
 

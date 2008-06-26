@@ -33,7 +33,6 @@ public:
   static FMOD_SYSTEM* getFMODSystem();
 
   TrackFMOD( const char* filename, bool readtags = true );
-  TrackFMOD( std::string filename, bool readtags = true );
   ~TrackFMOD();
 
   void readTags();
