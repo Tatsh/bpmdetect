@@ -207,9 +207,7 @@
     <dest>.</dest>
   </substmap>
   <kdevcppsupport>
-    <references>
-      <pcs>Qt4</pcs>
-    </references>
+    <references/>
     <codecompletion>
       <includeGlobalFunctions>true</includeGlobalFunctions>
       <includeTypes>true</includeTypes>

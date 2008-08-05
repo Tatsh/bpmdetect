@@ -55,6 +55,8 @@ public:
   static void setMaxBPM(double dMax);
   static double getMinBPM();
   static double getMaxBPM();
+  static void setLimit(bool bLimit);
+  static bool getLimit();
 
   void clearBPM();
   virtual double detectBPM();
@@ -144,6 +146,10 @@ private:
   int m_iChannels;
   TRACKTYPE m_eType;
   std::string m_sBPMFormat;
+
+  static double _dMinBPM;
+  static double _dMaxBPM;
+  static bool   _bLimit;
 
 #ifndef NO_GUI
 protected:

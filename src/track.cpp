@@ -32,8 +32,9 @@
 using namespace std;
 using namespace soundtouch;
 
-static double _dMinBPM = 80.;
-static double _dMaxBPM = 185.;
+double Track::_dMinBPM = 80.;
+double Track::_dMaxBPM = 185.;
+bool   Track::_bLimit = false;
 
 Track::Track() {
   init();
@@ -59,11 +60,23 @@ void Track::init() {
 }
 
 void Track::setMinBPM(double dMin) {
-  if(dMin > 30.) _dMinBPM = dMin;
+  if(dMin > 30. && dMin < 300.) _dMinBPM = dMin;
+  // swap min and max if min is greater than max
+  if(_dMinBPM > _dMaxBPM) {
+    double temp = _dMinBPM;
+    _dMinBPM = _dMaxBPM;
+    _dMaxBPM = temp;
+  }
 }
 
 void Track::setMaxBPM(double dMax) {
-  if(dMax < 300.) _dMaxBPM = dMax;
+  if(dMax > 30. && dMax < 300.) _dMaxBPM = dMax;
+  // swap min and max if min is greater than max
+  if(_dMinBPM > _dMaxBPM) {
+    double temp = _dMinBPM;
+    _dMinBPM = _dMaxBPM;
+    _dMaxBPM = temp;
+  }
 }
 
 double Track::getMinBPM() {
@@ -72,6 +85,14 @@ double Track::getMinBPM() {
 
 double Track::getMaxBPM() {
   return _dMaxBPM;
+}
+
+void Track::setLimit(bool bLimit) {
+    _bLimit = bLimit;
+}
+
+bool Track::getLimit() {
+    return _bLimit;
 }
 
 double Track::str2bpm( string sBPM ) {
@@ -316,8 +337,8 @@ void Track::clearBPM() {
 
 /**
  * @brief Correct BPM
- * if value is lower than min or higher than max
- * @return corrected BPM (can be higher than max)
+ * if value is lower than min or greater than max
+ * @return corrected BPM
  */
 double Track::correctBPM( double dBPM ) {
   double min = getMinBPM();
@@ -326,6 +347,13 @@ double Track::correctBPM( double dBPM ) {
   if ( dBPM < 1 ) return 0.;
   while ( dBPM > max ) dBPM /= 2.;
   while ( dBPM < min ) dBPM *= 2.;
+
+  if(_bLimit && dBPM > max) {
+  #ifdef DEBUG
+    cerr << "BPM not within the limit: " << dBPM << " (" << min << ", " << max << ")" << endl;
+  #endif
+    dBPM = 0.;
+  }
 
   return dBPM;
 }

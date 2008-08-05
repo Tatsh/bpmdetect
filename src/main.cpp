@@ -54,6 +54,9 @@ void display_help() {
          "-d --detect          - redetect (do not print BPMs stored in tags)\n"
          "-r --remove          - remove stored BPMs from tags\n"
          "-p --noprogress      - disable progress display (console)\n"
+         "-n --min <value>     - minimum BPM (default 80)\n"
+         "-x --max <value>     - maximum BPM (default 185)\n"
+         "-l --limit           - do not return BPM above the range <min, max>\n"
          "-f --format <format> - set BPM format (default is 0.00)\n"
          "\n");
 }
@@ -76,14 +79,17 @@ int main( int argc, char **argv ) {
     {"detect",     no_argument,       0, 'd'},
     {"remove",     no_argument,       0, 'r'},
     {"noprogress", no_argument,       0, 'p'},
+    {"min",        required_argument, 0, 'n'},
+    {"max",        required_argument, 0, 'x'},
+    {"limit",      no_argument,       0, 'l'},
     {"help",       no_argument,       0, 'h'},
     {0, 0, 0, 0}
   };
 
   while ( true ) {
     int option_index = 0;
-    int c;
-    c = getopt_long(argc, argv, "csdrphf:",
+    int c, val;
+    c = getopt_long(argc, argv, "csdrphf:n:x:l",
                     long_options, &option_index);
     if(c < 0) break;
     switch (c) {
@@ -108,6 +114,23 @@ int main( int argc, char **argv ) {
         bformat = true;
         format = optarg;
         break;
+      case 'n':
+        val = atoi(optarg);
+        Track::setMinBPM(val);
+        #ifdef DEBUG
+          cerr << "Min BPM set to " << Track::getMinBPM() << endl;
+        #endif
+        break;
+      case 'x':
+        val = atoi(optarg);
+        Track::setMaxBPM(val);
+        #ifdef DEBUG
+          cerr << "Max BPM set to " << Track::getMaxBPM() << endl;
+        #endif
+        break;
+      case 'l':
+        Track::setLimit(true);
+        break;
     #ifndef NO_GUI
       case 'c':
         console = true;
@@ -129,11 +152,6 @@ int main( int argc, char **argv ) {
   { // no files passed
     display_help();
     return 0;
-  }
-
-  if ( !TrackFMOD::initFMODSystem() ) {
-    cerr << "Error: Your soundcard is either busy or not present" << endl;
-    return 1;
   }
 
   for(int idx = optind; idx < argc; idx++) {
