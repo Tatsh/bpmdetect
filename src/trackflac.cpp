@@ -42,7 +42,8 @@ TrackFlac::~TrackFlac() {
 }
 
 void TrackFlac::open() {
-  if (isValid() ) close();
+  close();
+
   m_iCurPosPCM = 0;
   string fname = filename();
 
@@ -66,6 +67,7 @@ void TrackFlac::open() {
     return;
   }
 
+  setOpened(true);
   // extract metadata
   FLAC__stream_decoder_process_until_end_of_metadata ( m_decoder );
 
@@ -85,7 +87,7 @@ void TrackFlac::open() {
 }
 
 void TrackFlac::close() {
-  if (isValid() ) {
+  if (isOpened() ) {
     if (m_decoder != 0) {
       FLAC__stream_decoder_finish (m_decoder);
       FLAC__stream_decoder_delete (m_decoder);
@@ -98,7 +100,7 @@ void TrackFlac::close() {
     }
   }
   m_iCurPosPCM = 0;
-  init();
+  setOpened(false);
 }
 
 void TrackFlac::seek ( uint ms ) {

@@ -68,7 +68,8 @@ TrackOggVorbis::~TrackOggVorbis() {
 }
 
 void TrackOggVorbis::open() {
-  if(isValid()) close();
+  close();
+
   m_iCurPosPCM = 0;
   string fname = filename();
   // Try to open the file for reading
@@ -80,6 +81,7 @@ void TrackOggVorbis::open() {
     return;
   }
 
+  setOpened(true);
   if(ov_open(fptr, &vf, NULL, 0) < 0) {
   #ifdef DEBUG
     cerr << "TrackOggVorbis: Input does not appear to be an Ogg bitstream" << endl;
@@ -107,11 +109,11 @@ void TrackOggVorbis::open() {
 }
 
 void TrackOggVorbis::close() {
-  if(isValid()) ov_clear(&vf);
+  if(isOpened()) ov_clear(&vf);
   // note that fclose() is not needed, ov_clear() does this as well
   fptr = NULL;
   m_iCurPosPCM = 0;
-  init();
+  setOpened(false);
 }
 
 void TrackOggVorbis::seek( uint ms ) {

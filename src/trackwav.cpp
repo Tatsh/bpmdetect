@@ -136,7 +136,7 @@ TrackWav::~TrackWav() {
 }
 
 void TrackWav::open() {
-  if(isValid()) close();
+  close();
   string fname = filename();
 
   // Try to open the file for reading
@@ -157,7 +157,6 @@ void TrackWav::open() {
   }
 
   m_iCurPosBytes = 0;
-  setValid(true);
 
   unsigned long long numSamples = header.data.data_len / header.format.byte_per_sample;
   uint srate = header.format.sample_rate;
@@ -174,13 +173,14 @@ void TrackWav::open() {
   setChannels(channels);
   setTrackType(TYPE_WAV);
   setValid(true);
+  setOpened(true);
 }
 
 void TrackWav::close() {
   if(fptr) fclose(fptr);
   fptr = NULL;
   m_iCurPosBytes = 0;
-  init();
+  setOpened(false);
 }
 
 void TrackWav::seek( uint ms ) {

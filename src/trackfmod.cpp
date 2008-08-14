@@ -103,6 +103,7 @@ bool TrackFMOD::initFMODSystem() {
   // init system
   result = FMOD_System_Init( m_system, 1, FMOD_INIT_NORMAL, 0 );
   if ( result == FMOD_OK ) {
+    FMOD_System_Update(m_system);
     return true;
   } else {
     cerr << "System init: " << FMOD_ErrorString(result) << endl;
@@ -129,6 +130,7 @@ void TrackFMOD::closeFMODSystem() {
 }
 
 FMOD_SYSTEM* TrackFMOD::getFMODSystem() {
+  if(!m_system) initFMODSystem();
   return m_system;
 }
 
@@ -143,7 +145,8 @@ TrackFMOD::~TrackFMOD() {
 }
 
 void TrackFMOD::open() {
-  if(isValid()) close();
+  close();
+
   FMOD_RESULT result;
   m_iCurPosBytes = 0;
   string fname = filename();
@@ -155,6 +158,7 @@ void TrackFMOD::open() {
     return;
   }
 
+  setOpened(true);
   FMOD_SOUND_TYPE type;
   int ttype = TYPE_UNKNOWN;
   int channels = 0, 
@@ -195,7 +199,7 @@ void TrackFMOD::open() {
 
 void TrackFMOD::close() {
   if(m_sound) FMOD_Sound_Release(m_sound);
-  init();
+  setOpened(false);
   m_sound = 0;
   m_iCurPosBytes = 0;
 }

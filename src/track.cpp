@@ -29,6 +29,11 @@
   #define isRunning running
 #endif
 
+#ifdef HAVE_TAGLIB
+  #include <tag.h>
+  #include <fileref.h>
+#endif
+
 using namespace std;
 using namespace soundtouch;
 
@@ -49,6 +54,7 @@ Track::~Track() {
 void Track::init() {
   setTrackType(TYPE_UNKNOWN);
   setValid(false);
+  setOpened(false);
   setSamplerate(0);
   setSampleBytes(0);
   setChannels(0);
@@ -155,7 +161,7 @@ void Track::setFilename( string filename, bool readtags ) {
   init();
   m_sFilename = filename;
   if(!filename.empty()) {
-    open();
+    readInfo();
     if(readtags) readTags();
   }
 }
@@ -170,6 +176,14 @@ void Track::setValid(bool bValid) {
 
 bool Track::isValid() const {
   return m_bValid;
+}
+
+void Track::setOpened(bool opened) {
+  m_bOpened = opened;
+}
+
+bool Track::isOpened() const {
+  return m_bOpened;
 }
 
 void Track::setFormat(string format) {
@@ -335,6 +349,22 @@ void Track::clearBPM() {
   removeBPM();
 }
 
+void Track::readInfo() {
+#ifdef HAVE_TAGLIB
+    TagLib::FileRef f(filename().c_str());
+    
+    TagLib::AudioProperties* ap = 0;
+    if(!f.isNull()) ap = f.audioProperties();
+
+    if(ap) {
+        setChannels(ap->channels());
+        setSamplerate(ap->sampleRate());
+        setLength(ap->length() * 1000);
+        setValid(true);
+    }
+#endif
+}
+
 /**
  * @brief Correct BPM
  * if value is lower than min or greater than max
@@ -358,7 +388,6 @@ double Track::correctBPM( double dBPM ) {
   return dBPM;
 }
 
-
 /// Print BPM to stdout
  void Track::printBPM() {
   cout << bpm2str(getBPM(), format()) << " BPM" << endl;
@@ -369,9 +398,10 @@ double Track::correctBPM( double dBPM ) {
  * @return detected BPM
  */
 double Track::detectBPM() {
-  if(!isValid()) {
+  open();
+  if(!isOpened()) {
   #ifdef DEBUG
-    cerr << "detectBPM: track not valid" << endl;
+    cerr << "detectBPM: can not open track" << endl;
   #endif
     return 0;
   }
@@ -384,7 +414,7 @@ double Track::detectBPM() {
     return oldbpm;
   }
 
-  const uint NUMSAMPLES = 8192; //32768;
+  const uint NUMSAMPLES = 8192;
   int chan = channels();
   int srate = samplerate();
 
@@ -406,7 +436,6 @@ double Track::detectBPM() {
   seek(startPos());
   while(!m_bStop && currentPos() < endPos() &&
         0 < (readsamples = readSamples(samples, NUMSAMPLES))) {
-//cerr << "inputSamples: " << readsamples << endl;
     bpmd.inputSamples( samples, readsamples / chan );
     cprogress = currentPos() - startPos();
 
@@ -421,9 +450,8 @@ double Track::detectBPM() {
 
   delete [] samples;
   setProgress(100);
-//#ifdef NO_GUI
   if(m_bConProgress) clog << "\r" << flush;
-//#endif
+
   if(m_bStop) {
     setProgress(0);
     return 0;
@@ -432,6 +460,7 @@ double Track::detectBPM() {
   BPM = correctBPM(BPM);
   setBPM(BPM);
   setProgress(0);
+  close();
   return BPM;
 }
 

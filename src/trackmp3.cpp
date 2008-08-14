@@ -71,12 +71,14 @@ void TrackMp3::clearFrameList() {
 }
 
 void TrackMp3::open() {
-  if (isValid() ) close();
+  close();
+
   m_iCurPosPCM = 0;
   rest = 0;
   string fname = filename();
   // Try to open the file for reading
   fptr = fopen (fname.c_str(), "rb");
+  setOpened(true);
   if (fptr == NULL) {
 #ifdef DEBUG
     cerr << "TrackMp3: can not open file" << endl;
@@ -160,12 +162,12 @@ void TrackMp3::open() {
 }
 
 void TrackMp3::close() {
-  if (!isValid() ) return;
+  if (!isOpened() ) return;
   if (fptr) fclose (fptr);
   fptr = NULL;
   m_iCurPosPCM = 0;
   clearFrameList();
-  init();
+  setOpened(false);
 }
 
 inline unsigned long TrackMp3::madLength() {
