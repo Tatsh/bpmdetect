@@ -276,6 +276,7 @@ def install(env, binary_files):
 #############################
 env = Environment(ENV = os.environ,
       toolpath=['./', '../admin/'])
+env.Replace(CCFLAGS = [])
 
 env['ARGS']=makeHashTable(sys.argv)
 env['HELP']=0
