@@ -23,6 +23,10 @@
 #ifndef TRACKFMOD_H
 #define TRACKFMOD_H
 
+#ifndef HAVE_FMOD
+  #error FMOD Ex is required for TrackFMOD (HAVE_FMOD not defined)
+#endif
+
 #include "track.h"
 #include <fmodex/fmod.h>
 

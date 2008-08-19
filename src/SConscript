@@ -28,12 +28,33 @@ PeakFinder.cpp
 FIFOSampleBuffer.cpp
 track.cpp
 trackproxy.cpp
-trackfmod.cpp
 trackwav.cpp
-trackoggvorbis.cpp
+"""
+
+sources_mad="""
 trackmp3.cpp
+"""
+
+sources_vorbis="""
+trackoggvorbis.cpp
+"""
+
+sources_flac="""
 trackflac.cpp
 """
+
+sources_fmod="""
+trackfmod.cpp
+"""
+
+sources_fmodtest="""
+dlgtestbpm.cpp
+"""
+
+ui_fmodtest="""
+dlgtestbpmdlg.ui
+"""
+
 bpmdetect_sources_gui3="""
 dlgbpmdetectdlg3.ui
 dlgtestbpmdlg3.ui
@@ -46,12 +67,10 @@ bpmdetect_sources_gui="""
 progressbar.cpp
 qdroplistview.cpp
 dlgbpmdetect.cpp
-dlgtestbpm.cpp
 """
 
 bpmdetect_ui="""
 dlgbpmdetectdlg.ui
-dlgtestbpmdlg.ui
 """
 
 bpmdetect_res = """
@@ -68,7 +87,10 @@ def display_help():
 """+BOLD+"""* debug         """+NORMAL+""": enable debug (debug=1 or debug=full)
 """+BOLD+"""* extraincludes """+NORMAL+""": extra includes separated by colon (':')
 """+BOLD+"""* qt3           """+NORMAL+""": use QT3 for GUI
-
+"""+BOLD+"""* mad=0         """+NORMAL+""": disable MPEG audio decoder
+"""+BOLD+"""* vorbis=0      """+NORMAL+""": disable vorbis decoder
+"""+BOLD+"""* flac=0        """+NORMAL+""": disable FLAC decoder
+"""+BOLD+"""* fmod=0        """+NORMAL+""": do not use fmod library (decoding/playing)
 """+BOLD+"""* qtdir         """+NORMAL+""": where the QT is installed
 """+BOLD+"""* qtincludes    """+NORMAL+""": path to QT includes (/usr/include/qt4 on debian, ...)
 """+BOLD+"""* qtlibs        """+NORMAL+""": path to QT libraries
@@ -102,6 +124,14 @@ def check_pkgconfig(env):
   else:
     print RED+'not found'+NORMAL
     env['PKGCONFIG'] = 0
+
+def check_library(conf, lib, hdr):
+    ret = 1
+    if not conf.CheckLib(lib):
+        ret = 0
+    if not conf.CheckHeader(hdr):
+        ret = 0
+    return ret
 
 def check_taglib(env):
   tagprefix = ''
@@ -170,6 +200,14 @@ def configure(env):
     env.__delitem__('LINKFLAGS')
   if env.has_key('QT3'):
     env.__delitem__('QT3')
+  if env.has_key('MAD'):
+    env.__delitem__('MAD')
+  if env.has_key('VORBIS'):
+    env.__delitem__('VORBIS')
+  if env.has_key('FLAC'):
+    env.__delitem__('FLAC')
+  if env.has_key('FMOD'):
+    env.__delitem__('FMOD')
 
   print BOLD + """
 --------------------------------------------------""" + NORMAL
@@ -177,6 +215,8 @@ def configure(env):
   if int(env['ARGS'].get('mingw', 0)) or sys.platform.startswith('win'):
     env['MINGWBUILD'] = 1
     print BOLD+'yes'+NORMAL
+    env.Tool('mingw')
+    env.Tool('crossmingw')
   else:
     env['MINGWBUILD'] = 0
     print 'no'
@@ -235,13 +275,37 @@ def configure(env):
 
   # Check for libraries
   check_taglib(env)
-
-  env.Append(LIBS = ['mad', 'vorbisfile', 'FLAC', 'fmodex', 'z'])
   env.Append(CPPPATH = ['.', '..', '../includes'])
   env.Append(LIBPATH = ['.', '../libs'])
+  conf = Configure(env)
+  if not ARGUMENTS.get('mad', 0) and check_library(conf, 'mad', 'mad.h'):
+      env.Append(CPPDEFINES = ['HAVE_MAD'])
+      env['MAD'] = 1
+  else:
+      env['MAD'] = 0
+  
+  if not ARGUMENTS.get('vorbis', 0) and check_library(conf, 'vorbisfile', 'vorbis/vorbisfile.h'):
+      env.Append(CPPDEFINES = ['HAVE_VORBISFILE'])
+      env['VORBIS'] = 1
+  else:
+      env['VORBIS'] = 0
+  
+  if not ARGUMENTS.get('flac', 0) and check_library(conf, 'FLAC', 'FLAC/stream_decoder.h'):
+      env.Append(CPPDEFINES = ['HAVE_FLAC'])
+      env['FLAC'] = 1
+  else:
+      env['FLAC'] = 0
+  
+  if not ARGUMENTS.get('fmod', 0) and check_library(conf, 'fmodex', 'fmodex/fmod.h'):
+      env.Append(CPPDEFINES = ['HAVE_FMOD'])
+      env['FMOD'] = 1
+  else:
+      env['FMOD'] = 0
+
   env['ISCONFIGURED']=1
   # And finally save the options in the cache
   opts.Save(cachefile, env)
+
 
 def install(env, binary_files):
   if not os.path.isdir(env['PREFIX']):
@@ -312,7 +376,11 @@ opts.AddOptions(
   ( 'LIBPATH', 'library directories' ),
   ( 'LIBS', 'libraries' ),
   ( 'LINKFLAGS', 'linker flags'),
-  ( 'QT3', 'use qt3')
+  ( 'QT3', 'use qt3'),
+  ( 'MAD', 'MPEG audio decoder'),
+  ( 'VORBIS', 'ogg vorbis decoder (libvorbisfile)'),
+  ( 'FLAC', 'FLAC decoder using libFLAC'),
+  ( 'FMOD', 'FMOD library for decoding and playing')
 )
 opts.Update(env)
 
@@ -347,6 +415,18 @@ else:
       for ui in bpmdetect_ui.split():
           env.Uic4(ui)
       bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
+    if env.has_key('FMOD') and env['FMOD']:
+      bpmdetect_sources = bpmdetect_sources + sources_fmodtest
+      bpmdetect_ui = bpmdetect_ui + ui_fmodtest
+
+  if env.has_key('MAD') and env['MAD']:
+      bpmdetect_sources = bpmdetect_sources + sources_mad
+  if env.has_key('VORBIS') and env['VORBIS']:
+      bpmdetect_sources = bpmdetect_sources + sources_vorbis
+  if env.has_key('FLAC') and env['FLAC']:
+      bpmdetect_sources = bpmdetect_sources + sources_flac
+  if env.has_key('FMOD') and env['FMOD']:
+      bpmdetect_sources = bpmdetect_sources + sources_fmod
 
   print BOLD + """--------------------------------------------------
 """ + NORMAL

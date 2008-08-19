@@ -34,7 +34,9 @@
 #include <getopt.h>
 
 #include "trackproxy.h"
-#include "trackfmod.h"  // for FMOD system
+#ifdef HAVE_FMOD
+  #include "trackfmod.h"
+#endif
 
 #include <iostream>
 #include <string>
@@ -197,6 +199,8 @@ int main( int argc, char **argv ) {
   }
 #endif  // NO_GUI
 
+#ifdef HAVE_FMOD
   TrackFMOD::closeFMODSystem();
+#endif // HAVE_FMOD
   return 0;
 }

@@ -82,7 +82,7 @@ protected:
 
 private:
   Track* m_pTrack;
-  bool m_bCProgress;
+  bool m_bConsoleProgress;
 };
 
 #endif  // TRACKPROXY_H

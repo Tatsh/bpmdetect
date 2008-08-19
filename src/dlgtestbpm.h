@@ -25,7 +25,12 @@
 
 #include <QDialog>
 
+#ifndef HAVE_FMOD
+  #error FMOD Ex is required for testing BPMs (HAVE_FMOD not defined)
+#endif
+
 #include "trackfmod.h"
+
 #include "ui_dlgtestbpmdlg.h"
 
 class DlgTestBPM: public QDialog, public Ui_DlgTestBPMDlg {

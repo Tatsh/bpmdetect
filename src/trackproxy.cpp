@@ -22,10 +22,18 @@
 
 #include "trackproxy.h"
 #include "trackwav.h"
-#include "trackoggvorbis.h"
-#include "trackmp3.h"
-#include "trackflac.h"
-#include "trackfmod.h"
+#ifdef HAVE_VORBISFILE
+  #include "trackoggvorbis.h"
+#endif
+#ifdef HAVE_MAD
+  #include "trackmp3.h"
+#endif
+#ifdef HAVE_FLAC
+  #include "trackflac.h"
+#endif
+#ifdef HAVE_FMOD
+  #include "trackfmod.h"
+#endif
 
 #include <iostream>
 
@@ -34,6 +42,7 @@ using namespace soundtouch;
 
 TrackProxy::TrackProxy( const char* filename, bool readtags ) : Track() {
   m_pTrack = 0;
+  m_bConsoleProgress = false;
   setFilename(filename, readtags);
 }
 
@@ -47,33 +56,44 @@ Track* TrackProxy::createTrack( const char* filename, bool readtags ) {
   if(ext && !strcasecmp(ext, ".wav")) {
     return new TrackWav(filename, readtags);
   }
-
+#ifdef HAVE_VORBISFILE
   if(ext && !strcasecmp(ext, ".ogg")) {
     return new TrackOggVorbis(filename, readtags);
   }
-
+#endif
+#ifdef HAVE_MAD
   if(ext && !strcasecmp(ext, ".mp3")) {
     return new TrackMp3(filename, readtags);
   }
-
+#endif
+#ifdef HAVE_FLAC
   if(ext && (!strcasecmp(ext, ".flac") ||
              !strcasecmp(ext, ".flc")  ||
              !strcasecmp(ext, ".fla") )) {
     return new TrackFlac(filename, readtags);
   }
+#endif
 
+#ifdef HAVE_FMOD
   // Use TrackFMOD for other file types
   return new TrackFMOD(filename, readtags);
+#endif
 }
 
 void TrackProxy::setFilename(const char* filename, bool readtags) {
+    string strformat = format();
+    bool bredetect = redetect();
+
     if(m_pTrack) {
         close();
-        // FIXME: save format, redetect, consoleprogress and other flags
         delete m_pTrack;
     }
     m_pTrack = createTrack(filename, readtags);
-    // TODO: set the flags saved above
+    if(m_pTrack) {
+        m_pTrack->setRedetect(bredetect);
+        m_pTrack->setFormat(strformat);
+        m_pTrack->enableConsoleProgress(m_bConsoleProgress);
+    }
 }
 
 void TrackProxy::readTags() {
@@ -108,6 +128,7 @@ void TrackProxy::setFormat(std::string format) {
 
 void TrackProxy::enableConsoleProgress(bool enable) {
     if(m_pTrack) m_pTrack->enableConsoleProgress(enable);
+    m_bConsoleProgress = enable;
 }
 
 void TrackProxy::setStartPos( uint ms ) {
@@ -206,15 +227,6 @@ int TrackProxy::trackType() const {
     if(m_pTrack) return m_pTrack->trackType();
     return TYPE_UNKNOWN;
 }
-
-
-
-
-
-
-
-
-
 
 void TrackProxy::open() {
     if(!m_pTrack) m_pTrack->open();
