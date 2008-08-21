@@ -25,10 +25,6 @@
 
 #include <iostream>
 
-#ifdef USE_QT3
-  #define isRunning running
-#endif
-
 #ifdef HAVE_TAGLIB
   #include <tag.h>
   #include <fileref.h>

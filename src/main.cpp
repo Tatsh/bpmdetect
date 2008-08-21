@@ -21,14 +21,8 @@
  ***************************************************************************/
 
 #ifndef NO_GUI
- #ifdef USE_QT3
-  #include "dlgbpmdetect3.h"
-  #include <qapplication.h>
-  #include <qlocale.h>
- #else
   #include "dlgbpmdetect.h"
   #include <QApplication>
- #endif
 #endif
 
 #include <getopt.h>
@@ -182,16 +176,8 @@ int main( int argc, char **argv ) {
 #ifndef NO_GUI
   if(!console) {
     QApplication app(argc, argv);
-    #if  defined(__WIN32) && defined(USE_QT3)
-      app.setStyle("Keramik");
-    #endif  // __WIN32
-    #ifndef USE_QT3
-      app.setStyle("plastique");
-    #endif
+    app.setStyle("plastique");
     DlgBPMDetect *mainWin = new DlgBPMDetect();
-  #ifdef USE_QT3
-    app.setMainWidget( mainWin );
-  #endif
     mainWin->show();
     mainWin->slotAddFiles( filelist );
     app.exec();

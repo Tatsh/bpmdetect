@@ -1,11 +1,13 @@
 REQUIREMENTS
 ------------
 
-* A Python interpreter and SCons (0.96 or newer) for compilation
-* QT3 for GUI
-* ID3lib
+* A Python interpreter and SCons for compilation
+* QT4 for GUI
 * TagLib
 * FMOD Ex
+* mad
+* vorbisfile
+* FLAC
 
 BUILDING AND INSTALLING
 -----------------------
@@ -39,20 +41,3 @@ scons help
 Finally, the software can be removed from your system by running
 
 $ scons -c install
-
-CONFIGURATION NOTES
--------------------
-
-The installation scripts are relying on the kde-config program.
-The programs kde-config, qmake, uic and moc must be accesssible
-through your PATH.
-
-Qt and kde may not be installed as expected (in QTDIR and KDEDIR)
-So until kde-config is able to give that information, you may
-have to give those paths. You may also want to tune the build.
-
-In these cases, you must first run "scons configure" with some options
-before running "scons" and "scons install"
-
-For more options, run
-scons --help

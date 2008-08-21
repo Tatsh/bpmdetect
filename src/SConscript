@@ -55,14 +55,6 @@ ui_fmodtest="""
 dlgtestbpmdlg.ui
 """
 
-bpmdetect_sources_gui3="""
-dlgbpmdetectdlg3.ui
-dlgtestbpmdlg3.ui
-progressbar3.cpp
-qdroplistview3.cpp
-dlgbpmdetect3.cpp
-dlgtestbpm3.cpp
-"""
 bpmdetect_sources_gui="""
 progressbar.cpp
 qdroplistview.cpp
@@ -86,7 +78,6 @@ def display_help():
 """+BOLD+"""* mingw         """+NORMAL+""": use MinGW compiler
 """+BOLD+"""* debug         """+NORMAL+""": enable debug (debug=1 or debug=full)
 """+BOLD+"""* extraincludes """+NORMAL+""": extra includes separated by colon (':')
-"""+BOLD+"""* qt3           """+NORMAL+""": use QT3 for GUI
 """+BOLD+"""* mad=0         """+NORMAL+""": disable MPEG audio decoder
 """+BOLD+"""* vorbis=0      """+NORMAL+""": disable vorbis decoder
 """+BOLD+"""* flac=0        """+NORMAL+""": disable FLAC decoder
@@ -198,8 +189,6 @@ def configure(env):
     env.__delitem__('LIBS')
   if env.has_key('LINKFLAGS'):
     env.__delitem__('LINKFLAGS')
-  if env.has_key('QT3'):
-    env.__delitem__('QT3')
   if env.has_key('MAD'):
     env.__delitem__('MAD')
   if env.has_key('VORBIS'):
@@ -236,11 +225,6 @@ def configure(env):
     env.Append(CXXFLAGS = '-O2' )
     env.Append(CPPDEFINES = ['NDEBUG', 'NO_DEBUG'])
     env['DEBUG'] = 0
-
-  if int(env['ARGS'].get('qt3', 0)):
-    env['QT3'] = 1
-  else:
-    env['QT3'] = 0
 
   check_pkgconfig(env)
 
@@ -376,7 +360,6 @@ opts.AddOptions(
   ( 'LIBPATH', 'library directories' ),
   ( 'LIBS', 'libraries' ),
   ( 'LINKFLAGS', 'linker flags'),
-  ( 'QT3', 'use qt3'),
   ( 'MAD', 'MPEG audio decoder'),
   ( 'VORBIS', 'ogg vorbis decoder (libvorbisfile)'),
   ( 'FLAC', 'FLAC decoder using libFLAC'),
@@ -405,19 +388,14 @@ else:
   if env.has_key('CONSOLEONLY') and env['CONSOLEONLY']:
     env.Append(CPPDEFINES = ['NO_GUI'])
   else:
-    if env.has_key('QT3') and env['QT3']:
-      env.Tool('qt3')
-      env.Append(CPPDEFINES = ['USE_QT3'])
-      bpmdetect_sources = bpmdetect_sources_gui3 + bpmdetect_sources
-    else:
       env.Tool('qt4')
       env.EnableQt4Modules(['QtCore', 'QtGui'], debug = False)
       for ui in bpmdetect_ui.split():
           env.Uic4(ui)
       bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
-    if env.has_key('FMOD') and env['FMOD']:
-      bpmdetect_sources = bpmdetect_sources + sources_fmodtest
-      bpmdetect_ui = bpmdetect_ui + ui_fmodtest
+      if env.has_key('FMOD') and env['FMOD']:
+            bpmdetect_sources = bpmdetect_sources + sources_fmodtest
+            bpmdetect_ui = bpmdetect_ui + ui_fmodtest
 
   if env.has_key('MAD') and env['MAD']:
       bpmdetect_sources = bpmdetect_sources + sources_mad
@@ -433,8 +411,6 @@ else:
   if env['MINGWBUILD']:
     env.Tool('crossmingw')
     env.Tool('mingw')
-    if env.has_key('QT3') and env['QT3']:
-      env.Append(LIBS = ['kkeramikstyle','kdefx'])
     # FIXME: resource
     comm = env['RC'] + ' -I../src -o ../build/icon.o -i ../src/icon.rc 2>&1'
     print os.popen(comm).read()

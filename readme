@@ -1,5 +1,7 @@
 BPMDetect is automatic BPM (beats per minute) detection utility.
-It uses SounTouch BPM library for detecting BPMs, FMOD Ex for reading samples and playing tracks,
-TagLib and ID3lib for reading and writing BPMs to tags and Qt3 for GUI.
+It uses SounTouch's BPM library for detecting BPMs, TagLib for reading and writing BPMs
+to tags and Qt4 for GUI. Aditional libraries (mad, vorbisfile, FLAC, FMOD) are used for
+decoding and FMOD is also used for audio output (testing BPMs).
+All libraries are optional.
 
 You can download FMOD Ex audio library from http://www.fmod.org
