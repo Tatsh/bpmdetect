@@ -48,9 +48,12 @@ TrackProxy::TrackProxy( const char* filename, bool readtags ) : Track() {
 
 TrackProxy::~TrackProxy() {
   if(m_pTrack) delete m_pTrack;
+  m_pTrack = 0;
 }
 
 Track* TrackProxy::createTrack( const char* filename, bool readtags ) {
+  if(strlen(filename) < 1) return 0;
+
   const char* ext = strrchr(filename, '.');
 
   if(ext && !strcasecmp(ext, ".wav")) {
@@ -78,6 +81,7 @@ Track* TrackProxy::createTrack( const char* filename, bool readtags ) {
   // Use TrackFMOD for other file types
   return new TrackFMOD(filename, readtags);
 #endif
+  return 0;
 }
 
 void TrackProxy::setFilename(const char* filename, bool readtags) {
@@ -87,8 +91,10 @@ void TrackProxy::setFilename(const char* filename, bool readtags) {
     if(m_pTrack) {
         close();
         delete m_pTrack;
+        m_pTrack = 0;
     }
     m_pTrack = createTrack(filename, readtags);
+
     if(m_pTrack) {
         m_pTrack->setRedetect(bredetect);
         m_pTrack->setFormat(strformat);
@@ -186,7 +192,7 @@ double TrackProxy::progress() const {
 
 std::string TrackProxy::format() const {
     if(m_pTrack) return m_pTrack->format();
-    Track::format();
+    return Track::format();
 }
 
 void TrackProxy::stop() {

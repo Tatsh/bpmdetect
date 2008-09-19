@@ -330,7 +330,7 @@ string Track::strLength() {
 
   const uint TIME_LEN = 20;
   char buffer[TIME_LEN];
-  snprintf(buffer, TIME_LEN, "%d:%02d.%02d", mins, secs, csecs);
+  snprintf(buffer, TIME_LEN, "%d:%02d", mins, secs);
   string timestr = buffer;
   return timestr;
 }
