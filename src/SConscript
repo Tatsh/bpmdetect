@@ -262,7 +262,7 @@ def configure(env):
 
   # Check for libraries
   if not ARGUMENTS.get('taglib', 0):
-      check_taglib()
+      check_taglib(env)
       env['TAGLIB'] = 1
   else:
       env['TAGLIB'] = 0

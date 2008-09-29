@@ -410,7 +410,7 @@ double Track::detectBPM() {
     return oldbpm;
   }
 
-  const uint NUMSAMPLES = 8192;
+  const uint NUMSAMPLES = 4096;
   int chan = channels();
   int srate = samplerate();
 
