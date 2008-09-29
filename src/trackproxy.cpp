@@ -283,10 +283,11 @@ void TrackProxy::printBPM() {
 
 std::string TrackProxy::strBPM() {
     if(m_pTrack) return m_pTrack->strBPM();
-    return strBPM();
+    return Track::strBPM();
 }
 
 std::string TrackProxy::strBPM( std::string format ) {
     if(m_pTrack) return m_pTrack->strBPM(format);
+    return Track::strBPM(format);
 }
 

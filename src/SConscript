@@ -74,14 +74,15 @@ def display_help():
 """+BOLD+"""  Configure options
 --------------------------------------------------"""+NORMAL+"""
 """+BOLD+"""* prefix        """+NORMAL+""": installation prefix (/usr/local)
-"""+BOLD+"""* console       """+NORMAL+""": build only console mode
+"""+BOLD+"""* console       """+NORMAL+""": build only console mode (without QT)
 """+BOLD+"""* mingw         """+NORMAL+""": use MinGW compiler
 """+BOLD+"""* debug         """+NORMAL+""": enable debug (debug=1 or debug=full)
 """+BOLD+"""* extraincludes """+NORMAL+""": extra includes separated by colon (':')
 """+BOLD+"""* mad=0         """+NORMAL+""": disable MPEG audio decoder
 """+BOLD+"""* vorbis=0      """+NORMAL+""": disable vorbis decoder
 """+BOLD+"""* flac=0        """+NORMAL+""": disable FLAC decoder
-"""+BOLD+"""* fmod=0        """+NORMAL+""": do not use fmod library (decoding/playing)
+"""+BOLD+"""* fmod=0        """+NORMAL+""": do not use FMOD library (decoding/playing)
+"""+BOLD+"""* taglib=0      """+NORMAL+""": do not use TagLib (reading/writing tags)
 """+BOLD+"""* qtdir         """+NORMAL+""": where the QT is installed
 """+BOLD+"""* qtincludes    """+NORMAL+""": path to QT includes (/usr/include/qt4 on debian, ...)
 """+BOLD+"""* qtlibs        """+NORMAL+""": path to QT libraries
@@ -197,6 +198,8 @@ def configure(env):
     env.__delitem__('FLAC')
   if env.has_key('FMOD'):
     env.__delitem__('FMOD')
+  if env.has_key('TAGLIB'):
+    env.__delitem__('TAGLIB')
 
   print BOLD + """
 --------------------------------------------------""" + NORMAL
@@ -258,10 +261,16 @@ def configure(env):
     env.__delitem__('EXTRAINCLUDES')
 
   # Check for libraries
-  check_taglib(env)
+  if not ARGUMENTS.get('taglib', 0):
+      check_taglib()
+      env['TAGLIB'] = 1
+  else:
+      env['TAGLIB'] = 0
+
   env.Append(CPPPATH = ['.', '..', '../includes'])
   env.Append(LIBPATH = ['.', '../libs'])
   conf = Configure(env)
+
   if not ARGUMENTS.get('mad', 0) and check_library(conf, 'mad', 'mad.h'):
       env.Append(CPPDEFINES = ['HAVE_MAD'])
       env['MAD'] = 1
@@ -346,24 +355,25 @@ from SCons.Options import Options, PathOption
 cachefile=env['CACHEDIR']+'cache.py'
 opts = Options(cachefile)
 opts.AddOptions(
-  ( 'CACHEDIR', 'cache directory'),
-  ( 'PREFIX', 'prefix for installation' ),
-  ( 'DEBUG', 'enable debug' ),
-  ( 'EXTRAINCLUDES', 'extra include paths for the project' ),
-  ( 'ISCONFIGURED', 'project configured' ),
+  ( 'CACHEDIR', 'Cache directory'),
+  ( 'PREFIX', 'Prefix for installation' ),
+  ( 'DEBUG', 'Enable debug' ),
+  ( 'EXTRAINCLUDES', 'Extra include paths for the project' ),
+  ( 'ISCONFIGURED', 'Project configured' ),
   ( 'PKGCONFIG', 'pkg-config found' ),
-  ( 'MINGWBUILD', 'build using mingw compiler' ),
-  ( 'CONSOLEONLY', 'build console mode only' ),
-  ( 'CPPPATH', 'include directories' ),
-  ( 'CPPDEFINES', 'preprocessor definitions' ),
+  ( 'MINGWBUILD', 'Build using mingw compiler' ),
+  ( 'CONSOLEONLY', 'Build console mode only' ),
+  ( 'CPPPATH', 'Include directories' ),
+  ( 'CPPDEFINES', 'Preprocessor definitions' ),
   ( 'CXXFLAGS', 'C++ compiler options' ),
   ( 'LIBPATH', 'library directories' ),
-  ( 'LIBS', 'libraries' ),
-  ( 'LINKFLAGS', 'linker flags'),
+  ( 'LIBS', 'Libraries' ),
+  ( 'LINKFLAGS', 'Linker flags'),
   ( 'MAD', 'MPEG audio decoder'),
-  ( 'VORBIS', 'ogg vorbis decoder (libvorbisfile)'),
+  ( 'VORBIS', 'Ogg vorbis decoder (libvorbisfile)'),
   ( 'FLAC', 'FLAC decoder using libFLAC'),
-  ( 'FMOD', 'FMOD library for decoding and playing')
+  ( 'FMOD', 'FMOD library for decoding and playing'),
+  ( 'TAGLIB', 'TagLib for reading and writing tags'),
 )
 opts.Update(env)
 
@@ -397,14 +407,33 @@ else:
             bpmdetect_sources = bpmdetect_sources + sources_fmodtest
             bpmdetect_ui = bpmdetect_ui + ui_fmodtest
 
+  # Add sources and print status
   if env.has_key('MAD') and env['MAD']:
       bpmdetect_sources = bpmdetect_sources + sources_mad
+      print 'MAD                               :  ' + GREEN + 'Enabled' + NORMAL
+  else:
+      print 'MAD                               :  ' + RED + 'Disabled' + NORMAL
+
   if env.has_key('VORBIS') and env['VORBIS']:
       bpmdetect_sources = bpmdetect_sources + sources_vorbis
+      print 'OGG Vorbis                        :  ' + GREEN + 'Enabled' + NORMAL
+  else:
+      print 'OGG Vorbis                        :  ' + RED + 'Disabled' + NORMAL
   if env.has_key('FLAC') and env['FLAC']:
       bpmdetect_sources = bpmdetect_sources + sources_flac
+      print 'FLAC                              :  ' + GREEN + 'Enabled' + NORMAL
+  else:
+      print 'FLAC                              :  ' + RED + 'Disabled' + NORMAL
   if env.has_key('FMOD') and env['FMOD']:
       bpmdetect_sources = bpmdetect_sources + sources_fmod
+      print 'FMOD Ex                           :  ' + GREEN + 'Enabled' + NORMAL
+  else:
+      print 'FMOD Ex                           :  ' + RED + 'Disabled' + NORMAL
+
+  if env.has_key('TAGLIB') and env['TAGLIB']:
+      print 'TagLib                            :  ' + GREEN + 'Enabled' + NORMAL
+  else:
+      print 'TagLib                            :  ' + RED + 'Disabled' + NORMAL
 
   print BOLD + """--------------------------------------------------
 """ + NORMAL

@@ -251,7 +251,7 @@ void DlgBPMDetect::slotAddFiles( QStringList &files ) {
     TotalProgress->setMaximum(files.size());
   }
   for( int i = 0; i < files.size(); ++i ) {
-    TrackProxy track(files[i].toLocal8Bit().data(), true);
+    TrackProxy track(files[i].toLocal8Bit(), true);
     QStringList columns;
     columns << QString::fromLocal8Bit(track.strBPM("000.00").c_str());
     columns << QString::fromLocal8Bit(track.artist().c_str());

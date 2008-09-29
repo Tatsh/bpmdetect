@@ -55,6 +55,7 @@
  #define OV_ENDIAN_ARG 0
 #endif
 
+#include <iostream>
 using namespace std;
 using namespace soundtouch;
 
