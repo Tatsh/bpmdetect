@@ -24,7 +24,7 @@
 #define TRACKFMOD_H
 
 #ifndef HAVE_FMOD
-  #error FMOD Ex is required for TrackFMOD (HAVE_FMOD not defined)
+#error FMOD Ex is required for TrackFMOD (HAVE_FMOD not defined)
 #endif
 
 #include "track.h"
@@ -32,44 +32,44 @@
 
 class TrackFMOD : public Track {
 public:
-  static bool initFMODSystem();
-  static void closeFMODSystem();
-  static FMOD_SYSTEM* getFMODSystem();
+    static bool initFMODSystem();
+    static void closeFMODSystem();
+    static FMOD_SYSTEM* getFMODSystem();
 
-  TrackFMOD( const char* filename, bool readtags = true );
-  ~TrackFMOD();
+    TrackFMOD( const char* filename, bool readtags = true );
+    ~TrackFMOD();
 
-  void readTags();
+    void readTags();
 
 protected:
-  void open();
-  void close();
-  void seek( uint ms );
-  uint currentPos();
-  int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    void open();
+    void close();
+    void seek( uint ms );
+    uint currentPos();
+    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
 
-  void storeBPM( std::string sBPM );
-  void removeBPM();
+    void storeBPM( std::string sBPM );
+    void removeBPM();
 
-  void readTagsMPEG( std::string fname );
-  void readTagsWAV( std::string fname );
-  void readTagsOGG( std::string fname );
-  void readTagsFLAC( std::string fname );
+    void readTagsMPEG( std::string fname );
+    void readTagsWAV( std::string fname );
+    void readTagsOGG( std::string fname );
+    void readTagsFLAC( std::string fname );
 
-  void clearBPMMPEG( std::string fname );
-  void clearBPMWAV( std::string fname );
-  void clearBPMOGG( std::string fname );
-  void clearBPMFLAC( std::string fname );
+    void clearBPMMPEG( std::string fname );
+    void clearBPMWAV( std::string fname );
+    void clearBPMOGG( std::string fname );
+    void clearBPMFLAC( std::string fname );
 
-  void saveBPMMPEG( std::string sBPM, std::string fname );
-  void saveBPMWAV( std::string sBPM, std::string fname );
-  void saveBPMOGG( std::string sBPM, std::string fname );
-  void saveBPMFLAC( std::string sBPM, std::string fname );
+    void saveBPMMPEG( std::string sBPM, std::string fname );
+    void saveBPMWAV( std::string sBPM, std::string fname );
+    void saveBPMOGG( std::string sBPM, std::string fname );
+    void saveBPMFLAC( std::string sBPM, std::string fname );
 
-  FMOD_SOUND* m_sound;
+    FMOD_SOUND* m_sound;
 
 private:
-  unsigned long long m_iCurPosBytes;
+    unsigned long long m_iCurPosBytes;
 };
 
 #endif  // TRACKFMOD_H

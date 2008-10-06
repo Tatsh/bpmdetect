@@ -22,6 +22,7 @@
 
 #include <QtCore>
 #include <QtGui>
+#include <QCursor>
 
 #include "qdroplistview.h"
 
@@ -35,98 +36,102 @@
 extern const char* version;
 
 DlgBPMDetect::DlgBPMDetect( QWidget* parent )
-    : QWidget( parent ) {
-  setupUi(this);
-  setStarted(false);
-  m_pCurItem = 0;
-  m_iCurTrackIdx = 0;
+        : QWidget( parent ) {
+    setupUi(this);
+    setStarted(false);
+    m_pCurItem = 0;
+    m_iCurTrackIdx = 0;
 
-  QImage img;
-  img.loadFromData(icon_png, sizeof(icon_png), "PNG");
-  setWindowIcon(QPixmap::fromImage(img));
-  QString strcaption = "BPM Detect v";
-  strcaption.append(version);
-  setWindowTitle(strcaption);
+    QImage img;
+    img.loadFromData(icon_png, sizeof(icon_png), "PNG");
+    setWindowIcon(QPixmap::fromImage(img));
+    QString strcaption = "BPM Detect v";
+    strcaption.append(version);
+    setWindowTitle(strcaption);
 
-  loadSettings();
+    loadSettings();
 
-  /// Create TrackList menu
-  m_pListMenu = new QMenu( TrackList );
-  m_pListMenu->addAction( "Add files", this, SLOT( slotAddFiles() ) );
-  m_pListMenu->addAction( "Add directory", this, SLOT( slotAddDir() ) );
-  m_pListMenu->addSeparator();
-  m_pListMenu->addAction( "Remove selected tracks", this, SLOT( slotRemoveSelected() ) );
-  m_pListMenu->addAction( "Remove tracks with BPM", this, SLOT( slotClearDetected() ) );
-  m_pListMenu->addAction( "Clear list", this, SLOT( slotClearTrackList() ) );
+    /// Create TrackList menu
+    m_pListMenu = new QMenu( TrackList );
+    m_pListMenu->addAction( "Add files", this, SLOT( slotAddFiles() ) );
+    m_pListMenu->addAction( "Add directory", this, SLOT( slotAddDir() ) );
+    m_pListMenu->addSeparator();
+    m_pListMenu->addAction( "Remove selected tracks", this, SLOT( slotRemoveSelected() ) );
+    m_pListMenu->addAction( "Remove tracks with BPM", this, SLOT( slotClearDetected() ) );
+    m_pListMenu->addAction( "Clear list", this, SLOT( slotClearTrackList() ) );
 #ifdef HAVE_FMOD
-  m_pListMenu->addSeparator();
-  m_pListMenu->addAction( "Test BPM", this, SLOT( slotTestBPM() ) );
+    m_pListMenu->addSeparator();
+    m_pListMenu->addAction( "Test BPM", this, SLOT( slotTestBPM() ) );
 #endif
-  m_pListMenu->addSeparator();
-  m_pListMenu->addAction( "Save BPM", this, SLOT( slotSaveBPM() ) );
-  m_pListMenu->addAction( "Clear BPM", this, SLOT( slotClearBPM() ) );
-  /// Add columns to TrackList
-  QStringList hlabels;
-  hlabels << "BPM" << "Artist" << "Title" << "Length" << "Filename";
-  TrackList->setHeaderLabels(hlabels);
+#ifdef HAVE_TAGLIB
+    m_pListMenu->addSeparator();
+    m_pListMenu->addAction( "Save BPM", this, SLOT( slotSaveBPM() ) );
+    m_pListMenu->addAction( "Clear BPM", this, SLOT( slotClearBPM() ) );
+#else
+    chbSave->setEnabled(false);
+#endif
+    /// Add columns to TrackList
+    QStringList hlabels;
+    hlabels << "BPM" << "Artist" << "Title" << "Length" << "Filename";
+    TrackList->setHeaderLabels(hlabels);
 
-  TrackList->setColumnWidth(0, 60);
-  TrackList->setColumnWidth(1, 200);
-  TrackList->setColumnWidth(2, 200);
-  TrackList->setColumnWidth(3, 60);
-  TrackList->setColumnWidth(4, 400);
+    TrackList->setColumnWidth(0, 60);
+    TrackList->setColumnWidth(1, 200);
+    TrackList->setColumnWidth(2, 200);
+    TrackList->setColumnWidth(3, 60);
+    TrackList->setColumnWidth(4, 400);
 
-  /// Connect signals with slots
-  connect(TrackList, SIGNAL(customContextMenuRequested(const QPoint&)),
-    this, SLOT(slotListMenuPopup( const QPoint& )));
-  connect(TrackList, SIGNAL(drop(QDropEvent *)),
-    this, SLOT(slotDropped(QDropEvent *)));
+    /// Connect signals with slots
+    connect(TrackList, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(slotListMenuPopup( const QPoint& )));
+    connect(TrackList, SIGNAL(drop(QDropEvent *)),
+            this, SLOT(slotDropped(QDropEvent *)));
 
-  connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
+    connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
 
-  m_pTrack = new TrackProxy("");
-  m_pTrack->enableConsoleProgress(false);
+    m_pTrack = new TrackProxy("");
+    m_pTrack->enableConsoleProgress(false);
 
-  connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
-  m_qTimer.start(20);
+    connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
+    m_qTimer.start(20);
 }
 
 DlgBPMDetect::~DlgBPMDetect() {
-  if ( getStarted() ) slotStop();
-  saveSettings();
-  delete m_pTrack;
+    if ( getStarted() ) slotStop();
+    saveSettings();
+    delete m_pTrack;
 }
 
 void DlgBPMDetect::loadSettings() {
 #ifdef DEBUG
-  qDebug("Loading settings");
+    qDebug("Loading settings");
 #endif
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "", "BPMDetect");
-  QString format = settings.value("/BPMDetect/TBPMFormat", "0.00").toString();
-  bool skip = settings.value("/BPMDetect/SkipScanned", true).toBool();
-  bool save = settings.value("/BPMDetect/SaveBPM", true).toBool();
-  QString recentpath = settings.value("/BPMDetect/RecentPath", "").toString();
-  int minBPM = settings.value("/BPMDetect/MinBPM", 80).toInt();
-  int maxBPM = settings.value("/BPMDetect/MaxBPM", 190).toInt();
-  chbSkipScanned->setChecked( skip );
-  chbSave->setChecked( save );
-  int idx = cbFormat->findText(format);
-  if(idx >= 0) cbFormat->setCurrentIndex(idx);
-  setRecentPath(recentpath);
-  spMin->setValue(minBPM);
-  spMax->setValue(maxBPM);
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "", "BPMDetect");
+    QString format = settings.value("/BPMDetect/TBPMFormat", "0.00").toString();
+    bool skip = settings.value("/BPMDetect/SkipScanned", true).toBool();
+    bool save = settings.value("/BPMDetect/SaveBPM", true).toBool();
+    QString recentpath = settings.value("/BPMDetect/RecentPath", "").toString();
+    int minBPM = settings.value("/BPMDetect/MinBPM", 80).toInt();
+    int maxBPM = settings.value("/BPMDetect/MaxBPM", 190).toInt();
+    chbSkipScanned->setChecked( skip );
+    chbSave->setChecked( save );
+    int idx = cbFormat->findText(format);
+    if (idx >= 0) cbFormat->setCurrentIndex(idx);
+    setRecentPath(recentpath);
+    spMin->setValue(minBPM);
+    spMax->setValue(maxBPM);
 }
 
 void DlgBPMDetect::saveSettings() {
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "", "BPMDetect");
-  settings.setValue("/BPMDetect/TBPMFormat", cbFormat->currentText());
-  settings.setValue("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
-  settings.setValue("/BPMDetect/SaveBPM", chbSave->isChecked());
-  settings.setValue("/BPMDetect/RecentPath", getRecentPath());
-  settings.setValue("/BPMDetect/MinBPM", spMin->value());
-  settings.setValue("/BPMDetect/MaxBPM", spMax->value());
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "", "BPMDetect");
+    settings.setValue("/BPMDetect/TBPMFormat", cbFormat->currentText());
+    settings.setValue("/BPMDetect/SkipScanned", chbSkipScanned->isChecked());
+    settings.setValue("/BPMDetect/SaveBPM", chbSave->isChecked());
+    settings.setValue("/BPMDetect/RecentPath", getRecentPath());
+    settings.setValue("/BPMDetect/MinBPM", spMin->value());
+    settings.setValue("/BPMDetect/MaxBPM", spMax->value());
 #ifdef DEBUG
-  qDebug("Settings saved");
+    qDebug("Settings saved");
 #endif
 }
 
@@ -135,184 +140,182 @@ void DlgBPMDetect::saveSettings() {
  ** @param enable true to enable, false to disable
  **/
 void DlgBPMDetect::enableControls(bool enable) {
-  btnAddFiles->setEnabled( enable );
-  btnAddDir->setEnabled( enable );
-  btnRemoveSelected->setEnabled( enable );
-  btnClearList->setEnabled( enable );
-  TrackList->setEnabled( enable );
-  cbFormat->setEnabled( enable );
-  spMin->setEnabled( enable );
-  spMax->setEnabled( enable );
+    btnAddFiles->setEnabled( enable );
+    btnAddDir->setEnabled( enable );
+    btnRemoveSelected->setEnabled( enable );
+    btnClearList->setEnabled( enable );
+    TrackList->setEnabled( enable );
+    cbFormat->setEnabled( enable );
+    spMin->setEnabled( enable );
+    spMax->setEnabled( enable );
 
-  if( enable ) {
-    btnStart->setText( "Start" );
-    lblCurrentTrack->setText("");
-    TrackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    TrackList->setSortingEnabled(true);
-    TotalProgress->setValue( 0 );
-    CurrentProgress->setValue( 0 );
-  } else {
-    btnStart->setText( "Stop" );
-    TrackList->setSortingEnabled(false);
-    TrackList->setSelectionMode(QAbstractItemView::SingleSelection);
-  }
+    if ( enable ) {
+        btnStart->setText( "Start" );
+        lblCurrentTrack->setText("");
+        TrackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        TrackList->setSortingEnabled(true);
+        TotalProgress->setValue( 0 );
+        CurrentProgress->setValue( 0 );
+    } else {
+        btnStart->setText( "Stop" );
+        TrackList->setSortingEnabled(false);
+        TrackList->setSelectionMode(QAbstractItemView::SingleSelection);
+    }
 
-  TrackList->clearSelection();
-  m_pCurItem = 0;
-  m_iCurTrackIdx = 0;
+    TrackList->clearSelection();
+    m_pCurItem = 0;
+    m_iCurTrackIdx = 0;
 }
 
 void DlgBPMDetect::slotStartStop() {
-  if ( getStarted() ) {
-    slotStop();
-  } else {
-    slotStart();
-  }
+    if ( getStarted() ) {
+        slotStop();
+    } else {
+        slotStart();
+    }
 }
 
 void DlgBPMDetect::slotStart() {
-  if ( getStarted() || !TrackList->topLevelItemCount() ) return;
+    if ( getStarted() || !TrackList->topLevelItemCount() ) return;
 
-  setStarted(true);
-  enableControls(false);
+    setStarted(true);
+    enableControls(false);
 
-  TotalProgress->setMaximum( TrackList->topLevelItemCount() * 100 );
-  TotalProgress->setValue(0);
-  CurrentProgress->setMaximum(1000);
-  m_pTrack->setMinBPM(spMin->value());
-  m_pTrack->setMaxBPM(spMax->value());
-  slotDetectNext();
+    TotalProgress->setMaximum( TrackList->topLevelItemCount() * 100 );
+    TotalProgress->setValue(0);
+    CurrentProgress->setMaximum(1000);
+    m_pTrack->setMinBPM(spMin->value());
+    m_pTrack->setMaxBPM(spMax->value());
+    slotDetectNext();
 }
 
 void DlgBPMDetect::slotStop() {
-  m_pTrack->stop();
-  setStarted(false);
-  lblCurrentTrack->setText( "" );
-  enableControls(true);
+    m_pTrack->stop();
+    setStarted(false);
+    lblCurrentTrack->setText( "" );
+    enableControls(true);
 }
 
 /// Start detection on next track in the list
 /// @param skipped true if previous track was skipped, so BPM won't be saved
 void DlgBPMDetect::slotDetectNext(bool skipped) {
-  if(!m_pCurItem) {
-    m_pCurItem = TrackList->topLevelItem(0);
-  } else {
-    if(!skipped) {
-      m_pCurItem->setText(0, QString::fromStdString(m_pTrack->strBPM("000.00")));
-      if ( chbSave->isChecked() )
-        m_pTrack->setFormat(cbFormat->currentText().toStdString());
-        if(chbSave->isChecked()) m_pTrack->saveBPM();
+    if (!m_pCurItem) {
+        m_pCurItem = TrackList->topLevelItem(0);
+    } else {
+        if (!skipped) {
+            m_pCurItem->setText(0, QString::fromStdString(m_pTrack->strBPM("000.00")));
+            if ( chbSave->isChecked() )
+                m_pTrack->setFormat(cbFormat->currentText().toStdString());
+            if (chbSave->isChecked()) m_pTrack->saveBPM();
+        }
+        if (m_pCurItem) {
+            int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
+            if (curidx >= 0) m_pCurItem = TrackList->topLevelItem(1+curidx);
+            else m_pCurItem = 0;
+        }
     }
-    if(m_pCurItem) {
-      int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
-      if(curidx >= 0) m_pCurItem = TrackList->topLevelItem(1+curidx);
-      else m_pCurItem = 0;
+
+    if (!m_pCurItem) {
+        slotStop();
+        return;
     }
-  }
 
-  if(!m_pCurItem) {
-    slotStop();
-    return;
-  }
+    TrackList->clearSelection();
+    if (m_iCurTrackIdx < 10)
+        TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
+    else
+        TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
 
-  TrackList->clearSelection();
-  if(m_iCurTrackIdx < 10)
-    TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
-  else
-    TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
+    m_pCurItem->setSelected(true);
 
-  m_pCurItem->setSelected(true);
+    QString file = m_pCurItem->text( TrackList->columnCount() - 1 );
+    lblCurrentTrack->setText( file.section('/', -1, -1) );
+    double BPM = m_pCurItem->text(0).toDouble();
+    TotalProgress->setValue( 100 * m_iCurTrackIdx++ );
+    if (chbSkipScanned->isChecked() && BPM > 0) {
+        slotDetectNext(true);
+        return;
+    }
 
-  QString file = m_pCurItem->text( TrackList->columnCount() - 1 );
-  lblCurrentTrack->setText( file.section('/', -1, -1) );
-  double BPM = m_pCurItem->text(0).toDouble();
-  TotalProgress->setValue( 100 * m_iCurTrackIdx++ );
-  if(chbSkipScanned->isChecked() && BPM > 0) {
-    slotDetectNext(true);
-    return;
-  }
-
-  m_pTrack->setFilename(file.toLocal8Bit());
-  m_pTrack->setRedetect(!chbSkipScanned->isChecked());
-  m_pTrack->startDetection();
+    m_pTrack->setFilename(file.toLocal8Bit());
+    m_pTrack->setRedetect(!chbSkipScanned->isChecked());
+    m_pTrack->startDetection();
 }
 
 void DlgBPMDetect::slotTimerDone() {
-  CurrentProgress->setValue((int) (10 * m_pTrack->progress()));
-  TotalProgress->setValue(100*(m_iCurTrackIdx-1) + (int) m_pTrack->progress());
-  if(getStarted() && m_pTrack->isFinished()) {
-    slotDetectNext();
-  }
+    CurrentProgress->setValue((int) (10 * m_pTrack->progress()));
+    TotalProgress->setValue(100*(m_iCurTrackIdx-1) + (int) m_pTrack->progress());
+    if (getStarted() && m_pTrack->isFinished()) {
+        slotDetectNext();
+    }
 }
 
 void DlgBPMDetect::slotAddFiles( QStringList &files ) {
-  if(!getStarted() && files.size()) {
-    CurrentProgress->setMaximum(0);
-    TotalProgress->setMaximum(files.size());
-  }
-  for( int i = 0; i < files.size(); ++i ) {
-    TrackProxy track(files[i].toLocal8Bit(), true);
-    QStringList columns;
-    columns << QString::fromLocal8Bit(track.strBPM("000.00").c_str());
-    columns << QString::fromLocal8Bit(track.artist().c_str());
-    columns << QString::fromLocal8Bit(track.title().c_str());
-    columns << QString::fromLocal8Bit(track.strLength().c_str());
-    columns << files.at(i);
-    if(!getStarted()) {
-      lblCurrentTrack->setText("Adding " + files.at(i));
-      TotalProgress->setValue(i);
+    if (!getStarted() && files.size()) {
+        CurrentProgress->setMaximum(0);
+        TotalProgress->setMaximum(files.size());
     }
-    new QTreeWidgetItem( TrackList, columns );
-    qApp->processEvents();
-  }
-  if(!getStarted()) {
-    lblCurrentTrack->setText("");
-    int itemcount = TrackList->topLevelItemCount();
-    if(itemcount) TotalProgress->setMaximum( itemcount * 100 );
-    else TotalProgress->setMaximum(100);
-    CurrentProgress->setMaximum(1000);
-    CurrentProgress->reset();
-    TotalProgress->reset();
-    TotalProgress->setValue(0);
-  }
+    for ( int i = 0; i < files.size(); ++i ) {
+        TrackProxy track(files[i].toLocal8Bit(), true);
+        QStringList columns;
+        columns << QString::fromLocal8Bit(track.strBPM("000.00").c_str());
+        columns << QString::fromLocal8Bit(track.artist().c_str());
+        columns << QString::fromLocal8Bit(track.title().c_str());
+        columns << QString::fromLocal8Bit(track.strLength().c_str());
+        columns << files.at(i);
+        if (!getStarted()) {
+            lblCurrentTrack->setText("Adding " + files.at(i));
+            TotalProgress->setValue(i);
+        }
+        new QTreeWidgetItem( TrackList, columns );
+        qApp->processEvents();
+    }
+    if (!getStarted()) {
+        lblCurrentTrack->setText("");
+        int itemcount = TrackList->topLevelItemCount();
+        if (itemcount) TotalProgress->setMaximum( itemcount * 100 );
+        else TotalProgress->setMaximum(100);
+        CurrentProgress->setMaximum(1000);
+        CurrentProgress->reset();
+        TotalProgress->reset();
+        TotalProgress->setValue(0);
+    }
 }
 
 void DlgBPMDetect::slotAddFiles() {
-  QStringList files;
-  files = QFileDialog::getOpenFileNames(this, "Add tracks", getRecentPath(),
-            "Audio files (*.wav *.mp3 *.ogg *.flac)");
-  if(files.size() > 0)
-    setRecentPath(files[0].left(files[0].lastIndexOf('/')));
-  slotAddFiles( files );
+    QStringList files;
+    files = QFileDialog::getOpenFileNames(this, "Add tracks", getRecentPath(),
+                                          "Audio files (*.wav *.mp3 *.ogg *.flac)");
+    if (files.size() > 0)
+        setRecentPath(files[0].left(files[0].lastIndexOf('/')));
+    slotAddFiles( files );
 }
 
 void DlgBPMDetect::slotAddDir() {
-  QString path = QFileDialog::getExistingDirectory ( this, "Add directory",
-            getRecentPath());
+    QString path = QFileDialog::getExistingDirectory ( this, "Add directory",
+                   getRecentPath());
 
-  if ( path != QString::null ) {
-    setRecentPath(path);
-    QStringList list;
-    list = filesFromDir( path );
-    if ( list.size() == 0 ) return;
+    if ( path != QString::null ) {
+        setRecentPath(path);
+        QStringList list;
+        list = filesFromDir( path );
+        if ( list.size() == 0 ) return;
 
-    if ( !path.endsWith( "/" ) )
-      path.append( "/" );
+        if ( !path.endsWith( "/" ) )
+            path.append( "/" );
 
-    QStringList files;
-    for ( uint i = 0; i < list.size(); i++ ) {
-      QString filename = path + list[i];
-      files.append( filename );
+        QStringList files;
+        for ( uint i = 0; i < list.size(); i++ ) {
+            QString filename = path + list[i];
+            files.append( filename );
+        }
+
+        slotAddFiles( files );
     }
-
-    slotAddFiles( files );
-  }
 }
 
-void DlgBPMDetect::slotListMenuPopup( const QPoint &p ) {
-  QPoint gp = TrackList->mapToGlobal(p);
-  gp.setY(gp.y() + TrackList->header()->height());
-  m_pListMenu->popup(gp);
+void DlgBPMDetect::slotListMenuPopup( const QPoint& ) {
+    m_pListMenu->popup(QCursor::pos());
 }
 
 /**
@@ -323,133 +326,133 @@ void DlgBPMDetect::slotListMenuPopup( const QPoint &p ) {
  * to @param path
  */
 QStringList DlgBPMDetect::filesFromDir( QString path ) {
-  QDir d(path), f(path); QStringList files;
-  if(!d.exists(path)) return files;
-  d.setFilter( QDir::Dirs | QDir::Hidden | QDir::NoSymLinks );
-  f.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
-  QString nameFilters = "*.wav:*.mp3:*.ogg:*.flac";
-  f.setNameFilters(nameFilters.split(':'));
+    QDir d(path), f(path); QStringList files;
+    if (!d.exists(path)) return files;
+    d.setFilter( QDir::Dirs | QDir::Hidden | QDir::NoSymLinks );
+    f.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
+    QString nameFilters = "*.wav:*.mp3:*.ogg:*.flac";
+    f.setNameFilters(nameFilters.split(':'));
 
-  QStringList dirs = d.entryList();
-  files = f.entryList();
+    QStringList dirs = d.entryList();
+    files = f.entryList();
 
-  for(int i = 0; i < dirs.size(); ++i) {
-    QString cdir = dirs[i];
-    if(cdir == "." || cdir == "..") continue;
-    QStringList dfiles = filesFromDir(d.absolutePath() + "/" + cdir);
-    for(int i = 0; i < dfiles.size(); ++i) {
-      files.append( cdir + "/" + dfiles[i]);
+    for (int i = 0; i < dirs.size(); ++i) {
+        QString cdir = dirs[i];
+        if (cdir == "." || cdir == "..") continue;
+        QStringList dfiles = filesFromDir(d.absolutePath() + "/" + cdir);
+        for (int i = 0; i < dfiles.size(); ++i) {
+            files.append( cdir + "/" + dfiles[i]);
+        }
     }
-  }
 
-  return files;
+    return files;
 }
 
 void DlgBPMDetect::slotRemoveSelected() {
-  TrackList->slotRemoveSelected();
+    TrackList->slotRemoveSelected();
 }
 
 void DlgBPMDetect::slotTestBPM() {
 #ifdef HAVE_FMOD
-  QTreeWidgetItem* item = TrackList->currentItem();
-  if(!item) return;
-  float bpm = item->text(0).toFloat();
-  if(!bpm) return;
+    QTreeWidgetItem* item = TrackList->currentItem();
+    if (!item) return;
+    float bpm = item->text(0).toFloat();
+    if (!bpm) return;
 
-  DlgTestBPM tbpmd(item->text(TrackList->columnCount() - 1), bpm, this);
-  tbpmd.exec();
+    DlgTestBPM tbpmd(item->text(TrackList->columnCount() - 1), bpm, this);
+    tbpmd.exec();
 #endif
 }
 
 void DlgBPMDetect::slotShowAbout() {
-  QString description = "Automatic BPM (Beat Per Minute) detecting application.";
-  QString abouttext = " \
-Version:    \t%1 \n \
-Description:\t%2 \n \
-License:    \tGNU General Public License \n \
-\n \
-Author:     \tMartin Sakmar \n \
-e-mail:     \tmartin.sakmar@gmail.com \n \
-";
-  abouttext.replace("%1", version);
-  abouttext.replace("%2", description);
-  QMessageBox::about(this, "About BPM Detect", abouttext);
+    QString description = "Automatic BPM (Beat Per Minute) detecting application.";
+    QString abouttext = " \
+                        Version:    \t%1 \n \
+                        Description:\t%2 \n \
+                        License:    \tGNU General Public License \n \
+                        \n \
+                        Author:     \tMartin Sakmar \n \
+                        e-mail:     \tmartin.sakmar@gmail.com \n \
+                        ";
+    abouttext.replace("%1", version);
+    abouttext.replace("%2", description);
+    QMessageBox::about(this, "About BPM Detect", abouttext);
 }
 
 
 void DlgBPMDetect::slotClearTrackList() {
-  TrackList->clear();
+    TrackList->clear();
 }
 
 void DlgBPMDetect::slotClearDetected() {
-  for (int i = 0; i < TrackList->topLevelItemCount(); ++i) {
-    QTreeWidgetItem* item = TrackList->topLevelItem(i);
-    if(!item) break;
+    for (int i = 0; i < TrackList->topLevelItemCount(); ++i) {
+        QTreeWidgetItem* item = TrackList->topLevelItem(i);
+        if(!item) break;
 
-    float fBPM = item->text(0).toFloat();
-    if(fBPM > 0) {
-      delete item;
-      i--;
+        float fBPM = item->text(0).toFloat();
+        if(fBPM > 0) {
+            delete item;
+            i--;
+        }
     }
-  }
 }
 
 void DlgBPMDetect::slotDropped(QDropEvent* e) {
-  if(!e) return;
-  const QMimeData* mdata = e->mimeData();
-  if(!mdata->hasUrls()) return;
-  QList<QUrl> urllist = mdata->urls();
-  e->accept();
-  QStringList files;
-  for(int i = 0; i < urllist.size(); ++i) {
-    files << urllist[i].toLocalFile();
-  }
-  slotAddFiles(files);
+    if(!e) return;
+    const QMimeData* mdata = e->mimeData();
+    if(!mdata->hasUrls()) return;
+    QList<QUrl> urllist = mdata->urls();
+    e->accept();
+    QStringList files;
+    for(int i = 0; i < urllist.size(); ++i) {
+        files << urllist[i].toLocalFile();
+    }
+    slotAddFiles(files);
 }
 
 void DlgBPMDetect::slotSaveBPM() {
-  QList<QTreeWidgetItem*> items = TrackList->selectedItems();
-  if(!items.size()) return;
+    QList<QTreeWidgetItem*> items = TrackList->selectedItems();
+    if(!items.size()) return;
 
-  for (int i = 0; i < items.size(); ++i) {
-    QTreeWidgetItem* item = items.at(i);
-    TrackProxy track(item->text(TrackList->columnCount() - 1).toLocal8Bit().data());
-    track.setBPM(item->text(0).toDouble());
-    track.setFormat(cbFormat->currentText().toStdString());
-    track.saveBPM();
-  }
+    for (int i = 0; i < items.size(); ++i) {
+        QTreeWidgetItem* item = items.at(i);
+        TrackProxy track(item->text(TrackList->columnCount() - 1).toLocal8Bit().data());
+        track.setBPM(item->text(0).toDouble());
+        track.setFormat(cbFormat->currentText().toStdString());
+        track.saveBPM();
+    }
 }
 
 void DlgBPMDetect::slotClearBPM() {
-  QList<QTreeWidgetItem*> items = TrackList->selectedItems();
-  if(!items.size()) return;
+    QList<QTreeWidgetItem*> items = TrackList->selectedItems();
+    if(!items.size()) return;
 
-  int clear = QMessageBox::warning(this, "Clear BPM",
-                "Clear BPMs of all selected tracks?",
-                QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
-  if(clear == QMessageBox::No) return;
+    int clear = QMessageBox::warning(this, "Clear BPM",
+                                     "Clear BPMs of all selected tracks?",
+                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
+    if(clear == QMessageBox::No) return;
 
-  for (int i = 0; i < items.size(); ++i) {
-    QTreeWidgetItem* item = items.at(i);
-    TrackProxy track(item->text(TrackList->columnCount() - 1).toLocal8Bit().data());
-    track.clearBPM();
-    item->setText(0, "000.00");
-  }
+    for (int i = 0; i < items.size(); ++i) {
+        QTreeWidgetItem* item = items.at(i);
+        TrackProxy track(item->text(TrackList->columnCount() - 1).toLocal8Bit().data());
+        track.clearBPM();
+        item->setText(0, "000.00");
+    }
 }
 
 void DlgBPMDetect::setStarted(bool started) {
-  m_bStarted = started;
+    m_bStarted = started;
 }
 
 bool DlgBPMDetect::getStarted() const {
-  return m_bStarted;
+    return m_bStarted;
 }
 
 void DlgBPMDetect::setRecentPath(QString path) {
-  m_qRecentPath = path;
+    m_qRecentPath = path;
 }
 
 QString DlgBPMDetect::getRecentPath() const {
-  return m_qRecentPath;
+    return m_qRecentPath;
 }
 

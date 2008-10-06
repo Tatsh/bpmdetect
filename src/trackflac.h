@@ -40,33 +40,33 @@ typedef struct {
 
 class TrackFlac : public Track {
 public:
-  TrackFlac( const char* filename, bool readtags = true );
-  ~TrackFlac();
-  void readTags();
+    TrackFlac( const char* filename, bool readtags = true );
+    ~TrackFlac();
+    void readTags();
 
 protected:
-  void open();
-  void close();
-  void seek( uint ms );
-  uint currentPos();
-  int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    void open();
+    void close();
+    void seek( uint ms );
+    uint currentPos();
+    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
 
-  void storeBPM( std::string sBPM );
-  void removeBPM();
+    void storeBPM( std::string sBPM );
+    void removeBPM();
 
 private:
-  static FLAC__StreamDecoderWriteStatus writeCallback(const FLAC__StreamDecoder *decoder,
+    static FLAC__StreamDecoderWriteStatus writeCallback(const FLAC__StreamDecoder *decoder,
             const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data);
-  static void metadataCallback(const FLAC__StreamDecoder *decoder,
-            const FLAC__StreamMetadata *metadata, void *client_data);
-  static void errorCallback(const FLAC__StreamDecoder *decoder,
-            FLAC__StreamDecoderErrorStatus status, void *client_data);
+    static void metadataCallback(const FLAC__StreamDecoder *decoder,
+                                 const FLAC__StreamMetadata *metadata, void *client_data);
+    static void errorCallback(const FLAC__StreamDecoder *decoder,
+                              FLAC__StreamDecoderErrorStatus status, void *client_data);
 
-  FLAC__StreamDecoder *m_decoder;
-  FLAC_CLIENT_DATA m_cldata;
+    FLAC__StreamDecoder *m_decoder;
+    FLAC_CLIENT_DATA m_cldata;
 
-  unsigned long m_ibufidx;
-  unsigned long long m_iCurPosPCM;
+    unsigned long m_ibufidx;
+    unsigned long long m_iCurPosPCM;
 };
 
 #endif  // TRACKFLAC_H

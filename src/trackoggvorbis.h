@@ -30,25 +30,25 @@
 
 class TrackOggVorbis : public Track {
 public:
-  TrackOggVorbis( const char* filename, bool readtags = true );
-  ~TrackOggVorbis();
-  void readTags();
+    TrackOggVorbis( const char* filename, bool readtags = true );
+    ~TrackOggVorbis();
+    void readTags();
 
 protected:
-  void open();
-  void close();
-  void seek( uint ms );
-  uint currentPos();
-  int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    void open();
+    void close();
+    void seek( uint ms );
+    uint currentPos();
+    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
 
-  void storeBPM( std::string sBPM );
-  void removeBPM();
+    void storeBPM( std::string sBPM );
+    void removeBPM();
 
 private:
-  unsigned long long m_iCurPosPCM;
-  FILE *fptr;
-  OggVorbis_File vf;
-  int current_section;
+    unsigned long long m_iCurPosPCM;
+    FILE *fptr;
+    OggVorbis_File vf;
+    int current_section;
 };
 
 #endif  // TRACKOGGVORBIS_H

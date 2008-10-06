@@ -40,58 +40,58 @@ using namespace std;
 using namespace soundtouch;
 
 class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetectDlg {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  DlgBPMDetect( QWidget* parent = 0 );
-  ~DlgBPMDetect();
+    DlgBPMDetect( QWidget* parent = 0 );
+    ~DlgBPMDetect();
 
 public slots:
-  void slotStartStop();
-  void slotAddFiles( QStringList &files );
+    void slotStartStop();
+    void slotAddFiles( QStringList &files );
 
 protected:
-  /// List of files from directory (including files from subdirectories)
-  QStringList filesFromDir( QString path );
-  void enableControls( bool enable );
+    /// List of files from directory (including files from subdirectories)
+    QStringList filesFromDir( QString path );
+    void enableControls( bool enable );
 
-  void loadSettings();
-  void saveSettings();
+    void loadSettings();
+    void saveSettings();
 
-  void setStarted( bool started );
-  bool getStarted() const;
-  void setRecentPath( QString path );
-  QString getRecentPath() const;
+    void setStarted( bool started );
+    bool getStarted() const;
+    void setRecentPath( QString path );
+    QString getRecentPath() const;
 
 protected slots:
-  void slotAddDir();
-  void slotAddFiles();
+    void slotAddDir();
+    void slotAddFiles();
 
-  void slotStart();
-  void slotStop();
+    void slotStart();
+    void slotStop();
 
-  void slotListMenuPopup( const QPoint& );
-  void slotDropped(QDropEvent* e);
+    void slotListMenuPopup( const QPoint& );
+    void slotDropped(QDropEvent* e);
 
-  void slotDetectNext(bool skipped = false);
-  void slotTimerDone();
+    void slotDetectNext(bool skipped = false);
+    void slotTimerDone();
 
-  void slotRemoveSelected();
-  void slotClearTrackList();
-  void slotClearDetected();
-  void slotTestBPM();
-  void slotClearBPM();
-  void slotSaveBPM();
-  void slotShowAbout();
+    void slotRemoveSelected();
+    void slotClearTrackList();
+    void slotClearDetected();
+    void slotTestBPM();
+    void slotClearBPM();
+    void slotSaveBPM();
+    void slotShowAbout();
 
 
 private:
-  QMenu* m_pListMenu;
-  QTreeWidgetItem* m_pCurItem;
-  int m_iCurTrackIdx;  // for total progress
-  QString m_qRecentPath;
-  bool m_bStarted;
-  TrackProxy* m_pTrack;
-  QTimer m_qTimer;
+    QMenu* m_pListMenu;
+    QTreeWidgetItem* m_pCurItem;
+    int m_iCurTrackIdx;  // for total progress
+    QString m_qRecentPath;
+    bool m_bStarted;
+    TrackProxy* m_pTrack;
+    QTimer m_qTimer;
 };
 
 #endif // _BPMDETECTWIDGET_H_

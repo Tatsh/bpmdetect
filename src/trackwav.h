@@ -26,16 +26,14 @@
 #include "track.h"
 
 /// WAV audio file 'riff' section header
-typedef struct 
-{
+typedef struct {
     char riff_char[4];
     int  package_len;
     char wave[4];
 } WavRiff;
 
 /// WAV audio file 'format' section header
-typedef struct 
-{
+typedef struct {
     char  fmt[4];
     int   format_len;
     short fixed;
@@ -47,16 +45,14 @@ typedef struct
 } WavFormat;
 
 /// WAV audio file 'data' section header
-typedef struct 
-{
+typedef struct {
     char  data_field[4];
     uint  data_len;
 } WavData;
 
 
 /// WAV audio file header
-typedef struct 
-{
+typedef struct {
     WavRiff   riff;
     WavFormat format;
     WavData   data;
@@ -65,32 +61,32 @@ typedef struct
 
 class TrackWav : public Track {
 public:
-  TrackWav( const char* filename, bool readtags = true );
-  ~TrackWav();
-  void readTags();
+    TrackWav( const char* filename, bool readtags = true );
+    ~TrackWav();
+    void readTags();
 
 protected:
-  void open();
-  void close();
-  void seek( uint ms );
-  uint currentPos();
-  int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    void open();
+    void close();
+    void seek( uint ms );
+    uint currentPos();
+    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
 
-  void storeBPM( std::string sBPM );
-  void removeBPM();
+    void storeBPM( std::string sBPM );
+    void removeBPM();
 
-  int readWavHeaders();
-  int readHeaderBlock();
-  int readRIFFBlock();
-  int checkCharTags();
-  int read(char *buffer, int maxElems);
-  int read(short *buffer, int maxElems);
-  int read(float *buffer, int maxElems);
+    int readWavHeaders();
+    int readHeaderBlock();
+    int readRIFFBlock();
+    int checkCharTags();
+    int read(char *buffer, int maxElems);
+    int read(short *buffer, int maxElems);
+    int read(float *buffer, int maxElems);
 
 private:
-  unsigned long long m_iCurPosBytes;
-  FILE *fptr;
-  WavHeader header;
+    unsigned long long m_iCurPosBytes;
+    FILE *fptr;
+    WavHeader header;
 };
 
 #endif  // TRACKWAV_H

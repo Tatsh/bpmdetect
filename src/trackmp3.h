@@ -37,51 +37,51 @@ typedef struct MadSeekFrameType {
 
 class TrackMp3 : public Track {
 public:
-  TrackMp3( const char* filename, bool readtags = true );
-  ~TrackMp3();
-  void readTags();
+    TrackMp3( const char* filename, bool readtags = true );
+    ~TrackMp3();
+    void readTags();
 
 protected:
-  void open();
-  void close();
-  void seek( uint ms );
-  uint currentPos();
-  int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
-  inline signed int madScale(mad_fixed_t sample);
+    void open();
+    void close();
+    void seek( uint ms );
+    uint currentPos();
+    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    inline signed int madScale(mad_fixed_t sample);
 
-  void storeBPM( std::string sBPM );
-  void removeBPM();
+    void storeBPM( std::string sBPM );
+    void removeBPM();
 
-  void clearFrameList();
-  inline unsigned long madLength();
+    void clearFrameList();
+    inline unsigned long madLength();
 
 private:
-  unsigned long discard(unsigned long samples_wanted);
-  int findFrame(int pos);
+    unsigned long discard(unsigned long samples_wanted);
+    int findFrame(int pos);
 
-  unsigned long long m_iCurPosPCM;
-  FILE *fptr;
-  unsigned int inputbuf_len;
-  unsigned char *inputbuf;
-  int framecount;
-  int currentframe;
-  int bitrate;
-  mad_timer_t pos;
-  mad_timer_t filelength;
-  mad_stream stream;
-  mad_frame *frame;
-  mad_synth synth;
-  // Start index in Synth buffer of samples left over from previous call to readSamples 
-  int rest;
-  // Average frame size used when searching for a frame
-  int m_iAvgFrameSize;
-  
-  /** It is not possible to make a precise seek in an mp3 file without decoding the whole stream.
-   * To have precise seek within a limited range from the current decode position, we keep track
-   * of past decodeded frame, and their exact position. If a seek occours and it is within the
-   * range of frames we keep track of a precise seek occours, otherwise an unprecise seek is performed
-   */
-  std::vector<MadSeekFrameType*> m_qSeekList;
+    unsigned long long m_iCurPosPCM;
+    FILE *fptr;
+    unsigned int inputbuf_len;
+    unsigned char *inputbuf;
+    int framecount;
+    int currentframe;
+    int bitrate;
+    mad_timer_t pos;
+    mad_timer_t filelength;
+    mad_stream stream;
+    mad_frame *frame;
+    mad_synth synth;
+    // Start index in Synth buffer of samples left over from previous call to readSamples
+    int rest;
+    // Average frame size used when searching for a frame
+    int m_iAvgFrameSize;
+
+    /** It is not possible to make a precise seek in an mp3 file without decoding the whole stream.
+     * To have precise seek within a limited range from the current decode position, we keep track
+     * of past decodeded frame, and their exact position. If a seek occours and it is within the
+     * range of frames we keep track of a precise seek occours, otherwise an unprecise seek is performed
+     */
+    std::vector<MadSeekFrameType*> m_qSeekList;
 };
 
 #endif  // TRACKMP3_H

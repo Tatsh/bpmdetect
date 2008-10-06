@@ -31,30 +31,30 @@
 #include <QDragEnterEvent>
 
 class QDropListView : public QTreeWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  QDropListView ( QWidget *parent = 0 );
-  ~QDropListView();
+    QDropListView ( QWidget *parent = 0 );
+    ~QDropListView();
 
 public slots:
-  /// Remove selected items from list
-  void slotRemoveSelected();
+    /// Remove selected items from list
+    void slotRemoveSelected();
 
 protected:
-  void keyPressEvent( QKeyEvent *e );
-  void keyReleaseEvent( QKeyEvent *e );
-  void dragEnterEvent( QDragEnterEvent *e );
-  void dragMoveEvent( QDragMoveEvent *e );
-  void dragLeaveEvent( QDragLeaveEvent *e );
-  void dropEvent( QDropEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    void keyReleaseEvent( QKeyEvent *e );
+    void dragEnterEvent( QDragEnterEvent *e );
+    void dragMoveEvent( QDragMoveEvent *e );
+    void dragLeaveEvent( QDragLeaveEvent *e );
+    void dropEvent( QDropEvent *e );
 
 signals:
-  void keyPress( QKeyEvent *e );
-  void keyRelease( QKeyEvent *e );
-  void dragEnter( QDragEnterEvent *e );
-  void dragMove( QDragMoveEvent *e );
-  void dragLeave( QDragLeaveEvent *e );
-  void drop( QDropEvent *e );
+    void keyPress( QKeyEvent *e );
+    void keyRelease( QKeyEvent *e );
+    void dragEnter( QDragEnterEvent *e );
+    void dragMove( QDragMoveEvent *e );
+    void dragLeave( QDragLeaveEvent *e );
+    void drop( QDropEvent *e );
 };
 
 #endif
