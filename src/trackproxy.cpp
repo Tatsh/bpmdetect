@@ -235,7 +235,7 @@ int TrackProxy::trackType() const {
 }
 
 void TrackProxy::open() {
-    if (!m_pTrack) m_pTrack->open();
+    if (m_pTrack) m_pTrack->open();
 }
 
 void TrackProxy::close() {
