@@ -367,13 +367,13 @@ void DlgBPMDetect::slotTestBPM() {
 void DlgBPMDetect::slotShowAbout() {
     QString description = "Automatic BPM (Beat Per Minute) detecting application.";
     QString abouttext = " \
-                        Version:    \t%1 \n \
-                        Description:\t%2 \n \
-                        License:    \tGNU General Public License \n \
-                        \n \
-                        Author:     \tMartin Sakmar \n \
-                        e-mail:     \tmartin.sakmar@gmail.com \n \
-                        ";
+Version:    \t%1 \n \
+Description:\t%2 \n \
+License:    \tGNU General Public License \n \
+\n \
+Author:     \tMartin Sakmar \n \
+e-mail:     \tmartin.sakmar@gmail.com \n \
+";
     abouttext.replace("%1", version);
     abouttext.replace("%2", description);
     QMessageBox::about(this, "About BPM Detect", abouttext);

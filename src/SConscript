@@ -34,25 +34,47 @@ trackwav.cpp
 sources_mad="""
 trackmp3.cpp
 """
-
 sources_vorbis="""
 trackoggvorbis.cpp
 """
-
 sources_flac="""
 trackflac.cpp
 """
-
 sources_fmod="""
 trackfmod.cpp
 """
-
 sources_fmodtest="""
 dlgtestbpm.cpp
 """
-
 ui_fmodtest="""
 dlgtestbpmdlg.ui
+"""
+
+sources_realtime="""
+audioinput.cpp
+audioanalyzer.cpp
+kiss_fft.c
+kiss_fftr.c
+energybeatdetector.cpp
+bpmcounter.cpp
+beatinfo.cpp
+"""
+
+sources_realtime_gui="""
+dlgrealtime.cpp
+wvumeter.cpp
+waveform.cpp
+wwaveform.cpp
+wenergybeatdisplay.cpp
+wmagnitudedisplay.cpp
+"""
+
+realtime_sources="""
+mainreal.cpp
+"""
+
+sources_realtime_ui="""
+dlgrealtimedlg.ui
 """
 
 bpmdetect_sources_gui="""
@@ -83,6 +105,7 @@ def display_help():
 """+BOLD+"""* flac=0        """+NORMAL+""": disable FLAC decoder
 """+BOLD+"""* fmod=0        """+NORMAL+""": do not use FMOD library (decoding/playing)
 """+BOLD+"""* taglib=0      """+NORMAL+""": do not use TagLib (reading/writing tags)
+"""+BOLD+"""* realtime=0    """+NORMAL+""": disable realtime BPM detection
 """+BOLD+"""* qtdir         """+NORMAL+""": where the QT is installed
 """+BOLD+"""* qtincludes    """+NORMAL+""": path to QT includes (/usr/include/qt4 on debian, ...)
 """+BOLD+"""* qtlibs        """+NORMAL+""": path to QT libraries
@@ -200,6 +223,10 @@ def configure(env):
     env.__delitem__('FMOD')
   if env.has_key('TAGLIB'):
     env.__delitem__('TAGLIB')
+  if env.has_key('PORTAUDIO'):
+    env.__delitem__('PORTAUDIO')
+  if env.has_key('REALTIME'):
+    env.__delitem__('REALTIME')
 
   print BOLD + """
 --------------------------------------------------""" + NORMAL
@@ -294,6 +321,14 @@ def configure(env):
       env['FMOD'] = 1
   else:
       env['FMOD'] = 0
+  
+  if not ARGUMENTS.get('realtime', 0) and check_library(conf, 'portaudio', 'portaudio.h'):
+      env.Append(CPPDEFINES = ['HAVE_PORTAUDIO'])
+      env['PORTAUDIO'] = 1
+      env['REALTIME'] = 1
+  else:
+      env['PORTAUDIO'] = 0
+      env['REALTIME'] = 0
 
   env['ISCONFIGURED']=1
   # And finally save the options in the cache
@@ -374,6 +409,7 @@ opts.AddOptions(
   ( 'FLAC', 'FLAC decoder using libFLAC'),
   ( 'FMOD', 'FMOD library for decoding and playing'),
   ( 'TAGLIB', 'TagLib for reading and writing tags'),
+  ( 'REALTIME', 'Realtime BPM detection (from soundcard input) (Experimental)'),
 )
 opts.Update(env)
 
@@ -400,12 +436,16 @@ else:
   else:
       env.Tool('qt4')
       env.EnableQt4Modules(['QtCore', 'QtGui'], debug = False)
-      for ui in bpmdetect_ui.split():
-          env.Uic4(ui)
       bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
       if env.has_key('FMOD') and env['FMOD']:
             bpmdetect_sources = bpmdetect_sources + sources_fmodtest
             bpmdetect_ui = bpmdetect_ui + ui_fmodtest
+      if env.has_key('REALTIME') and env['REALTIME']:
+            bpmdetect_sources = bpmdetect_sources + sources_realtime_gui
+            bpmdetect_ui = bpmdetect_ui + sources_realtime_ui
+            realtime_sources = realtime_sources + sources_realtime_gui + sources_realtime
+      for ui in bpmdetect_ui.split():
+          env.Uic4(ui)
 
   # Add sources and print status
   if env.has_key('MAD') and env['MAD']:
@@ -435,6 +475,12 @@ else:
   else:
       print 'TagLib                            :  ' + RED + 'Disabled' + NORMAL
 
+  if env.has_key('REALTIME') and env['REALTIME']:
+      print 'Realtime BPM detection            :  ' + GREEN + 'Enabled' + NORMAL
+      bpmdetect_sources = bpmdetect_sources + sources_realtime
+  else:
+      print 'Realtime BPM detection            :  ' + RED + 'Disabled' + NORMAL
+
   print BOLD + """--------------------------------------------------
 """ + NORMAL
   if env['MINGWBUILD']:
@@ -448,5 +494,7 @@ else:
     if not env['CONSOLEONLY'] and not env['DEBUG']:
       env.Append(LINKFLAGS = ['-mwindows'])
   bpmdetect_bin = env.Program('bpmdetect', bpmdetect_sources.split())
+  if env.has_key('REALTIME') and env['REALTIME']:
+    realtime_bin = env.Program('rtbpmdetect', realtime_sources.split())
   if 'install' in sys.argv:
     install(env, bpmdetect_bin)

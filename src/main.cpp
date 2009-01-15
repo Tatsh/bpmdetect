@@ -59,18 +59,27 @@ void display_help() {
 
 int main( int argc, char **argv ) {
     bool console  = false,
-                    redetect = false,
-                               bpmsave  = false,
-                                          clear    = false,
-                                                     bformat  = false,
-                                                                progress = true;
+    redetect = false,
+    bpmsave  = false,
+    clear    = false,
+    bformat  = false,
+    progress = true;
     string format;
 
     static struct option long_options[] = {
 #ifndef NO_GUI
         {"console",    no_argument,       0, 'c'},
 #endif
-        {"format",     required_argument, 0, 'f'}, {"save",       no_argument,       0, 's'}, {"detect",     no_argument,       0, 'd'}, {"remove",     no_argument,       0, 'r'}, {"noprogress", no_argument,       0, 'p'}, {"min",        required_argument, 0, 'n'}, {"max",        required_argument, 0, 'x'}, {"limit",      no_argument,       0, 'l'}, {"help",       no_argument,       0, 'h'}, {0, 0, 0, 0}
+        {"format",     required_argument, 0, 'f'},
+        {"save",       no_argument,       0, 's'},
+        {"detect",     no_argument,       0, 'd'},
+        {"remove",     no_argument,       0, 'r'},
+        {"noprogress", no_argument,       0, 'p'},
+        {"min",        required_argument, 0, 'n'},
+        {"max",        required_argument, 0, 'x'},
+        {"limit",      no_argument,       0, 'l'},
+        {"help",       no_argument,       0, 'h'},
+        {0, 0, 0, 0}
     };
 
     while ( true ) {
