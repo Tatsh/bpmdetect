@@ -26,6 +26,7 @@
 #include <limits.h>
 
 #include <iostream>
+#include <cstring>
 
 #ifdef HAVE_TAGLIB
 #include <mpegfile.h>

@@ -28,7 +28,7 @@ WMagnitudeDisplay::WMagnitudeDisplay(QWidget *parent) : QWidget(parent) {}
 
 WMagnitudeDisplay::~WMagnitudeDisplay() {}
 
-void WMagnitudeDisplay::setData(float *data, unsigned long size) {
+void WMagnitudeDisplay::setData(const float *data, unsigned long size) {
     m_points.clear();
     for(unsigned long i = 0; i < size; ++i) {
         QPoint pt(i, data[i]);

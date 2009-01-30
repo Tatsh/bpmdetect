@@ -32,7 +32,7 @@ public:
     WMagnitudeDisplay(QWidget *parent = 0);
     ~WMagnitudeDisplay();
 
-    void setData(float* data, unsigned long size);
+    void setData(const float* data, unsigned long size);
 
 protected:
     void paintEvent(QPaintEvent* e);

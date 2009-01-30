@@ -34,9 +34,10 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 using namespace std;
 
-const char* version = "0.6.1";   ///< App version
+const char* version = "0.6.2";   ///< App version
 
 void display_help() {
     printf("BPMDetect version %s\n\n", version);

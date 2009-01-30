@@ -30,6 +30,8 @@
 #include <xiphcomment.h>
 #endif   // HAVE_TAGLIB
 
+#include <cstring>
+
 using namespace std;
 using namespace soundtouch;
 

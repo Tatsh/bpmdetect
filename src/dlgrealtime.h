@@ -26,8 +26,6 @@
 #include <QDialog>
 #include "ui_dlgrealtimedlg.h"
 
-#include <QTimer>
-
 class AudioAnalyzer;
 class AudioInput;
 
@@ -40,14 +38,12 @@ public:
 protected slots:
     void slotUpdateVuMeters(int val);
     void slotUpdate();
-    void slotMagnitude(float* mag, int size);
     void slotShowBeat(bool beat);
 
 private:
     AudioInput* m_pInput;
     AudioAnalyzer* m_pAnalyzer;
-    
-    QTimer m_qTimer;
+
 };
 
 #endif

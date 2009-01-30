@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>677</width>
-    <height>317</height>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -123,9 +123,9 @@
       <property name="geometry" >
        <rect>
         <x>10</x>
-        <y>190</y>
+        <y>200</y>
         <width>641</width>
-        <height>61</height>
+        <height>51</height>
        </rect>
       </property>
      </widget>
@@ -172,7 +172,7 @@
         <x>10</x>
         <y>10</y>
         <width>281</width>
-        <height>121</height>
+        <height>181</height>
        </rect>
       </property>
       <property name="frameShape" >
@@ -180,6 +180,16 @@
       </property>
       <property name="frameShadow" >
        <enum>QFrame::Sunken</enum>
+      </property>
+     </widget>
+     <widget class="WWaveform" native="1" name="energyWave" >
+      <property name="geometry" >
+       <rect>
+        <x>10</x>
+        <y>260</y>
+        <width>641</width>
+        <height>51</height>
+       </rect>
       </property>
      </widget>
     </widget>

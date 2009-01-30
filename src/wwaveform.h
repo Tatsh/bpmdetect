@@ -35,12 +35,14 @@ public:
     ~WWaveform();
 
     void setWaveform(Waveform* pWaveform);
+    void setAutoScale(bool autoScale);
 
 protected:
     void paintEvent(QPaintEvent* e);
 
 private:
     Waveform* m_pWaveform;
+    bool m_bAutoScale;
 };
 
 #endif

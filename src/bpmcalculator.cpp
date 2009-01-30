@@ -20,41 +20,21 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "bpmcounter.h"
-#include "beatinfo.h"
+#include "bpmcalculator.h"
 
-#include <QDebug>
-
-using namespace std;
-
-BPMCounter::BPMCounter() {
-
+BPMCalculator::BPMCalculator(float srate) {
+    setSamplerate(srate);
 }
 
-BPMCounter::~BPMCounter() {
-
+BPMCalculator::~BPMCalculator() {
 }
 
-/**
- * @brief Correct BPM
- * if value is lower than min or greater than max
- * @return corrected BPM
- */
-double BPMCounter::correctBPM(double dBPM) {
-    //double min = getMinBPM();
-    //double max = getMaxBPM();
-    double min = 90;
-    double max = 200;
-    bool blimit = false;
-
-    if ( dBPM < 1 ) return 0.;
-    while ( dBPM > max ) dBPM /= 2.;
-    while ( dBPM < min ) dBPM *= 2.;
-
-    if (blimit && dBPM > max) {
-        dBPM = 0.;
-    }
-
-    return dBPM;
+void BPMCalculator::setSamplerate(float srate) {
+    m_srate = srate;
 }
+
+void BPMCalculator::update(const float* samples, unsigned long size) {
+    
+}
+
 

@@ -58,6 +58,8 @@ kiss_fftr.c
 energybeatdetector.cpp
 bpmcounter.cpp
 beatinfo.cpp
+bpmcalculator.cpp
+metronome.cpp
 """
 
 sources_realtime_gui="""
@@ -105,7 +107,7 @@ def display_help():
 """+BOLD+"""* flac=0        """+NORMAL+""": disable FLAC decoder
 """+BOLD+"""* fmod=0        """+NORMAL+""": do not use FMOD library (decoding/playing)
 """+BOLD+"""* taglib=0      """+NORMAL+""": do not use TagLib (reading/writing tags)
-"""+BOLD+"""* realtime=0    """+NORMAL+""": disable realtime BPM detection
+"""+BOLD+"""* realtime=1    """+NORMAL+""": enable realtime BPM (beat) detection (experimental)
 """+BOLD+"""* qtdir         """+NORMAL+""": where the QT is installed
 """+BOLD+"""* qtincludes    """+NORMAL+""": path to QT includes (/usr/include/qt4 on debian, ...)
 """+BOLD+"""* qtlibs        """+NORMAL+""": path to QT libraries
@@ -322,8 +324,9 @@ def configure(env):
   else:
       env['FMOD'] = 0
   
-  if not ARGUMENTS.get('realtime', 0) and check_library(conf, 'portaudio', 'portaudio.h'):
-      env.Append(CPPDEFINES = ['HAVE_PORTAUDIO'])
+  if int(ARGUMENTS.get('realtime', 0)) == 1:
+      if check_library(conf, 'portaudio', 'portaudio.h'):
+          env.Append(CPPDEFINES = ['HAVE_PORTAUDIO'])
       env['PORTAUDIO'] = 1
       env['REALTIME'] = 1
   else:

@@ -36,15 +36,14 @@ DlgRealtime::DlgRealtime(QWidget *parent) : QDialog(parent) {
     m_pInput->start(m_pAnalyzer);
 
     waveform->setWaveform(m_pAnalyzer->waveform());
+    energyWave->setAutoScale(true);
+    energyWave->setWaveform(m_pAnalyzer->energyWave());
     
     for(int i = 0; i < NUMDETECTORS; ++i) {
         beatDisplay->addBeatDetector(m_pAnalyzer->beatDetector(i));
     }
 
     connect(m_pAnalyzer, SIGNAL(updated()), this, SLOT(slotUpdate()));
-//    connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotRefresh()));
-//    m_qTimer.start(500);
-    connect(m_pAnalyzer, SIGNAL(magnitude(float*, int)), this, SLOT(slotMagnitude(float*, int)));
     connect(m_pAnalyzer, SIGNAL(beat(bool)), this, SLOT(slotShowBeat(bool)));
 }
 
@@ -64,13 +63,11 @@ void DlgRealtime::slotUpdateVuMeters(int val) {
 void DlgRealtime::slotUpdate() {
     VuLeft->setValue(m_pAnalyzer->getVuMeterValueL());
     VuRight->setValue(m_pAnalyzer->getVuMeterValueR());
-    
-    waveform->update();
-    beatDisplay->update();
-}
+    magDisplay->setData(m_pAnalyzer->getMagnitude(), m_pAnalyzer->getFFTSize()/16);
 
-void DlgRealtime::slotMagnitude(float *mag, int size) {
-    magDisplay->setData(mag, size/16);
+    waveform->update();
+    energyWave->update();
+    beatDisplay->update();
     magDisplay->update();
 }
 

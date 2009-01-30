@@ -52,7 +52,7 @@ void WEnergyBeatDisplay::paintEvent(QPaintEvent * e) {
         float prev = pDetector->getPrevValue();
         float threshold = pDetector->getThreshold();
         float beatmin = pDetector->getBeatMinimum();
-        float beat = pDetector->beat() * 4.;
+        float beat = pDetector->beat() * 8.;
         bool bbeat = pDetector->isBeat();
         int x = i*w;
         int cw = w;

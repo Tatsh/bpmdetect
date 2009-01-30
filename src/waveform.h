@@ -28,25 +28,45 @@
 class Waveform {
 friend class WWaveform;
 public:
-    Waveform(unsigned long size);
+    /// @a srate is sample rate, @a length is length in seconds
+    Waveform(float srate = 44100, float length = 4);
     ~Waveform();
 
-    void setSize(unsigned long size);
-    unsigned long size() const;
+    /// Set source samplerate - used to calculate time
+    void setSamplerate(float srate);
+    /// Set waveform length in seconds
+    void setLength(float secs);
+    /// Set size of one buffer used to calculate one value
+    void setBufferSize(unsigned long bufsize = 512);
     /// update should be called allways with the same number of samples (size)
     void update(const SAMPLE* buffer, unsigned long size, bool beat = false, int beatOffset = 0);
+    void update(const float* buffer, unsigned long size);
+    
+    float getMaxValue();
 
 protected:
-    /// Shift data to the left and add @a val value to the end
-    void addValue(float val, bool beat, int beatOffset);
     /// Return pointer to array of values (use numValues to get size)
     const float* valueBuffer() const;
     const bool* beats() const;
+    /// @return waveform size - number of values (length)
+    unsigned long size() const;
 
 private:
-    unsigned long m_waveformBufSize;
-    float* m_pWaveformBuffer;
-    bool* m_pBeatBuffer;
+    float m_srate;                      /// sample rate
+    float m_length;                     /// waveform length in seconds
+
+    unsigned long m_valueBufSize;       /// size of temporary buffer
+    unsigned long m_cidx;               /// samples counter
+    float m_maxVal;
+
+    unsigned long m_waveformBufSize;    /// size of waveform value buffer
+    float* m_pWaveformBuffer;           /// waveform value buffer
+    bool* m_pBeatBuffer;                /// beat buffer (same size as waveform buffer)
+
+    /// Initialize buffers
+    void reinit();
+    /// Shift data to the left and add @a val value to the end
+    void addValue(float val, bool beat, int beatOffset);
 };
 
 #endif

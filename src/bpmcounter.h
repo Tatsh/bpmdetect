@@ -23,11 +23,23 @@
 #ifndef BPMCOUNTER_H
 #define BPMCOUNTER_H
 
+#include <list>
+
+class BeatInfo;
+
 class BPMCounter {
 public:
     BPMCounter();
     ~BPMCounter();
+    // TODO: remove correctBPM from Track class and add min and max BPM
+    static double correctBPM(double dBPM);
 
+protected:
+
+
+private:
+
+    
 };
 
 #endif

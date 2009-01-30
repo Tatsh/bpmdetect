@@ -32,6 +32,8 @@
 
 class EnergyBeatDetector;
 class Waveform;
+class BeatInfo;
+class BPMCounter;
 
 class AudioAnalyzer : public QObject {
     Q_OBJECT
@@ -48,14 +50,17 @@ public:
     int getVuMeterValueL() const;
     int getVuMeterValueR() const;
     int getVuMeterValue() const;
+    const float* getMagnitude() const;
+    int getFFTSize() const;
+    
 #ifndef NO_GUI
     Waveform* waveform() const;
+    Waveform* energyWave() const;
     EnergyBeatDetector* beatDetector(int idx = 0) const;
 #endif
 
 signals:
     void updated();
-    void magnitude(float* mag, int size);
     void beat(bool);
 
 protected:
@@ -69,7 +74,6 @@ protected:
 private:
     unsigned int m_uSamplerate, m_uChannels;
     float m_fRMSVolL, m_fRMSVolR;
-    float m_beatenergy;
     bool bbeat;
     EnergyBeatDetector* m_pBeatDetector[NUMDETECTORS];
 
@@ -82,8 +86,14 @@ private:
     SAMPLE* m_pInstantBuffer;           ///< instant buffer (mono)
     SAMPLE* m_pPrevInstantBuffer;
 
+    BeatInfo *m_pBeat;                  ///< current beat
+    
+unsigned long oldstart;
+    BPMCounter* m_pCounter;             ///< BPM counter
+
 #ifndef NO_GUI
     Waveform* m_pWaveform;
+    Waveform* m_pEnergyWave;
 #endif
 
     void reinit();

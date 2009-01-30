@@ -22,6 +22,8 @@
 
 #include "energybeatdetector.h"
 #include "audioanalyzer.h"
+#include <beatinfo.h>
+#include <bpmcounter.h>
 #ifndef NO_GUI
   #include "waveform.h"
 #endif
@@ -37,15 +39,14 @@ typedef unsigned long ulong;
 
 AudioAnalyzer::AudioAnalyzer(QObject* parent) : QObject(parent) {
     m_fRMSVolR = m_fRMSVolL = 0;
-    m_beatenergy = 0;
-
     fftsize = 512;
     fftcfg = 0;
     m_magvector = 0;
-
     m_instantBufSamples = 0;
     m_pInstantBuffer = m_pPrevInstantBuffer = 0;
     bbeat = false;
+    m_pBeat = 0;
+    m_pCounter = new BPMCounter();
 
     for(int i = 0; i < NUMDETECTORS; ++i) {
         m_pBeatDetector[i] = new EnergyBeatDetector(10);
@@ -53,6 +54,7 @@ AudioAnalyzer::AudioAnalyzer(QObject* parent) : QObject(parent) {
     }
 #ifndef NO_GUI
     m_pWaveform = new Waveform(100);
+    m_pEnergyWave = new Waveform(1);
 #endif
     setSamplerate(1000);
     setChannels(1);
@@ -71,7 +73,11 @@ AudioAnalyzer::~AudioAnalyzer() {
     }
 #ifndef NO_GUI
     delete m_pWaveform;
+    delete m_pEnergyWave;
 #endif
+
+    if(m_pBeat) delete m_pBeat;
+    delete m_pCounter;
 }
 
 void AudioAnalyzer::setSamplerate(unsigned int samplerate) {
@@ -104,18 +110,15 @@ void AudioAnalyzer::process(const SAMPLE * inputBuffer, ulong size) {
     // calculate RMS volumes for VU meters
     calculateRMS(inputBuffer, size);
 
-    ulong inputIdx = 0;
-    const ulong maxInputIdx = size / m_uChannels;
-    while(inputIdx < maxInputIdx) {
-        // fill instant buffer
-        for(ulong idx = m_instantBufSamples; idx < m_instantBufSize && inputIdx < maxInputIdx; ++idx) {
-            if(m_uChannels == 1) m_pInstantBuffer[idx] = inputBuffer[inputIdx];
-            else m_pInstantBuffer[idx] = (inputBuffer[inputIdx*2] + inputBuffer[inputIdx*2+1]) / 2.0;
-            ++ inputIdx;
-            ++ m_instantBufSamples;
-        }
+    for(ulong idx = 0; idx < size / m_uChannels; ++idx) {
+        // mix to mono if input is stereo
+        SAMPLE sample = inputBuffer[idx*m_uChannels];
+        if(m_uChannels == 2) sample = (sample + inputBuffer[idx*m_uChannels+1]) / 2;
 
-        // analyze instant buffer if it is full
+        // add sample to instant buffer
+        m_pInstantBuffer[m_instantBufSamples++] = sample;
+
+        // analyze instant buffer if it's full
         if(m_instantBufSamples == m_instantBufSize) {
             bool oldbeat = bbeat;
             analyze(m_pInstantBuffer, m_instantBufSize, m_pPrevInstantBuffer);
@@ -126,7 +129,7 @@ void AudioAnalyzer::process(const SAMPLE * inputBuffer, ulong size) {
 #endif
             // reset the number of samples in instant buffer
             m_instantBufSamples = 0;
-            
+
             // swap buffers
             SAMPLE* tmp = m_pInstantBuffer;
             m_pInstantBuffer = m_pPrevInstantBuffer;
@@ -173,6 +176,14 @@ int AudioAnalyzer::getVuMeterValue() const {
     return (getVuMeterValueL() + getVuMeterValueR()) / 2;
 }
 
+const float* AudioAnalyzer::getMagnitude() const {
+    return m_magvector;
+}
+
+int AudioAnalyzer::getFFTSize() const {
+    return fftsize;
+}
+
 void AudioAnalyzer::analyze(const SAMPLE* buffer, ulong size, const SAMPLE* prevbuffer) {
     ulong dsize = size;
     if(prevbuffer) dsize = 2*size;
@@ -201,55 +212,85 @@ void AudioAnalyzer::analyze(const SAMPLE* buffer, ulong size, const SAMPLE* prev
     // update beat detectors
     // FIXME: do not use constants and check for NUMDETECTORS
     int start = 1, stop = 3; float energy = 0;
-    for(int i = start; i < stop; ++i) energy += m_magvector[i];
-    energy /= stop - start;
-    m_pBeatDetector[0]->addValue(energy);
+    if(NUMDETECTORS > 0) {
+        for(int i = start; i < stop; ++i) energy += m_magvector[i];
+        energy /= stop - start;
+        m_pBeatDetector[0]->addValue(energy);
+    }
 
-    start = 1; stop = 4; energy = 0;
-    for(int i = start; i < stop; ++i) energy += m_magvector[i];
-    energy /= stop - start;
-    m_pBeatDetector[1]->addValue(energy);
+    if(NUMDETECTORS > 1) {
+        start = 1; stop = 4; energy = 0;
+        for(int i = start; i < stop; ++i) energy += m_magvector[i];
+        energy /= stop - start;
+        m_pBeatDetector[1]->addValue(energy);
+    }
 
-    start = 1; stop = 5; energy = 0;
-    for(int i = start; i < stop; ++i) energy += m_magvector[i];
-    energy /= stop - start;
-    m_pBeatDetector[2]->addValue(energy);
+    if(NUMDETECTORS > 2) {
+        start = 1; stop = 5; energy = 0;
+        for(int i = start; i < stop; ++i) energy += m_magvector[i];
+        energy /= stop - start;
+        m_pBeatDetector[2]->addValue(energy);
+    }
 
-    start = 0; stop = 6; energy = 0;
-    for(int i = start; i < stop; ++i) energy += m_magvector[i];
-    energy /= stop - start;
-    m_pBeatDetector[3]->addValue(energy);
+    if(NUMDETECTORS > 3) {
+        start = 0; stop = 6; energy = 0;
+        for(int i = start; i < stop; ++i) energy += m_magvector[i];
+        energy /= stop - start;
+        m_pBeatDetector[3]->addValue(energy);
+    }
 
-    start = 0; stop = 10; energy = 0;
-    for(int i = start; i < stop; ++i) energy += m_magvector[i];
-    energy /= stop - start;
-    m_pBeatDetector[4]->addValue(energy);
+    if(NUMDETECTORS > 4) {
+        start = 0; stop = 10; energy = 0;
+        for(int i = start; i < stop; ++i) energy += m_magvector[i];
+        energy /= stop - start;
+        m_pBeatDetector[4]->addValue(energy);
+    }
 
     bool tmpbeat = bbeat;
     bbeat = false;
-    
-    QList<int> lst;
+    energy = 0;
+    if(!m_pBeat) m_pBeat = new BeatInfo();
     for(int i = 0; i < NUMDETECTORS; ++i) {
         bbeat = bbeat || m_pBeatDetector[i]->isBeat();
-        if(m_pBeatDetector[i]->isBeat()) lst << i;
-        if(m_pBeatDetector[i]->beat() > 0) m_beatenergy += m_pBeatDetector[i]->beat();
+        if(m_pBeatDetector[i]->beat() > 0) 
+            m_pBeat->addEnergy(m_pBeatDetector[i]->beat());
+            //energy += m_pBeatDetector[i]->getCurrentValue();
     }
+
+    energy = 0;
+    float maxfreq = 400.0f;
+    int maxmagidx = (int) ((maxfreq / ((float)m_uSamplerate / (float) fftsize)));
+    for(int i = 0; i <= maxmagidx; ++i) {
+        energy += m_magvector[i];
+    }
+    //energy /= maxmagidx;
+    m_pEnergyWave->update(&energy, 1);
 
     if(tmpbeat != bbeat) {
         emit beat(bbeat);
-        if(!bbeat) {
-            qDebug() << "Beat energy: " << m_beatenergy;
-            m_beatenergy = 0;
+        if(bbeat) {
+            m_pBeat->setStart();
+        } else {
+            m_pBeat->setEnd();
+            //m_pCounter->addBeat(m_pBeat);
+        /*
+            qDebug() << "Beat start:" << m_pBeat->start()
+                     << ", length:" << m_pBeat->length()
+                     << ", energy:" << m_pBeat->energy()
+                     << "BPM = " << m_pCounter->lastBPM();
+        */
+            m_pBeat = 0;
         }
     }
-    //if(bbeat) qDebug() << lst;
-
-    emit magnitude(m_magvector, fftsize);
 }
 
 #ifndef NO_GUI
 Waveform* AudioAnalyzer::waveform() const {
     return m_pWaveform;
+}
+
+Waveform* AudioAnalyzer::energyWave() const {
+    return m_pEnergyWave;
 }
 #endif
 
@@ -261,7 +302,6 @@ EnergyBeatDetector* AudioAnalyzer::beatDetector(int idx) const {
 #endif
 
 void AudioAnalyzer::reinit() {
-    m_beatenergy = 0;
     if(fftcfg) free(fftcfg);
     const float bps = 44100. / 1024.; // buffers per second
     //const float bps = 44100. / 512.; // buffers per second
@@ -271,15 +311,21 @@ void AudioAnalyzer::reinit() {
     m_instantBufSamples = 0;
     m_pInstantBuffer = (SAMPLE*) realloc(m_pInstantBuffer, m_instantBufSize * sizeof(SAMPLE));
     m_pPrevInstantBuffer = (SAMPLE*) realloc(m_pPrevInstantBuffer, m_instantBufSize * sizeof(SAMPLE));
-
     memset(m_pPrevInstantBuffer, 0, m_instantBufSize * sizeof(SAMPLE));
 
     for(int i = 0; i < NUMDETECTORS; ++i) {
-        m_pBeatDetector[i]->setBufferSize((ulong) bps * 0.2);
+        m_pBeatDetector[i]->setBufferSize((ulong) (bps * 0.3));
     }
-    m_pWaveform->setSize((ulong) bps * 3.0);
+
     fftsize = m_instantBufSize;
+    m_pWaveform->setBufferSize(fftsize);
+    m_pWaveform->setSamplerate(samplerate());
+    m_pWaveform->setLength(4);
+
+    m_pEnergyWave->setBufferSize(1);
+    m_pEnergyWave->setSamplerate(bps);
+    m_pEnergyWave->setLength(4);
+
     fftcfg = kiss_fftr_alloc(fftsize, 0, 0, 0);
     m_magvector = (float*) realloc(m_magvector, fftsize * sizeof(float));
-
 }

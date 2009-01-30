@@ -21,16 +21,24 @@
  ***************************************************************************/
 
 #include "waveform.h"
+#include "bpmcounter.h"
+
 #include <math.h>
 #include <cstdlib>
 #include <cstring>
 
-Waveform::Waveform(unsigned long size) {
-    m_waveformBufSize = 0;
+#define MAX_VALBUFFER_SIZE 4096
+
+Waveform::Waveform(float srate, float length) {
+    m_waveformBufSize = m_valueBufSize = 0;
     m_pWaveformBuffer = 0;
     m_pBeatBuffer = 0;
-
-    setSize(size);
+    m_cidx = 0;
+    m_maxVal = 0;
+    m_length = 1;
+    setSamplerate(srate);
+    setLength(length);
+    setBufferSize();
 }
 
 Waveform::~Waveform() {
@@ -38,8 +46,22 @@ Waveform::~Waveform() {
     if(m_pBeatBuffer) delete [] m_pBeatBuffer;
 }
 
-void Waveform::setSize(unsigned long size) {
-    if(size < 1) return;
+void Waveform::setLength(float secs) {
+    secs = fabs(secs);
+    m_length = secs;
+    reinit();
+}
+
+void Waveform::setSamplerate(float srate) {
+    m_srate = fabs(srate);
+    reinit();
+}
+
+void Waveform::reinit() {
+    // calculate size of waveform buffer from length
+    unsigned long size = m_srate * m_length / m_valueBufSize;
+
+    if(size < 10) size = 10;
     unsigned long oldsize = m_waveformBufSize;
     m_waveformBufSize = size;
     if(oldsize != size) {
@@ -52,16 +74,47 @@ void Waveform::setSize(unsigned long size) {
     }
 }
 
-void Waveform::update(const SAMPLE* buffer, unsigned long size, bool beat, int beatOffset) {
-    float max = 0;
-    for(unsigned long i = 0; i < size; ++i) {
-        float val = 1.5*fabs(buffer[i]) / (SAMPLE_MAXVALUE/2.0);
-        if(val > max) max = val;
-    }
+void Waveform::setBufferSize(unsigned long bufsize) {
+    if(bufsize < 1) bufsize = 1;
+    if(bufsize > MAX_VALBUFFER_SIZE) bufsize = MAX_VALBUFFER_SIZE;
+    m_valueBufSize = bufsize;
+    reinit();
+}
 
+void Waveform::update(const SAMPLE* buffer, unsigned long size, bool beat, int beatOffset) {
     if(beatOffset > 0) {beat = false; beatOffset = 0;}
     if(beatOffset + m_waveformBufSize <= 0) {beat = false; beatOffset = 0;}
-    addValue(max, beat, beatOffset);
+
+    for(unsigned long i = 0; i < size; ++i) {
+        float val = 1.3*fabs(buffer[i]) / (SAMPLE_MAXVALUE/2.0);
+        if(val > m_maxVal) m_maxVal = val;
+        if(++m_cidx >= m_valueBufSize) {
+            addValue(m_maxVal, beat, beatOffset);
+            beat = false;
+            m_cidx = 0; m_maxVal = 0;
+        }
+    }
+}
+
+void Waveform::update(const float* buffer, unsigned long size) {
+    for(unsigned long i = 0; i < size; ++i) {
+        float val = fabs(buffer[i]) / 2.0;
+        if(val > m_maxVal) m_maxVal = val;
+        if(++m_cidx >= m_valueBufSize) {
+            addValue(m_maxVal, false, 0);
+            m_cidx = 0; m_maxVal = 0;
+        }
+    }
+}
+
+float Waveform::getMaxValue() {
+    float max = 1;
+
+    for(unsigned long i = 0; i < size(); ++i) {
+        if(m_pWaveformBuffer[i] > max) max = m_pWaveformBuffer[i];
+    }
+    
+    return max;
 }
 
 void Waveform::addValue(float val, bool beat, int beatOffset) {
