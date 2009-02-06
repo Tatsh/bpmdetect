@@ -27,6 +27,7 @@
 
 class Waveform {
 friend class WWaveform;
+friend class BPMCalculator;
 public:
     /// @a srate is sample rate, @a length is length in seconds
     Waveform(float srate = 44100, float length = 4);
@@ -38,6 +39,7 @@ public:
     void setLength(float secs);
     /// Set size of one buffer used to calculate one value
     void setBufferSize(unsigned long bufsize = 512);
+    void setAverage(bool avg);
     /// update should be called allways with the same number of samples (size)
     void update(const SAMPLE* buffer, unsigned long size, bool beat = false, int beatOffset = 0);
     void update(const float* buffer, unsigned long size);
@@ -57,7 +59,8 @@ private:
 
     unsigned long m_valueBufSize;       /// size of temporary buffer
     unsigned long m_cidx;               /// samples counter
-    float m_maxVal;
+    float m_maxVal, m_avgSum;
+    bool m_bAverage;
 
     unsigned long m_waveformBufSize;    /// size of waveform value buffer
     float* m_pWaveformBuffer;           /// waveform value buffer
@@ -66,7 +69,7 @@ private:
     /// Initialize buffers
     void reinit();
     /// Shift data to the left and add @a val value to the end
-    void addValue(float val, bool beat, int beatOffset);
+    void addValue(float val, bool beat = false, int beatOffset = 0);
 };
 
 #endif

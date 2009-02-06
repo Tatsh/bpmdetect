@@ -34,6 +34,7 @@ class EnergyBeatDetector;
 class Waveform;
 class BeatInfo;
 class BPMCounter;
+class BPMCalculator;
 
 class AudioAnalyzer : public QObject {
     Q_OBJECT
@@ -53,10 +54,13 @@ public:
     const float* getMagnitude() const;
     int getFFTSize() const;
     
+    float getCurrentBPM() const;
+    const BPMCalculator* getBPMCalculator() const;
+    
 #ifndef NO_GUI
     Waveform* waveform() const;
-    Waveform* energyWave() const;
     EnergyBeatDetector* beatDetector(int idx = 0) const;
+    Waveform* calculatorWave() const;
 #endif
 
 signals:
@@ -90,10 +94,10 @@ private:
     
 unsigned long oldstart;
     BPMCounter* m_pCounter;             ///< BPM counter
+    BPMCalculator* m_pCalculator;       ///< BPM calculator (autocorrelation)
 
 #ifndef NO_GUI
     Waveform* m_pWaveform;
-    Waveform* m_pEnergyWave;
 #endif
 
     void reinit();

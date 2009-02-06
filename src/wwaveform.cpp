@@ -55,7 +55,6 @@ void WWaveform::paintEvent(QPaintEvent *e) {
     float valscale = 1;
     if(m_bAutoScale) valscale = 1.0/m_pWaveform->getMaxValue();
 
-
     for(int i = 0; i < size; ++i) {
         QRect rect;
         rect.setX(fwidth * i);
@@ -68,7 +67,7 @@ void WWaveform::paintEvent(QPaintEvent *e) {
         // paint detected beat
         if(beats[i]) {
             QRect r(fwidth * i, 0, 2, height());
-            p.fillRect(r, Qt::darkBlue);
+            p.fillRect(r, Qt::red);
         }
     }
 

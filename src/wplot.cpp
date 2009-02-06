@@ -20,27 +20,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WMAGNITUDEDISPLAY_H
-#define WMAGNITUDEDISPLAY_H
+#include "wplot.h"
 
-#include <QWidget>
-#include <QList>
+#include <QPainter>
 
-class WMagnitudeDisplay : public QWidget {
-    Q_OBJECT
-public:
-    WMagnitudeDisplay(QWidget *parent = 0);
-    ~WMagnitudeDisplay();
+WPlot::WPlot(QWidget *parent) : QWidget(parent) {
+    setMinValue(0);
+    setMaxValue(100);
+}
 
-    void setData(const float* data, unsigned long size);
+WPlot::~WPlot() {}
 
-protected:
-    void paintEvent(QPaintEvent* e);
+void WPlot::setMaxValue(float maxVal) {
+    m_maxVal = maxVal;
+    if(m_maxVal < m_minVal) m_minVal = m_maxVal - 1;
+}
 
-private:
-    unsigned long m_dataSize;
-    float* m_data;
-    QList<QPoint> m_points;
-};
+void WPlot::setMinValue(float minVal) {
+    m_minVal = minVal;
+    if(m_maxVal < m_minVal) m_maxVal = m_minVal + 1;
+}
 
-#endif
+void WPlot::setData(const float *data, unsigned long size) {
+    m_points.clear();
+    for(unsigned long i = 0; i < size; ++i) {
+        QPointF pt(i, data[i]);
+        m_points.append(pt);
+    }
+}
+
+void WPlot::paintEvent(QPaintEvent* e) {
+    QPainter p(this);
+    p.fillRect(rect(), Qt::black);
+    float valDiff = m_maxVal - m_minVal;
+    if(valDiff < 1) valDiff = m_maxVal;
+    float scalex = (float) width() / 100.0f;
+    if(m_points.size() > 1) scalex = (float) width() / (float) (m_points.size()-1);
+    float scaley = - ((float) height() - 0.02*height()) / valDiff;
+
+    p.translate(0, height() - 0.02 * height());
+    p.scale(scalex, scaley);
+
+    p.setPen(Qt::green);
+    for(int i = 1; i < m_points.size(); ++i) {
+        QPointF p1 = m_points.at(i-1);
+        QPointF p2 = m_points.at(i);
+        if(m_minVal > 0) {
+            p1.setY(p1.y() - m_minVal);
+            p2.setY(p2.y() - m_minVal);
+        }
+        p.drawLine(p1, p2);
+    }
+
+    m_transform = p.worldTransform();
+}
+
+

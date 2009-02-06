@@ -24,10 +24,13 @@
 #define DLGREALTIME_H
 
 #include <QDialog>
+#include <QTimer>
 #include "ui_dlgrealtimedlg.h"
 
 class AudioAnalyzer;
 class AudioInput;
+class BPMCounter;
+class Metronome;
 
 class DlgRealtime : public QDialog, public Ui_DlgRealtimeDlg {
     Q_OBJECT
@@ -38,12 +41,19 @@ public:
 protected slots:
     void slotUpdateVuMeters(int val);
     void slotUpdate();
+    void slotTimeout();
     void slotShowBeat(bool beat);
+    
+    void slotBeat();
+    void slotResetCounter();
+    void slotResetAutoCounter();
 
 private:
     AudioInput* m_pInput;
     AudioAnalyzer* m_pAnalyzer;
-
+    BPMCounter* m_pCounter, *m_pAutoCounter;
+    Metronome* m_pMetronome;
+    QTimer m_qTimer;
 };
 
 #endif

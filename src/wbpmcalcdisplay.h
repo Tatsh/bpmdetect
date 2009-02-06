@@ -1,5 +1,5 @@
 /***************************************************************************
-     Copyright          : (C) 2008 by Martin Sakmar
+     Copyright          : (C) 2009 by Martin Sakmar
      e-mail             : martin.sakmar@gmail.com
  ***************************************************************************/
 
@@ -20,37 +20,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "wmagnitudedisplay.h"
+#ifndef WBPMCALCDISPLAY_H
+#define WBPMCALCDISPLAY_H
 
-#include <QPainter>
+#include <wplot.h>
+#include <vector>
 
-WMagnitudeDisplay::WMagnitudeDisplay(QWidget *parent) : QWidget(parent) {}
+#include "bpmcalculator.h"  // for struct Peak
 
-WMagnitudeDisplay::~WMagnitudeDisplay() {}
+class WBPMCalcDisplay : public WPlot {
+    Q_OBJECT
+public:
+    WBPMCalcDisplay(QWidget *parent = 0);
+    ~WBPMCalcDisplay();
 
-void WMagnitudeDisplay::setData(const float *data, unsigned long size) {
-    m_points.clear();
-    for(unsigned long i = 0; i < size; ++i) {
-        QPoint pt(i, data[i]);
-        m_points.append(pt);
-    }
-}
+    void setPeaks(std::vector<Peak> peaks);
+    void updateData(const BPMCalculator* pCalc);
 
-void WMagnitudeDisplay::paintEvent(QPaintEvent* e) {
-    QPainter p(this);
-    p.fillRect(rect(), Qt::black);
+protected:
+    void paintEvent(QPaintEvent* e);
 
-    float scalex = (float) width() / 100.0f;
-    if(m_points.size()) scalex = (float) width() / (float) m_points.size();
-    float scaley = - ((float) height() - 0.1*height()) / 50.; //< FIXME: maximum value (instead of 50)
+private:
+    int m_winStart;
+    std::vector<Peak> m_peaks;
+};
 
-    p.translate(0, height() - 0.1 * height());
-    p.scale(scalex, scaley);
-
-    p.setPen(Qt::green);
-    for(int i = 1; i < m_points.size(); ++i) {
-        p.drawLine(m_points.at(i-1), m_points.at(i));
-    }
-}
-
-
+#endif

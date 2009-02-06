@@ -34,8 +34,9 @@ Waveform::Waveform(float srate, float length) {
     m_pWaveformBuffer = 0;
     m_pBeatBuffer = 0;
     m_cidx = 0;
-    m_maxVal = 0;
+    m_maxVal = m_avgSum = 0;
     m_length = 1;
+    m_bAverage = false;
     setSamplerate(srate);
     setLength(length);
     setBufferSize();
@@ -81,6 +82,10 @@ void Waveform::setBufferSize(unsigned long bufsize) {
     reinit();
 }
 
+void Waveform::setAverage(bool avg) {
+    m_bAverage = avg;
+}
+
 void Waveform::update(const SAMPLE* buffer, unsigned long size, bool beat, int beatOffset) {
     if(beatOffset > 0) {beat = false; beatOffset = 0;}
     if(beatOffset + m_waveformBufSize <= 0) {beat = false; beatOffset = 0;}
@@ -88,10 +93,13 @@ void Waveform::update(const SAMPLE* buffer, unsigned long size, bool beat, int b
     for(unsigned long i = 0; i < size; ++i) {
         float val = 1.3*fabs(buffer[i]) / (SAMPLE_MAXVALUE/2.0);
         if(val > m_maxVal) m_maxVal = val;
+        m_avgSum += val;
         if(++m_cidx >= m_valueBufSize) {
-            addValue(m_maxVal, beat, beatOffset);
+            if(m_bAverage) addValue(m_avgSum/m_valueBufSize, beat, beatOffset);
+            else addValue(m_maxVal, beat, beatOffset);
             beat = false;
             m_cidx = 0; m_maxVal = 0;
+            m_avgSum = 0;
         }
     }
 }

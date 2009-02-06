@@ -34,6 +34,7 @@ EnergyBeatDetector::EnergyBeatDetector(unsigned long bufsize) {
     m_threshold = 1;
     m_pEnergyBuffer = 0;
     m_currentValue = m_prevValue = 0;
+    envelopeAccu = 0;
 
     setBufferSize(bufsize);
 }
@@ -43,6 +44,13 @@ EnergyBeatDetector::~EnergyBeatDetector() {
 }
 
 bool EnergyBeatDetector::addValue(float val) {
+    const float decay = 0.1f;
+    const float norm = (1 - decay);
+    // smooth amplitude envelope
+    envelopeAccu *= decay;
+    envelopeAccu += val;
+    val = envelopeAccu * norm;
+
     m_pEnergyBuffer[m_energyBufIdx++] = val;
     m_prevValue = m_currentValue;
     m_currentValue = val;

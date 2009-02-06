@@ -51,6 +51,7 @@ private:
     float m_threshold;
     float m_currentValue;
     float m_prevValue;
+    float envelopeAccu;
 
     unsigned long m_energyBufSize;
     unsigned long m_energyBufIdx;       ///< index of new value in energy buffer

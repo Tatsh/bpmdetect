@@ -68,11 +68,13 @@ wvumeter.cpp
 waveform.cpp
 wwaveform.cpp
 wenergybeatdisplay.cpp
-wmagnitudedisplay.cpp
+wplot.cpp
+wbpmcalcdisplay.cpp
 """
 
 realtime_sources="""
 mainreal.cpp
+PeakFinder.cpp
 """
 
 sources_realtime_ui="""

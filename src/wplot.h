@@ -1,5 +1,5 @@
 /***************************************************************************
-     Copyright          : (C) 2009 by Martin Sakmar
+     Copyright          : (C) 2008 by Martin Sakmar
      e-mail             : martin.sakmar@gmail.com
  ***************************************************************************/
 
@@ -20,29 +20,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef METRONOME_H
-#define METRONOME_H
+#ifndef WPLOT_H
+#define WPLOT_H
 
-class Metronome {
+#include <QWidget>
+#include <QList>
+
+class WPlot : public QWidget {
+    Q_OBJECT
 public:
-    Metronome();
-    ~Metronome();
-    
-    void setInterval(unsigned long msec);
-    void setBPM(float bpm);
+    WPlot(QWidget *parent = 0);
+    ~WPlot();
 
-    void setSync();
-    void setSync(unsigned long msec);
-    unsigned long progress() const;
-    float progressPercent() const;
-    
-    void start();
-    void stop();
+    void setData(const float* data, unsigned long size);
+    void setMaxValue(float max);
+    void setMinValue(float min);
 
-private:
-    unsigned long m_interval;
-    unsigned long m_syncTime;
-    bool m_bStarted;
+protected:
+    QTransform m_transform;
+    float m_maxVal, m_minVal;
+    QList<QPointF> m_points;
+
+    void paintEvent(QPaintEvent* e);
+
 };
 
 #endif

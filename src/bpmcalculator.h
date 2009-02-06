@@ -23,19 +23,50 @@
 #ifndef BPMCALCULATOR_H
 #define BPMCALCULATOR_H
 
-class Waveform;
+#include "waveform.h"
+#include <vector>
+
+struct Peak {
+    int firstPos;
+    int lastPos;
+    int peakPos;
+    float massCenter;
+    float bpm;
+};
 
 class BPMCalculator {
 public:
-    BPMCalculator(float srate);
+    /// @a srate is input sample rate
+    /// @a length is internal buffer length in seconds
+    BPMCalculator(float srate, float length = 5);
     ~BPMCalculator();
 
     void setSamplerate(float srate);
-    void update(const float* samples, unsigned long size);
+    void setLength(float seconds);
+    void update(float* samples, unsigned long size);
+    float getBpm();
+    Waveform* waveform();
+    const float* xcorrData(int& winStart, int& winLen) const;
+    const std::vector<Peak>& peaks() const;
+
+protected:
+    void calcEnvelope(float* samples, unsigned long numsamples);
+    void calcXCorr();
+    void findPeaks();
+    void calcMassCenter(Peak& p);
 
 private:
-    float m_srate;
+    float m_srate;  ///< input sample rate
+    float m_length; ///< length in seconds
 
+    float envelopeAccu;
+    int m_windowStart;
+    int m_windowLen;
+    
+    Waveform m_wave;
+    float* xcorr;
+    float m_corrMax;
+    std::vector<Peak> m_peaks;
 };
 
 #endif
