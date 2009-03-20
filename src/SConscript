@@ -60,12 +60,12 @@ bpmcounter.cpp
 beatinfo.cpp
 bpmcalculator.cpp
 metronome.cpp
+waveform.cpp
 """
 
 sources_realtime_gui="""
 dlgrealtime.cpp
 wvumeter.cpp
-waveform.cpp
 wwaveform.cpp
 wenergybeatdisplay.cpp
 wplot.cpp
@@ -446,9 +446,11 @@ else:
             bpmdetect_sources = bpmdetect_sources + sources_fmodtest
             bpmdetect_ui = bpmdetect_ui + ui_fmodtest
       if env.has_key('REALTIME') and env['REALTIME']:
-            bpmdetect_sources = bpmdetect_sources + sources_realtime_gui
-            bpmdetect_ui = bpmdetect_ui + sources_realtime_ui
+            #bpmdetect_sources = bpmdetect_sources + sources_realtime_gui
+            #bpmdetect_ui = bpmdetect_ui + sources_realtime_ui
             realtime_sources = realtime_sources + sources_realtime_gui + sources_realtime
+            for ui in sources_realtime_ui.split():
+                env.Uic4(ui)
       for ui in bpmdetect_ui.split():
           env.Uic4(ui)
 
