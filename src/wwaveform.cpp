@@ -54,6 +54,7 @@ void WWaveform::paintEvent(QPaintEvent *e) {
     int maxHeight = height() / 2;
     float valscale = 1;
     if(m_bAutoScale) valscale = 1.0/m_pWaveform->getMaxValue();
+    if(valscale > 10) valscale = 10;
 
     for(int i = 0; i < size; ++i) {
         QRect rect;

@@ -53,7 +53,7 @@ void WPlot::paintEvent(QPaintEvent* e) {
     QPainter p(this);
     p.fillRect(rect(), Qt::black);
     float valDiff = m_maxVal - m_minVal;
-    if(valDiff < 1) valDiff = m_maxVal;
+    if(valDiff < 0.1) valDiff = m_maxVal;
     float scalex = (float) width() / 100.0f;
     if(m_points.size() > 1) scalex = (float) width() / (float) (m_points.size()-1);
     float scaley = - ((float) height() - 0.02*height()) / valDiff;

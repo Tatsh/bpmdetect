@@ -27,7 +27,7 @@
 
 class EnergyBeatDetector {
 public:
-    EnergyBeatDetector(unsigned long bufSize);
+    EnergyBeatDetector(unsigned long bufSize = 10);
     ~EnergyBeatDetector();
 
     bool addValue(float val);

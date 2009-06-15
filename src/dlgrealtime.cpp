@@ -50,15 +50,12 @@ DlgRealtime::DlgRealtime(QWidget *parent) : QDialog(parent) {
         beatDisplay->addBeatDetector(m_pAnalyzer->beatDetector(i));
     }
 
-    connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimeout()));
-    m_qTimer.start(20);
-
     connect(m_pAnalyzer, SIGNAL(updated()), this, SLOT(slotUpdate()));
     connect(m_pAnalyzer, SIGNAL(beat(bool)), this, SLOT(slotShowBeat(bool)));
     
     connect(btnReset, SIGNAL(clicked()), this, SLOT(slotResetCounter()));
     connect(btnBeat, SIGNAL(pressed()), this, SLOT(slotBeat()));
-    connect(btnAutoReset, SIGNAL(clicked()), this, SLOT(slotResetAutoCounter()));
+    connect(btnSync, SIGNAL(pressed()), this, SLOT(slotSync()));
 }
 
 
@@ -79,51 +76,111 @@ void DlgRealtime::slotUpdate() {
     VuLeft->setValue(m_pAnalyzer->getVuMeterValueL());
     VuRight->setValue(m_pAnalyzer->getVuMeterValueR());
     magDisplay->setData(m_pAnalyzer->getMagnitude(), m_pAnalyzer->getFFTSize()/16);
-    lcdCurrentBPM->display(m_pAnalyzer->getCurrentBPM());
-    xcorrDisplay->updateData(m_pAnalyzer->getBPMCalculator());
+    QString str;
 
+    m_bpmList.append(m_pAnalyzer->getCurrentBPM());
+    float bpm = calcMedian();
+    float bpmerr = calcError(bpm);
+
+    str.sprintf("%.1f", bpm);
+    lcdCurrentBPM->display(str);
+    str.sprintf("%.2f", bpmerr);
+    lblError->setText(str);
+    str.sprintf("%.1f", m_pAnalyzer->getCurrentBPM());
+    lblCurrentBPM->setText(str);
+
+    xcorrDisplay->updateData(m_pAnalyzer->getBPMCalculator());
     waveform->update();
     calcWave->update();
     beatDisplay->update();
     magDisplay->update();
     xcorrDisplay->update();
+    pbInterval->setValue(m_pMetronome->progressPercent());
 }
 
 void DlgRealtime::slotShowBeat(bool beat) {
     button->setChecked(beat);
     if(beat) {
-        m_pAutoCounter->addBeat();
-        lcdAverageBPM->display(m_pAutoCounter->getBPM());
+        //m_pAutoCounter->addBeat();
+        //qDebug() << "autoCounter:" << m_pAutoCounter->getBPM();
     }
 }
 
 void DlgRealtime::slotBeat() {
     m_pCounter->addBeat();
     float bpm = m_pCounter->getBPM();
-    lcdTapBPM->display(bpm);
-    lcdTapError->display(m_pCounter->getError());
+
+    QString str;
+    str.sprintf("%.2f", bpm);
+    lcdTapBPM->display(str);
+
+    str.sprintf("%.2f", m_pCounter->getError());
+    lblErrorDisp->setText(str);
+    lblBeatsDisp->setText(QString::number(m_pCounter->getBeatCount()));
 
     if(bpm > 40) {
         m_pMetronome->setBPM(bpm);
         m_pMetronome->setSync();
         m_pMetronome->start();
+    } else {
+        m_pMetronome->stop();
     }
 }
 
 void DlgRealtime::slotResetCounter() {
     m_pCounter->reset();
     
-    lcdTapBPM->display(m_pCounter->getBPM());
-    lcdTapError->display(m_pCounter->getError());
+    lcdTapBPM->display("0.00");
+    lblErrorDisp->setText("0");
+    lblBeatsDisp->setText("0");
     m_pMetronome->stop();
 }
 
 void DlgRealtime::slotResetAutoCounter() {
     m_pAutoCounter->reset();
-    lcdAverageBPM->display(0);
 }
 
-void DlgRealtime::slotTimeout() {
-    pbInterval->setValue(m_pMetronome->progressPercent());
+void DlgRealtime::slotSync() {
+    m_pMetronome->setSync();
+}
+
+float DlgRealtime::calcMedian() {
+    const int maxvalues = 100;
+    if(m_bpmList.isEmpty()) return 0;
+    // use only last 'maxvalues' values
+    while(m_bpmList.size() > maxvalues) m_bpmList.removeFirst();
+
+    // make a copy of the list
+    QList<float> sortlist = m_bpmList;
+    // remove zeros from the list
+    sortlist.removeAll(0);
+    if(sortlist.isEmpty()) return 0;
+
+    // sort the list and return the median
+    qSort(sortlist);
+    int idx = sortlist.size() / 2;
+    if(sortlist.size() % 2 == 0) {
+        return (sortlist.at(idx) + sortlist.at(idx-1)) / 2.0;
+    } else {
+        return sortlist.at(idx);
+    }
+
+    return 0;
+}
+
+float DlgRealtime::calcError(const float bpm) {
+    float error = 0;
+    int num = 0;
+
+    for(int i = 0; i < m_bpmList.size(); ++i) {
+        float val = m_bpmList.at(i);
+        if(val > 0) {
+            float cerr = val - bpm;
+            ++ num;
+            error += cerr;
+        }
+    }
+    if( !num ) return 0;
+    return fabs(error / num);
 }
 

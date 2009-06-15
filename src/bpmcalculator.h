@@ -23,6 +23,7 @@
 #ifndef BPMCALCULATOR_H
 #define BPMCALCULATOR_H
 
+#include "energybeatdetector.h"
 #include "waveform.h"
 #include <vector>
 
@@ -31,7 +32,9 @@ struct Peak {
     int lastPos;
     int peakPos;
     float massCenter;
+    float corrPos;
     float bpm;
+    float corrbpm;
 };
 
 class BPMCalculator {
@@ -48,6 +51,9 @@ public:
     Waveform* waveform();
     const float* xcorrData(int& winStart, int& winLen) const;
     const std::vector<Peak>& peaks() const;
+    float lastWaveformValue() const;
+    bool isBeat();
+    const EnergyBeatDetector& beatDetector() const;
 
 protected:
     void calcEnvelope(float* samples, unsigned long numsamples);
@@ -63,9 +69,10 @@ private:
     int m_windowStart;
     int m_windowLen;
     
-    Waveform m_wave;
+    Waveform m_wave, m_waveOrig;
+    EnergyBeatDetector m_energyBeat;
     float* xcorr;
-    float m_corrMax;
+    float m_corrMax; /// maximum xcorr value (minimum is 0)
     std::vector<Peak> m_peaks;
 };
 

@@ -24,6 +24,7 @@
 #define BPMCOUNTER_H
 
 #include <list>
+#include <QTime>
 
 #define BUFFER_SIZE 15
 
@@ -33,26 +34,26 @@ class BPMCounter {
 public:
     BPMCounter();
     ~BPMCounter();
-    static double correctBPM(double dBPM, float min = 90., float max = 200., bool blimit = false);
+    static double correctBPM(double dBPM, float min = 50., float max = 200., bool blimit = false, double rBPM = 0);
     
     void reset();
     void addBeat();
     float getBPM() const;
     float getError() const;
-    unsigned long getBeatCount() const;
+    long getBeatCount() const;
     
-    void setMinBPM(unsigned int minBPM = 80);
-    void setMaxBPM(unsigned int maxBPM = 180);
+    void setMinBPM(unsigned int minBPM = 45);
+    void setMaxBPM(unsigned int maxBPM = 250);
 
 protected:
     void calcBPM();
 
 private:
-    unsigned long m_tstart, m_tcurr, m_tprev, m_ntstart;
-    unsigned long m_beatCount, m_nbeatCount;
-    
+    long m_beatCount;
+
     float m_fBPM, m_fError;
-    
+    QTime m_qtime, m_qstarttime;
+
     unsigned int m_minBPM, m_maxBPM;
     float m_bpmbuffer[BUFFER_SIZE];
 };

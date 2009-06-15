@@ -31,6 +31,12 @@
 
 #define MIN_BPM 50
 #define MAX_BPM 230
+#define MIN_THRESHOLD 0.1
+
+/// decay constant for calculating RMS volume sliding average approximation 
+static const float avgdecay = 0.99987f;
+/// Normalization coefficient for calculating RMS sliding average approximation.
+static const float avgnorm = (1 - avgdecay);
 
 BPMCalculator::BPMCalculator(float srate, float length) {
     xcorr = 0;
@@ -38,6 +44,7 @@ BPMCalculator::BPMCalculator(float srate, float length) {
     m_length = 0;
     envelopeAccu = 0;
     m_corrMax = 0;
+
     m_wave.setBufferSize(1);
     setSamplerate(srate);
     setLength(length);
@@ -56,17 +63,26 @@ void BPMCalculator::setSamplerate(float srate) {
         xcorr = (float*) realloc(xcorr, m_windowLen * sizeof(float));
         memset(xcorr, 0, m_windowLen * sizeof(float));
         m_wave.setSamplerate(m_srate);
+        m_waveOrig.setSamplerate(m_srate);
+        m_energyBeat.setBufferSize(m_srate);
     }
 }
 
 void BPMCalculator::setLength(float seconds) {
     float oldlen = m_length;
     m_length = fabs(seconds);
-    if(m_length != oldlen) m_wave.setLength(m_length);
+    if(m_length != oldlen) {
+        m_wave.setLength(m_length);
+        m_waveOrig.setLength(m_length);
+    }
 }
 
 Waveform* BPMCalculator::waveform() {
     return &m_wave;
+}
+
+float BPMCalculator::lastWaveformValue() const {
+    return m_wave.valueBuffer() [m_wave.size()-1];
 }
 
 const float* BPMCalculator::xcorrData(int& winStart, int& winLen) const {
@@ -86,11 +102,20 @@ void BPMCalculator::calcEnvelope(float* samples, unsigned long numsamples) {
     for (int i = 0; i < numsamples; i ++) {
         float val = fabs(samples[i]);
 
+        float threshold = (m_waveOrig.getAverageValue() - m_waveOrig.getMinValue()) / 2.0;
+        if(threshold < MIN_THRESHOLD) threshold = MIN_THRESHOLD;
+
+        // cut amplitudes (we're interested in peak values, not the silent moments)
+        val -= threshold;
+        val = (val > 0) ? val : 0;
+
+//qDebug() << "avg, val, max" << avgval << val << m_waveOrig.getMaxValue();
+
         // smooth amplitude envelope
         envelopeAccu *= decay;
         envelopeAccu += val;
         val = envelopeAccu * norm;
-
+//qDebug() << "val" << val;
         samples[i] = val;
     }
 }
@@ -125,8 +150,8 @@ void BPMCalculator::calcXCorr() {
 void BPMCalculator::findPeaks() {
     float peak, ground, prev, lastGround, lastPeak;
     int dir = 0;
-    float minDiff = m_corrMax / 4.;
-    if(minDiff < 1000) return;
+    float minDiff = m_corrMax / 5.;
+    if(minDiff < 0.02) return;
     lastGround = lastPeak = peak = ground = prev = xcorr[m_windowStart];
 
     m_peaks.clear();
@@ -144,15 +169,18 @@ void BPMCalculator::findPeaks() {
         }
 
         if(dir != prevdir && prevdir != 0) {
-            if(dir < 0 && peak - lastGround > minDiff) {
+            if(dir < 0 /*&& peak - lastGround > minDiff*/) {
                 lastPeak = peak;
                 p.peakPos = i-1;
-            } else if(dir > 0 && lastPeak - ground) {
+            } else if(dir > 0 /*&& lastPeak - ground > minDiff*/) {
                 lastGround = ground;
                 if(p.peakPos) {
                     p.lastPos = i-1;
                     calcMassCenter(p);
-                    m_peaks.push_back(p);
+                    if( xcorr[p.peakPos] - xcorr[p.firstPos] > minDiff &&
+                        xcorr[p.peakPos] - xcorr[p.lastPos] > minDiff) {
+                        m_peaks.push_back(p);
+                    }
                     p.peakPos = 0;
                     p.firstPos = p.lastPos;
                 } else p.firstPos = i-1;
@@ -170,13 +198,27 @@ void BPMCalculator::calcMassCenter(Peak& p) {
     }
     p.massCenter = sum / wsum;
     if(p.massCenter > 0) p.bpm = 60.0f * m_srate / p.massCenter;
+    p.corrbpm = p.bpm;
 }
 
 void BPMCalculator::update(float* samples, unsigned long size) {
+    m_waveOrig.update(samples, size);
     calcEnvelope(samples, size);
     m_wave.update(samples, size);
     calcXCorr();
     findPeaks();
+
+    for(unsigned long i = 0; i < size; ++i) {
+        m_energyBeat.addValue(samples[i]);
+    }
+}
+
+const EnergyBeatDetector& BPMCalculator::beatDetector() const {
+    return m_energyBeat;
+}
+
+bool BPMCalculator::isBeat() {
+    return m_energyBeat.isBeat();
 }
 
 float BPMCalculator::getBpm() {
@@ -185,9 +227,53 @@ float BPMCalculator::getBpm() {
     if(m_peaks.size()) peakPos = m_peaks[0].massCenter;
     if(peakPos < 1e-6) return 0;
 */
+
+    if(m_peaks.size() < 1) return 0;
+
     // calculate BPM
+    float bpm[m_peaks.size()];  // bpms for every peak
+    int bpmn[m_peaks.size()];   // number of similar bpms
+    for(int i = 0; i < m_peaks.size(); ++i) {
+        bpm[i] = m_peaks[i].bpm;
+        bpmn[i] = 1;
+    }
     
+    for(int i = m_peaks.size()-1; i; i--) {
+        float bpm2 = bpm[i] * 2;
+        for(int j = 0; j < m_peaks.size(); j++) {
+            if(bpm[j] + 3 > bpm2 && bpm[j] - 3 < bpm2) {
+                bpm[i] = bpm2;
+                bpmn[i]++;
+                m_peaks[i].corrbpm = bpm2;
+                m_peaks[i].corrPos = 60.0 * m_srate / bpm2;
+            }
+        }
+    }
+
+    int maxn = 0, maxi = 0;
+    for(int i = 0; i < m_peaks.size(); ++i) {
+        if(bpmn[i] >= maxn) {
+            if(bpmn[i] != maxn) {
+                maxn = bpmn[i];
+                maxi = i;
+            }
+            if(bpm[maxi] > bpm[i]) maxi = i;
+        }
+    }
+
+    if(bpmn[maxi] < 2) return 0;
+    return bpm[maxi];
+    
+    /*********************************************
+     number of peaks between similar bpms should be odd
+     ideally 1 or 3, 1 is average of other two around it
+     3 - center is average, other 2 shold be between outer
+     bpm and center(average)
+     *********************************************/
+    
+/*
     if(m_peaks.size()) return m_peaks[0].bpm;
     //return 60.0f * m_srate / peakPos;
     return 0;
+*/
 }

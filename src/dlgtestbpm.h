@@ -36,7 +36,7 @@
 class DlgTestBPM: public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT
 public:
-    DlgTestBPM( QString file, float dBPM, QWidget *parent = 0 );
+    DlgTestBPM(const QString file, const float bpm, QWidget *parent = 0 );
     ~DlgTestBPM();
 
 protected slots:
@@ -48,12 +48,15 @@ protected slots:
     void stop();
     /// Set number of beats to loop
     void setNumBeats( const QString& );
+    
+    void slotUpdateBpmList();
 
 private:
-    float bpm;             ///< BPM to test
-    FMOD_SYSTEM  *system;  ///< FMOD sound system
-    FMOD_SOUND   *sound;   ///< FMOD sound object
-    FMOD_CHANNEL *channel; ///< FMOD channel object
+    float m_bpm;            ///< BPM to test
+    QList<float> m_bpmList; ///< list of possible BPMs
+    FMOD_SYSTEM  *system;   ///< FMOD sound system
+    FMOD_SOUND   *sound;    ///< FMOD sound object
+    FMOD_CHANNEL *channel;  ///< FMOD channel object
 };
 
 #endif // DLGTESTBPM_H

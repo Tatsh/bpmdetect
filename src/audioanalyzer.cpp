@@ -38,6 +38,8 @@
 
 typedef unsigned long ulong;
 
+const int bufferParts = 4;
+
 AudioAnalyzer::AudioAnalyzer(QObject* parent) : QObject(parent) {
     m_fRMSVolR = m_fRMSVolL = 0;
     fftsize = 512;
@@ -53,6 +55,7 @@ AudioAnalyzer::AudioAnalyzer(QObject* parent) : QObject(parent) {
     for(int i = 0; i < NUMDETECTORS; ++i) {
         m_pBeatDetector[i] = new EnergyBeatDetector(10);
         m_pBeatDetector[i]->setThreshold(5);
+        if(i > 4) m_pBeatDetector[i]->setThreshold(1);
     }
 #ifndef NO_GUI
     m_pWaveform = new Waveform(100);
@@ -130,7 +133,7 @@ void AudioAnalyzer::process(const SAMPLE * inputBuffer, ulong size) {
             m_pWaveform->update(m_pInstantBuffer, m_instantBufSize, beat, 0);
 #endif
             // update bpmcalculator
-            int n = 2;
+            int n = bufferParts;
             float avg[n];
             for(int i = 0; i < n; ++i) avg[i] = 0;
             for(ulong i = 0; i < m_instantBufSamples; ++i) {
@@ -139,7 +142,10 @@ void AudioAnalyzer::process(const SAMPLE * inputBuffer, ulong size) {
                 avg[cn] += val;
                 avg[cn] += val;
             }
-            for(int i = 0; i < n; ++i) avg[i] /= (float) m_instantBufSamples/n;
+            for(int i = 0; i < n; ++i) {
+                avg[i] /= (float) (m_instantBufSamples/n);
+                //avg[i] /= (float) SAMPLE_MAXVALUE;
+            }
             m_pCalculator->update(avg, n);
 
             // reset the number of samples in instant buffer
@@ -274,11 +280,14 @@ void AudioAnalyzer::analyze(const SAMPLE* buffer, ulong size, const SAMPLE* prev
     bbeat = false;
     energy = 0;
     if(!m_pBeat) m_pBeat = new BeatInfo();
+/*
     for(int i = 0; i < NUMDETECTORS; ++i) {
         bbeat = bbeat || m_pBeatDetector[i]->isBeat();
-        if(m_pBeatDetector[i]->beat() > 0) 
+        if(m_pBeatDetector[i]->beat() > 0)
             m_pBeat->addEnergy(m_pBeatDetector[i]->beat());
     }
+*/
+    bbeat = bbeat || m_pCalculator->isBeat();
 
     if(tmpbeat != bbeat) {
         emit beat(bbeat);
@@ -334,6 +343,6 @@ void AudioAnalyzer::reinit() {
     fftcfg = kiss_fftr_alloc(fftsize, 0, 0, 0);
     m_magvector = (float*) realloc(m_magvector, fftsize * sizeof(float));
 
-    m_pCalculator->setSamplerate(bps*2);
+    m_pCalculator->setSamplerate(bps*bufferParts);
     m_pCalculator->setLength(5);
 }

@@ -61,10 +61,11 @@ void WBPMCalcDisplay::paintEvent(QPaintEvent *e) {
     QPainter p(this);
     p.setWorldTransform(m_transform);
     //p.setWorldMatrix(m_matrix);
-    QPen groundPen, PeakPen, beatPen;
-    groundPen.setColor(Qt::red);
-    //groundPen.setWidth(10);
-    p.setPen(groundPen);
+    QPen peakPen, bpmPen, corrbpmPen;
+    peakPen.setColor(Qt::red);
+    bpmPen.setColor(Qt::blue);
+    corrbpmPen.setColor(Qt::yellow);
+    p.setPen(peakPen);
 
     for(int i = 0; i < m_peaks.size(); ++i) {
         QPointF p1, p2, p3;
@@ -74,14 +75,15 @@ void WBPMCalcDisplay::paintEvent(QPaintEvent *e) {
         p2 = m_points[peak.peakPos-m_winStart];
         p3 = m_points[peak.lastPos-m_winStart];
 
-        p.setPen(groundPen);
+        p.setPen(peakPen);
         p.drawLine(p1, p2);
         p.drawLine(p2, p3);
 
-        p.drawPoint(p1);
-        p.drawPoint(p3);
-        p.drawPoint(p2);
+        p.setPen(bpmPen);
+        p.drawLine(QPointF(peak.massCenter - m_winStart, m_maxVal), QPointF(peak.massCenter - m_winStart, m_minVal));
 
+        p.setPen(corrbpmPen);
+        p.drawLine(QPointF(peak.corrPos - m_winStart, m_maxVal), QPointF(peak.corrPos - m_winStart, m_minVal));
     }
 }
 

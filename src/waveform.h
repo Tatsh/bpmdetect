@@ -39,12 +39,18 @@ public:
     void setLength(float secs);
     /// Set size of one buffer used to calculate one value
     void setBufferSize(unsigned long bufsize = 512);
+    /// Average values will be used instead of max ones if @a avg is true
     void setAverage(bool avg);
-    /// update should be called allways with the same number of samples (size)
+    /// Update should be called allways with the same number of samples (size)
     void update(const SAMPLE* buffer, unsigned long size, bool beat = false, int beatOffset = 0);
     void update(const float* buffer, unsigned long size);
     
+    /// @return maximum value of the waveform
     float getMaxValue();
+    /// @return minimum waveform value
+    float getMinValue();
+    /// @return average of all waveform values
+    float getAverageValue();
 
 protected:
     /// Return pointer to array of values (use numValues to get size)

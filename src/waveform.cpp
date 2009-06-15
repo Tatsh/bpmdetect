@@ -116,13 +116,30 @@ void Waveform::update(const float* buffer, unsigned long size) {
 }
 
 float Waveform::getMaxValue() {
-    float max = 1;
-
+    float max = 0.1;
     for(unsigned long i = 0; i < size(); ++i) {
         if(m_pWaveformBuffer[i] > max) max = m_pWaveformBuffer[i];
     }
-    
+
     return max;
+}
+
+float Waveform::getMinValue() {
+    float min = m_pWaveformBuffer[0];
+    for(unsigned long i = 0; i < size(); ++i) {
+        if(m_pWaveformBuffer[i] < min) min = m_pWaveformBuffer[i];
+    }
+
+    return min;
+}
+
+float Waveform::getAverageValue() {
+    float avg = 0;
+    for(unsigned long i = 0; i < size(); ++i) {
+        avg += m_pWaveformBuffer[i];
+    }
+
+    return avg / (float)size();
 }
 
 void Waveform::addValue(float val, bool beat, int beatOffset) {
