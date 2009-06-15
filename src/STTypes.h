@@ -8,10 +8,10 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Last changed  : $Date: 2006/02/05 16:44:06 $
-// File revision : $Revision: 1.16 $
+// Last changed  : $Date$
+// File revision : $Revision: 3 $
 //
-// $Id: STTypes.h,v 1.16 2006/02/05 16:44:06 Olli Exp $
+// $Id$
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -51,6 +51,7 @@ typedef unsigned long   ulong;
     // if these aren't defined already by Windows headers, define now
 
     typedef int BOOL;
+
 #if defined(FALSE) || defined(TRUE)
     #undef FALSE
     #undef TRUE
@@ -64,10 +65,11 @@ typedef unsigned long   ulong;
 
 namespace soundtouch
 {
+
 /// Activate these undef's to overrule the possible sampletype 
 /// setting inherited from some other header file:
-#undef INTEGER_SAMPLES
-#undef FLOAT_SAMPLES
+//#undef INTEGER_SAMPLES
+//#undef FLOAT_SAMPLES
 
 #if !(INTEGER_SAMPLES || FLOAT_SAMPLES)
    
@@ -90,14 +92,16 @@ namespace soundtouch
  
  #endif
 
-    /// Define this to allow CPU-specific assembler optimizations. Notice that 
-    /// having this enabled on non-x86 platforms doesn't matter; the compiler can 
-    /// drop unsupported extensions on different platforms automatically. 
-    /// However, if you're having difficulties getting the optimized routines 
-    /// compiled with your compler (e.g. some gcc compiler versions may be picky), 
-    /// you may wish to disable the optimizations to make the library compile.
-    #define ALLOW_OPTIMIZATIONS     1
+    #if (WIN32 || __i386__ || __x86_64__)
+        /// Define this to allow X86-specific assembler/intrinsic optimizations. 
+        /// Notice that library contains also usual C++ versions of each of these
+        /// these routines, so if you're having difficulties getting the optimized 
+        /// routines compiled for whatever reason, you may disable these optimizations 
+        /// to make the library compile.
 
+        #define ALLOW_X86_OPTIMIZATIONS     1
+
+    #endif
 
     // If defined, allows the SIMD-optimized routines to take minor shortcuts 
     // for improved performance. Undefine to require faithfully similar SIMD 
@@ -116,11 +120,9 @@ namespace soundtouch
             #error "conflicting sample types defined"
         #endif // FLOAT_SAMPLES
 
-        #ifdef ALLOW_OPTIMIZATIONS
-            #if (WIN32 || __i386__ || __x86_64__)
-                // Allow MMX optimizations
-                #define ALLOW_MMX   1
-            #endif
+        #ifdef ALLOW_X86_OPTIMIZATIONS
+            // Allow MMX optimizations
+            #define ALLOW_MMX   1
         #endif
 
     #else
@@ -130,18 +132,23 @@ namespace soundtouch
         // data type for sample accumulation: Use double to utilize full precision.
         typedef double LONG_SAMPLETYPE;
 
-        #ifdef ALLOW_OPTIMIZATIONS
+        #ifdef ALLOW_X86_OPTIMIZATIONS
                 // Allow 3DNow! and SSE optimizations
             #if WIN32
                 #define ALLOW_3DNOW     1
             #endif
 
-            #if (WIN32 || __i386__ || __x86_64__)
-                #define ALLOW_SSE       1
-            #endif
+            #define ALLOW_SSE       1
         #endif
 
     #endif  // INTEGER_SAMPLES
 };
+
+
+// When this #define is active, eliminates a clicking sound when the "rate" or "pitch" 
+// parameter setting crosses from value <1 to >=1 or vice versa during processing. 
+// Default is off as such crossover is untypical case and involves a slight sound 
+// quality compromise.
+//#define PREVENT_CLICK_AT_RATE_CROSSOVER   1
 
 #endif

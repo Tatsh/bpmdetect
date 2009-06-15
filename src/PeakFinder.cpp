@@ -11,10 +11,10 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Last changed  : $Date: 2006/02/05 16:44:07 $
-// File revision : $Revision: 1.3 $
+// Last changed  : $Date$
+// File revision : $Revision: 4 $
 //
-// $Id: PeakFinder.cpp,v 1.3 2006/02/05 16:44:07 Olli Exp $
+// $Id$
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -44,9 +44,14 @@
 
 #include "PeakFinder.h"
 
+using namespace soundtouch;
+
+#define max(x, y) (((x) > (y)) ? (x) : (y))
+
 
 PeakFinder::PeakFinder()
 {
+    minPos = maxPos = 0;
 }
 
 
@@ -123,7 +128,7 @@ int PeakFinder::findCrossingLevel(const float *data, float level, int peakpos, i
 
 
 // Calculates the center of mass location of 'data' array items between 'firstPos' and 'lastPos'
-float PeakFinder::calcMassCenter(const float *data, int firstPos, int lastPos) const
+double PeakFinder::calcMassCenter(const float *data, int firstPos, int lastPos) const
 {
     int i;
     float sum;
@@ -136,42 +141,28 @@ float PeakFinder::calcMassCenter(const float *data, int firstPos, int lastPos) c
         sum += (float)i * data[i];
         wsum += data[i];
     }
+
+    if (wsum < 1e-6) return 0;
     return sum / wsum;
 }
 
 
-float PeakFinder::detectPeak(const float *data, int minPos, int maxPos) 
-{
-    #define max(x, y) (((x) > (y)) ? (x) : (y))
 
-    int i;
-    int peakpos;                // position of peak level
+/// get exact center of peak near given position by calculating local mass of center
+double PeakFinder::getPeakCenter(const float *data, int peakpos) const
+{
     float peakLevel;            // peak level
     int crosspos1, crosspos2;   // position where the peak 'hump' crosses cutting level
     float cutLevel;             // cutting value
     float groundLevel;          // ground level of the peak
     int gp1, gp2;               // bottom positions of the peak 'hump'
 
-    this->minPos = minPos;
-    this->maxPos = maxPos;
-
-    // find absolute peak
-    peakpos = minPos;
-    peakLevel = data[minPos];
-    for (i = minPos + 1; i < maxPos; i ++)
-    {
-        if (data[i] > peakLevel) 
-        {
-            peakLevel = data[i];
-            peakpos = i;
-        }
-    }
-    
     // find ground positions.
     gp1 = findGround(data, peakpos, -1);
     gp2 = findGround(data, peakpos, 1);
 
     groundLevel = max(data[gp1], data[gp2]);
+    peakLevel = data[peakpos];
 
     if (groundLevel < 1e-6) return 0;                // ground level too small => detection failed
     if ((peakLevel / groundLevel) < 1.3) return 0;   // peak less than 30% of the ground level => no good peak detected
@@ -186,6 +177,63 @@ float PeakFinder::detectPeak(const float *data, int minPos, int maxPos)
 
     // calculate mass center of the peak surroundings
     return calcMassCenter(data, crosspos1, crosspos2);
+}
+
+
+
+double PeakFinder::detectPeak(const float *data, int aminPos, int amaxPos) 
+{
+
+    int i;
+    int peakpos;                // position of peak level
+    double highPeak, peak;
+
+    this->minPos = aminPos;
+    this->maxPos = amaxPos;
+
+    // find absolute peak
+    peakpos = minPos;
+    peak = data[minPos];
+    for (i = minPos + 1; i < maxPos; i ++)
+    {
+        if (data[i] > peak) 
+        {
+            peak = data[i];
+            peakpos = i;
+        }
+    }
+    
+    // Calculate exact location of the highest peak mass center
+    highPeak = getPeakCenter(data, peakpos);
+    peak = highPeak;
+
+    // Now check if the highest peak were in fact harmonic of the true base beat peak 
+    // - sometimes the highest peak can be Nth harmonic of the true base peak yet 
+    // just a slightly higher than the true base
+    for (i = 2; i < 10; i ++)
+    {
+        double peaktmp, tmp;
+        int i1,i2;
+
+        peakpos = (int)(highPeak / (double)i + 0.5f);
+        if (peakpos < minPos) break;
+
+        // calculate mass-center of possible base peak
+        peaktmp = getPeakCenter(data, peakpos);
+
+        // now compare to highest detected peak
+        i1 = (int)(highPeak + 0.5);
+        i2 = (int)(peaktmp + 0.5);
+        tmp = 2 * (data[i2] - data[i1]) / (data[i2] + data[i1]);
+        if (fabs(tmp) < 0.1)
+        {
+            // The highest peak is harmonic of almost as high base peak,
+            // thus use the base peak instead
+            peak = peaktmp;
+        }
+    }
+
+    return peak;
 }
 
 
