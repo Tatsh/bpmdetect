@@ -100,6 +100,8 @@ bool TrackFMOD::initFMODSystem() {
         return false;
     }
 
+    FMOD_System_SetOutput(m_system, FMOD_OUTPUTTYPE_NOSOUND);
+
     // init system
     result = FMOD_System_Init( m_system, 1, FMOD_INIT_NORMAL, 0 );
     if ( result == FMOD_OK ) {
