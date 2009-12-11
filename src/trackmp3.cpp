@@ -167,6 +167,9 @@ void TrackMp3::close() {
     fptr = NULL;
     m_iCurPosPCM = 0;
     clearFrameList();
+    delete inputbuf;
+    inputbuf_len = 0;
+    inputbuf = 0;
     setOpened(false);
 }
 

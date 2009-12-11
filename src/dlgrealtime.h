@@ -25,6 +25,7 @@
 
 #include <QList>
 #include <QDialog>
+#include <QTimer>
 #include "ui_dlgrealtimedlg.h"
 
 class AudioAnalyzer;
@@ -57,6 +58,7 @@ private:
     AudioAnalyzer* m_pAnalyzer;
     BPMCounter* m_pCounter, *m_pAutoCounter;
     Metronome* m_pMetronome;
+    QTimer* m_timer;
 };
 
 #endif

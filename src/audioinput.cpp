@@ -65,6 +65,7 @@ void AudioInput::start(AudioAnalyzer* pAnalyzer) {
 void AudioInput::stop() {
     if(!m_pStream) return;
 
+    Pa_AbortStream(m_pStream);
     Pa_CloseStream(m_pStream);
     m_pStream = 0;
 }

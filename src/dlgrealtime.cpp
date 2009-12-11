@@ -50,7 +50,9 @@ DlgRealtime::DlgRealtime(QWidget *parent) : QDialog(parent) {
         beatDisplay->addBeatDetector(m_pAnalyzer->beatDetector(i));
     }
 
-    connect(m_pAnalyzer, SIGNAL(updated()), this, SLOT(slotUpdate()));
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(slotUpdate()));
+    m_timer->start(30);
     connect(m_pAnalyzer, SIGNAL(beat(bool)), this, SLOT(slotShowBeat(bool)));
     
     connect(btnReset, SIGNAL(clicked()), this, SLOT(slotResetCounter()));
@@ -65,6 +67,7 @@ DlgRealtime::~DlgRealtime() {
     if(m_pCounter) delete m_pCounter;
     if(m_pAutoCounter) delete m_pAutoCounter;
     if(m_pMetronome) delete m_pMetronome;
+    delete m_timer;
 }
 
 void DlgRealtime::slotUpdateVuMeters(int val) {
