@@ -88,7 +88,7 @@ dlgbpmdetect.cpp
 """
 
 bpmdetect_ui="""
-dlgbpmdetectdlg.ui
+dlgbpmdetect.ui
 """
 
 bpmdetect_res = """

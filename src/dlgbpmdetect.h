@@ -30,7 +30,7 @@
 #include <BPMDetect.h>
 #include <iostream>
 
-#include "ui_dlgbpmdetectdlg.h"
+#include "ui_dlgbpmdetect.h"
 #include "trackproxy.h"
 
 class Q3PopupMenu;
@@ -39,7 +39,7 @@ class Q3ListViewItem;
 using namespace std;
 using namespace soundtouch;
 
-class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetectDlg {
+class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetect {
     Q_OBJECT
 public:
     DlgBPMDetect( QWidget* parent = 0 );
@@ -85,6 +85,7 @@ protected slots:
 
 
 private:
+    QProgressBar* m_pProgress;
     QMenu* m_pListMenu;
     QTreeWidgetItem* m_pCurItem;
     int m_iCurTrackIdx;  // for total progress

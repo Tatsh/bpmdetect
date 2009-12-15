@@ -1,7 +1,8 @@
-<ui version="4.0" >
- <class>DlgBPMDetectDlg</class>
- <widget class="QWidget" name="DlgBPMDetectDlg" >
-  <property name="geometry" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgBPMDetect</class>
+ <widget class="QWidget" name="DlgBPMDetect">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,198 +10,189 @@
     <height>400</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="minimumSize" >
+  <property name="minimumSize">
    <size>
     <width>700</width>
     <height>400</height>
    </size>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>BPM Detect</string>
   </property>
-  <layout class="QGridLayout" >
-   <property name="leftMargin" >
+  <layout class="QGridLayout">
+   <property name="margin">
     <number>5</number>
    </property>
-   <property name="topMargin" >
-    <number>5</number>
-   </property>
-   <property name="rightMargin" >
-    <number>5</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>5</number>
-   </property>
-   <item row="0" column="0" >
-    <layout class="QHBoxLayout" >
+   <item row="0" column="0">
+    <layout class="QHBoxLayout">
      <item>
-      <widget class="QPushButton" name="btnAddFiles" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QPushButton" name="btnAddFiles">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>0</height>
         </size>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Add &amp;files</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+F</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnAddDir" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QPushButton" name="btnAddDir">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>0</height>
         </size>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Add director&amp;y</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+Y</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnRemoveSelected" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QPushButton" name="btnRemoveSelected">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>0</height>
         </size>
        </property>
-       <property name="toolTip" >
+       <property name="toolTip">
         <string>Remove selected tracks</string>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>&amp;Remove</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+R</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnClearList" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QPushButton" name="btnClearList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>0</height>
         </size>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Cl&amp;ear list</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+E</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblFormat" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+      <widget class="QLabel" name="lblFormat">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>BPM tag format:</string>
        </property>
-       <property name="alignment" >
+       <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
-       <property name="wordWrap" >
+       <property name="wordWrap">
         <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="cbFormat" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QComboBox" name="cbFormat">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>100</width>
          <height>0</height>
         </size>
        </property>
-       <property name="maximumSize" >
+       <property name="maximumSize">
         <size>
          <width>100</width>
          <height>32767</height>
         </size>
        </property>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>0.00</string>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>0.0</string>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>0</string>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>000.00</string>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>000.0</string>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>000</string>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>00000</string>
         </property>
        </item>
@@ -208,99 +200,80 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" >
-    <widget class="QDropListView" name="TrackList" >
-     <property name="contextMenuPolicy" >
+   <item row="1" column="0">
+    <widget class="QDropListView" name="TrackList">
+     <property name="contextMenuPolicy">
       <enum>Qt::CustomContextMenu</enum>
      </property>
-     <property name="acceptDrops" >
+     <property name="acceptDrops">
       <bool>true</bool>
      </property>
-     <property name="selectionMode" >
+     <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
-     <property name="rootIsDecorated" >
+     <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
-     <property name="itemsExpandable" >
+     <property name="itemsExpandable">
       <bool>false</bool>
      </property>
-     <property name="sortingEnabled" >
+     <property name="sortingEnabled">
       <bool>true</bool>
      </property>
-     <property name="allColumnsShowFocus" >
+     <property name="allColumnsShowFocus">
       <bool>true</bool>
      </property>
-     <property name="columnCount" >
+     <property name="columnCount">
       <number>0</number>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" >
-    <widget class="QGroupBox" name="grpProgress" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="grpProgress">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="title" >
+     <property name="title">
       <string>Progress</string>
      </property>
-     <layout class="QVBoxLayout" >
-      <property name="spacing" >
+     <layout class="QVBoxLayout">
+      <property name="spacing">
        <number>2</number>
       </property>
-      <property name="leftMargin" >
-       <number>2</number>
-      </property>
-      <property name="topMargin" >
-       <number>2</number>
-      </property>
-      <property name="rightMargin" >
-       <number>2</number>
-      </property>
-      <property name="bottomMargin" >
+      <property name="margin">
        <number>2</number>
       </property>
       <item>
-       <widget class="QLabel" name="lblCurrentTrack" >
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
+       <widget class="QLabel" name="lblCurrentTrack">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize" >
+        <property name="maximumSize">
          <size>
           <width>570</width>
           <height>32767</height>
          </size>
         </property>
-        <property name="toolTip" >
+        <property name="toolTip">
          <string>Current track</string>
         </property>
-        <property name="text" >
+        <property name="text">
          <string/>
         </property>
-        <property name="wordWrap" >
+        <property name="wordWrap">
          <bool>false</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QProgressBar" name="CurrentProgress" >
-        <property name="maximum" >
-         <number>1000</number>
-        </property>
-        <property name="value" >
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QProgressBar" name="TotalProgress" >
-        <property name="value" >
+       <widget class="QProgressBar" name="TotalProgress">
+        <property name="value">
          <number>0</number>
         </property>
        </widget>
@@ -308,91 +281,91 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0" >
-    <layout class="QHBoxLayout" >
+   <item row="3" column="0">
+    <layout class="QHBoxLayout">
      <item>
-      <widget class="QPushButton" name="btnAbout" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QPushButton" name="btnAbout">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>90</width>
          <height>0</height>
         </size>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>&amp;About</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+A</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblMin" >
-       <property name="text" >
+      <widget class="QLabel" name="lblMin">
+       <property name="text">
         <string>Min:</string>
        </property>
-       <property name="wordWrap" >
+       <property name="wordWrap">
         <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="spMin" >
-       <property name="toolTip" >
+      <widget class="QSpinBox" name="spMin">
+       <property name="toolTip">
         <string>Minimum BPM</string>
        </property>
-       <property name="minimum" >
+       <property name="minimum">
         <number>50</number>
        </property>
-       <property name="maximum" >
+       <property name="maximum">
         <number>120</number>
        </property>
-       <property name="value" >
+       <property name="value">
         <number>80</number>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lblMax" >
-       <property name="text" >
+      <widget class="QLabel" name="lblMax">
+       <property name="text">
         <string>Max:</string>
        </property>
-       <property name="wordWrap" >
+       <property name="wordWrap">
         <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="spMax" >
-       <property name="toolTip" >
+      <widget class="QSpinBox" name="spMax">
+       <property name="toolTip">
         <string>Maximum BPM</string>
        </property>
-       <property name="minimum" >
+       <property name="minimum">
         <number>130</number>
        </property>
-       <property name="maximum" >
+       <property name="maximum">
         <number>220</number>
        </property>
-       <property name="value" >
+       <property name="value">
         <number>185</number>
        </property>
       </widget>
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType" >
+       <property name="sizeType">
         <enum>QSizePolicy::Expanding</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
          <height>21</height>
@@ -401,85 +374,85 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="chbSkipScanned" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QCheckBox" name="chbSkipScanned">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>150</width>
          <height>0</height>
         </size>
        </property>
-       <property name="toolTip" >
+       <property name="toolTip">
         <string>Do not redetect BPM</string>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>S&amp;kip scanned tracks</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+K</string>
        </property>
-       <property name="checked" >
+       <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="chbSave" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QCheckBox" name="chbSave">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>75</width>
          <height>0</height>
         </size>
        </property>
-       <property name="toolTip" >
+       <property name="toolTip">
         <string>Save BPM to tag</string>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>Sa&amp;ve</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+V</string>
        </property>
-       <property name="checked" >
+       <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnStart" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+      <widget class="QPushButton" name="btnStart">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize" >
+       <property name="minimumSize">
         <size>
          <width>90</width>
          <height>0</height>
         </size>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>St&amp;art</string>
        </property>
-       <property name="shortcut" >
+       <property name="shortcut">
         <string>Alt+A</string>
        </property>
-       <property name="autoDefault" >
+       <property name="autoDefault">
         <bool>true</bool>
        </property>
-       <property name="default" >
+       <property name="default">
         <bool>true</bool>
        </property>
       </widget>
@@ -488,7 +461,7 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
+ <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>QDropListView</class>
@@ -497,23 +470,23 @@
   </customwidget>
  </customwidgets>
  <includes>
-  <include location="local" >qdroplistview.h</include>
+  <include location="local">qdroplistview.h</include>
  </includes>
  <resources>
-  <include location="resource.qrc" />
+  <include location="resource.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>btnAddFiles</sender>
    <signal>clicked()</signal>
-   <receiver>DlgBPMDetectDlg</receiver>
+   <receiver>DlgBPMDetect</receiver>
    <slot>slotAddFiles()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -522,14 +495,14 @@
   <connection>
    <sender>btnAddDir</sender>
    <signal>clicked()</signal>
-   <receiver>DlgBPMDetectDlg</receiver>
+   <receiver>DlgBPMDetect</receiver>
    <slot>slotAddDir()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -538,14 +511,14 @@
   <connection>
    <sender>btnRemoveSelected</sender>
    <signal>clicked()</signal>
-   <receiver>DlgBPMDetectDlg</receiver>
+   <receiver>DlgBPMDetect</receiver>
    <slot>slotRemoveSelected()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -554,14 +527,14 @@
   <connection>
    <sender>btnAbout</sender>
    <signal>clicked()</signal>
-   <receiver>DlgBPMDetectDlg</receiver>
+   <receiver>DlgBPMDetect</receiver>
    <slot>slotShowAbout()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>
@@ -570,14 +543,14 @@
   <connection>
    <sender>btnClearList</sender>
    <signal>clicked()</signal>
-   <receiver>DlgBPMDetectDlg</receiver>
+   <receiver>DlgBPMDetect</receiver>
    <slot>slotClearTrackList()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>20</x>
      <y>20</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
     </hint>

@@ -33,14 +33,16 @@
 
 #include "images.h"
 
+#define PROGRESSCOLUMN 4
+
 extern const char* version;
 
-DlgBPMDetect::DlgBPMDetect( QWidget* parent )
-        : QWidget( parent ) {
+DlgBPMDetect::DlgBPMDetect( QWidget* parent ) : QWidget( parent ) {
     setupUi(this);
     setStarted(false);
     m_pCurItem = 0;
     m_iCurTrackIdx = 0;
+    m_pProgress = 0;
 
     QImage img;
     img.loadFromData(icon_png, sizeof(icon_png), "PNG");
@@ -70,16 +72,18 @@ DlgBPMDetect::DlgBPMDetect( QWidget* parent )
 #else
     chbSave->setEnabled(false);
 #endif
+
     /// Add columns to TrackList
     QStringList hlabels;
-    hlabels << "BPM" << "Artist" << "Title" << "Length" << "Filename";
+    hlabels << "BPM" << "Artist" << "Title" << "Length" << "Progress" << "Filename";
     TrackList->setHeaderLabels(hlabels);
 
     TrackList->setColumnWidth(0, 60);
     TrackList->setColumnWidth(1, 200);
     TrackList->setColumnWidth(2, 200);
     TrackList->setColumnWidth(3, 60);
-    TrackList->setColumnWidth(4, 400);
+    TrackList->setColumnWidth(4, 100);
+    TrackList->setColumnWidth(5, 400);
 
     /// Connect signals with slots
     connect(TrackList, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -155,7 +159,6 @@ void DlgBPMDetect::enableControls(bool enable) {
         TrackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
         TrackList->setSortingEnabled(true);
         TotalProgress->setValue( 0 );
-        CurrentProgress->setValue( 0 );
     } else {
         btnStart->setText( "Stop" );
         TrackList->setSortingEnabled(false);
@@ -183,9 +186,9 @@ void DlgBPMDetect::slotStart() {
 
     TotalProgress->setMaximum( TrackList->topLevelItemCount() * 100 );
     TotalProgress->setValue(0);
-    CurrentProgress->setMaximum(1000);
     m_pTrack->setMinBPM(spMin->value());
     m_pTrack->setMaxBPM(spMax->value());
+    
     slotDetectNext();
 }
 
@@ -200,22 +203,28 @@ void DlgBPMDetect::slotStop() {
 /// @param skipped true if previous track was skipped, so BPM won't be saved
 void DlgBPMDetect::slotDetectNext(bool skipped) {
     if (!m_pCurItem) {
+        // No previous item, get the first item and start
         m_pCurItem = TrackList->topLevelItem(0);
     } else {
         if (!skipped) {
+            // display and save BPM
             m_pCurItem->setText(0, QString::fromStdString(m_pTrack->strBPM("000.00")));
             if ( chbSave->isChecked() )
                 m_pTrack->setFormat(cbFormat->currentText().toStdString());
             if (chbSave->isChecked()) m_pTrack->saveBPM();
         }
         if (m_pCurItem) {
+            // next TrackList item
             int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
+            TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, 0);
+            m_pProgress = 0;
             if (curidx >= 0) m_pCurItem = TrackList->topLevelItem(1+curidx);
             else m_pCurItem = 0;
         }
     }
 
     if (!m_pCurItem) {
+        // no next item, stop
         slotStop();
         return;
     }
@@ -225,7 +234,6 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
         TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
     else
         TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
-
     m_pCurItem->setSelected(true);
 
     QString file = m_pCurItem->text( TrackList->columnCount() - 1 );
@@ -233,26 +241,33 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
     double BPM = m_pCurItem->text(0).toDouble();
     TotalProgress->setValue( 100 * m_iCurTrackIdx++ );
     if (chbSkipScanned->isChecked() && BPM > 0) {
+        // BPM is not zero, skip this item
         slotDetectNext(true);
         return;
     }
 
+    // start detection for current item
+    m_pProgress = new QProgressBar(this);
+    m_pProgress->setTextVisible(false);
+    m_pProgress->setMaximum(1000);
+    m_pProgress->setMaximumHeight(10);
+    TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, m_pProgress);
     m_pTrack->setFilename(file.toLocal8Bit());
     m_pTrack->setRedetect(!chbSkipScanned->isChecked());
     m_pTrack->startDetection();
 }
 
 void DlgBPMDetect::slotTimerDone() {
-    CurrentProgress->setValue((int) (10 * m_pTrack->progress()));
+    if(m_pProgress) m_pProgress->setValue((int) (10* m_pTrack->progress()));
     TotalProgress->setValue(100*(m_iCurTrackIdx-1) + (int) m_pTrack->progress());
     if (getStarted() && m_pTrack->isFinished()) {
+        TotalProgress->setValue(100*(m_iCurTrackIdx) + (int) m_pTrack->progress());
         slotDetectNext();
     }
 }
 
 void DlgBPMDetect::slotAddFiles( QStringList &files ) {
     if (!getStarted() && files.size()) {
-        CurrentProgress->setMaximum(0);
         TotalProgress->setMaximum(files.size());
     }
     for ( int i = 0; i < files.size(); ++i ) {
@@ -262,6 +277,7 @@ void DlgBPMDetect::slotAddFiles( QStringList &files ) {
         columns << QString::fromLocal8Bit(track.artist().c_str());
         columns << QString::fromLocal8Bit(track.title().c_str());
         columns << QString::fromLocal8Bit(track.strLength().c_str());
+        columns << "";
         columns << files.at(i);
         if (!getStarted()) {
             lblCurrentTrack->setText("Adding " + files.at(i));
@@ -275,8 +291,6 @@ void DlgBPMDetect::slotAddFiles( QStringList &files ) {
         int itemcount = TrackList->topLevelItemCount();
         if (itemcount) TotalProgress->setMaximum( itemcount * 100 );
         else TotalProgress->setMaximum(100);
-        CurrentProgress->setMaximum(1000);
-        CurrentProgress->reset();
         TotalProgress->reset();
         TotalProgress->setValue(0);
     }
