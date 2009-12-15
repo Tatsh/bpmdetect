@@ -250,7 +250,7 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
     m_pProgress = new QProgressBar(this);
     m_pProgress->setTextVisible(false);
     m_pProgress->setMaximum(1000);
-    m_pProgress->setMaximumHeight(10);
+    m_pProgress->setMaximumHeight(15);
     TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, m_pProgress);
     m_pTrack->setFilename(file.toLocal8Bit());
     m_pTrack->setRedetect(!chbSkipScanned->isChecked());
