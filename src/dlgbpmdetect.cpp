@@ -23,6 +23,8 @@
 #include <QtCore>
 #include <QtGui>
 #include <QCursor>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include "qdroplistview.h"
 
@@ -188,7 +190,7 @@ void DlgBPMDetect::slotStart() {
     TotalProgress->setValue(0);
     m_pTrack->setMinBPM(spMin->value());
     m_pTrack->setMaxBPM(spMax->value());
-    
+
     slotDetectNext();
 }
 
