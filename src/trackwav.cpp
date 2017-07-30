@@ -361,7 +361,8 @@ void TrackWav::removeBPM() {
 
 
 int TrackWav::readRIFFBlock() {
-    fread(&(header.riff), sizeof(WavRiff), 1, fptr);
+    size_t read = fread(&(header.riff), sizeof(WavRiff), 1, fptr);
+    assert(read > 0);
 
     // swap 32bit data byte order if necessary
     _swap32((unsigned int &)header.riff.package_len);
@@ -379,7 +380,8 @@ int TrackWav::readHeaderBlock() {
     string sLabel;
 
     // lead label string
-    fread(label, 1, 4, fptr);
+    size_t read = fread(label, 1, 4, fptr);
+    assert(read > 0);
     label[4] = 0;
 
     if (isAlphaStr(label) == 0) return -1;    // not a valid label
@@ -392,7 +394,8 @@ int TrackWav::readHeaderBlock() {
         memcpy(header.format.fmt, fmtStr, 4);
 
         // read length of the format field
-        fread(&nLen, sizeof(int), 1, fptr);
+        size_t read = fread(&nLen, sizeof(int), 1, fptr);
+        assert(read > 0);
         // swap byte order if necessary
         _swap32((unsigned int &)nLen); // int format_len;
         header.format.format_len = nLen;
@@ -406,7 +409,8 @@ int TrackWav::readHeaderBlock() {
         }
 
         // read data
-        fread(&(header.format.fixed), nLen, 1, fptr);
+        read = fread(&(header.format.fixed), nLen, 1, fptr);
+        assert(read > 0);
 
         // swap byte order if necessary
         _swap16((unsigned short &)header.format.fixed);            // short int fixed;
@@ -425,7 +429,8 @@ int TrackWav::readHeaderBlock() {
     } else if (strcmp(label, dataStr) == 0) {
         // 'data' block
         memcpy(header.data.data_field, dataStr, 4);
-        fread(&(header.data.data_len), sizeof(uint), 1, fptr);
+        read = fread(&(header.data.data_len), sizeof(uint), 1, fptr);
+        assert(read > 0);
 
         // swap byte order if necessary
         _swap32((unsigned int &)header.data.data_len);
@@ -437,10 +442,12 @@ int TrackWav::readHeaderBlock() {
         // unknown block
 
         // read length
-        fread(&len, sizeof(len), 1, fptr);
+        read = fread(&len, sizeof(len), 1, fptr);
+        assert(read > 0);
         // scan through the block
         for (i = 0; i < len; i ++) {
-            fread(&temp, 1, 1, fptr);
+            read = fread(&temp, 1, 1, fptr);
+            assert(read > 0);
             if (feof(fptr)) return -1;   // unexpected eof
         }
     }

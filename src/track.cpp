@@ -119,7 +119,7 @@ string Track::bpm2str( double dBPM, string format ) {
     } else if ( format == "000" ) {
         snprintf(buffer, BPM_LEN, "%03d", (int) dBPM );
     } else if ( format == "00000" ) {
-        snprintf(buffer, BPM_LEN, "%05d", (int) dBPM * 100. );
+        snprintf(buffer, BPM_LEN, "%05d", (int) dBPM * 100 );
     } else { // all other formats are converted to "0.00"
         snprintf(buffer, BPM_LEN, "%.2f", dBPM );
     }
