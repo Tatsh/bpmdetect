@@ -177,17 +177,7 @@ def check_taglib(env):
     env.Append(LIBS = ['tag', 'z'])
     env.Append(LIBPATH = taglibpath)
   else:
-    taglibpath = '../libs'
-    tagincludes = '../includes/taglib'
-    # TODO: check lib with header
-    if 1:
-      env.Append(CPPDEFINES = ['HAVE_TAGLIB'])
-      env.Append(CPPPATH = tagincludes)
-      env.Append(LIBS = ['tag', 'z'])
-      env.Append(LIBPATH = taglibpath)
-      print BLUE+'OK'+NORMAL
-    else:
-      print RED+"not found"+NORMAL
+    print RED+"not found"+NORMAL
 
 def configure(env):
   # unset existing variables
@@ -301,8 +291,8 @@ def configure(env):
   else:
       env['TAGLIB'] = 0
 
-  env.Append(CPPPATH = ['.', '..', '../includes'])
-  _libs = ['.', '../libs']
+  env.Append(CPPPATH = ['.', '..'])
+  _libs = ['.']
   if os.path.isdir('/opt/fmodex/api/lib'):
     _libs.append('/opt/fmodex/api/lib')
   env.Append(LIBPATH = _libs)
