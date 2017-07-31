@@ -156,7 +156,7 @@ def check_taglib(env):
   tagprefix = ''
   if env['PKGCONFIG']:
     tagprefix = os.popen("pkg-config --variable=prefix taglib").read().strip()
-  
+
   print "Checking for taglib               : ",
   if len(tagprefix) and env['PKGCONFIG']:
     tagver = os.popen("pkg-config --modversion taglib").read().strip()
@@ -260,6 +260,9 @@ def configure(env):
     env.Append(CPPDEFINES = ['NDEBUG', 'NO_DEBUG'])
     env['DEBUG'] = 0
 
+  # Required for Qt5
+  env.Append(CXXFLAGS = ' -std=c++11 -fPIC')
+
   check_pkgconfig(env)
 
   # User-specified prefix
@@ -299,7 +302,10 @@ def configure(env):
       env['TAGLIB'] = 0
 
   env.Append(CPPPATH = ['.', '..', '../includes'])
-  env.Append(LIBPATH = ['.', '../libs'])
+  _libs = ['.', '../libs']
+  if os.path.isdir('/opt/fmodex/api/lib'):
+    _libs.append('/opt/fmodex/api/lib')
+  env.Append(LIBPATH = _libs)
   conf = Configure(env)
 
   if not ARGUMENTS.get('mad', 0) and check_library(conf, 'mad', 'mad.h'):
@@ -307,25 +313,25 @@ def configure(env):
       env['MAD'] = 1
   else:
       env['MAD'] = 0
-  
+
   if not ARGUMENTS.get('vorbis', 0) and check_library(conf, 'vorbisfile', 'vorbis/vorbisfile.h'):
       env.Append(CPPDEFINES = ['HAVE_VORBISFILE'])
       env['VORBIS'] = 1
   else:
       env['VORBIS'] = 0
-  
+
   if not ARGUMENTS.get('flac', 0) and check_library(conf, 'FLAC', 'FLAC/stream_decoder.h'):
       env.Append(CPPDEFINES = ['HAVE_FLAC'])
       env['FLAC'] = 1
   else:
       env['FLAC'] = 0
-  
+
   if not ARGUMENTS.get('fmod', 0) and check_library(conf, 'fmodex', 'fmodex/fmod.h'):
       env.Append(CPPDEFINES = ['HAVE_FMOD'])
       env['FMOD'] = 1
   else:
       env['FMOD'] = 0
-  
+
   if int(ARGUMENTS.get('realtime', 0)) == 1:
       if check_library(conf, 'portaudio', 'portaudio.h'):
           env.Append(CPPDEFINES = ['HAVE_PORTAUDIO'])
@@ -439,8 +445,8 @@ else:
   if env.has_key('CONSOLEONLY') and env['CONSOLEONLY']:
     env.Append(CPPDEFINES = ['NO_GUI'])
   else:
-      env.Tool('qt4')
-      env.EnableQt4Modules(['QtCore', 'QtGui'], debug = False)
+      env.Tool('qt5')
+      env.EnableQt5Modules(['QtCore', 'QtGui', 'QtWidgets'], debug = False)
       bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
       if env.has_key('FMOD') and env['FMOD']:
             bpmdetect_sources = bpmdetect_sources + sources_fmodtest
@@ -450,9 +456,9 @@ else:
             #bpmdetect_ui = bpmdetect_ui + sources_realtime_ui
             realtime_sources = realtime_sources + sources_realtime_gui + sources_realtime
             for ui in sources_realtime_ui.split():
-                env.Uic4(ui)
+                env.Uic5(ui)
       for ui in bpmdetect_ui.split():
-          env.Uic4(ui)
+          env.Uic5(ui)
 
   # Add sources and print status
   if env.has_key('MAD') and env['MAD']:
