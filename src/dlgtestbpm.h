@@ -25,19 +25,15 @@
 
 #include <QDialog>
 #include <QAudioDecoder>
+#include <QAudioFormat>
 #include <QAudioOutput>
 #include <QIODevice>
 #include <QtCore/QLinkedList>
 #include <QThread>
 
-#if !defined(HAVE_FMOD)
-#error FMOD Ex is required for testing BPMs (HAVE_FMOD not defined)
-#endif
-
-#include "trackfmod.h"
-
 #include "ui_dlgtestbpmdlg.h"
 
+class AudioThread;
 class DlgTestBPM: public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT
 public:
@@ -63,49 +59,72 @@ protected slots:
 private:
     float m_bpm;            ///< BPM to test
     QList<float> m_bpmList; ///< list of possible BPMs
-    FMOD_SYSTEM  *system;   ///< FMOD sound system
-    FMOD_SOUND   *sound;    ///< FMOD sound object
-    FMOD_CHANNEL *channel;  ///< FMOD channel object
-
-    qint64 lengthMS;
-
+    qint64 lengthUS;
     QAudioDecoder *decoder;
     QAudioBuffer lastBuffer;
     QByteArray *buffer;
+    AudioThread *audioThread;
 };
 
 class AudioThread : public QThread {
     Q_OBJECT
     void run() {
-        char *data = mBuf->data();
-        qint64 dataRemaining = mBuf->size();
-        struct timespec ts = { 0, (10 % 1000) * 1000 * 1000 };
+        char *startptr, *data;
+        startptr = data = mBuf->data();
+        qint64 originalSize, dataRemaining;
 
-        QAudioOutput output(mFormat);
-        output.setBufferSize(512);
-        QIODevice *dev = output.start();
+        qint64 beatslen = (qint64)(((60000 * mBeatCount) / mBPM) * 1000);
+        qint32 bytesForBeats = mFormat.bytesForDuration(beatslen);
+
+        // FIXME Needs boundary checking
+        dataRemaining = originalSize = bytesForBeats * mBeatCount;
+        if (mPosUS) {
+            qint32 skipBytes = mFormat.bytesForDuration(mPosUS);
+            data += skipBytes;
+            startptr += skipBytes;
+        }
 
         while (dataRemaining) {
+            if (output->state() != QAudio::ActiveState && output->state() != QAudio::IdleState) {
+                break;
+            }
+
             qint64 bytesWritten = dev->write(data, dataRemaining);
             dataRemaining -= bytesWritten;
             data += bytesWritten;
-            nanosleep(&ts, NULL);
-        }
 
-        emit resultReady();
+            if (dataRemaining <= 0) {
+                data = startptr;
+                dataRemaining = originalSize;
+            }
+
+            usleep(10);
+        }
     }
 public:
-    AudioThread(QByteArray *buf, QAudioFormat format) {
+    AudioThread(QByteArray *buf, QAudioFormat format, float bpm, uint beatCount, qint64 posUS = 0) {
         mBuf = buf;
         mFormat = format;
-    }
+        mBPM = bpm;
+        mBeatCount = beatCount;
+        mPosUS = posUS;
 
-signals:
-    void resultReady();
+        output = new QAudioOutput(mFormat);
+        output->setBufferSize(512);
+        dev = output->start();
+    }
+    void stop() {
+        output->stop();
+    }
 
 private:
     QByteArray *mBuf;
     QAudioFormat mFormat;
+    float mBPM;
+    uint mBeatCount;
+    qint64 mPosUS;
+    QAudioOutput *output;
+    QIODevice *dev;
 };
 
 #endif // DLGTESTBPM_H

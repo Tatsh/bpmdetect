@@ -29,6 +29,11 @@ FIFOSampleBuffer.cpp
 track.cpp
 trackproxy.cpp
 trackwav.cpp
+dlgtestbpm.cpp
+"""
+
+sources_testbpm_ui="""
+dlgtestbpmdlg.ui
 """
 
 sources_mad="""
@@ -39,15 +44,6 @@ trackoggvorbis.cpp
 """
 sources_flac="""
 trackflac.cpp
-"""
-sources_fmod="""
-trackfmod.cpp
-"""
-sources_fmodtest="""
-dlgtestbpm.cpp
-"""
-ui_fmodtest="""
-dlgtestbpmdlg.ui
 """
 
 sources_realtime="""
@@ -107,7 +103,6 @@ def display_help():
 """+BOLD+"""* mad=0         """+NORMAL+""": disable MPEG audio decoder
 """+BOLD+"""* vorbis=0      """+NORMAL+""": disable vorbis decoder
 """+BOLD+"""* flac=0        """+NORMAL+""": disable FLAC decoder
-"""+BOLD+"""* fmod=0        """+NORMAL+""": do not use FMOD library (decoding/playing)
 """+BOLD+"""* taglib=0      """+NORMAL+""": do not use TagLib (reading/writing tags)
 """+BOLD+"""* realtime=1    """+NORMAL+""": enable realtime BPM (beat) detection (experimental)
 """+BOLD+"""* qtdir         """+NORMAL+""": where the QT is installed
@@ -213,8 +208,6 @@ def configure(env):
     env.__delitem__('VORBIS')
   if env.has_key('FLAC'):
     env.__delitem__('FLAC')
-  if env.has_key('FMOD'):
-    env.__delitem__('FMOD')
   if env.has_key('TAGLIB'):
     env.__delitem__('TAGLIB')
   if env.has_key('PORTAUDIO'):
@@ -293,8 +286,6 @@ def configure(env):
 
   env.Append(CPPPATH = ['.', '..'])
   _libs = ['.']
-  if os.path.isdir('/opt/fmodex/api/lib'):
-    _libs.append('/opt/fmodex/api/lib')
   env.Append(LIBPATH = _libs)
   conf = Configure(env)
 
@@ -315,12 +306,6 @@ def configure(env):
       env['FLAC'] = 1
   else:
       env['FLAC'] = 0
-
-  if not ARGUMENTS.get('fmod', 0) and check_library(conf, 'fmodex', 'fmodex/fmod.h'):
-      env.Append(CPPDEFINES = ['HAVE_FMOD'])
-      env['FMOD'] = 1
-  else:
-      env['FMOD'] = 0
 
   if int(ARGUMENTS.get('realtime', 0)) == 1:
       if check_library(conf, 'portaudio', 'portaudio.h'):
@@ -408,7 +393,6 @@ opts.AddOptions(
   ( 'MAD', 'MPEG audio decoder'),
   ( 'VORBIS', 'Ogg vorbis decoder (libvorbisfile)'),
   ( 'FLAC', 'FLAC decoder using libFLAC'),
-  ( 'FMOD', 'FMOD library for decoding and playing'),
   ( 'TAGLIB', 'TagLib for reading and writing tags'),
   ( 'REALTIME', 'Realtime BPM detection (from soundcard input) (Experimental)'),
 )
@@ -438,9 +422,6 @@ else:
       env.Tool('qt5')
       env.EnableQt5Modules(['QtCore', 'QtGui', 'QtWidgets', 'QtMultimedia'], debug = False)
       bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
-      if env.has_key('FMOD') and env['FMOD']:
-            bpmdetect_sources = bpmdetect_sources + sources_fmodtest
-            bpmdetect_ui = bpmdetect_ui + ui_fmodtest
       if env.has_key('REALTIME') and env['REALTIME']:
             #bpmdetect_sources = bpmdetect_sources + sources_realtime_gui
             #bpmdetect_ui = bpmdetect_ui + sources_realtime_ui
@@ -467,11 +448,6 @@ else:
       print 'FLAC                              :  ' + GREEN + 'Enabled' + NORMAL
   else:
       print 'FLAC                              :  ' + RED + 'Disabled' + NORMAL
-  if env.has_key('FMOD') and env['FMOD']:
-      bpmdetect_sources = bpmdetect_sources + sources_fmod
-      print 'FMOD Ex                           :  ' + GREEN + 'Enabled' + NORMAL
-  else:
-      print 'FMOD Ex                           :  ' + RED + 'Disabled' + NORMAL
 
   if env.has_key('TAGLIB') and env['TAGLIB']:
       print 'TagLib                            :  ' + GREEN + 'Enabled' + NORMAL

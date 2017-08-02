@@ -31,9 +31,6 @@
 #ifdef HAVE_FLAC
 #include "trackflac.h"
 #endif
-#ifdef HAVE_FMOD
-#include "trackfmod.h"
-#endif
 
 #include <iostream>
 #include <cstring>
@@ -78,10 +75,6 @@ Track* TrackProxy::createTrack( const char* filename, bool readtags ) {
     }
 #endif
 
-#ifdef HAVE_FMOD
-    // Use TrackFMOD for other file types
-    return new TrackFMOD(filename, readtags);
-#endif
     return 0;
 }
 

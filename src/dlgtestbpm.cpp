@@ -33,8 +33,7 @@
 
 #include "dlgtestbpm.h"
 #include "progressbar.h"
-
-#include <fmodex/fmod_errors.h>
+#include "track.h"
 
 using namespace std;
 
@@ -45,8 +44,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
         close();
     }
 
-    channel = NULL;
-
+    m_bpm = bpm;
     buffer = new QByteArray();
 
     decoder = new QAudioDecoder();
@@ -57,48 +55,24 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     connect(decoder, SIGNAL(error(QAudioDecoder::Error)), this, SLOT(decoderError(QAudioDecoder::Error)));
     connect(decoder, SIGNAL(finished()), this, SLOT(finishedDecoding()));
 
-
-
-//     FMOD_RESULT result;
-//     system = TrackFMOD::getFMODSystem();
-//     channel = 0;
-//     sound = 0;
-//
-    m_bpm = bpm;
     lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));
-//
-//     if (!system) close();
-//
-//     result = FMOD_System_CreateStream( system, file.toLocal8Bit(),
-//                                        FMOD_SOFTWARE | FMOD_2D, 0, &sound );
-//     if ( result != FMOD_OK ) {
-//         cerr << "Error loading file " << file.toStdString() << " for testing BPM" << endl;
-//         close();
-//     }
-//
-//     FMOD_System_PlaySound( system, FMOD_CHANNEL_FREE,
-//                            sound, TRUE, &channel );
-//     uint length;
-//     FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_MS );
-//     trackPosition->setLength( length );
-//     FMOD_Channel_SetMode( channel, FMOD_LOOP_NORMAL );
-//     connect( trackPosition, SIGNAL( positionChanged( uint ) ),
-//              this, SLOT( setCustomPos( uint ) ) );
 
     slotUpdateBpmList();
 }
 
 void DlgTestBPM::readBuffer() {
     QAudioBuffer buf = lastBuffer = decoder->read();
-    lengthMS += buf.duration();
+    lengthUS += buf.duration();
     buffer->append(buf.data<const char>(), buf.byteCount());
 }
 
 void DlgTestBPM::finishedDecoding() {
-    trackPosition->setLength(lengthMS);
+    trackPosition->setLength(lengthUS);
 
-    AudioThread *thread = new AudioThread(buffer, lastBuffer.format());
-    thread->start();
+    qDebug() << lengthUS;
+
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt());
+    audioThread->start();
 }
 
 void DlgTestBPM::decoderError(QAudioDecoder::Error error) {
@@ -114,75 +88,46 @@ DlgTestBPM::~DlgTestBPM() {
 }
 
 void DlgTestBPM::setPos1() {
-    if ( channel != NULL ) {
-        uint msec = trackPosition->length() / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = trackPosition->length() / 5;
+    stop();
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.2));
+    audioThread->start();
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos2() {
-    if ( channel != NULL ) {
-        uint msec = ( trackPosition->length() * 2 ) / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = ( trackPosition->length() * 2 ) / 5;
+    stop();
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.4));
+    audioThread->start();
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos3() {
-    if ( channel != NULL ) {
-        uint msec = ( trackPosition->length() * 3 ) / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = ( trackPosition->length() * 3 ) / 5;
+    stop();
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.6));
+    audioThread->start();
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos4() {
-    if ( channel != NULL ) {
-        uint msec = ( trackPosition->length() * 4 ) / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = ( trackPosition->length() * 4 ) / 5;
+    stop();
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.8));
+    audioThread->start();
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setCustomPos( uint msec ) {
-    if ( channel != NULL ) {
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-    }
+    stop();
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), msec);
+    audioThread->start();
 }
 
 void DlgTestBPM::stop() {
-    if ( channel != NULL ) {
-        FMOD_Channel_Stop(channel);
-        channel = 0;
-        FMOD_Sound_Release(sound);
-        sound = 0;
-    }
+    audioThread->stop();
+    audioThread->wait();
 }
 
 /**
@@ -191,14 +136,10 @@ void DlgTestBPM::stop() {
  * @param text is number of beats to loop (combobox currentText)
  */
 void DlgTestBPM::setNumBeats( const QString &text ) {
-    if ( channel != NULL ) {
-        uint loopstart, loopend;
-        FMOD_Channel_GetLoopPoints( channel, &loopstart, FMOD_TIMEUNIT_MS, &loopend, FMOD_TIMEUNIT_MS );
-        unsigned long beatslen = ( unsigned long ) ( ( 60000 * text.toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, loopstart, FMOD_TIMEUNIT_MS,
-                                    loopstart + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, loopstart, FMOD_TIMEUNIT_MS );
-    }
+    audioThread->stop();
+
+    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt());
+    audioThread->start();
 }
 
 void DlgTestBPM::slotUpdateBpmList() {
