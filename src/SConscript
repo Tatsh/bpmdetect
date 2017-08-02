@@ -436,7 +436,7 @@ else:
     env.Append(CPPDEFINES = ['NO_GUI'])
   else:
       env.Tool('qt5')
-      env.EnableQt5Modules(['QtCore', 'QtGui', 'QtWidgets'], debug = False)
+      env.EnableQt5Modules(['QtCore', 'QtGui', 'QtWidgets', 'QtMultimedia'], debug = False)
       bpmdetect_sources = bpmdetect_sources_gui + bpmdetect_sources
       if env.has_key('FMOD') and env['FMOD']:
             bpmdetect_sources = bpmdetect_sources + sources_fmodtest
