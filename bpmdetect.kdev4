@@ -1,0 +1,4 @@
+[Project]
+Manager=KDevCMakeManager
+Name=bpmdetect
+VersionControlSupport=kdevgit

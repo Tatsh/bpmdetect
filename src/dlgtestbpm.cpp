@@ -25,6 +25,10 @@
 #include <QLabel>
 #include <QDebug>
 
+#include <QAudioDecoder>
+#include <QAudioOutput>
+#include <QTimer>
+
 #include <iostream>
 
 #include "dlgtestbpm.h"
@@ -36,31 +40,73 @@ using namespace std;
 
 DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : QDialog( parent ) {
     setupUi(this);
-    FMOD_RESULT result;
-    system = TrackFMOD::getFMODSystem();
-    channel = 0; sound = 0;
 
-    m_bpm = bpm;
-    lblBPM->setText( QString::fromStdString(Track::bpm2str(bpm, "000.00")));
-    if ( file.isEmpty() || !system) close();
-
-    result = FMOD_System_CreateStream( system, file.toLocal8Bit(),
-                                       FMOD_SOFTWARE | FMOD_2D, 0, &sound );
-    if ( result != FMOD_OK ) {
-        cerr << "Error loading file " << file.toStdString() << " for testing BPM" << endl;
+    if (file.isEmpty()) {
         close();
     }
 
-    FMOD_System_PlaySound( system, FMOD_CHANNEL_FREE,
-                           sound, TRUE, &channel );
-    uint length;
-    FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_MS );
-    trackPosition->setLength( length );
-    FMOD_Channel_SetMode( channel, FMOD_LOOP_NORMAL );
-    connect( trackPosition, SIGNAL( positionChanged( uint ) ),
-             this, SLOT( setCustomPos( uint ) ) );
+    channel = NULL;
+
+    buffer = new QByteArray();
+
+    decoder = new QAudioDecoder();
+    decoder->setSourceFilename(file);
+    decoder->start();
+
+    connect(decoder, SIGNAL(bufferReady()), this, SLOT(readBuffer()));
+    connect(decoder, SIGNAL(error(QAudioDecoder::Error)), this, SLOT(decoderError(QAudioDecoder::Error)));
+    connect(decoder, SIGNAL(finished()), this, SLOT(finishedDecoding()));
+
+
+
+//     FMOD_RESULT result;
+//     system = TrackFMOD::getFMODSystem();
+//     channel = 0;
+//     sound = 0;
+//
+    m_bpm = bpm;
+    lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));
+//
+//     if (!system) close();
+//
+//     result = FMOD_System_CreateStream( system, file.toLocal8Bit(),
+//                                        FMOD_SOFTWARE | FMOD_2D, 0, &sound );
+//     if ( result != FMOD_OK ) {
+//         cerr << "Error loading file " << file.toStdString() << " for testing BPM" << endl;
+//         close();
+//     }
+//
+//     FMOD_System_PlaySound( system, FMOD_CHANNEL_FREE,
+//                            sound, TRUE, &channel );
+//     uint length;
+//     FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_MS );
+//     trackPosition->setLength( length );
+//     FMOD_Channel_SetMode( channel, FMOD_LOOP_NORMAL );
+//     connect( trackPosition, SIGNAL( positionChanged( uint ) ),
+//              this, SLOT( setCustomPos( uint ) ) );
 
     slotUpdateBpmList();
+}
+
+void DlgTestBPM::readBuffer() {
+    QAudioBuffer buf = lastBuffer = decoder->read();
+    lengthMS += buf.duration();
+    buffer->append(buf.data<const char>(), buf.byteCount());
+}
+
+void DlgTestBPM::finishedDecoding() {
+    trackPosition->setLength(lengthMS);
+
+    AudioThread *thread = new AudioThread(buffer, lastBuffer.format());
+    thread->start();
+}
+
+void DlgTestBPM::decoderError(QAudioDecoder::Error error) {
+    qDebug() << decoder->errorString();
+    decoder->stop();
+
+    // TODO Error dialog here
+    close();
 }
 
 DlgTestBPM::~DlgTestBPM() {
