@@ -46,6 +46,13 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos( uint )));
     connect(player, SIGNAL(hasLengthUS(const qint64)), this, SLOT(setTrackPositionLength(const qint64)));
 
+    cbNBeats->setEnabled(false);
+    btnPos1->setEnabled(false);
+    btnPos2->setEnabled(false);
+    btnPos3->setEnabled(false);
+    btnPos4->setEnabled(false);
+    trackPosition->setEnabled(false);
+
     slotUpdateBpmList();
     player->start();
 }
@@ -56,6 +63,12 @@ DlgTestBPM::~DlgTestBPM() {
 
 void DlgTestBPM::setTrackPositionLength(const qint64 length) {
     trackPosition->setLength(length / 1000);
+    cbNBeats->setEnabled(true);
+    btnPos1->setEnabled(true);
+    btnPos2->setEnabled(true);
+    btnPos3->setEnabled(true);
+    btnPos4->setEnabled(true);
+    trackPosition->setEnabled(true);
 }
 
 void DlgTestBPM::setPos1() {
