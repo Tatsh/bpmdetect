@@ -23,16 +23,19 @@
 #ifndef DLGTESTBPM_H
 #define DLGTESTBPM_H
 
+#include <QAudioDecoder>
+#include <QAudioFormat>
+#include <QAudioOutput>
 #include <QDialog>
-
-#ifndef HAVE_FMOD
-#error FMOD Ex is required for testing BPMs (HAVE_FMOD not defined)
-#endif
-
-#include "trackfmod.h"
+#include <QIODevice>
+#include <QLinkedList>
+#include <QThread>
 
 #include "ui_dlgtestbpmdlg.h"
 
+#include "dlgtestbpmplayer.h"
+
+class AudioThread;
 class DlgTestBPM: public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT
 public:
@@ -45,18 +48,15 @@ protected slots:
     void setPos3();
     void setPos4();
     void setCustomPos( uint msec );
-    void stop();
     /// Set number of beats to loop
     void setNumBeats( const QString& );
-    
     void slotUpdateBpmList();
+    void setTrackPositionLength(const qint64);
 
 private:
     float m_bpm;            ///< BPM to test
     QList<float> m_bpmList; ///< list of possible BPMs
-    FMOD_SYSTEM  *system;   ///< FMOD sound system
-    FMOD_SOUND   *sound;    ///< FMOD sound object
-    FMOD_CHANNEL *channel;  ///< FMOD channel object
+    DlgTestBPMPlayer *player;
 };
 
 #endif // DLGTESTBPM_H

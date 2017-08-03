@@ -25,118 +25,78 @@
 #include <QLabel>
 #include <QDebug>
 
-#include <iostream>
-
 #include "dlgtestbpm.h"
+#include "dlgtestbpmplayer.h"
 #include "progressbar.h"
-
-#include <fmodex/fmod_errors.h>
+#include "track.h"
 
 using namespace std;
 
 DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : QDialog( parent ) {
     setupUi(this);
-    FMOD_RESULT result;
-    system = TrackFMOD::getFMODSystem();
-    channel = 0; sound = 0;
 
-    m_bpm = bpm;
-    lblBPM->setText( QString::fromStdString(Track::bpm2str(bpm, "000.00")));
-    if ( file.isEmpty() || !system) close();
-
-    result = FMOD_System_CreateStream( system, file.toLocal8Bit(),
-                                       FMOD_SOFTWARE | FMOD_2D, 0, &sound );
-    if ( result != FMOD_OK ) {
-        cerr << "Error loading file " << file.toStdString() << " for testing BPM" << endl;
+    if (file.isEmpty()) {
         close();
     }
 
-    FMOD_System_PlaySound( system, FMOD_CHANNEL_FREE,
-                           sound, TRUE, &channel );
-    uint length;
-    FMOD_Sound_GetLength( sound, &length, FMOD_TIMEUNIT_MS );
-    trackPosition->setLength( length );
-    FMOD_Channel_SetMode( channel, FMOD_LOOP_NORMAL );
-    connect( trackPosition, SIGNAL( positionChanged( uint ) ),
-             this, SLOT( setCustomPos( uint ) ) );
+    player = new DlgTestBPMPlayer(file, cbNBeats->currentText().toInt(), bpm);
+    m_bpm = bpm;
+
+    lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));
+    connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos( uint )));
+    connect(player, SIGNAL(hasLengthUS(const qint64)), this, SLOT(setTrackPositionLength(const qint64)));
+
+    cbNBeats->setEnabled(false);
+    btnPos1->setEnabled(false);
+    btnPos2->setEnabled(false);
+    btnPos3->setEnabled(false);
+    btnPos4->setEnabled(false);
+    trackPosition->setEnabled(false);
 
     slotUpdateBpmList();
+    player->start();
 }
 
 DlgTestBPM::~DlgTestBPM() {
-    stop();
+    player->stop();
+}
+
+void DlgTestBPM::setTrackPositionLength(const qint64 length) {
+    trackPosition->setLength(length / 1000);
+    cbNBeats->setEnabled(true);
+    btnPos1->setEnabled(true);
+    btnPos2->setEnabled(true);
+    btnPos3->setEnabled(true);
+    btnPos4->setEnabled(true);
+    trackPosition->setEnabled(true);
 }
 
 void DlgTestBPM::setPos1() {
-    if ( channel != NULL ) {
-        uint msec = trackPosition->length() / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = trackPosition->length() / 5;
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.2);
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos2() {
-    if ( channel != NULL ) {
-        uint msec = ( trackPosition->length() * 2 ) / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = ( trackPosition->length() * 2 ) / 5;
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.4);
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos3() {
-    if ( channel != NULL ) {
-        uint msec = ( trackPosition->length() * 3 ) / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = ( trackPosition->length() * 3 ) / 5;
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.6);
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos4() {
-    if ( channel != NULL ) {
-        uint msec = ( trackPosition->length() * 4 ) / 5;
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-        trackPosition->setPosition( msec );
-    }
+    uint msec = ( trackPosition->length() * 4 ) / 5;
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.8);
+    trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setCustomPos( uint msec ) {
-    if ( channel != NULL ) {
-        unsigned long beatslen = ( unsigned long ) (
-                                     ( 60000 * cbNBeats->currentText().toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, msec, FMOD_TIMEUNIT_MS,
-                                    msec + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, msec, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPaused( channel, FALSE );
-    }
-}
-
-void DlgTestBPM::stop() {
-    if ( channel != NULL ) {
-        FMOD_Channel_Stop(channel);
-        channel = 0;
-        FMOD_Sound_Release(sound);
-        sound = 0;
-    }
+    player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
 }
 
 /**
@@ -145,14 +105,7 @@ void DlgTestBPM::stop() {
  * @param text is number of beats to loop (combobox currentText)
  */
 void DlgTestBPM::setNumBeats( const QString &text ) {
-    if ( channel != NULL ) {
-        uint loopstart, loopend;
-        FMOD_Channel_GetLoopPoints( channel, &loopstart, FMOD_TIMEUNIT_MS, &loopend, FMOD_TIMEUNIT_MS );
-        unsigned long beatslen = ( unsigned long ) ( ( 60000 * text.toInt() ) / m_bpm );
-        FMOD_Channel_SetLoopPoints( channel, loopstart, FMOD_TIMEUNIT_MS,
-                                    loopstart + beatslen, FMOD_TIMEUNIT_MS );
-        FMOD_Channel_SetPosition( channel, loopstart, FMOD_TIMEUNIT_MS );
-    }
+    player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
 }
 
 void DlgTestBPM::slotUpdateBpmList() {
@@ -172,7 +125,8 @@ void DlgTestBPM::slotUpdateBpmList() {
             m_bpmList.append(cbpm);
         }
     }
+#ifdef DEBUG
     qDebug() << m_bpmList;
     qDebug() << "total list size:" << m_bpmList.size();
+#endif
 }
-

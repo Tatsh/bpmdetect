@@ -29,9 +29,7 @@
 #include "qdroplistview.h"
 
 #include "dlgbpmdetect.h"
-#ifdef HAVE_FMOD
-  #include "dlgtestbpm.h"
-#endif
+#include "dlgtestbpm.h"
 
 #include "images.h"
 
@@ -63,10 +61,8 @@ DlgBPMDetect::DlgBPMDetect( QWidget* parent ) : QWidget( parent ) {
     m_pListMenu->addAction( "Remove selected tracks", this, SLOT( slotRemoveSelected() ) );
     m_pListMenu->addAction( "Remove tracks with BPM", this, SLOT( slotClearDetected() ) );
     m_pListMenu->addAction( "Clear list", this, SLOT( slotClearTrackList() ) );
-#ifdef HAVE_FMOD
     m_pListMenu->addSeparator();
     m_pListMenu->addAction( "Test BPM", this, SLOT( slotTestBPM() ) );
-#endif
 #ifdef HAVE_TAGLIB
     m_pListMenu->addSeparator();
     m_pListMenu->addAction( "Save BPM", this, SLOT( slotSaveBPM() ) );
@@ -369,7 +365,6 @@ void DlgBPMDetect::slotRemoveSelected() {
 }
 
 void DlgBPMDetect::slotTestBPM() {
-#ifdef HAVE_FMOD
     QTreeWidgetItem* item = TrackList->currentItem();
     if (!item) return;
     float bpm = item->text(0).toFloat();
@@ -377,7 +372,6 @@ void DlgBPMDetect::slotTestBPM() {
 
     DlgTestBPM tbpmd(item->text(TrackList->columnCount() - 1), bpm, this);
     tbpmd.exec();
-#endif
 }
 
 void DlgBPMDetect::slotShowAbout() {

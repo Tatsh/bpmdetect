@@ -4,7 +4,6 @@ REQUIREMENTS
 * A Python interpreter and SCons for compilation
 * QT4 for GUI
 * TagLib
-* FMOD Ex
 * mad
 * vorbisfile
 * FLAC
