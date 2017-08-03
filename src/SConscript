@@ -30,6 +30,7 @@ track.cpp
 trackproxy.cpp
 trackwav.cpp
 dlgtestbpm.cpp
+dlgtestbpmplayer.cpp
 """
 
 sources_testbpm_ui="""

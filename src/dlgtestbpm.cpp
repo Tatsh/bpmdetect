@@ -25,13 +25,8 @@
 #include <QLabel>
 #include <QDebug>
 
-#include <QAudioDecoder>
-#include <QAudioOutput>
-#include <QTimer>
-
-#include <iostream>
-
 #include "dlgtestbpm.h"
+#include "dlgtestbpmplayer.h"
 #include "progressbar.h"
 #include "track.h"
 
@@ -44,90 +39,51 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
         close();
     }
 
+    player = new DlgTestBPMPlayer(file, cbNBeats->currentText().toInt(), bpm);
     m_bpm = bpm;
-    buffer = new QByteArray();
-
-    decoder = new QAudioDecoder();
-    decoder->setSourceFilename(file);
-    decoder->start();
-
-    connect(decoder, SIGNAL(bufferReady()), this, SLOT(readBuffer()));
-    connect(decoder, SIGNAL(error(QAudioDecoder::Error)), this, SLOT(decoderError(QAudioDecoder::Error)));
-    connect(decoder, SIGNAL(finished()), this, SLOT(finishedDecoding()));
 
     lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));
+    connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos( uint )));
+    connect(player, SIGNAL(hasLengthUS(const qint64)), this, SLOT(setTrackPositionLength(const qint64)));
 
     slotUpdateBpmList();
-}
-
-void DlgTestBPM::readBuffer() {
-    QAudioBuffer buf = lastBuffer = decoder->read();
-    lengthUS += buf.duration();
-    buffer->append(buf.data<const char>(), buf.byteCount());
-}
-
-void DlgTestBPM::finishedDecoding() {
-    trackPosition->setLength(lengthUS);
-
-    qDebug() << lengthUS;
-
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt());
-    audioThread->start();
-}
-
-void DlgTestBPM::decoderError(QAudioDecoder::Error error) {
-    qDebug() << decoder->errorString();
-    decoder->stop();
-
-    // TODO Error dialog here
-    close();
+    player->start();
 }
 
 DlgTestBPM::~DlgTestBPM() {
-    stop();
+    player->stop();
+}
+
+void DlgTestBPM::setTrackPositionLength(const qint64 length) {
+    trackPosition->setLength(length / 1000);
 }
 
 void DlgTestBPM::setPos1() {
     uint msec = trackPosition->length() / 5;
-    stop();
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.2));
-    audioThread->start();
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.2);
     trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos2() {
     uint msec = ( trackPosition->length() * 2 ) / 5;
-    stop();
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.4));
-    audioThread->start();
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.4);
     trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos3() {
     uint msec = ( trackPosition->length() * 3 ) / 5;
-    stop();
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.6));
-    audioThread->start();
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.6);
     trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setPos4() {
     uint msec = ( trackPosition->length() * 4 ) / 5;
-    stop();
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), (qint64)(lengthUS * 0.8));
-    audioThread->start();
+    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.8);
     trackPosition->setPosition( msec );
 }
 
 void DlgTestBPM::setCustomPos( uint msec ) {
-    stop();
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt(), msec);
-    audioThread->start();
-}
-
-void DlgTestBPM::stop() {
-    audioThread->stop();
-    audioThread->wait();
+    player->update(cbNBeats->currentText().toInt(), (qint64)msec);
 }
 
 /**
@@ -136,10 +92,7 @@ void DlgTestBPM::stop() {
  * @param text is number of beats to loop (combobox currentText)
  */
 void DlgTestBPM::setNumBeats( const QString &text ) {
-    audioThread->stop();
-
-    audioThread = new AudioThread(buffer, lastBuffer.format(), m_bpm, cbNBeats->currentText().toInt());
-    audioThread->start();
+    player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
 }
 
 void DlgTestBPM::slotUpdateBpmList() {
@@ -159,7 +112,8 @@ void DlgTestBPM::slotUpdateBpmList() {
             m_bpmList.append(cbpm);
         }
     }
+#ifdef DEBUG
     qDebug() << m_bpmList;
     qDebug() << "total list size:" << m_bpmList.size();
+#endif
 }
-

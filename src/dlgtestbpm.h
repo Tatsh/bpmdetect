@@ -23,15 +23,17 @@
 #ifndef DLGTESTBPM_H
 #define DLGTESTBPM_H
 
-#include <QDialog>
 #include <QAudioDecoder>
 #include <QAudioFormat>
 #include <QAudioOutput>
+#include <QDialog>
 #include <QIODevice>
-#include <QtCore/QLinkedList>
+#include <QLinkedList>
 #include <QThread>
 
 #include "ui_dlgtestbpmdlg.h"
+
+#include "dlgtestbpmplayer.h"
 
 class AudioThread;
 class DlgTestBPM: public QDialog, public Ui_DlgTestBPMDlg {
@@ -46,85 +48,15 @@ protected slots:
     void setPos3();
     void setPos4();
     void setCustomPos( uint msec );
-    void stop();
     /// Set number of beats to loop
     void setNumBeats( const QString& );
-
     void slotUpdateBpmList();
-
-    void readBuffer();
-    void decoderError(QAudioDecoder::Error error);
-    void finishedDecoding();
+    void setTrackPositionLength(const qint64);
 
 private:
     float m_bpm;            ///< BPM to test
     QList<float> m_bpmList; ///< list of possible BPMs
-    qint64 lengthUS;
-    QAudioDecoder *decoder;
-    QAudioBuffer lastBuffer;
-    QByteArray *buffer;
-    AudioThread *audioThread;
-};
-
-class AudioThread : public QThread {
-    Q_OBJECT
-    void run() {
-        char *startptr, *data;
-        startptr = data = mBuf->data();
-        qint64 originalSize, dataRemaining;
-
-        qint64 beatslen = (qint64)(((60000 * mBeatCount) / mBPM) * 1000);
-        qint32 bytesForBeats = mFormat.bytesForDuration(beatslen);
-
-        // FIXME Needs boundary checking
-        dataRemaining = originalSize = bytesForBeats * mBeatCount;
-        if (mPosUS) {
-            qint32 skipBytes = mFormat.bytesForDuration(mPosUS);
-            data += skipBytes;
-            startptr += skipBytes;
-        }
-
-        while (dataRemaining) {
-            if (output->state() != QAudio::ActiveState && output->state() != QAudio::IdleState) {
-                break;
-            }
-
-            qint64 bytesWritten = dev->write(data, dataRemaining);
-            dataRemaining -= bytesWritten;
-            data += bytesWritten;
-
-            if (dataRemaining <= 0) {
-                data = startptr;
-                dataRemaining = originalSize;
-            }
-
-            usleep(10);
-        }
-    }
-public:
-    AudioThread(QByteArray *buf, QAudioFormat format, float bpm, uint beatCount, qint64 posUS = 0) {
-        mBuf = buf;
-        mFormat = format;
-        mBPM = bpm;
-        mBeatCount = beatCount;
-        mPosUS = posUS;
-
-        output = new QAudioOutput(mFormat);
-        output->setBufferSize(512);
-        dev = output->start();
-    }
-    void stop() {
-        output->stop();
-    }
-
-private:
-    QByteArray *mBuf;
-    QAudioFormat mFormat;
-    float mBPM;
-    uint mBeatCount;
-    qint64 mPosUS;
-    QAudioOutput *output;
-    QIODevice *dev;
+    DlgTestBPMPlayer *player;
 };
 
 #endif // DLGTESTBPM_H
