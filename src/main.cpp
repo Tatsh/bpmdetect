@@ -38,7 +38,7 @@ const char* version = "0.6.2";   ///< App version
 
 void display_help() {
     printf("BPMDetect version %s\n\n", version);
-    printf("Usage:\n bpmdetect [switches] [files]\n\n", version);
+    printf("Usage:\n bpmdetect [switches] [files]\n\n");
     printf("Switches:\n");
 #ifndef NO_GUI
     printf("-c --console         - run in console mode\n");
