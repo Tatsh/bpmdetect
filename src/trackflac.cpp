@@ -30,6 +30,7 @@
 #include <xiphcomment.h>
 #endif   // HAVE_TAGLIB
 
+#include <iostream>
 #include <cstring>
 
 using namespace std;
