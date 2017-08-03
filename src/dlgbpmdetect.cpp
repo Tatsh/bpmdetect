@@ -62,7 +62,9 @@ DlgBPMDetect::DlgBPMDetect( QWidget* parent ) : QWidget( parent ) {
     m_pListMenu->addAction( "Remove tracks with BPM", this, SLOT( slotClearDetected() ) );
     m_pListMenu->addAction( "Clear list", this, SLOT( slotClearTrackList() ) );
     m_pListMenu->addSeparator();
+#ifndef Q_OS_MACOS
     m_pListMenu->addAction( "Test BPM", this, SLOT( slotTestBPM() ) );
+#endif
 #ifdef HAVE_TAGLIB
     m_pListMenu->addSeparator();
     m_pListMenu->addAction( "Save BPM", this, SLOT( slotSaveBPM() ) );
@@ -365,6 +367,7 @@ void DlgBPMDetect::slotRemoveSelected() {
 }
 
 void DlgBPMDetect::slotTestBPM() {
+#ifndef Q_OS_MACOS
     QTreeWidgetItem* item = TrackList->currentItem();
     if (!item) return;
     float bpm = item->text(0).toFloat();
@@ -372,6 +375,7 @@ void DlgBPMDetect::slotTestBPM() {
 
     DlgTestBPM tbpmd(item->text(TrackList->columnCount() - 1), bpm, this);
     tbpmd.exec();
+#endif
 }
 
 void DlgBPMDetect::slotShowAbout() {
