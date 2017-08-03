@@ -429,7 +429,7 @@ else:
             realtime_sources = realtime_sources + sources_realtime_gui + sources_realtime
             for ui in sources_realtime_ui.split():
                 env.Uic5(ui)
-      for ui in bpmdetect_ui.split():
+      for ui in bpmdetect_ui.split() + sources_testbpm_ui.split():
           env.Uic5(ui)
 
   # Add sources and print status
