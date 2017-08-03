@@ -83,7 +83,7 @@ void DlgTestBPM::setPos4() {
 }
 
 void DlgTestBPM::setCustomPos( uint msec ) {
-    player->update(cbNBeats->currentText().toInt(), (qint64)msec);
+    player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
 }
 
 /**
