@@ -105,7 +105,11 @@ void DlgTestBPM::setCustomPos( uint msec ) {
  * @param text is number of beats to loop (combobox currentText)
  */
 void DlgTestBPM::setNumBeats( const QString &text ) {
-    player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
+    int value = trackPosition->value();
+    if (value < 0) {
+        value = 0;
+    }
+    player->update(cbNBeats->currentText().toInt(), value * 1000);
 }
 
 void DlgTestBPM::slotUpdateBpmList() {
