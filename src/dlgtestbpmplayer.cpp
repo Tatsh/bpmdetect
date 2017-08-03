@@ -19,11 +19,14 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, 
 }
 
 DlgTestBPMPlayer::~DlgTestBPMPlayer() {
-    decoder->stop();
     delete buffer;
+    buffer = nullptr;
     delete decoder;
-    delete output;
-    delete dev;
+    decoder = nullptr;
+    if (output) {
+        delete output;
+        output = nullptr;
+    }
 }
 
 void DlgTestBPMPlayer::readBuffer() {
@@ -39,6 +42,10 @@ void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
 
 void DlgTestBPMPlayer::finishedDecoding() {
     format = lastBuffer.format();
+    if (output) {
+        delete output;
+        output = nullptr;
+    }
     output = new QAudioOutput(format);
     output->setBufferSize(512);
     dev = output->start();
@@ -62,7 +69,7 @@ void DlgTestBPMPlayer::update(uint nBeats_, qint64 posUS_) {
 
     dataRemaining = bytesForBeats * nBeats;
     originalSize = dataRemaining;
-    if (posUS) {
+    if (posUS > 0) {
         qint32 skipBytes = format.bytesForDuration(posUS);
         if ((data + skipBytes) >= (data + buffer->size())) {
             return;
@@ -84,8 +91,10 @@ void DlgTestBPMPlayer::run() {
     update(nBeats);
 
     while (dataRemaining) {
-        if (output->state() != QAudio::ActiveState &&
-            output->state() != QAudio::IdleState) {
+        QAudio::State state = output->state();
+        if (state != QAudio::ActiveState &&
+            state != QAudio::IdleState &&
+            state != QAudio::SuspendedState) {
             break;
         }
 

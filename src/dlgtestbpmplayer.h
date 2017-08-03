@@ -29,8 +29,8 @@ signals:
     void hasLengthUS(const qint64);
 
 private:
-    QByteArray *buffer;
-    QAudioDecoder *decoder;
+    QByteArray *buffer = nullptr;
+    QAudioDecoder *decoder = nullptr;
     QAudioBuffer lastBuffer;
     QAudioFormat format;
     uint nBeats = 4;
@@ -39,11 +39,11 @@ private:
     bool readyToPlay = false;
     bool error = false;
     qint64 posUS = 0;
-    QAudioOutput *output;
-    QIODevice *dev;
+    QAudioOutput *output = nullptr;
+    QIODevice *dev = nullptr;
     qint64 dataRemaining;
-    char *data;
-    char *startptr;
+    char *data = nullptr;
+    char *startptr = nullptr;
     qint64 beatsLength;
     qint32 bytesForBeats;
     qint64 originalSize;
