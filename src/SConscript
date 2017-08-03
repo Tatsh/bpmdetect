@@ -288,6 +288,12 @@ def configure(env):
   env.Append(CPPPATH = ['.', '..'])
   _libs = ['.']
   env.Append(LIBPATH = _libs)
+
+  # MacPorts hack
+  if os.path.isdir('/opt/local/include'):
+    env.Append(CPPPATH=['/opt/local/include'])
+    env.Append(LIBPATH=['/opt/local/lib'])
+
   conf = Configure(env)
 
   if not ARGUMENTS.get('mad', 0) and check_library(conf, 'mad', 'mad.h'):
@@ -295,6 +301,8 @@ def configure(env):
       env['MAD'] = 1
   else:
       env['MAD'] = 0
+
+  print(env['MAD'])
 
   if not ARGUMENTS.get('vorbis', 0) and check_library(conf, 'vorbisfile', 'vorbis/vorbisfile.h'):
       env.Append(CPPDEFINES = ['HAVE_VORBISFILE'])
