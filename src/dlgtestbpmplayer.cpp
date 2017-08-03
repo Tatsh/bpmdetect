@@ -60,11 +60,14 @@ void DlgTestBPMPlayer::update(uint nBeats_, qint64 posUS_) {
     const qint64 beatsLength = (qint64)(((60000 * nBeats) / bpm) * 1000);
     const qint32 bytesForBeats = format.bytesForDuration(beatsLength);
 
-    // FIXME Needs boundary checking
     dataRemaining = bytesForBeats * nBeats;
     originalSize = dataRemaining;
     if (posUS) {
         qint32 skipBytes = format.bytesForDuration(posUS);
+        if ((data + skipBytes) >= (data + buffer->size())) {
+            return;
+        }
+
         data += skipBytes;
         startptr = data;
     }
