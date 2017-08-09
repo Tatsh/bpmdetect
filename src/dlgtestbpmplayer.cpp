@@ -3,12 +3,13 @@
 
 #include "dlgtestbpmplayer.h"
 
-DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_) {
+DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_) :
+        buffer(QByteArray()),
+        decoder(QSharedPointer<QAudioDecoder>(new QAudioDecoder()))
+{
     nBeats = nBeats_;
     bpm = bpm_;
     posUS = posUS_;
-    buffer = QByteArray();
-    decoder = QSharedPointer<QAudioDecoder>(new QAudioDecoder());
 
     decoder->setSourceFilename(file);
     decoder->start();
