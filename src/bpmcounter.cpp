@@ -39,7 +39,7 @@ BPMCounter::~BPMCounter() {}
 /**
  * @brief Correct BPM
  * if dBPM is lower than min or greater than max by multiplying or dividing by 2.
- * if can't find bpm within specified range, returns 0 if blimit is true 
+ * if can't find bpm within specified range, returns 0 if blimit is true
  * or greater bpm than max if blimit is false
  * @return corrected BPM
  */
@@ -48,7 +48,7 @@ double BPMCounter::correctBPM(double dBPM, float min, float max, bool blimit, do
 
     // use suggested bpm (rBPM)
     if(rBPM > min && rBPM < max) {
-        double diff = 0, lbpm;
+        double lbpm;
         while(dBPM >= rBPM) dBPM /= 2.; // find lower bpm than rBPM
         lbpm = dBPM;
         while(dBPM <= rBPM) dBPM *= 2.; // find greater bpm than rBPM
@@ -117,7 +117,7 @@ void BPMCounter::addBeat() {
 
     float ccbpm = cbpm;
     // FIXME: correct beat count for first 5 values
-    const float error = 0.5;
+    //const float error = 0.5;
     if(m_beatCount > 5) {
         // calculate average bpm from buffer
         int count = 0; float avgbpm = 0;
