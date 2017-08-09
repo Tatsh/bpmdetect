@@ -29,8 +29,8 @@ signals:
     void hasLengthUS(const qint64);
 
 private:
-    QByteArray *buffer = nullptr;
-    QAudioDecoder *decoder = nullptr;
+    QByteArray buffer;
+    QSharedPointer<QAudioDecoder> decoder;
     QAudioBuffer lastBuffer;
     QAudioFormat format;
     uint nBeats = 4;
@@ -39,8 +39,8 @@ private:
     bool readyToPlay = false;
     bool error = false;
     qint64 posUS = 0;
-    QAudioOutput *output = nullptr;
-    QIODevice *dev = nullptr;
+    QSharedPointer<QAudioOutput> output;
+    QSharedPointer<QIODevice> dev;
     qint64 dataRemaining;
     char *data = nullptr;
     char *startptr = nullptr;
