@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(bpmdetect)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+
+include(FindPkgConfig)
+pkg_check_modules(FLAC flac)
+pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+pkg_check_modules(MAD mad)
+pkg_check_modules(TAGLIB taglib)
+pkg_check_modules(VORBIS vorbisfile)
+
+set(CMAKE_AUTOUIC ON)
+add_subdirectory(src)

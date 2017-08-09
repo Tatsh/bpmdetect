@@ -35,3 +35,4 @@ Thumbs.db
 *.log
 cache/
 build/
+build2/
