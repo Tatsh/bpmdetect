@@ -39,7 +39,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
         close();
     }
 
-    player = new DlgTestBPMPlayer(file, cbNBeats->currentText().toInt(), bpm);
+    player = new DlgTestBPMPlayer(file, cbNBeats->currentText().toInt(), bpm, 0, this);
     m_bpm = bpm;
 
     lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));

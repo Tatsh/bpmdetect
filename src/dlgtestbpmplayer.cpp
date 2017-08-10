@@ -3,20 +3,24 @@
 
 #include "dlgtestbpmplayer.h"
 
-DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_) :
+DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_, QObject *parent) :
         buffer(QByteArray()),
-        decoder(QSharedPointer<QAudioDecoder>(new QAudioDecoder()))
+        decoder(new QAudioDecoder(this))
 {
     nBeats = nBeats_;
     bpm = bpm_;
     posUS = posUS_;
 
+    if (parent) {
+        setParent(parent);
+    }
+
     decoder->setSourceFilename(file);
     decoder->start();
 
-    connect(decoder.data(), SIGNAL(bufferReady()), this, SLOT(readBuffer()));
-    connect(decoder.data(), SIGNAL(error(QAudioDecoder::Error)), this, SLOT(decodeError(QAudioDecoder::Error)));
-    connect(decoder.data(), SIGNAL(finished()), this, SLOT(finishedDecoding()));
+    connect(decoder, SIGNAL(bufferReady()), this, SLOT(readBuffer()));
+    connect(decoder, SIGNAL(error(QAudioDecoder::Error)), this, SLOT(decodeError(QAudioDecoder::Error)));
+    connect(decoder, SIGNAL(finished()), this, SLOT(finishedDecoding()));
 }
 
 DlgTestBPMPlayer::~DlgTestBPMPlayer() {
@@ -35,9 +39,9 @@ void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
 
 void DlgTestBPMPlayer::finishedDecoding() {
     format = lastBuffer.format();
-    output = QSharedPointer<QAudioOutput>(new QAudioOutput(format));
+    output = new QAudioOutput(format, this);
     output->setBufferSize(512);
-    dev = QSharedPointer<QIODevice>(output->start());
+    dev = output->start();
     readyToPlay = true;
     emit hasLengthUS(lengthUS);
 }

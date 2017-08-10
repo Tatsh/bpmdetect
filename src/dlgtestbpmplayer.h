@@ -11,7 +11,7 @@
 class DlgTestBPMPlayer : public QThread {
     Q_OBJECT
 public:
-    DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0);
+    DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0, QObject *parent = nullptr);
     ~DlgTestBPMPlayer();
     const qint64 getLengthUS() { return lengthUS; };
     void update(uint nBeats_, qint64 posUS_ = 0);
@@ -30,7 +30,7 @@ signals:
 
 private:
     QByteArray buffer;
-    QSharedPointer<QAudioDecoder> decoder;
+    QAudioDecoder *decoder = nullptr;
     QAudioBuffer lastBuffer;
     QAudioFormat format;
     uint nBeats = 4;
@@ -39,8 +39,8 @@ private:
     bool readyToPlay = false;
     bool error = false;
     qint64 posUS = 0;
-    QSharedPointer<QAudioOutput> output;
-    QSharedPointer<QIODevice> dev;
+    QAudioOutput *output = nullptr;
+    QIODevice *dev = nullptr;
     qint64 dataRemaining;
     char *data = nullptr;
     char *startptr = nullptr;
