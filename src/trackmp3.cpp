@@ -455,7 +455,7 @@ int TrackMp3::findFrame(int pos) {
             temp = m_qSeekList.at(--frameIdx);
     }
 
-    if (temp>0) {
+    if (temp) {
         return temp->pos;
     } else {
         return 0;
