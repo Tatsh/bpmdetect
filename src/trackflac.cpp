@@ -239,7 +239,7 @@ void TrackFlac::removeBPM() {
     TagLib::FLAC::File f ( fname.c_str(), false );
     TagLib::Ogg::XiphComment* xiph = f.xiphComment (true);
     if (xiph != NULL) {
-        xiph->removeField ("TBPM");
+        xiph->removeFields ("TBPM");
     }
 
     TagLib::ID3v2::Tag* tag = f.ID3v2Tag (true);
