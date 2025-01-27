@@ -223,7 +223,7 @@ void TrackOggVorbis::removeBPM() {
     if (tag == NULL) {
         return;
     }
-    tag->removeField("TBPM");
+    tag->removeFields("TBPM");
     f.save();
     //open();
 #endif
