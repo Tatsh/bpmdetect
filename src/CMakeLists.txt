@@ -1,14 +1,14 @@
-include_directories(${Qt5Core_INCLUDE_DIRS}
-                    ${Qt5Gui_INCLUDE_DIRS}
-                    ${Qt5Multimedia_INCLUDE_DIRS}
-                    ${Qt5Widgets_INCLUDE_DIRS}
+include_directories(${Qt6Core_INCLUDE_DIRS}
+                    ${Qt6Gui_INCLUDE_DIRS}
+                    ${Qt6Multimedia_INCLUDE_DIRS}
+                    ${Qt6Widgets_INCLUDE_DIRS}
                     ${TAGLIB_INCLUDE_DIRS}
                     ${PORTAUDIO_INCLUDE_DIRS}
                     ${FLAC_INCLUDE_DIRS}
                     ${MAD_INCLUDE_DIRS})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14 -fPIE -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17 -fPIE -fPIC")
 
 if (TAGLIB_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_TAGLIB")
@@ -109,14 +109,16 @@ add_executable(bpmdetect
   ${VORBIS_SOURCES}
   ${SOURCES}
 )
+# Temporary workaround until .ui file is fixed or connections are done in the code
+set_property(TARGET bpmdetect PROPERTY AUTOUIC_OPTIONS "--connections;string")
 target_link_libraries(bpmdetect
     ${PORTAUDIO_LIBRARIES}
     ${FLAC_LIBRARIES}
     ${MAD_LIBRARIES}
     ${VORBIS_LIBRARIES}
     ${TAGLIB_LIBRARIES}
-    Qt5::Multimedia
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
+    Qt6::Multimedia
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
 )

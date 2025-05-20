@@ -28,7 +28,7 @@
 #include <QAudioOutput>
 #include <QDialog>
 #include <QIODevice>
-#include <QLinkedList>
+#include <QList>
 #include <QThread>
 
 #include "ui_dlgtestbpmdlg.h"

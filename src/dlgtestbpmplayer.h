@@ -4,7 +4,7 @@
 #include <QAudioBuffer>
 #include <QAudioDecoder>
 #include <QAudioFormat>
-#include <QAudioOutput>
+#include <QAudioSink>
 #include <QIODevice>
 #include <QThread>
 
@@ -39,7 +39,7 @@ private:
     bool readyToPlay = false;
     bool error = false;
     qint64 posUS = 0;
-    QAudioOutput *output = nullptr;
+    QAudioSink *output = nullptr;
     QIODevice *dev = nullptr;
     qint64 dataRemaining;
     char *data = nullptr;

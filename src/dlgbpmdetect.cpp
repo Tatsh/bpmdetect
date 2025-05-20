@@ -309,7 +309,7 @@ void DlgBPMDetect::slotAddDir() {
     QString path = QFileDialog::getExistingDirectory ( this, "Add directory",
                    getRecentPath());
 
-    if ( path != QString::null ) {
+    if ( path != nullptr ) {
         setRecentPath(path);
         QStringList list;
         list = filesFromDir( path );

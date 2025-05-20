@@ -54,7 +54,7 @@ DlgRealtime::DlgRealtime(QWidget *parent) : QDialog(parent) {
     connect(m_timer, SIGNAL(timeout()), this, SLOT(slotUpdate()));
     m_timer->start(30);
     connect(m_pAnalyzer, SIGNAL(beat(bool)), this, SLOT(slotShowBeat(bool)));
-    
+
     connect(btnReset, SIGNAL(clicked()), this, SLOT(slotResetCounter()));
     connect(btnBeat, SIGNAL(pressed()), this, SLOT(slotBeat()));
     connect(btnSync, SIGNAL(pressed()), this, SLOT(slotSync()));
@@ -85,11 +85,11 @@ void DlgRealtime::slotUpdate() {
     float bpm = calcMedian();
     float bpmerr = calcError(bpm);
 
-    str.sprintf("%.1f", bpm);
+    str = QString::asprintf("%.1f", bpm);
     lcdCurrentBPM->display(str);
-    str.sprintf("%.2f", bpmerr);
+    str = QString::asprintf("%.2f", bpmerr);
     lblError->setText(str);
-    str.sprintf("%.1f", m_pAnalyzer->getCurrentBPM());
+    str = QString::asprintf("%.1f", m_pAnalyzer->getCurrentBPM());
     lblCurrentBPM->setText(str);
 
     xcorrDisplay->updateData(m_pAnalyzer->getBPMCalculator());
@@ -114,10 +114,10 @@ void DlgRealtime::slotBeat() {
     float bpm = m_pCounter->getBPM();
 
     QString str;
-    str.sprintf("%.2f", bpm);
+    str = QString::asprintf("%.2f", bpm);
     lcdTapBPM->display(str);
 
-    str.sprintf("%.2f", m_pCounter->getError());
+    str = QString::asprintf("%.2f", m_pCounter->getError());
     lblErrorDisp->setText(str);
     lblBeatsDisp->setText(QString::number(m_pCounter->getBeatCount()));
 
@@ -132,7 +132,7 @@ void DlgRealtime::slotBeat() {
 
 void DlgRealtime::slotResetCounter() {
     m_pCounter->reset();
-    
+
     lcdTapBPM->display("0.00");
     lblErrorDisp->setText("0");
     lblBeatsDisp->setText("0");
@@ -160,7 +160,7 @@ float DlgRealtime::calcMedian() {
     if(sortlist.isEmpty()) return 0;
 
     // sort the list and return the median
-    qSort(sortlist);
+    std::sort(sortlist.begin(), sortlist.end());
     int idx = sortlist.size() / 2;
     if(sortlist.size() % 2 == 0) {
         return (sortlist.at(idx) + sortlist.at(idx-1)) / 2.0;

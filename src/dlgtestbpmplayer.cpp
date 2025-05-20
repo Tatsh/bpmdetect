@@ -1,5 +1,9 @@
-#include <QAudioOutput>
 #include <QAudioDecoder>
+#include <QAudioSink>
+#include <QDebug>
+#include <QMediaDevices>
+#include <QUrl>
+#include <QtLogging>
 
 #include "dlgtestbpmplayer.h"
 
@@ -15,7 +19,7 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, 
         setParent(parent);
     }
 
-    decoder->setSourceFilename(file);
+    decoder->setSource(QUrl::fromLocalFile(file));
     decoder->start();
 
     connect(decoder, SIGNAL(bufferReady()), this, SLOT(readBuffer()));
@@ -39,7 +43,7 @@ void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
 
 void DlgTestBPMPlayer::finishedDecoding() {
     format = lastBuffer.format();
-    output = new QAudioOutput(format, this);
+    output = new QAudioSink(format, this);
     output->setBufferSize(512);
     dev = output->start();
     readyToPlay = true;
