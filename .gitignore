@@ -1,16 +1,9 @@
 # Compiled
-# *.com
-*.class
 *.dll
 *.exe
 *.o
 *.so
-*.pyc
-*.pyo
-__pycache__/
-*.egg-info/
 
-# Backups
 *~
 *.swp*
 *.kate-swp
@@ -31,8 +24,6 @@ __pycache__/
 ehthumbs.db
 Thumbs.db
 
-.sconf_temp/
 *.log
 cache/
-build/
-build2/
+/build*/
