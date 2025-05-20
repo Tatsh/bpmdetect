@@ -44,7 +44,6 @@ void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
 void DlgTestBPMPlayer::finishedDecoding() {
     format = lastBuffer.format();
     output = new QAudioSink(format, this);
-    output->setBufferSize(512);
     dev = output->start();
     readyToPlay = true;
     emit hasLengthUS(lengthUS);
@@ -86,22 +85,22 @@ void DlgTestBPMPlayer::run() {
     update(nBeats);
 
     while (dataRemaining) {
-        QAudio::State state = output->state();
-        if (state != QAudio::ActiveState &&
-            state != QAudio::IdleState &&
-            state != QAudio::SuspendedState) {
+        QtAudio::State state = output->state();
+        if (state != QtAudio::ActiveState &&
+            state != QtAudio::IdleState &&
+            state != QtAudio::SuspendedState) {
             break;
         }
 
-        qint64 bytesWritten = dev->write(data, dataRemaining);
+        qint64 bytesWritten = dev->write(data, 512);
         dataRemaining -= bytesWritten;
         data += bytesWritten;
 
-        if (dataRemaining <= 0) {
+        if (dataRemaining <= 0 && output->bytesFree() > 0) {
             data = startptr;
             dataRemaining = originalSize;
         }
 
-        usleep(10);
+        usleep(1000);
     }
 }
