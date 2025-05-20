@@ -357,8 +357,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>cbNBeats</sender>
-   <signal>activated(QString)</signal>
    <receiver>DlgTestBPMDlg</receiver>
    <slot>setNumBeats(QString)</slot>
    <hints>
