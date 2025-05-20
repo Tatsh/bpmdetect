@@ -20,8 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef ENERGYBEATDETECTOR_H
-#define ENERGYBEATDETECTOR_H
+#pragma once
 
 #define DEFAULT_THRESHOLD 1.0
 
@@ -30,7 +29,7 @@ public:
     EnergyBeatDetector(unsigned long bufSize = 10);
     ~EnergyBeatDetector();
 
-    bool addValue(float val);
+    void addValue(float val);
     void setBufferSize(unsigned long bufSize);
     bool isBeat();
     float beat();
@@ -54,8 +53,6 @@ private:
     float envelopeAccu;
 
     unsigned long m_energyBufSize;
-    unsigned long m_energyBufIdx;       ///< index of new value in energy buffer
-    float* m_pEnergyBuffer;             ///< sound energy buffer for last second
+    unsigned long m_energyBufIdx; ///< index of new value in energy buffer
+    float *m_pEnergyBuffer;       ///< sound energy buffer for last second
 };
-
-#endif

@@ -20,12 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef PROGRESSBAR_H
-#define PROGRESSBAR_H
+#pragma once
 
-#include <QWidget>
-#include <QProgressBar>
 #include <QMouseEvent>
+#include <QProgressBar>
+#include <QWidget>
 
 /// @brief Progressbar controlled by mouse
 class ProgressBar : public QProgressBar {
@@ -33,7 +32,7 @@ class ProgressBar : public QProgressBar {
 
 public:
     /// Constructor
-    ProgressBar( QWidget *parent = 0 );
+    ProgressBar(QWidget *parent = 0);
     /// Destructor
     ~ProgressBar();
     /// Return change status
@@ -43,31 +42,29 @@ public:
     /// Return total steps (track length)
     uint length();
 
-public slots:
+public Q_SLOTS:
     /// Set current position
-    void setPosition( uint pos );
+    void setPosition(uint pos);
     /// Set total steps
-    void setLength( uint len );
+    void setLength(uint len);
     /// Set enabled status
-    void setEnabled( bool s );
+    void setEnabled(bool s);
 
-protected slots:
+protected Q_SLOTS:
     /// Receiving mouse press events
-    void mousePressEvent( QMouseEvent *e );
+    void mousePressEvent(QMouseEvent *e);
     /// Receiving mouse move events
-    void mouseMoveEvent( QMouseEvent *e );
+    void mouseMoveEvent(QMouseEvent *e);
     /// Receiving mouse release events
-    void mouseReleaseEvent( QMouseEvent *e );
+    void mouseReleaseEvent(QMouseEvent *e);
     /// Set change status
-    void setChange( bool s );
+    void setChange(bool s);
 
-signals:
+protected:
     /// Current position changed
-    void positionChanged( uint pos );
+    Q_SIGNAL void positionChanged(uint pos);
 
 private:
-    bool chng;    ///< true if left mouse button is down
-    bool enable;  ///< enable status
+    bool chng;   ///< true if left mouse button is down
+    bool enable; ///< enable status
 };
-
-#endif  //PROGRESSBAR_H

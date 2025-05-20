@@ -34,7 +34,8 @@ BPMCounter::BPMCounter() {
     setMaxBPM();
 }
 
-BPMCounter::~BPMCounter() {}
+BPMCounter::~BPMCounter() {
+}
 
 /**
  * @brief Correct BPM
@@ -44,21 +45,27 @@ BPMCounter::~BPMCounter() {}
  * @return corrected BPM
  */
 double BPMCounter::correctBPM(double dBPM, float min, float max, bool blimit, double rBPM) {
-    if ( dBPM < 1 ) return 0.;
+    if (dBPM < 1)
+        return 0.;
 
     // use suggested bpm (rBPM)
-    if(rBPM > min && rBPM < max) {
+    if (rBPM > min && rBPM < max) {
         double lbpm;
-        while(dBPM >= rBPM) dBPM /= 2.; // find lower bpm than rBPM
+        while (dBPM >= rBPM)
+            dBPM /= 2.; // find lower bpm than rBPM
         lbpm = dBPM;
-        while(dBPM <= rBPM) dBPM *= 2.; // find greater bpm than rBPM
-        if((rBPM - lbpm) < (dBPM - rBPM)) {
+        while (dBPM <= rBPM)
+            dBPM *= 2.; // find greater bpm than rBPM
+        if ((rBPM - lbpm) < (dBPM - rBPM)) {
             dBPM = lbpm;
         }
-        if (blimit && (dBPM < min || dBPM > max)) dBPM = 0;
+        if (blimit && (dBPM < min || dBPM > max))
+            dBPM = 0;
     } else {
-        while(dBPM / 2.0 > min) dBPM /= 2.; // minimum bpm
-        while(dBPM * 2.0 < max) dBPM *= 2.; // maximum bpm
+        while (dBPM / 2.0 > min)
+            dBPM /= 2.; // minimum bpm
+        while (dBPM * 2.0 < max)
+            dBPM *= 2.; // maximum bpm
 
         if (dBPM < min || dBPM > max) {
             dBPM = blimit ? 0 : dBPM * 2.;
@@ -69,14 +76,18 @@ double BPMCounter::correctBPM(double dBPM, float min, float max, bool blimit, do
 }
 
 void BPMCounter::setMinBPM(unsigned int minBPM) {
-    if(minBPM < 40) minBPM = 40;
-    if(minBPM > 200) minBPM = 200;
+    if (minBPM < 40)
+        minBPM = 40;
+    if (minBPM > 200)
+        minBPM = 200;
     m_minBPM = minBPM;
 }
 
 void BPMCounter::setMaxBPM(unsigned int maxBPM) {
-    if(maxBPM > 250) maxBPM = 250;
-    if(maxBPM <= m_minBPM+10) return;
+    if (maxBPM > 250)
+        maxBPM = 250;
+    if (maxBPM <= m_minBPM + 10)
+        return;
     m_maxBPM = maxBPM;
 }
 
@@ -84,11 +95,12 @@ void BPMCounter::reset() {
     m_beatCount = -1;
     m_fBPM = m_fError = 0;
 
-    for(int i = 0; i < BUFFER_SIZE; ++i) m_bpmbuffer[i] = 0;
+    for (int i = 0; i < BUFFER_SIZE; ++i)
+        m_bpmbuffer[i] = 0;
 }
 
 void BPMCounter::addBeat() {
-    if(m_beatCount < 0) {
+    if (m_beatCount < 0) {
         // first beat: start the timer and return
         m_qstarttime = QTime::currentTime();
         m_qtime.start();
@@ -102,11 +114,12 @@ void BPMCounter::addBeat() {
     //qDebug() << "QTime BPM:" << cbpm << "miliseconds:" << mstime;
 
     // if cbpm is 2 times higher than max bpm, wait for next beat
-    if(cbpm > (m_maxBPM*2)) return;
+    if (cbpm > (m_maxBPM * 2))
+        return;
 
 #define GAP_BEATS 5.0
     // reset if gap is longer than GAP_BEATS beats
-    if(m_beatCount > 5 && cbpm < m_fBPM / GAP_BEATS) {
+    if (m_beatCount > 5 && cbpm < m_fBPM / GAP_BEATS) {
         qDebug() << "Long gap, more than " << GAP_BEATS << "beats, resetting";
         reset();
         m_qstarttime = QTime::currentTime();
@@ -118,14 +131,19 @@ void BPMCounter::addBeat() {
     float ccbpm = cbpm;
     // FIXME: correct beat count for first 5 values
     //const float error = 0.5;
-    if(m_beatCount > 5) {
+    if (m_beatCount > 5) {
         // calculate average bpm from buffer
-        int count = 0; float avgbpm = 0;
-        for(int i = 0; i < BUFFER_SIZE; ++i) {
-            if(m_bpmbuffer[i] > 1) { avgbpm += m_bpmbuffer[i]; ++count; }
+        int count = 0;
+        float avgbpm = 0;
+        for (int i = 0; i < BUFFER_SIZE; ++i) {
+            if (m_bpmbuffer[i] > 1) {
+                avgbpm += m_bpmbuffer[i];
+                ++count;
+            }
         }
-        if(count > 1) avgbpm /= (float) count;
-/*
+        if (count > 1)
+            avgbpm /= (float)count;
+        /*
         ccbpm = correctBPM(cbpm, m_minBPM, m_maxBPM, true, avgbpm);
 if(ccbpm != cbpm) qDebug() << "BPM corrected (original, corrected):" << cbpm << ccbpm;
 
@@ -142,8 +160,9 @@ if(ccbpm != cbpm) qDebug() << "BPM corrected (original, corrected):" << cbpm << 
     }
 
     // shift bpm buffer and add new value
-    for(int i = 1; i < BUFFER_SIZE; ++i) m_bpmbuffer[i-1] = m_bpmbuffer[i];
-    m_bpmbuffer[BUFFER_SIZE-1] = ccbpm;
+    for (int i = 1; i < BUFFER_SIZE; ++i)
+        m_bpmbuffer[i - 1] = m_bpmbuffer[i];
+    m_bpmbuffer[BUFFER_SIZE - 1] = ccbpm;
 
     int beats = ccbpm / cbpm;
     m_beatCount += beats;
@@ -159,12 +178,13 @@ float BPMCounter::getError() const {
 }
 
 long BPMCounter::getBeatCount() const {
-    if(m_beatCount < 0) return 0;
+    if (m_beatCount < 0)
+        return 0;
     return m_beatCount;
 }
 
 void BPMCounter::calcBPM() {
-    if(m_beatCount < 1) {
+    if (m_beatCount < 1) {
         m_fBPM = m_fError = 0;
         return;
     }

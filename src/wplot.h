@@ -20,11 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WPLOT_H
-#define WPLOT_H
+#pragma once
 
-#include <QWidget>
 #include <QList>
+#include <QWidget>
 
 class WPlot : public QWidget {
     Q_OBJECT
@@ -32,7 +31,7 @@ public:
     WPlot(QWidget *parent = 0);
     ~WPlot();
 
-    void setData(const float* data, unsigned long size);
+    void setData(const float *data, unsigned long size);
     void setMaxValue(float max);
     void setMinValue(float min);
 
@@ -41,8 +40,5 @@ protected:
     float m_maxVal, m_minVal;
     QList<QPointF> m_points;
 
-    void paintEvent(QPaintEvent* e);
-
+    void paintEvent(QPaintEvent *e);
 };
-
-#endif

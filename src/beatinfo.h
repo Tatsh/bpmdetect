@@ -20,8 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BEATINFO_H
-#define BEATINFO_H
+#pragma once
 
 class BeatInfo {
 public:
@@ -40,12 +39,10 @@ public:
     void setEnergy(float energy);
     void addEnergy(float energy);
 
-    float getBPM(const BeatInfo* bi);
+    float getBPM(const BeatInfo *bi);
 
 private:
-    unsigned long m_start;  /// miliseconds 
+    unsigned long m_start;  /// miliseconds
     unsigned long m_length; /// beat length in miliseconds
     float m_energy;         /// beat energy
 };
-
-#endif

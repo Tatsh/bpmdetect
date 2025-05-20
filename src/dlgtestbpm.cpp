@@ -20,10 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <QString>
 #include <QComboBox>
-#include <QLabel>
 #include <QDebug>
+#include <QLabel>
+#include <QString>
 
 #include "dlgtestbpm.h"
 #include "dlgtestbpmplayer.h"
@@ -32,7 +32,7 @@
 
 using namespace std;
 
-DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : QDialog( parent ) {
+DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : QDialog(parent) {
     setupUi(this);
 
     if (file.isEmpty()) {
@@ -43,8 +43,11 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     m_bpm = bpm;
 
     lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));
-    connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos( uint )));
-    connect(player, SIGNAL(hasLengthUS(const qint64)), this, SLOT(setTrackPositionLength(const qint64)));
+    connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos(uint)));
+    connect(player,
+            SIGNAL(hasLengthUS(const qint64)),
+            this,
+            SLOT(setTrackPositionLength(const qint64)));
 
     cbNBeats->setEnabled(false);
     btnPos1->setEnabled(false);
@@ -74,28 +77,28 @@ void DlgTestBPM::setTrackPositionLength(const qint64 length) {
 void DlgTestBPM::setPos1() {
     uint msec = trackPosition->length() / 5;
     player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.2);
-    trackPosition->setPosition( msec );
+    trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setPos2() {
-    uint msec = ( trackPosition->length() * 2 ) / 5;
+    uint msec = (trackPosition->length() * 2) / 5;
     player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.4);
-    trackPosition->setPosition( msec );
+    trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setPos3() {
-    uint msec = ( trackPosition->length() * 3 ) / 5;
+    uint msec = (trackPosition->length() * 3) / 5;
     player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.6);
-    trackPosition->setPosition( msec );
+    trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setPos4() {
-    uint msec = ( trackPosition->length() * 4 ) / 5;
+    uint msec = (trackPosition->length() * 4) / 5;
     player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.8);
-    trackPosition->setPosition( msec );
+    trackPosition->setPosition(msec);
 }
 
-void DlgTestBPM::setCustomPos( uint msec ) {
+void DlgTestBPM::setCustomPos(uint msec) {
     player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
 }
 
@@ -104,7 +107,7 @@ void DlgTestBPM::setCustomPos( uint msec ) {
  * called when combobox currentItemChanged is emited
  * @param text is number of beats to loop (combobox currentText)
  */
-void DlgTestBPM::setNumBeats( const QString &text ) {
+void DlgTestBPM::setNumBeats(const QString &text) {
     int value = trackPosition->value();
     if (value < 0) {
         value = 0;
@@ -118,14 +121,16 @@ void DlgTestBPM::slotUpdateBpmList() {
 
     m_bpmList.clear();
 
-    if(m_bpm > MIN_BPM && m_bpm < MAX_BPM) {
+    if (m_bpm > MIN_BPM && m_bpm < MAX_BPM) {
         float cbpm = m_bpm;
-        while(cbpm / 2. > MIN_BPM) cbpm /= 2.;
+        while (cbpm / 2. > MIN_BPM)
+            cbpm /= 2.;
 
         const float d = 0.25 * cbpm;
-        while(cbpm-d > MIN_BPM) cbpm -= d;
+        while (cbpm - d > MIN_BPM)
+            cbpm -= d;
 
-        for(; cbpm < MAX_BPM; cbpm += d) {
+        for (; cbpm < MAX_BPM; cbpm += d) {
             m_bpmList.append(cbpm);
         }
     }

@@ -10,8 +10,7 @@
  *   (at your option) any later version.                                   *
  ***************************************************************************/
 
-#ifndef AUDIOINPUT_H
-#define AUDIOINPUT_H
+#pragma once
 
 #include "pasample.h"
 
@@ -22,22 +21,20 @@ public:
     AudioInput(unsigned int samplerate = 11025, unsigned int channels = 2);
     ~AudioInput();
 
-    void start(AudioAnalyzer* pAnalyzer);
+    void start(AudioAnalyzer *pAnalyzer);
     void stop();
 
     void setParameters(unsigned int samplerate, unsigned int channels);
 
 protected:
-    static int recordCallback(const void *inputBuffer, void *outputBuffer,
-                       unsigned long framesPerBuffer,
-                       const PaStreamCallbackTimeInfo* timeInfo,
-                       PaStreamCallbackFlags statusFlags,
-                       void *userData );
+    static int recordCallback(const void *inputBuffer,
+                              void *outputBuffer,
+                              unsigned long framesPerBuffer,
+                              const PaStreamCallbackTimeInfo *timeInfo,
+                              PaStreamCallbackFlags statusFlags,
+                              void *userData);
 
 private:
-    unsigned int m_uSamplerate,
-                 m_uChannels;
-    PaStream* m_pStream;
+    unsigned int m_uSamplerate, m_uChannels;
+    PaStream *m_pStream;
 };
-
-#endif

@@ -20,11 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef AUDIOANALYZER_H
-#define AUDIOANALYZER_H
+#pragma once
 
-#include "pasample.h"
 #include "kiss_fftr.h"
+#include "pasample.h"
 
 #include <QObject>
 
@@ -39,68 +38,65 @@ class BPMCalculator;
 class AudioAnalyzer : public QObject {
     Q_OBJECT
 public:
-    AudioAnalyzer(QObject* parent = 0);
+    AudioAnalyzer(QObject *parent = 0);
     ~AudioAnalyzer();
 
     unsigned int samplerate() const;
     unsigned int channels() const;
     void setParameters(unsigned int samplerate, unsigned int channels);
 
-    virtual void process(const SAMPLE* inputBuffer, unsigned long size);
+    virtual void process(const SAMPLE *inputBuffer, unsigned long size);
 
     int getVuMeterValueL() const;
     int getVuMeterValueR() const;
     int getVuMeterValue() const;
-    const float* getMagnitude() const;
+    const float *getMagnitude() const;
     int getFFTSize() const;
-    
+
     float getCurrentBPM() const;
-    const BPMCalculator* getBPMCalculator() const;
-    
+    const BPMCalculator *getBPMCalculator() const;
+
 #ifndef NO_GUI
-    Waveform* waveform() const;
-    EnergyBeatDetector* beatDetector(int idx = 0) const;
-    Waveform* calculatorWave() const;
+    Waveform *waveform() const;
+    EnergyBeatDetector *beatDetector(int idx = 0) const;
+    Waveform *calculatorWave() const;
 #endif
 
-signals:
-    void updated();
-    void beat(bool);
+    Q_SIGNAL void updated();
+    Q_SIGNAL void beat(bool);
 
 protected:
     void setSamplerate(unsigned int samplerate);
     void setChannels(unsigned int channels);
-    void calculateRMS(const SAMPLE* inputBuffer, unsigned long size);
-    void updateWaveform(const SAMPLE* buffer, unsigned long size);
+    void calculateRMS(const SAMPLE *inputBuffer, unsigned long size);
+    void updateWaveform(const SAMPLE *buffer, unsigned long size);
     /// analyze a mono buffer @a buffer of @a size samples
-    virtual void analyze(const SAMPLE* buffer, unsigned long size, const SAMPLE* prevbuffer = 0);
+    virtual void analyze(const SAMPLE *buffer, unsigned long size, const SAMPLE *prevbuffer = 0);
 
 private:
     unsigned int m_uSamplerate, m_uChannels;
     float m_fRMSVolL, m_fRMSVolR;
     bool bbeat;
-    EnergyBeatDetector* m_pBeatDetector[NUMDETECTORS];
+    EnergyBeatDetector *m_pBeatDetector[NUMDETECTORS];
 
-    int fftsize;
+    unsigned long fftsize;
     kiss_fftr_cfg fftcfg;
-    float* m_magvector; // current magnitude vector (size = fftsize)
+    float *m_magvector; // current magnitude vector (size = fftsize)
 
     unsigned long m_instantBufSize;
-    unsigned long m_instantBufSamples;  ///< number of samples in instant buffer
-    SAMPLE* m_pInstantBuffer;           ///< instant buffer (mono)
-    SAMPLE* m_pPrevInstantBuffer;
+    unsigned long m_instantBufSamples; ///< number of samples in instant buffer
+    SAMPLE *m_pInstantBuffer;          ///< instant buffer (mono)
+    SAMPLE *m_pPrevInstantBuffer;
 
-    BeatInfo *m_pBeat;                  ///< current beat
-    
-unsigned long oldstart;
-    BPMCounter* m_pCounter;             ///< BPM counter
-    BPMCalculator* m_pCalculator;       ///< BPM calculator (autocorrelation)
+    BeatInfo *m_pBeat; ///< current beat
+
+    unsigned long oldstart;
+    BPMCounter *m_pCounter;       ///< BPM counter
+    BPMCalculator *m_pCalculator; ///< BPM calculator (autocorrelation)
 
 #ifndef NO_GUI
-    Waveform* m_pWaveform;
+    Waveform *m_pWaveform;
 #endif
 
     void reinit();
 };
-
-#endif

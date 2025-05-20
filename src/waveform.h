@@ -20,14 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WAVEFORM_H
-#define WAVEFORM_H
+#pragma once
 
 #include "pasample.h"
 
 class Waveform {
-friend class WWaveform;
-friend class BPMCalculator;
+    friend class WWaveform;
+    friend class BPMCalculator;
+
 public:
     /// @a srate is sample rate, @a length is length in seconds
     Waveform(float srate = 44100, float length = 4);
@@ -42,9 +42,9 @@ public:
     /// Average values will be used instead of max ones if @a avg is true
     void setAverage(bool avg);
     /// Update should be called allways with the same number of samples (size)
-    void update(const SAMPLE* buffer, unsigned long size, bool beat = false, int beatOffset = 0);
-    void update(const float* buffer, unsigned long size);
-    
+    void update(const SAMPLE *buffer, unsigned long size, bool beat = false, int beatOffset = 0);
+    void update(const float *buffer, unsigned long size);
+
     /// @return maximum value of the waveform
     float getMaxValue();
     /// @return minimum waveform value
@@ -54,28 +54,26 @@ public:
 
 protected:
     /// Return pointer to array of values (use numValues to get size)
-    const float* valueBuffer() const;
-    const bool* beats() const;
+    const float *valueBuffer() const;
+    const bool *beats() const;
     /// @return waveform size - number of values (length)
     unsigned long size() const;
 
 private:
-    float m_srate;                      /// sample rate
-    float m_length;                     /// waveform length in seconds
+    float m_srate;  /// sample rate
+    float m_length; /// waveform length in seconds
 
-    unsigned long m_valueBufSize;       /// size of temporary buffer
-    unsigned long m_cidx;               /// samples counter
+    unsigned long m_valueBufSize; /// size of temporary buffer
+    unsigned long m_cidx;         /// samples counter
     float m_maxVal, m_avgSum;
     bool m_bAverage;
 
-    unsigned long m_waveformBufSize;    /// size of waveform value buffer
-    float* m_pWaveformBuffer;           /// waveform value buffer
-    bool* m_pBeatBuffer;                /// beat buffer (same size as waveform buffer)
+    unsigned long m_waveformBufSize; /// size of waveform value buffer
+    float *m_pWaveformBuffer;        /// waveform value buffer
+    bool *m_pBeatBuffer;             /// beat buffer (same size as waveform buffer)
 
     /// Initialize buffers
     void reinit();
     /// Shift data to the left and add @a val value to the end
     void addValue(float val, bool beat = false, int beatOffset = 0);
 };
-
-#endif

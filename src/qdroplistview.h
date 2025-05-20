@@ -20,41 +20,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef QDROPLISTVIEW_H
-#define QDROPLISTVIEW_H
+#pragma once
 
-#include <QTreeWidget>
+#include <QDragEnterEvent>
 #include <QDragLeaveEvent>
-#include <QKeyEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
-#include <QDragEnterEvent>
+#include <QKeyEvent>
+#include <QTreeWidget>
 
 class QDropListView : public QTreeWidget {
     Q_OBJECT
 public:
-    QDropListView ( QWidget *parent = 0 );
+    QDropListView(QWidget *parent = 0);
     ~QDropListView();
 
-public slots:
+public Q_SLOTS:
     /// Remove selected items from list
     void slotRemoveSelected();
 
 protected:
-    void keyPressEvent( QKeyEvent *e );
-    void keyReleaseEvent( QKeyEvent *e );
-    void dragEnterEvent( QDragEnterEvent *e );
-    void dragMoveEvent( QDragMoveEvent *e );
-    void dragLeaveEvent( QDragLeaveEvent *e );
-    void dropEvent( QDropEvent *e );
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
+    void dropEvent(QDropEvent *e);
 
-signals:
-    void keyPress( QKeyEvent *e );
-    void keyRelease( QKeyEvent *e );
-    void dragEnter( QDragEnterEvent *e );
-    void dragMove( QDragMoveEvent *e );
-    void dragLeave( QDragLeaveEvent *e );
-    void drop( QDropEvent *e );
+    Q_SIGNAL void keyPress(QKeyEvent *e);
+    Q_SIGNAL void keyRelease(QKeyEvent *e);
+    Q_SIGNAL void dragEnter(QDragEnterEvent *e);
+    Q_SIGNAL void dragMove(QDragMoveEvent *e);
+    Q_SIGNAL void dragLeave(QDragLeaveEvent *e);
+    Q_SIGNAL void drop(QDropEvent *e);
 };
-
-#endif

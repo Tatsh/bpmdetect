@@ -20,11 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WWAVEFORM_H
-#define WWAVEFORM_H
+#pragma once
 
-#include <QWidget>
 #include "pasample.h"
+#include <QWidget>
 
 class Waveform;
 
@@ -34,15 +33,13 @@ public:
     WWaveform(QWidget *parent = 0);
     ~WWaveform();
 
-    void setWaveform(Waveform* pWaveform);
+    void setWaveform(Waveform *pWaveform);
     void setAutoScale(bool autoScale);
 
 protected:
-    void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent *e);
 
 private:
-    Waveform* m_pWaveform;
+    Waveform *m_pWaveform;
     bool m_bAutoScale;
 };
-
-#endif

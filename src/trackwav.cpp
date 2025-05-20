@@ -25,18 +25,18 @@
 #include <assert.h>
 #include <limits.h>
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #ifdef HAVE_TAGLIB
-#include <mpegfile.h>
-#include <id3v2tag.h>
 #include <id3v2frame.h>
-#endif   // HAVE_TAGLIB
+#include <id3v2tag.h>
+#include <mpegfile.h>
+#endif // HAVE_TAGLIB
 
 static const char riffStr[] = "RIFF";
 static const char waveStr[] = "WAVE";
-static const char fmtStr[]  = "fmt ";
+static const char fmtStr[] = "fmt ";
 static const char dataStr[] = "data";
 
 using namespace std;
@@ -64,28 +64,25 @@ using namespace soundtouch;
 
 // helper-function to swap byte-order of 32bit integer
 static inline void _swap32(unsigned int &dwData) {
-    dwData = ((dwData >> 24) & 0x000000FF) |
-             ((dwData >> 8)  & 0x0000FF00) |
-             ((dwData << 8)  & 0x00FF0000) |
-             ((dwData << 24) & 0xFF000000);
+    dwData = ((dwData >> 24) & 0x000000FF) | ((dwData >> 8) & 0x0000FF00) |
+             ((dwData << 8) & 0x00FF0000) | ((dwData << 24) & 0xFF000000);
 }
 
 // helper-function to swap byte-order of 16bit integer
 static inline void _swap16(unsigned short &wData) {
-    wData = ((wData >> 8) & 0x00FF) |
-            ((wData << 8) & 0xFF00);
+    wData = ((wData >> 8) & 0x00FF) | ((wData << 8) & 0xFF00);
 }
 
 // helper-function to swap byte-order of buffer of 16bit integers
 static inline void _swap16Buffer(unsigned short *pData, unsigned int dwNumWords) {
     unsigned long i;
 
-    for (i = 0; i < dwNumWords; i ++) {
+    for (i = 0; i < dwNumWords; i++) {
         _swap16(pData[i]);
     }
 }
 
-#else   // BIG_ENDIAN
+#else  // BIG_ENDIAN
 // little-endian CPU, WAV file is ok as such
 
 // dummy helper-function
@@ -102,7 +99,7 @@ static inline void _swap16(unsigned short &wData) {
 static inline void _swap16Buffer(unsigned short *pData, unsigned int dwNumBytes) {
     // do nothing
 }
-#endif  // BIG_ENDIAN
+#endif // BIG_ENDIAN
 
 static int isAlpha(char c) {
     return (c >= ' ' && c <= 'z') ? 1 : 0;
@@ -111,18 +108,19 @@ static int isAlpha(char c) {
 static int isAlphaStr(char *str) {
     int c = str[0];
     while (c) {
-        if (isAlpha(c) == 0) return 0;
-        str ++;
+        if (isAlpha(c) == 0)
+            return 0;
+        str++;
         c = str[0];
     }
 
     return 1;
 }
 
-TrackWav::TrackWav( const char* fname, bool readtags ) : Track() {
+TrackWav::TrackWav(const char *fname, bool readtags) : Track() {
     m_iCurPosBytes = 0;
     fptr = 0;
-    setFilename( fname, readtags );
+    setFilename(fname, readtags);
 }
 
 TrackWav::~TrackWav() {
@@ -135,7 +133,8 @@ void TrackWav::open() {
 
     // Try to open the file for reading
     fptr = fopen(fname.c_str(), "rb");
-    if (fptr == NULL) return;
+    if (fptr == NULL)
+        return;
 
     // Read the file headers
     int hdrsOk = readWavHeaders();
@@ -156,12 +155,12 @@ void TrackWav::open() {
     uint srate = header.format.sample_rate;
     int channels = header.format.channel_number;
 
-    uint len =  (1000 * numSamples / srate);
+    uint len = (1000 * numSamples / srate);
     int sbytes = header.format.bits_per_sample;
 
-    setLength( len );
-    setStartPos( 0 );
-    setEndPos( len );
+    setLength(len);
+    setStartPos(0);
+    setEndPos(len);
     setSamplerate(srate);
     setSampleBytes(sbytes);
     setChannels(channels);
@@ -171,13 +170,14 @@ void TrackWav::open() {
 }
 
 void TrackWav::close() {
-    if (fptr) fclose(fptr);
+    if (fptr)
+        fclose(fptr);
     fptr = NULL;
     m_iCurPosBytes = 0;
     setOpened(false);
 }
 
-void TrackWav::seek( uint ms ) {
+void TrackWav::seek(uint ms) {
     if (isValid()) {
         fseek(fptr, 0, SEEK_SET);
         unsigned long long pos = (ms * samplerate() * sampleBytes()) / 1000;
@@ -194,8 +194,9 @@ void TrackWav::seek( uint ms ) {
 
 uint TrackWav::currentPos() {
     if (isValid()) {
-        unsigned long long pos = 1000*m_iCurPosBytes / (samplerate()*channels()*sampleBytes());
-        return (uint) pos;
+        unsigned long long pos =
+            1000 * m_iCurPosBytes / (samplerate() * channels() * sampleBytes());
+        return (uint)pos;
     }
     return 0;
 }
@@ -206,8 +207,9 @@ uint TrackWav::currentPos() {
  * @param num number of samples (per channel)
  * @return number of read samples
  */
-int TrackWav::readSamples( SAMPLETYPE* buffer, int num ) {
-    if (!isValid()) return -1;
+int TrackWav::readSamples(SAMPLETYPE *buffer, unsigned int num) {
+    if (!isValid())
+        return -1;
 
     int nread = read(buffer, num);
     return nread;
@@ -249,7 +251,7 @@ int TrackWav::read(short *buffer, int maxElems) {
 
         numElems = read(temp, maxElems);
         // convert from 8 to 16 bit
-        for (i = 0; i < numElems; i ++) {
+        for (i = 0; i < numElems; i++) {
             buffer[i] = temp[i] << 8;
         }
         delete[] temp;
@@ -277,8 +279,6 @@ int TrackWav::read(short *buffer, int maxElems) {
     return numElems;
 }
 
-
-
 int TrackWav::read(float *buffer, int maxElems) {
     short *temp = new short[maxElems];
     int num;
@@ -289,7 +289,7 @@ int TrackWav::read(float *buffer, int maxElems) {
 
     fscale = 1.0 / 32768.0;
     // convert to floats, scale to range [-1..+1[
-    for (i = 0; i < num; i ++) {
+    for (i = 0; i < num; i++) {
         buffer[i] = (float)(fscale * (double)temp[i]);
     }
 
@@ -297,9 +297,9 @@ int TrackWav::read(float *buffer, int maxElems) {
     return num;
 }
 
-void TrackWav::storeBPM( string format ) {
+void TrackWav::storeBPM(string format) {
     string fname = filename();
-    string sBPM = bpm2str( getBPM(), format );
+    string sBPM = bpm2str(getBPM(), format);
 #ifdef HAVE_TAGLIB
     close();
     /*
@@ -359,7 +359,6 @@ void TrackWav::removeBPM() {
 #endif
 }
 
-
 int TrackWav::readRIFFBlock() {
     size_t read = fread(&(header.riff), sizeof(WavRiff), 1, fptr);
     assert(read > 0);
@@ -368,9 +367,11 @@ int TrackWav::readRIFFBlock() {
     _swap32((unsigned int &)header.riff.package_len);
 
     // header.riff.riff_char should equal to 'RIFF');
-    if (memcmp(riffStr, header.riff.riff_char, 4) != 0) return -1;
+    if (memcmp(riffStr, header.riff.riff_char, 4) != 0)
+        return -1;
     // header.riff.wave should equal to 'WAVE'
-    if (memcmp(waveStr, header.riff.wave, 4) != 0) return -1;
+    if (memcmp(waveStr, header.riff.wave, 4) != 0)
+        return -1;
 
     return 0;
 }
@@ -384,7 +385,8 @@ int TrackWav::readHeaderBlock() {
     assert(read > 0);
     label[4] = 0;
 
-    if (isAlphaStr(label) == 0) return -1;    // not a valid label
+    if (isAlphaStr(label) == 0)
+        return -1; // not a valid label
 
     // Decode blocks according to their label
     if (strcmp(label, fmtStr) == 0) {
@@ -413,12 +415,12 @@ int TrackWav::readHeaderBlock() {
         assert(read > 0);
 
         // swap byte order if necessary
-        _swap16((unsigned short &)header.format.fixed);            // short int fixed;
-        _swap16((unsigned short &)header.format.channel_number);   // short int channel_number;
-        _swap32((unsigned int   &)header.format.sample_rate);      // int sample_rate;
-        _swap32((unsigned int   &)header.format.byte_rate);        // int byte_rate;
-        _swap16((unsigned short &)header.format.byte_per_sample);  // short int byte_per_sample;
-        _swap16((unsigned short &)header.format.bits_per_sample);  // short int bits_per_sample;
+        _swap16((unsigned short &)header.format.fixed);           // short int fixed;
+        _swap16((unsigned short &)header.format.channel_number);  // short int channel_number;
+        _swap32((unsigned int &)header.format.sample_rate);       // int sample_rate;
+        _swap32((unsigned int &)header.format.byte_rate);         // int byte_rate;
+        _swap16((unsigned short &)header.format.byte_per_sample); // short int byte_per_sample;
+        _swap16((unsigned short &)header.format.bits_per_sample); // short int bits_per_sample;
 
         // if format_len is larger than expected, skip the extra data
         if (nDump > 0) {
@@ -445,15 +447,15 @@ int TrackWav::readHeaderBlock() {
         read = fread(&len, sizeof(len), 1, fptr);
         assert(read > 0);
         // scan through the block
-        for (i = 0; i < len; i ++) {
+        for (i = 0; i < len; i++) {
             read = fread(&temp, 1, 1, fptr);
             assert(read > 0);
-            if (feof(fptr)) return -1;   // unexpected eof
+            if (feof(fptr))
+                return -1; // unexpected eof
         }
     }
     return 0;
 }
-
 
 int TrackWav::readWavHeaders() {
     int res;
@@ -461,12 +463,14 @@ int TrackWav::readWavHeaders() {
     memset(&header, 0, sizeof(header));
 
     res = readRIFFBlock();
-    if (res) return 1;
+    if (res)
+        return 1;
     // read header blocks until data block is found
     do {
         // read header blocks
         res = readHeaderBlock();
-        if (res < 0) return 1;  // error in file structure
+        if (res < 0)
+            return 1; // error in file structure
     } while (res == 0);
     // check that all required tags are legal
     return checkCharTags();
@@ -474,10 +478,11 @@ int TrackWav::readWavHeaders() {
 
 int TrackWav::checkCharTags() {
     // header.format.fmt should equal to 'fmt '
-    if (memcmp(fmtStr, header.format.fmt, 4) != 0) return -1;
+    if (memcmp(fmtStr, header.format.fmt, 4) != 0)
+        return -1;
     // header.data.data_field should equal to 'data'
-    if (memcmp(dataStr, header.data.data_field, 4) != 0) return -1;
+    if (memcmp(dataStr, header.data.data_field, 4) != 0)
+        return -1;
 
     return 0;
 }
-

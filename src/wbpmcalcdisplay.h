@@ -20,13 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WBPMCALCDISPLAY_H
-#define WBPMCALCDISPLAY_H
+#pragma once
 
-#include <wplot.h>
 #include <vector>
+#include <wplot.h>
 
-#include "bpmcalculator.h"  // for struct Peak
+#include "bpmcalculator.h" // for struct Peak
 
 class WBPMCalcDisplay : public WPlot {
     Q_OBJECT
@@ -35,14 +34,12 @@ public:
     ~WBPMCalcDisplay();
 
     void setPeaks(std::vector<Peak> peaks);
-    void updateData(const BPMCalculator* pCalc);
+    void updateData(const BPMCalculator *pCalc);
 
 protected:
-    void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent *e);
 
 private:
     int m_winStart;
     std::vector<Peak> m_peaks;
 };
-
-#endif

@@ -20,8 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TRACKMP3_H
-#define TRACKMP3_H
+#pragma once
 
 #include "track.h"
 #include <mad.h>
@@ -34,22 +33,21 @@ typedef struct MadSeekFrameType {
     long int pos;
 } MadSeekFrameType;
 
-
 class TrackMp3 : public Track {
 public:
-    TrackMp3( const char* filename, bool readtags = true );
+    TrackMp3(const char *filename, bool readtags = true);
     ~TrackMp3();
     void readTags();
 
 protected:
     void open();
     void close();
-    void seek( uint ms );
+    void seek(uint ms);
     uint currentPos();
-    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
     inline signed int madScale(mad_fixed_t sample);
 
-    void storeBPM( std::string sBPM );
+    void storeBPM(std::string sBPM);
     void removeBPM();
 
     void clearFrameList();
@@ -81,7 +79,5 @@ private:
      * of past decodeded frame, and their exact position. If a seek occours and it is within the
      * range of frames we keep track of a precise seek occours, otherwise an unprecise seek is performed
      */
-    std::vector<MadSeekFrameType*> m_qSeekList;
+    std::vector<MadSeekFrameType *> m_qSeekList;
 };
-
-#endif  // TRACKMP3_H

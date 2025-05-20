@@ -23,8 +23,8 @@
 #include "dlgrealtime.h"
 #include <QDebug>
 
-#include "audioinput.h"
 #include "audioanalyzer.h"
+#include "audioinput.h"
 #include "bpmcounter.h"
 #include "metronome.h"
 
@@ -46,7 +46,7 @@ DlgRealtime::DlgRealtime(QWidget *parent) : QDialog(parent) {
 
     magDisplay->setMaxValue(60);
 
-    for(int i = 0; i < NUMDETECTORS; ++i) {
+    for (int i = 0; i < NUMDETECTORS; ++i) {
         beatDisplay->addBeatDetector(m_pAnalyzer->beatDetector(i));
     }
 
@@ -60,13 +60,17 @@ DlgRealtime::DlgRealtime(QWidget *parent) : QDialog(parent) {
     connect(btnSync, SIGNAL(pressed()), this, SLOT(slotSync()));
 }
 
-
 DlgRealtime::~DlgRealtime() {
-    if(m_pInput) delete m_pInput;
-    if(m_pAnalyzer) delete m_pAnalyzer;
-    if(m_pCounter) delete m_pCounter;
-    if(m_pAutoCounter) delete m_pAutoCounter;
-    if(m_pMetronome) delete m_pMetronome;
+    if (m_pInput)
+        delete m_pInput;
+    if (m_pAnalyzer)
+        delete m_pAnalyzer;
+    if (m_pCounter)
+        delete m_pCounter;
+    if (m_pAutoCounter)
+        delete m_pAutoCounter;
+    if (m_pMetronome)
+        delete m_pMetronome;
     delete m_timer;
 }
 
@@ -78,7 +82,7 @@ void DlgRealtime::slotUpdateVuMeters(int val) {
 void DlgRealtime::slotUpdate() {
     VuLeft->setValue(m_pAnalyzer->getVuMeterValueL());
     VuRight->setValue(m_pAnalyzer->getVuMeterValueR());
-    magDisplay->setData(m_pAnalyzer->getMagnitude(), m_pAnalyzer->getFFTSize()/16);
+    magDisplay->setData(m_pAnalyzer->getMagnitude(), m_pAnalyzer->getFFTSize() / 16);
     QString str;
 
     m_bpmList.append(m_pAnalyzer->getCurrentBPM());
@@ -103,7 +107,7 @@ void DlgRealtime::slotUpdate() {
 
 void DlgRealtime::slotShowBeat(bool beat) {
     button->setChecked(beat);
-    if(beat) {
+    if (beat) {
         //m_pAutoCounter->addBeat();
         //qDebug() << "autoCounter:" << m_pAutoCounter->getBPM();
     }
@@ -121,7 +125,7 @@ void DlgRealtime::slotBeat() {
     lblErrorDisp->setText(str);
     lblBeatsDisp->setText(QString::number(m_pCounter->getBeatCount()));
 
-    if(bpm > 40) {
+    if (bpm > 40) {
         m_pMetronome->setBPM(bpm);
         m_pMetronome->setSync();
         m_pMetronome->start();
@@ -133,9 +137,9 @@ void DlgRealtime::slotBeat() {
 void DlgRealtime::slotResetCounter() {
     m_pCounter->reset();
 
-    lcdTapBPM->display("0.00");
-    lblErrorDisp->setText("0");
-    lblBeatsDisp->setText("0");
+    lcdTapBPM->display(QStringLiteral("0.00"));
+    lblErrorDisp->setText(QStringLiteral("0"));
+    lblBeatsDisp->setText(QStringLiteral("0"));
     m_pMetronome->stop();
 }
 
@@ -149,21 +153,24 @@ void DlgRealtime::slotSync() {
 
 float DlgRealtime::calcMedian() {
     const int maxvalues = 100;
-    if(m_bpmList.isEmpty()) return 0;
+    if (m_bpmList.isEmpty())
+        return 0;
     // use only last 'maxvalues' values
-    while(m_bpmList.size() > maxvalues) m_bpmList.removeFirst();
+    while (m_bpmList.size() > maxvalues)
+        m_bpmList.removeFirst();
 
     // make a copy of the list
     QList<float> sortlist = m_bpmList;
     // remove zeros from the list
     sortlist.removeAll(0);
-    if(sortlist.isEmpty()) return 0;
+    if (sortlist.isEmpty())
+        return 0;
 
     // sort the list and return the median
     std::sort(sortlist.begin(), sortlist.end());
     int idx = sortlist.size() / 2;
-    if(sortlist.size() % 2 == 0) {
-        return (sortlist.at(idx) + sortlist.at(idx-1)) / 2.0;
+    if (sortlist.size() % 2 == 0) {
+        return (sortlist.at(idx) + sortlist.at(idx - 1)) / 2.0;
     } else {
         return sortlist.at(idx);
     }
@@ -175,15 +182,15 @@ float DlgRealtime::calcError(const float bpm) {
     float error = 0;
     int num = 0;
 
-    for(int i = 0; i < m_bpmList.size(); ++i) {
+    for (int i = 0; i < m_bpmList.size(); ++i) {
         float val = m_bpmList.at(i);
-        if(val > 0) {
+        if (val > 0) {
             float cerr = val - bpm;
-            ++ num;
+            ++num;
             error += cerr;
         }
     }
-    if( !num ) return 0;
+    if (!num)
+        return 0;
     return fabs(error / num);
 }
-

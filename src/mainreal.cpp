@@ -23,10 +23,10 @@
 #include "dlgrealtime.h"
 #include <QApplication>
 
-int main( int argc, char **argv ) {
+int main(int argc, char **argv) {
     QApplication app(argc, argv);
     app.setStyle("plastique");
-    DlgRealtime* rtdlg = new DlgRealtime();
+    DlgRealtime *rtdlg = new DlgRealtime();
     rtdlg->show();
     int ret = app.exec();
     delete rtdlg;

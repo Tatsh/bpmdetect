@@ -28,41 +28,44 @@
 WEnergyBeatDisplay::WEnergyBeatDisplay(QWidget *parent) : QWidget(parent) {
 }
 
-
 WEnergyBeatDisplay::~WEnergyBeatDisplay() {
 }
 
-void WEnergyBeatDisplay::addBeatDetector(EnergyBeatDetector* pDetector) {
-    if(!pDetector) return;
-    
+void WEnergyBeatDisplay::addBeatDetector(EnergyBeatDetector *pDetector) {
+    if (!pDetector)
+        return;
+
     m_qBeatDetList.append(pDetector);
 }
 
-void WEnergyBeatDisplay::paintEvent(QPaintEvent * e) {
+void WEnergyBeatDisplay::paintEvent(QPaintEvent *e) {
     QPainter p(this);
     p.fillRect(rect(), Qt::black);
-    if(m_qBeatDetList.size() == 0) return;
+    if (m_qBeatDetList.size() == 0)
+        return;
     int w = width() / m_qBeatDetList.size();
-    if(w < 1) w = 1;
+    if (w < 1)
+        w = 1;
 
-    for(int i = 0; i < m_qBeatDetList.size(); ++i) {
-        EnergyBeatDetector* pDetector = m_qBeatDetList.at(i);
+    for (int i = 0; i < m_qBeatDetList.size(); ++i) {
+        EnergyBeatDetector *pDetector = m_qBeatDetList.at(i);
         float avg = pDetector->getAverage();
         float cur = pDetector->getCurrentValue();
-        float prev = pDetector->getPrevValue();
         float threshold = pDetector->getThreshold();
         float beatmin = pDetector->getBeatMinimum();
         float beat = pDetector->beat() * 8.;
         bool bbeat = pDetector->isBeat();
-        int x = i*w;
+        int x = i * w;
         int cw = w;
-        if(w > 3) {
+        if (w > 3) {
             x += 1;
             cw -= 2;
         }
 
-        if(beat < 0) beat = 0;
-        if(beat > 255) beat = 255;
+        if (beat < 0)
+            beat = 0;
+        if (beat > 255)
+            beat = 255;
 
 #define MAXVAL 75
 
@@ -73,25 +76,24 @@ void WEnergyBeatDisplay::paintEvent(QPaintEvent * e) {
 
         // average
         h = avg * height() / MAXVAL;
-        QRect ravg(x, height() - h+2, cw, 4);
+        QRect ravg(x, height() - h + 2, cw, 4);
         p.fillRect(ravg, Qt::red);
 
         // beatmin
         h = beatmin * height() / MAXVAL;
-        QRect rmin(x, height() - h+2, cw, 4);
+        QRect rmin(x, height() - h + 2, cw, 4);
         p.fillRect(rmin, Qt::green);
 
         // threshold
         h = threshold * height() / MAXVAL;
-        QRect rthr(x, height() - h+2, cw, 4);
+        QRect rthr(x, height() - h + 2, cw, 4);
         p.fillRect(rthr, Qt::darkBlue);
 
         // beat
-        if(bbeat) {
-            QColor color(255, 255-beat, 0);
+        if (bbeat) {
+            QColor color(255, 255 - beat, 0);
             QRect rbeat(x, 0, cw, 5);
             p.fillRect(rbeat, color);
         }
     }
 }
-

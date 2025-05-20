@@ -20,59 +20,56 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TRACKWAV_H
-#define TRACKWAV_H
+#pragma once
 
 #include "track.h"
 
 /// WAV audio file 'riff' section header
 typedef struct {
     char riff_char[4];
-    int  package_len;
+    int package_len;
     char wave[4];
 } WavRiff;
 
 /// WAV audio file 'format' section header
 typedef struct {
-    char  fmt[4];
-    int   format_len;
+    char fmt[4];
+    int format_len;
     short fixed;
     short channel_number;
-    int   sample_rate;
-    int   byte_rate;
+    int sample_rate;
+    int byte_rate;
     short byte_per_sample;
     short bits_per_sample;
 } WavFormat;
 
 /// WAV audio file 'data' section header
 typedef struct {
-    char  data_field[4];
-    uint  data_len;
+    char data_field[4];
+    uint data_len;
 } WavData;
-
 
 /// WAV audio file header
 typedef struct {
-    WavRiff   riff;
+    WavRiff riff;
     WavFormat format;
-    WavData   data;
+    WavData data;
 } WavHeader;
-
 
 class TrackWav : public Track {
 public:
-    TrackWav( const char* filename, bool readtags = true );
+    TrackWav(const char *filename, bool readtags = true);
     ~TrackWav();
     void readTags();
 
 protected:
     void open();
     void close();
-    void seek( uint ms );
+    void seek(uint ms);
     uint currentPos();
-    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
 
-    void storeBPM( std::string sBPM );
+    void storeBPM(std::string sBPM);
     void removeBPM();
 
     int readWavHeaders();
@@ -88,5 +85,3 @@ private:
     FILE *fptr;
     WavHeader header;
 };
-
-#endif  // TRACKWAV_H

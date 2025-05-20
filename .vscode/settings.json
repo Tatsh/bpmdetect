@@ -1,0 +1,21 @@
+{
+  "files.associations": {
+    "qtcore": "cpp",
+    "qtcoredepends": "cpp",
+    "__locale": "cpp",
+    "regex": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "bitset": "cpp",
+    "ostream": "cpp",
+    "vector": "cpp",
+    "*.inc": "cpp",
+    "util": "cpp",
+    "future": "cpp",
+    "istream": "cpp",
+    "mutex": "cpp",
+    "stop_token": "cpp",
+    "typeinfo": "cpp",
+    "iostream": "cpp"
+  }
+}

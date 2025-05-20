@@ -7,10 +7,9 @@
 
 #include "dlgtestbpmplayer.h"
 
-DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_, QObject *parent) :
-        buffer(QByteArray()),
-        decoder(new QAudioDecoder(this))
-{
+DlgTestBPMPlayer::DlgTestBPMPlayer(
+    const QString file, uint nBeats_, uint bpm_, qint64 posUS_, QObject *parent)
+    : buffer(QByteArray()), decoder(new QAudioDecoder(this)) {
     nBeats = nBeats_;
     bpm = bpm_;
     posUS = posUS_;
@@ -23,7 +22,10 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, 
     decoder->start();
 
     connect(decoder, SIGNAL(bufferReady()), this, SLOT(readBuffer()));
-    connect(decoder, SIGNAL(error(QAudioDecoder::Error)), this, SLOT(decodeError(QAudioDecoder::Error)));
+    connect(decoder,
+            SIGNAL(error(QAudioDecoder::Error)),
+            this,
+            SLOT(decodeError(QAudioDecoder::Error)));
     connect(decoder, SIGNAL(finished()), this, SLOT(finishedDecoding()));
 }
 
@@ -86,8 +88,7 @@ void DlgTestBPMPlayer::run() {
 
     while (dataRemaining) {
         QtAudio::State state = output->state();
-        if (state != QtAudio::ActiveState &&
-            state != QtAudio::IdleState &&
+        if (state != QtAudio::ActiveState && state != QtAudio::IdleState &&
             state != QtAudio::SuspendedState) {
             break;
         }

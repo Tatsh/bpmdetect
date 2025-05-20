@@ -23,8 +23,8 @@
 #include "wwaveform.h"
 #include "waveform.h"
 
-#include <QPainter>
 #include <QDebug>
+#include <QPainter>
 
 WWaveform::WWaveform(QWidget *parent) : QWidget(parent) {
     setWaveform(0);
@@ -34,7 +34,7 @@ WWaveform::WWaveform(QWidget *parent) : QWidget(parent) {
 WWaveform::~WWaveform() {
 }
 
-void WWaveform::setWaveform(Waveform* pWaveform) {
+void WWaveform::setWaveform(Waveform *pWaveform) {
     m_pWaveform = pWaveform;
 }
 
@@ -45,33 +45,35 @@ void WWaveform::setAutoScale(bool autoScale) {
 void WWaveform::paintEvent(QPaintEvent *e) {
     QPainter p(this);
     p.fillRect(rect(), Qt::black);
-    if(!m_pWaveform) return;
+    if (!m_pWaveform)
+        return;
 
-    unsigned int size = m_pWaveform->size();
-    const float* values = m_pWaveform->valueBuffer();
-    const bool* beats = m_pWaveform->beats();
-    float fwidth = ((float) width()) / (float) size;
+    auto size = m_pWaveform->size();
+    const float *values = m_pWaveform->valueBuffer();
+    const bool *beats = m_pWaveform->beats();
+    float fwidth = ((float)width()) / (float)size;
     int maxHeight = height() / 2;
     float valscale = 1;
-    if(m_bAutoScale) valscale = 1.0/m_pWaveform->getMaxValue();
-    if(valscale > 10) valscale = 10;
+    if (m_bAutoScale)
+        valscale = 1.0 / m_pWaveform->getMaxValue();
+    if (valscale > 10)
+        valscale = 10;
 
-    for(int i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         QRect rect;
         rect.setX(fwidth * i);
         rect.setY(maxHeight - (values[i] * valscale * maxHeight));
-        rect.setWidth((int) fwidth+1.0);
-        rect.setHeight((int) (values[i] * valscale * maxHeight * 2));
+        rect.setWidth((int)fwidth + 1.0);
+        rect.setHeight((int)(values[i] * valscale * maxHeight * 2));
 
         p.fillRect(rect, Qt::green);
-        
+
         // paint detected beat
-        if(beats[i]) {
+        if (beats[i]) {
             QRect r(fwidth * i, 0, 2, height());
             p.fillRect(r, Qt::red);
         }
     }
 
     // TODO: paint beats
-    
 }

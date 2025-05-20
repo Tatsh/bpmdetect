@@ -37,17 +37,20 @@ void WBPMCalcDisplay::setPeaks(std::vector<Peak> peaks) {
     m_peaks = peaks;
 }
 
-void WBPMCalcDisplay::updateData(const BPMCalculator* pCalc) {
-    if(!pCalc) return;
-    
+void WBPMCalcDisplay::updateData(const BPMCalculator *pCalc) {
+    if (!pCalc)
+        return;
+
     int winLen = 0;
     m_winStart = 0;
-    const float* xcorr = pCalc->xcorrData(m_winStart, winLen);
+    const float *xcorr = pCalc->xcorrData(m_winStart, winLen);
     // find xcorr max value
     float max = 0.1, min = xcorr[m_winStart];
-    for(int i = m_winStart; i < winLen; ++i) {
-        if(xcorr[i] > max) max = xcorr[i];
-        if(xcorr[i] < min) min = xcorr[i];
+    for (int i = m_winStart; i < winLen; ++i) {
+        if (xcorr[i] > max)
+            max = xcorr[i];
+        if (xcorr[i] < min)
+            min = xcorr[i];
     }
 
     setMinValue(min);
@@ -67,23 +70,24 @@ void WBPMCalcDisplay::paintEvent(QPaintEvent *e) {
     corrbpmPen.setColor(Qt::yellow);
     p.setPen(peakPen);
 
-    for(int i = 0; i < m_peaks.size(); ++i) {
+    for (std::size_t i = 0; i < m_peaks.size(); ++i) {
         QPointF p1, p2, p3;
         Peak peak = m_peaks[i];
 
-        p1 = m_points[peak.firstPos-m_winStart];
-        p2 = m_points[peak.peakPos-m_winStart];
-        p3 = m_points[peak.lastPos-m_winStart];
+        p1 = m_points[peak.firstPos - m_winStart];
+        p2 = m_points[peak.peakPos - m_winStart];
+        p3 = m_points[peak.lastPos - m_winStart];
 
         p.setPen(peakPen);
         p.drawLine(p1, p2);
         p.drawLine(p2, p3);
 
         p.setPen(bpmPen);
-        p.drawLine(QPointF(peak.massCenter - m_winStart, m_maxVal), QPointF(peak.massCenter - m_winStart, m_minVal));
+        p.drawLine(QPointF(peak.massCenter - m_winStart, m_maxVal),
+                   QPointF(peak.massCenter - m_winStart, m_minVal));
 
         p.setPen(corrbpmPen);
-        p.drawLine(QPointF(peak.corrPos - m_winStart, m_maxVal), QPointF(peak.corrPos - m_winStart, m_minVal));
+        p.drawLine(QPointF(peak.corrPos - m_winStart, m_maxVal),
+                   QPointF(peak.corrPos - m_winStart, m_minVal));
     }
 }
-

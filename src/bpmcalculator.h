@@ -20,8 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BPMCALCULATOR_H
-#define BPMCALCULATOR_H
+#pragma once
 
 #include "energybeatdetector.h"
 #include "waveform.h"
@@ -46,20 +45,20 @@ public:
 
     void setSamplerate(float srate);
     void setLength(float seconds);
-    void update(float* samples, unsigned long size);
+    void update(float *samples, unsigned long size);
     float getBpm();
-    Waveform* waveform();
-    const float* xcorrData(int& winStart, int& winLen) const;
-    const std::vector<Peak>& peaks() const;
+    Waveform *waveform();
+    const float *xcorrData(int &winStart, int &winLen) const;
+    const std::vector<Peak> &peaks() const;
     float lastWaveformValue() const;
     bool isBeat();
-    const EnergyBeatDetector& beatDetector() const;
+    const EnergyBeatDetector &beatDetector() const;
 
 protected:
-    void calcEnvelope(float* samples, unsigned long numsamples);
+    void calcEnvelope(float *samples, unsigned long numsamples);
     void calcXCorr();
     void findPeaks();
-    void calcMassCenter(Peak& p);
+    void calcMassCenter(Peak &p);
 
 private:
     float m_srate;  ///< input sample rate
@@ -68,12 +67,10 @@ private:
     float envelopeAccu;
     int m_windowStart;
     int m_windowLen;
-    
+
     Waveform m_wave, m_waveOrig;
     EnergyBeatDetector m_energyBeat;
-    float* xcorr;
+    float *xcorr;
     float m_corrMax; /// maximum xcorr value (minimum is 0)
     std::vector<Peak> m_peaks;
 };
-
-#endif

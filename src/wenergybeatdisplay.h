@@ -20,11 +20,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef WENERGYBEATDISPLAY_H
-#define WENERGYBEATDISPLAY_H
+#pragma once
 
-#include <QWidget>
 #include <QList>
+#include <QWidget>
 
 class EnergyBeatDetector;
 
@@ -34,11 +33,9 @@ public:
     WEnergyBeatDisplay(QWidget *parent = 0);
     ~WEnergyBeatDisplay();
 
-    void addBeatDetector(EnergyBeatDetector* pDetector);
+    void addBeatDetector(EnergyBeatDetector *pDetector);
 
 protected:
-    void paintEvent(QPaintEvent* e);
-    QList<EnergyBeatDetector*> m_qBeatDetList;
+    void paintEvent(QPaintEvent *e);
+    QList<EnergyBeatDetector *> m_qBeatDetList;
 };
-
-#endif

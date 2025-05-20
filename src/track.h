@@ -20,37 +20,37 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TRACK_H
-#define TRACK_H
+#pragma once
 
-#include <string>
 #include "STTypes.h"
+#include <string>
 
 #ifndef NO_GUI
-# include <qthread.h>
-# include <qmutex.h>
+#include <qmutex.h>
+#include <qthread.h>
 #endif
 
 class Track
 #ifndef NO_GUI
-            : public QThread
-#endif 
+    : public QThread
+#endif
 {
-friend class TrackProxy;
+    friend class TrackProxy;
+
 public:
     virtual ~Track();
 
     enum TRACKTYPE {
-        TYPE_UNKNOWN   = 0,
-        TYPE_MPEG      = 1,
-        TYPE_WAV       = 2,
+        TYPE_UNKNOWN = 0,
+        TYPE_MPEG = 1,
+        TYPE_WAV = 2,
         TYPE_OGGVORBIS = 3,
-        TYPE_FLAC      = 4,
+        TYPE_FLAC = 4,
     };
     /// Convert std::string to BPM
-    static double str2bpm( std::string sBPM );
+    static double str2bpm(std::string sBPM);
     /// Convert BPM to std::string using selected format
-    static std::string bpm2str( double dBPM, std::string format = "0.00");
+    static std::string bpm2str(double dBPM, std::string format = "0.00");
     static void setMinBPM(double dMin);
     static void setMaxBPM(double dMax);
     static double getMinBPM();
@@ -62,13 +62,13 @@ public:
     virtual double detectBPM();
     virtual void saveBPM();
     virtual void printBPM();
-    virtual void setBPM( double dBPM );
+    virtual void setBPM(double dBPM);
     virtual double getBPM() const;
     virtual std::string strBPM();
-    virtual std::string strBPM( std::string format );
+    virtual std::string strBPM(std::string format);
 
-    virtual void setFilename( const char* filename, bool readtags = true );
-    void setFilename( std::string filename, bool readtags = true );
+    virtual void setFilename(const char *filename, bool readtags = true);
+    void setFilename(std::string filename, bool readtags = true);
     virtual std::string filename() const;
 
     /// Get track length in miliseconds
@@ -88,9 +88,9 @@ public:
     /// Stop detection if running
     virtual void stop();
 
-    virtual void setStartPos( uint ms );
+    virtual void setStartPos(uint ms);
     virtual uint startPos() const;
-    virtual void setEndPos( uint ms );
+    virtual void setEndPos(uint ms);
     virtual uint endPos() const;
     virtual int samplerate() const;
     virtual int sampleBytes() const;
@@ -104,31 +104,35 @@ public:
 protected:
     Track();
     /// Open the track (filename set by setFilename)
-    virtual void open() {setOpened(true);};
+    virtual void open() {
+        setOpened(true);
+    };
     /// Close the track
-    virtual void close() {setOpened(false);};
+    virtual void close() {
+        setOpened(false);
+    };
     /// Seek to @a ms miliseconds
-    virtual void seek( uint ms ) = 0;
+    virtual void seek(uint ms) = 0;
     /// Return the current position from which samples will be read (miliseconds)
     virtual uint currentPos() = 0;
     /// Read @a num samples from current position into @a buffer
-    virtual int readSamples( soundtouch::SAMPLETYPE* buffer, int num ) = 0;
+    virtual int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) = 0;
     /// Store @a sBPM into tag
-    virtual void storeBPM( std::string sBPM ) = 0;
+    virtual void storeBPM(std::string sBPM) = 0;
     /// Remove BPM from tag
     virtual void removeBPM() = 0;
 
     void init();
-    double correctBPM( double dBPM );
-    void setValid( bool bValid );
+    double correctBPM(double dBPM);
+    void setValid(bool bValid);
     void setOpened(bool opened);
-    void setArtist( std::string artist );
-    void setTitle( std::string title );
-    void setLength( unsigned int msec );
-    void setSamplerate( int samplerate );
-    void setSampleBytes( int bytes );
-    void setChannels( int channels );
-    void setTrackType( TRACKTYPE type );
+    void setArtist(std::string artist);
+    void setTitle(std::string title);
+    void setLength(unsigned int msec);
+    void setSamplerate(int samplerate);
+    void setSampleBytes(int bytes);
+    void setChannels(int channels);
+    void setTrackType(TRACKTYPE type);
     void setProgress(double progress);
 
 private:
@@ -153,7 +157,7 @@ private:
 
     static double _dMinBPM;
     static double _dMaxBPM;
-    static bool   _bLimit;
+    static bool _bLimit;
 
 #ifndef NO_GUI
 protected:
@@ -164,7 +168,5 @@ public:
 
 private:
     QMutex m_qMutex;
-#endif  // NO_GUI
+#endif // NO_GUI
 };
-
-#endif  // TRACK_H

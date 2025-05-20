@@ -15,25 +15,24 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef WVUMETER_H
-#define WVUMETER_H
+#pragma once
 
-#include <QWidget>
+#include <QPaintEvent>
 #include <QPixmap>
 #include <QString>
-#include <QPaintEvent>
 #include <QTimer>
+#include <QWidget>
 
-class WVuMeter : public QWidget  {
-   Q_OBJECT
-public: 
-    WVuMeter(QWidget *parent=0);
+class WVuMeter : public QWidget {
+    Q_OBJECT
+public:
+    WVuMeter(QWidget *parent = 0);
     ~WVuMeter();
     void initPixmaps();
     /// value from 0 to 100
     void setValue(int value);
 
-protected slots:
+protected Q_SLOTS:
     void slotUpdatePeak();
 
 private:
@@ -58,5 +57,3 @@ private:
 
     QTimer m_qTimer;
 };
-
-#endif

@@ -20,8 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TRACKOGGVORBIS_H
-#define TRACKOGGVORBIS_H
+#pragma once
 
 #include "track.h"
 
@@ -30,18 +29,18 @@
 
 class TrackOggVorbis : public Track {
 public:
-    TrackOggVorbis( const char* filename, bool readtags = true );
+    TrackOggVorbis(const char *filename, bool readtags = true);
     ~TrackOggVorbis();
     void readTags();
 
 protected:
     void open();
     void close();
-    void seek( uint ms );
+    void seek(uint ms);
     uint currentPos();
-    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
 
-    void storeBPM( std::string sBPM );
+    void storeBPM(std::string sBPM);
     void removeBPM();
 
 private:
@@ -50,5 +49,3 @@ private:
     OggVorbis_File vf;
     int current_section;
 };
-
-#endif  // TRACKOGGVORBIS_H

@@ -26,8 +26,8 @@
 #include <iostream>
 
 #ifdef HAVE_TAGLIB
-#include <tag.h>
 #include <fileref.h>
+#include <tag.h>
 #endif
 
 using namespace std;
@@ -35,12 +35,12 @@ using namespace soundtouch;
 
 double Track::_dMinBPM = 80.;
 double Track::_dMaxBPM = 185.;
-bool   Track::_bLimit = false;
+bool Track::_bLimit = false;
 
 Track::Track() {
     init();
     enableConsoleProgress(false);
-    setFilename( "", false );
+    setFilename("", false);
 }
 
 Track::~Track() {
@@ -62,7 +62,8 @@ void Track::init() {
 }
 
 void Track::setMinBPM(double dMin) {
-    if (dMin > 30. && dMin < 300.) _dMinBPM = dMin;
+    if (dMin > 30. && dMin < 300.)
+        _dMinBPM = dMin;
     // swap min and max if min is greater than max
     if (_dMinBPM > _dMaxBPM) {
         double temp = _dMinBPM;
@@ -72,7 +73,8 @@ void Track::setMinBPM(double dMin) {
 }
 
 void Track::setMaxBPM(double dMax) {
-    if (dMax > 30. && dMax < 300.) _dMaxBPM = dMax;
+    if (dMax > 30. && dMax < 300.)
+        _dMaxBPM = dMax;
     // swap min and max if min is greater than max
     if (_dMinBPM > _dMaxBPM) {
         double temp = _dMinBPM;
@@ -97,37 +99,37 @@ bool Track::getLimit() {
     return _bLimit;
 }
 
-double Track::str2bpm( string sBPM ) {
+double Track::str2bpm(string sBPM) {
     double BPM = 0;
     BPM = atof(sBPM.c_str());
-    while ( BPM > 300 ) BPM = BPM / 10;
+    while (BPM > 300)
+        BPM = BPM / 10;
     return BPM;
 }
 
-string Track::bpm2str( double dBPM, string format ) {
+string Track::bpm2str(double dBPM, string format) {
     const uint BPM_LEN = 10;
     char buffer[BPM_LEN];
 
-    if ( format == "0.0" ) {
-        snprintf(buffer, BPM_LEN, "%.1f", dBPM );
-    } else if ( format == "0" ) {
-        snprintf(buffer, BPM_LEN, "%d", (int) dBPM );
-    } else if ( format == "000.00" ) {
-        snprintf(buffer, BPM_LEN, "%06.2f", dBPM );
-    } else if ( format == "000.0" ) {
-        snprintf(buffer, BPM_LEN, "%05.1f", dBPM );
-    } else if ( format == "000" ) {
-        snprintf(buffer, BPM_LEN, "%03d", (int) dBPM );
-    } else if ( format == "00000" ) {
-        snprintf(buffer, BPM_LEN, "%05d", (int) dBPM * 100 );
+    if (format == "0.0") {
+        snprintf(buffer, BPM_LEN, "%.1f", dBPM);
+    } else if (format == "0") {
+        snprintf(buffer, BPM_LEN, "%d", (int)dBPM);
+    } else if (format == "000.00") {
+        snprintf(buffer, BPM_LEN, "%06.2f", dBPM);
+    } else if (format == "000.0") {
+        snprintf(buffer, BPM_LEN, "%05.1f", dBPM);
+    } else if (format == "000") {
+        snprintf(buffer, BPM_LEN, "%03d", (int)dBPM);
+    } else if (format == "00000") {
+        snprintf(buffer, BPM_LEN, "%05d", (int)dBPM * 100);
     } else { // all other formats are converted to "0.00"
-        snprintf(buffer, BPM_LEN, "%.2f", dBPM );
+        snprintf(buffer, BPM_LEN, "%.2f", dBPM);
     }
 
     string sBPM = buffer;
     return sBPM;
 }
-
 
 string Track::strBPM() {
     return bpm2str(getBPM(), format());
@@ -137,12 +139,12 @@ string Track::strBPM(string format) {
     return bpm2str(getBPM(), format);
 }
 
-void Track::setFilename( const char* filename, bool readtags ) {
+void Track::setFilename(const char *filename, bool readtags) {
     string strfname = filename;
     setFilename(strfname, readtags);
 }
 
-void Track::setFilename( string filename, bool readtags ) {
+void Track::setFilename(string filename, bool readtags) {
 #ifndef NO_GUI
     if (isRunning()) {
 #ifdef DEBUG
@@ -158,7 +160,8 @@ void Track::setFilename( string filename, bool readtags ) {
     m_sFilename = filename;
     if (!filename.empty()) {
         readInfo();
-        if (readtags) readTags();
+        if (readtags)
+            readTags();
     }
 }
 
@@ -198,7 +201,7 @@ double Track::getBPM() const {
     return m_dBPM;
 }
 
-void Track::setArtist( string artist ) {
+void Track::setArtist(string artist) {
     m_sArtist = artist;
 }
 
@@ -206,7 +209,7 @@ string Track::artist() const {
     return m_sArtist;
 }
 
-void Track::setTitle( string title ) {
+void Track::setTitle(string title) {
     m_sTitle = title;
 }
 
@@ -222,8 +225,9 @@ bool Track::redetect() const {
     return m_bRedetect;
 }
 
-void Track::setStartPos( uint ms ) {
-    if (ms > length()) return;
+void Track::setStartPos(uint ms) {
+    if (ms > length())
+        return;
     m_iStartPos = ms;
     if (m_iEndPos < m_iStartPos) {
         uint tmp = m_iEndPos;
@@ -236,8 +240,9 @@ uint Track::startPos() const {
     return m_iStartPos;
 }
 
-void Track::setEndPos( uint ms ) {
-    if (ms > length()) return;
+void Track::setEndPos(uint ms) {
+    if (ms > length())
+        return;
     m_iEndPos = ms;
     if (m_iEndPos < m_iStartPos) {
         uint tmp = m_iEndPos;
@@ -255,7 +260,7 @@ double Track::progress() const {
 }
 
 void Track::setProgress(double progress) {
-    if ( 0 <= progress && progress <= 100)
+    if (0 <= progress && progress <= 100)
         m_dProgress = progress;
 }
 
@@ -263,7 +268,7 @@ void Track::enableConsoleProgress(bool enable) {
     m_bConProgress = enable;
 }
 
-void Track::setTrackType( TRACKTYPE type ) {
+void Track::setTrackType(TRACKTYPE type) {
     m_eType = type;
 }
 
@@ -271,7 +276,7 @@ int Track::trackType() const {
     return m_eType;
 }
 
-void Track::setSamplerate( int samplerate ) {
+void Track::setSamplerate(int samplerate) {
     m_iSamplerate = samplerate;
 }
 
@@ -279,8 +284,9 @@ int Track::samplerate() const {
     return m_iSamplerate;
 }
 
-void Track::setSampleBytes( int bytes ) {
-    if (bytes < 0) return;
+void Track::setSampleBytes(int bytes) {
+    if (bytes < 0)
+        return;
     if (bytes > 4) {
         if (!(bytes % 8)) {
             bytes = bytes / 8;
@@ -291,7 +297,8 @@ void Track::setSampleBytes( int bytes ) {
             return;
         }
     }
-    if (bytes > 4) return;
+    if (bytes > 4)
+        return;
     m_iSampleBytes = bytes;
 }
 
@@ -303,7 +310,7 @@ int Track::sampleBytes() const {
     return m_iSampleBytes;
 }
 
-void Track::setChannels( int channels) {
+void Track::setChannels(int channels) {
     m_iChannels = channels;
 }
 
@@ -315,7 +322,7 @@ unsigned int Track::length() const {
     return m_iLength;
 }
 
-void Track::setLength( unsigned int msec ) {
+void Track::setLength(unsigned int msec) {
     m_iLength = msec;
 }
 
@@ -336,7 +343,7 @@ string Track::strLength() {
 }
 
 void Track::saveBPM() {
-    string sBPM = bpm2str( getBPM(), format() );
+    string sBPM = bpm2str(getBPM(), format());
     storeBPM(sBPM);
 }
 
@@ -349,13 +356,14 @@ void Track::readInfo() {
 #ifdef HAVE_TAGLIB
     TagLib::FileRef f(filename().c_str());
 
-    TagLib::AudioProperties* ap = 0;
-    if (!f.isNull()) ap = f.audioProperties();
+    TagLib::AudioProperties *ap = 0;
+    if (!f.isNull())
+        ap = f.audioProperties();
 
     if (ap) {
         setChannels(ap->channels());
         setSamplerate(ap->sampleRate());
-        setLength(ap->length() * 1000);
+        setLength(ap->lengthInSeconds() * 1000);
         setValid(true);
     }
 #endif
@@ -366,13 +374,16 @@ void Track::readInfo() {
  * if value is lower than min or greater than max
  * @return corrected BPM
  */
-double Track::correctBPM( double dBPM ) {
+double Track::correctBPM(double dBPM) {
     double min = getMinBPM();
     double max = getMaxBPM();
 
-    if ( dBPM < 1 ) return 0.;
-    while ( dBPM > max ) dBPM /= 2.;
-    while ( dBPM < min ) dBPM *= 2.;
+    if (dBPM < 1)
+        return 0.;
+    while (dBPM > max)
+        dBPM /= 2.;
+    while (dBPM < min)
+        dBPM *= 2.;
 
     if (_bLimit && dBPM > max) {
 #ifdef DEBUG
@@ -397,7 +408,7 @@ double Track::detectBPM() {
     open();
     if (!isOpened()) {
 #ifdef DEBUG
-        cerr << "detectBPM: can not open track" << endl;
+        qWarning() << "detectBPM: can not open track";
 #endif
         return 0;
     }
@@ -406,7 +417,7 @@ double Track::detectBPM() {
     m_bStop = false;
 
     double oldbpm = getBPM();
-    if ( !redetect() && oldbpm != 0 ) {
+    if (!redetect() && oldbpm != 0) {
         return oldbpm;
     }
 
@@ -415,38 +426,39 @@ double Track::detectBPM() {
     int srate = samplerate();
 
 #ifdef DEBUG
-    cerr << "samplerate: " << srate << ", channels: " << chan
-    << ", sample bits: " << sampleBits() << endl;
+    cerr << "samplerate: " << srate << ", channels: " << chan << ", sample bits: " << sampleBits()
+         << endl;
 #endif
 
     if (!srate || !chan) {
         return oldbpm;
     }
-    SAMPLETYPE* samples = new SAMPLETYPE[NUMSAMPLES];
+    SAMPLETYPE *samples = new SAMPLETYPE[NUMSAMPLES];
 
     uint totalsteps = endPos() - startPos();
-    BPMDetect bpmd( chan, srate );
+    BPMDetect bpmd(chan, srate);
 
     uint cprogress = 0, pprogress = 0;
     int readsamples = 0;
     seek(startPos());
     while (!m_bStop && currentPos() < endPos() &&
-            0 < (readsamples = readSamples(samples, NUMSAMPLES))) {
-        bpmd.inputSamples( samples, readsamples / chan );
+           0 < (readsamples = readSamples(samples, NUMSAMPLES))) {
+        bpmd.inputSamples(samples, readsamples / chan);
         cprogress = currentPos() - startPos();
 
-        setProgress(100.*cprogress / (double) totalsteps );
+        setProgress(100. * cprogress / (double)totalsteps);
         if (m_bConProgress) {
-            while ( (100*cprogress/totalsteps) > pprogress ) {
+            while ((100 * cprogress / totalsteps) > pprogress) {
                 ++pprogress;
-                clog << "\r" << (100*cprogress/totalsteps) << "% " << flush;
+                clog << "\r" << (100 * cprogress / totalsteps) << "% " << flush;
             }
         }
     }
 
-    delete [] samples;
+    delete[] samples;
     setProgress(100);
-    if (m_bConProgress) clog << "\r" << flush;
+    if (m_bConProgress)
+        clog << "\r" << flush;
 
     if (m_bStop) {
         setProgress(0);
@@ -471,7 +483,7 @@ void Track::startDetection() {
         cerr << "Start: thread is running (not starting)" << endl;
         return;
     }
-#endif  // DEBUG
+#endif // DEBUG
     start(QThread::IdlePriority);
 }
 
@@ -480,4 +492,4 @@ void Track::run() {
     setProgress(0);
 }
 
-#endif  // NO_GUI
+#endif // NO_GUI

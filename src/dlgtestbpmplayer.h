@@ -1,5 +1,4 @@
-#ifndef DLGTESTBPMPLAYER_H
-#define DLGTESTBPMPLAYER_H
+#pragma once
 
 #include <QAudioBuffer>
 #include <QAudioDecoder>
@@ -11,22 +10,23 @@
 class DlgTestBPMPlayer : public QThread {
     Q_OBJECT
 public:
-    DlgTestBPMPlayer(const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0, QObject *parent = nullptr);
+    DlgTestBPMPlayer(
+        const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0, QObject *parent = nullptr);
     ~DlgTestBPMPlayer();
-    const qint64 getLengthUS() { return lengthUS; };
+    const qint64 getLengthUS() {
+        return lengthUS;
+    };
     void update(uint nBeats_, qint64 posUS_ = 0);
     void stop();
 
 protected:
     void run();
+    Q_SIGNAL void hasLengthUS(const qint64);
 
-protected slots:
+protected Q_SLOTS:
     void readBuffer();
     void decodeError(QAudioDecoder::Error);
     void finishedDecoding();
-
-signals:
-    void hasLengthUS(const qint64);
 
 private:
     QByteArray buffer;
@@ -48,5 +48,3 @@ private:
     qint32 bytesForBeats;
     qint64 originalSize;
 };
-
-#endif // DLGTESTBPMPLAYER_H

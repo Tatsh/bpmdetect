@@ -20,12 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BPMCOUNTER_H
-#define BPMCOUNTER_H
+#pragma once
 
-#include <list>
 #include <QElapsedTimer>
 #include <QTime>
+#include <list>
 
 #define BUFFER_SIZE 15
 
@@ -35,7 +34,8 @@ class BPMCounter {
 public:
     BPMCounter();
     ~BPMCounter();
-    static double correctBPM(double dBPM, float min = 50., float max = 200., bool blimit = false, double rBPM = 0);
+    static double correctBPM(
+        double dBPM, float min = 50., float max = 200., bool blimit = false, double rBPM = 0);
 
     void reset();
     void addBeat();
@@ -59,5 +59,3 @@ private:
     unsigned int m_minBPM, m_maxBPM;
     float m_bpmbuffer[BUFFER_SIZE];
 };
-
-#endif

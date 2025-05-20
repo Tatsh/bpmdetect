@@ -20,14 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef METRONOME_H
-#define METRONOME_H
+#pragma once
 
 class Metronome {
 public:
     Metronome();
     ~Metronome();
-    
+
     void setInterval(unsigned long msec);
     void setBPM(float bpm);
 
@@ -35,7 +34,7 @@ public:
     void setSync(unsigned long msec);
     unsigned long progress() const;
     float progressPercent() const;
-    
+
     void start();
     void stop();
 
@@ -44,5 +43,3 @@ private:
     unsigned long m_syncTime;
     bool m_bStarted;
 };
-
-#endif

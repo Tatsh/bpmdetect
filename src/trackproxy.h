@@ -20,28 +20,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TRACKPROXY_H
-#define TRACKPROXY_H
+#pragma once
 
 #include "track.h"
 
 class TrackProxy : public Track {
 public:
-    TrackProxy( const char* filename, bool readtags = true );
+    TrackProxy(const char *filename, bool readtags = true);
     ~TrackProxy();
 
-    void setFilename(const char* filename, bool readtags = true);
+    void setFilename(const char *filename, bool readtags = true);
     void readTags();
     void readInfo();
     double detectBPM();
     void printBPM();
     double progress();
-    void setBPM( double dBPM );
+    void setBPM(double dBPM);
     double getBPM() const;
     void clearBPM();
     void saveBPM();
     std::string strBPM();
-    std::string strBPM( std::string format );
+    std::string strBPM(std::string format);
     std::string filename() const;
 
     /// track length in miliseconds
@@ -60,9 +59,9 @@ public:
 
     void stop();
 
-    void setStartPos( uint ms );
+    void setStartPos(uint ms);
     uint startPos() const;
-    void setEndPos( uint ms );
+    void setEndPos(uint ms);
     uint endPos() const;
     int samplerate() const;
     int sampleBytes() const;
@@ -71,18 +70,16 @@ public:
     int trackType() const;
 
 protected:
-    Track* createTrack( const char* filename, bool readtags = true );
+    Track *createTrack(const char *filename, bool readtags = true);
     void open();
     void close();
-    void seek( uint ms );
+    void seek(uint ms);
     uint currentPos();
-    int readSamples( soundtouch::SAMPLETYPE* buffer, int num );
-    void storeBPM( std::string sBPM );
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
+    void storeBPM(std::string sBPM);
     void removeBPM();
 
 private:
-    Track* m_pTrack;
+    Track *m_pTrack;
     bool m_bConsoleProgress;
 };
-
-#endif  // TRACKPROXY_H
