@@ -1,21 +1,22 @@
 {
   "files.associations": {
-    "qtcore": "cpp",
-    "qtcoredepends": "cpp",
-    "__locale": "cpp",
-    "regex": "cpp",
-    "string": "cpp",
-    "string_view": "cpp",
-    "bitset": "cpp",
-    "ostream": "cpp",
-    "vector": "cpp",
     "*.inc": "cpp",
-    "util": "cpp",
+    "*.ts": "xml",
+    "__locale": "cpp",
+    "bitset": "cpp",
     "future": "cpp",
+    "iostream": "cpp",
     "istream": "cpp",
     "mutex": "cpp",
+    "ostream": "cpp",
+    "qtcore": "cpp",
+    "qtcoredepends": "cpp",
+    "regex": "cpp",
     "stop_token": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
     "typeinfo": "cpp",
-    "iostream": "cpp"
+    "util": "cpp",
+    "vector": "cpp",
   }
 }

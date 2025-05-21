@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(bpmdetect)
 
 include(FindPkgConfig)
+include(GNUInstallDirs)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -11,9 +12,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(I18N "Enable i18n support" OFF)
+
 find_package(
   Qt6
-  COMPONENTS Core Gui Multimedia Widgets
+  COMPONENTS Core Gui LinguistTools Multimedia Widgets
   REQUIRED)
 pkg_check_modules(FLAC flac)
 pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
