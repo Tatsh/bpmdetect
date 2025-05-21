@@ -37,7 +37,7 @@ using namespace std;
 const char *version = "0.7.0"; ///< App version
 
 void display_help() {
-    printf("BPMDetect version %s\n\n", version);
+    printf("BPM Detect version %s\n\n", version);
     printf("Usage:\n bpmdetect [switches] [files]\n\n");
     printf("Switches:\n");
 #ifndef NO_GUI

@@ -1,8 +1,8 @@
-# BPMDetect
+# BPM Detect
 
 ![Screenshot](screenshot.png)
 
-BPMDetect is automatic BPM (beats per minute) detection utility.
+BPM Detect is an automatic BPM (beats per minute) detection utility.
 
 This version has been modified to use the Qt Multimedia framework for BPM testing. This feature is
 only available on Windows and Linux at this time.

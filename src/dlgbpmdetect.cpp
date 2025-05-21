@@ -406,7 +406,7 @@ void DlgBPMDetect::slotTestBPM() {
 }
 
 void DlgBPMDetect::slotShowAbout() {
-    QString description = tr("Automatic BPM (Beat Per Minute) detecting application.");
+    QString description = tr("Automatic BPM (beats per minute) detecting application.");
     QString abouttext = tr(" \
 Version:    \t%1 \n \
 Description:\t%2 \n \
