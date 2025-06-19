@@ -48,6 +48,8 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
             SIGNAL(hasLengthUS(const qint64)),
             this,
             SLOT(setTrackPositionLength(const qint64)));
+    connect(this, &QDialog::accepted, player, &DlgTestBPMPlayer::stop);
+    connect(this, &QDialog::rejected, player, &DlgTestBPMPlayer::stop);
 
     cbNBeats->setEnabled(false);
     btnPos1->setEnabled(false);
@@ -61,7 +63,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
 }
 
 DlgTestBPM::~DlgTestBPM() {
-    player->stop();
+  player->stop();
 }
 
 void DlgTestBPM::setTrackPositionLength(const qint64 length) {
