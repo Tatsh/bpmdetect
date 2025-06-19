@@ -11,6 +11,6 @@ It uses SoundTouch's BPM library for detecting BPMs, TagLib for reading and writ
 and Qt 6 for the GUI. Aditional libraries (mad, vorbisfile, FLAC)  are used for decoding and the
 Qt Multimedia framework is also used for audio output (testing BPMs).
 
-All libraries are optional.
+All file-loading libraries (flac, libmad, etc) are optional.
 
 [Original project](https://sourceforge.net/projects/bpmdetect/)
