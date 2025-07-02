@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ui version="4.0">
  <class>DlgRealtimeDlg</class>
  <widget class="QDialog" name="DlgRealtimeDlg">
@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff/>
+    <normaloff />
    </iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -141,7 +141,7 @@
         <number>0</number>
        </property>
        <item row="0" column="0">
-        <widget class="WPlot" name="magDisplay" native="true"/>
+        <widget class="WPlot" name="magDisplay" native="true" />
        </item>
       </layout>
      </widget>
@@ -462,7 +462,7 @@
         </rect>
        </property>
        <property name="text">
-        <string/>
+        <string />
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -496,7 +496,7 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11"/>
+ <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
    <class>WVuMeter</class>
@@ -532,7 +532,7 @@
  <includes>
   <include location="local">progressbar.h</include>
  </includes>
- <resources/>
+ <resources />
  <connections>
   <connection>
    <sender>btnOk</sender>

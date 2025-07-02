@@ -63,7 +63,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
 }
 
 DlgTestBPM::~DlgTestBPM() {
-  player->stop();
+    player->stop();
 }
 
 void DlgTestBPM::setTrackPositionLength(const qint64 length) {

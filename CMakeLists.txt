@@ -35,9 +35,9 @@ add_definitions(
   -DQT_USE_FAST_OPERATOR_PLUS
   -DQT_USE_QSTRINGBUILDER)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND DEVMGMT_CXX_WARN_ERROR_ALL)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND DEVMGMT_CXX_WARN_ERROR_ALL)
     add_compile_options(
       -Weverything
       -Wno-c++98-compat
@@ -48,7 +48,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
       -Wno-inconsistent-missing-destructor-override
       -Wno-padded
       -Wno-redundant-parens)
-  endif ()
-endif ()
+  endif()
+endif()
 
 add_subdirectory(src)

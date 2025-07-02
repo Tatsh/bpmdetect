@@ -28,18 +28,18 @@ set(SOURCES
     wvumeter.cpp
     wwaveform.cpp)
 
-if (FLAC_FOUND)
+if(FLAC_FOUND)
   set(FLAC_SOURCES trackflac.cpp)
-endif ()
-if (MAD_FOUND)
+endif()
+if(MAD_FOUND)
   set(MP3_SOURCES trackmp3.cpp)
-endif ()
-if (VORBIS_FOUND)
+endif()
+if(VORBIS_FOUND)
   set(VORBIS_SOURCES trackoggvorbis.cpp)
-endif ()
+endif()
 
 add_executable(bpmdetect MACOSX_BUNDLE ${BPMDETECT-WIN32-FLAG} ${BPMDETECT-WIN32-RESOURCES}
-                                       ${FLAC_SOURCES} ${MP3_SOURCES} ${VORBIS_SOURCES} ${SOURCES})
+                                       ${FLAC_SOURCES} ${MP3_SOURCES} ${SOURCES} ${VORBIS_SOURCES})
 target_compile_definitions(
   bpmdetect
   PRIVATE $<$<BOOL:${FLAC_FOUND}>:HAVE_FLAC> $<$<BOOL:${MAD_FOUND}>:HAVE_MAD>
@@ -59,14 +59,9 @@ target_link_libraries(
   Qt6::Core
   Qt6::Gui
   Qt6::Widgets)
-qt_add_translations(
-  bpmdetect
-  MERGE_QT_TRANSLATIONS
-  QM_FILES_OUTPUT_VARIABLE
-  qm_files
-  TS_FILES
-  ../i18n/bpmdetect_en.ts)
-if (I18N)
+qt_add_translations(bpmdetect MERGE_QT_TRANSLATIONS QM_FILES_OUTPUT_VARIABLE qm_files TS_FILES
+                    ../i18n/bpmdetect_en.ts)
+if(I18N)
   install(FILES ${qm_files} DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bpmdetect")
 endif()
 install(TARGETS bpmdetect)

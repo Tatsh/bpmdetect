@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ui version="4.0">
  <class>DlgBPMDetect</class>
  <widget class="QWidget" name="DlgBPMDetect">
@@ -264,7 +264,7 @@
          <string>Current track</string>
         </property>
         <property name="text">
-         <string/>
+         <string />
         </property>
         <property name="wordWrap">
          <bool>false</bool>
@@ -461,7 +461,7 @@
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11"/>
+ <layoutdefault spacing="6" margin="11" />
  <customwidgets>
   <customwidget>
    <class>QDropListView</class>
@@ -473,7 +473,7 @@
   <include location="local">qdroplistview.h</include>
  </includes>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="resource.qrc" />
  </resources>
  <connections>
   <connection>

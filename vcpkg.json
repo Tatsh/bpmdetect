@@ -1,0 +1,40 @@
+{
+  "dependencies": [
+    {
+      "name": "ecm",
+      "version>=": "6.7.0"
+    },
+    {
+      "features": ["network", "widgets"],
+      "name": "qtbase",
+      "version>=": "6.8.3"
+    },
+    {
+      "features": [
+        {
+          "name": "ffmpeg",
+          "platform": "linux"
+        }
+      ],
+      "name": "qtmultimedia",
+      "version>=": "6.8.3"
+    },
+    "libflac",
+    "libmad",
+    "libvorbis",
+    "portaudio",
+    "taglib"
+  ],
+  "description": "Automatic BPM (beats per minute) detection utility.",
+  "documentation": "https://bpmdetect.readthedocs.org",
+  "homepage": "https://tatsh.github.io/bpmdetect/",
+  "license": "MIT",
+  "maintainers": [
+    "Andrew Udvare <audvare@gmail.com>",
+    "Sergei Trofimovich <slyich@gmail.com>",
+    "Andreas Sturmlechner <andreas.sturmlechner@gmail.com>",
+    "Nicolas Parlant"
+  ],
+  "name": "bpmdetect",
+  "version": "0.7.1"
+}
