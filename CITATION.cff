@@ -7,6 +7,8 @@ authors:
     given-names: 'Andreas'
   - family-names: 'Parlant'
     given-names: 'Nicolas'
+  - family-names: 'Sakmar'
+    given-names: 'Martin'
 cff-version: '1.2.0'
 date-released: '2025-07-02'
 message: 'If you use this software, please cite it as below.'

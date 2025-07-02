@@ -29,8 +29,15 @@ local utils = import 'utils.libjsonnet';
     {
       'family-names': 'Parlant',
       'given-names': 'Nicolas',
+      email: 'nicolas.parlant@parhuet.fr',
       name: '%s %s' % [self['given-names'], self['family-names']],
     },
+    {
+        'family-names': 'Sakmar',
+        'given-names': 'Martin',
+        email: 'martin.sakmar@gmail.com',
+        name: '%s %s' % [self['given-names'], self['family-names']],
+    }
   ],
   project_name: 'bpmdetect',
   version: '0.7.1',
