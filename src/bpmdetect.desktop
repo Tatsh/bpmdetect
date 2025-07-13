@@ -1,5 +1,8 @@
-[Desktop Entry] Encoding = UTF - 8 Name = BPMDetect Exec = bpmdetect Icon =
-                               bpmdetect - icon.png Type = Application Comment =
-                                   Automatic BPM detection utility Categories = Application;
-AudioVideo;
-Audio:
+[Desktop Entry]
+Encoding=UTF-8
+Name=BPMDetect
+Exec=bpmdetect
+Icon=bpmdetect-icon.png
+Type=Application
+Comment=Automatic BPM detection utility
+Categories=Application;AudioVideo;Audio;
