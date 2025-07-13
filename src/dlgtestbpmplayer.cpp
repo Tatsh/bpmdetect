@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QMediaDevices>
 #include <QUrl>
-#include <QtLogging>
 
 #include "dlgtestbpmplayer.h"
 
@@ -87,9 +86,9 @@ void DlgTestBPMPlayer::run() {
     update(nBeats);
 
     while (dataRemaining) {
-        QtAudio::State state = output->state();
-        if (state != QtAudio::ActiveState && state != QtAudio::IdleState &&
-            state != QtAudio::SuspendedState) {
+        QAudio::State state = output->state();
+        if (state != QAudio::ActiveState && state != QAudio::IdleState &&
+            state != QAudio::SuspendedState) {
             break;
         }
 

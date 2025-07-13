@@ -7,6 +7,8 @@ analyzing
 audioanalyzer
 audioinput
 audo
+autobuild
+autoinstall
 automoc
 autorcc
 autosort
@@ -24,6 +26,7 @@ bpmcalculator
 bpmcounter
 bpmd
 bpmdetect
+bpmdetectdebug
 bpmerr
 bpmfield
 bpmframe
@@ -43,12 +46,15 @@ colorstyle
 continouos
 corrbpm
 coveragerc
+coverallsapp
 cpptools
 csdrphf
+ctest
 customwidget
 customwidgets
 datarootdir
 dbuild
+dcmake
 decodeded
 destinationlabel
 devmgmt
@@ -82,8 +88,11 @@ fnkc
 fpnk
 fracbits
 fstride
+gcov
 gmock
 gnomovision
+gnucxx
+googletest
 gtest
 hlabels
 horstretch
@@ -92,6 +101,7 @@ htmlcov
 iconset
 ifft
 ignorecrc
+interprocedural
 iwyu
 jsonnet
 jsonschema
@@ -212,6 +222,7 @@ wbpm
 wbpmcalcdisplay
 wenergybeatdisplay
 weverything
+wiswa
 wplot
 wsum
 wvumeter

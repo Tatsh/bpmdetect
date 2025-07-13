@@ -1,0 +1,53 @@
+---
+jobs:
+  tests:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          pipx install cpp-coveralls
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev extra-cmake-modules qt6-multimedia-dev lcov qt6-tools-dev portaudio19-dev
+      - name: Configure
+        run: >-
+          cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build
+          --install-prefix ${{github.workspace}}/build/prefix
+          -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
+          -DBUILD_TESTS=ON
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
+      - name: Install
+        run: cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
+      - name: Run tests
+        run: ctest --test-dir ${{github.workspace}}/build/src
+      - if: ${{ matrix.build-type == 'Debug' }}
+        name: Generate coverage information
+        run: >-
+          lcov -c -d ${{github.workspace}}/build -o coverage1.info
+          --ignore-errors inconsistent,mismatch
+          --include src
+          --exclude test.cpp
+      - if: ${{ matrix.build-type == 'Debug' }}
+        name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage1.info
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type: [Debug, Release]
+name: Tests
+'on':
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+permissions:
+  contents: 'read'

@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.10)
-project(bpmdetect)
+cmake_minimum_required(VERSION 3.31)
+project(bpmdetect VERSION 0.7.1)
 
+find_package(ECM NO_MODULE REQUIRED)
+list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+include(ECMQtDeclareLoggingCategory)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 
@@ -11,7 +15,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(INSTALL_GTEST OFF)
 
+option(BUILD_TESTS "Build tests." OFF)
 option(I18N "Enable i18n support" OFF)
 
 find_package(
@@ -23,6 +29,7 @@ pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 pkg_check_modules(MAD mad)
 pkg_check_modules(TAGLIB taglib)
 pkg_check_modules(VORBIS vorbisfile)
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 # Sane flags from Kate
 add_definitions(
@@ -37,7 +44,7 @@ add_definitions(
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND DEVMGMT_CXX_WARN_ERROR_ALL)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ERROR_ALL)
     add_compile_options(
       -Weverything
       -Wno-c++98-compat
