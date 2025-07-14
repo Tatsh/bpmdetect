@@ -27,6 +27,7 @@
   "editor.tabSize": 2,
   "editor.wordWrapColumn": 100,
   "files.associations": {
+    "*.ui": "xml",
     "i18n/*.ts": "xml"
   },
   "files.eol": "\n",
