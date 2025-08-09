@@ -57,22 +57,20 @@ private:
     unsigned long discard(unsigned long samples_wanted);
     int findFrame(int pos);
 
-    unsigned long long m_iCurPosPCM;
     FILE *fptr;
-    unsigned int inputbuf_len;
     unsigned char *inputbuf;
+    unsigned int inputbuf_len;
     int framecount;
     int currentframe;
     int bitrate;
+    int rest;
+    int m_iAvgFrameSize;
+    unsigned long long m_iCurPosPCM;
     mad_timer_t pos;
     mad_timer_t filelength;
     mad_stream stream;
     mad_frame *frame;
     mad_synth synth;
-    // Start index in Synth buffer of samples left over from previous call to readSamples
-    int rest;
-    // Average frame size used when searching for a frame
-    int m_iAvgFrameSize;
 
     /** It is not possible to make a precise seek in an mp3 file without decoding the whole stream.
      * To have precise seek within a limited range from the current decode position, we keep track

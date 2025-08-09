@@ -38,7 +38,11 @@ class Track
     friend class TrackProxy;
 
 public:
-    virtual ~Track();
+    virtual ~Track()
+#ifndef NO_GUI
+        override
+#endif
+        ;
 
     enum TRACKTYPE {
         TYPE_UNKNOWN = 0,
@@ -107,11 +111,11 @@ protected:
     /// Open the track (filename set by setFilename)
     virtual void open() {
         setOpened(true);
-    };
+    }
     /// Close the track
     virtual void close() {
         setOpened(false);
-    };
+    }
     /// Seek to @a ms miliseconds
     virtual void seek(uint ms) = 0;
     /// Return the current position from which samples will be read (miliseconds)
@@ -141,19 +145,19 @@ private:
     std::string m_sArtist;
     std::string m_sTitle;
     double m_dBPM;
-    uint m_iLength;
-    uint m_iStartPos;
-    uint m_iEndPos;
-    bool m_bValid;
-    bool m_bRedetect;
-    bool m_bStop;
-    bool m_bConProgress;
     double m_dProgress;
     int m_iSamplerate;
     int m_iSampleBytes;
     int m_iChannels;
+    uint m_iLength;
+    uint m_iStartPos;
+    uint m_iEndPos;
     TRACKTYPE m_eType;
     std::string m_sBPMFormat;
+    bool m_bValid;
+    bool m_bRedetect;
+    bool m_bStop;
+    bool m_bConProgress;
     bool m_bOpened;
 
     static double _dMinBPM;
@@ -161,13 +165,13 @@ private:
     static bool _bLimit;
 
 #ifndef NO_GUI
+private:
+    QMutex m_qMutex;
+
 protected:
-    void run();
+    void run() override;
 
 public:
     void startDetection();
-
-private:
-    QMutex m_qMutex;
 #endif // NO_GUI
 };

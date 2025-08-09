@@ -27,30 +27,29 @@
 
 typedef struct {
     FLAC__uint64 total_samples;
+    short *buffer;      // buffer of samples (16 bit)
+    uint bufsize;       // buffer size (maximum number of samples)
+    uint numsamples;    // number of samples in buffer
     int channels;       // number of channels
     unsigned int srate; // sample rate
     unsigned bps;       // bits per sample
-
-    short *buffer;   // buffer of samples (16 bit)
-    uint bufsize;    // buffer size (maximum number of samples)
-    uint numsamples; // number of samples in buffer
 } FLAC_CLIENT_DATA;
 
 class TrackFlac : public Track {
 public:
     TrackFlac(const char *filename, bool readtags = true);
-    ~TrackFlac();
-    void readTags();
+    ~TrackFlac() override;
+    void readTags() override;
 
 protected:
-    void open();
-    void close();
-    void seek(uint ms);
-    uint currentPos();
-    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
+    void open() override;
+    void close() override;
+    void seek(uint ms) override;
+    uint currentPos() override;
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) override;
 
-    void storeBPM(std::string sBPM);
-    void removeBPM();
+    void storeBPM(std::string sBPM) override;
+    void removeBPM() override;
 
 private:
     static FLAC__StreamDecoderWriteStatus writeCallback(const FLAC__StreamDecoder *decoder,
