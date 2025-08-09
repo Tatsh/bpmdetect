@@ -15,8 +15,6 @@ set(WIDGETS_SRCS
     wenergybeatdisplay.h
     wplot.cpp
     wplot.h
-    wvumeter.cpp
-    wvumeter.h
     wwaveform.cpp
     wwaveform.h)
 add_library(bpmdetect-widgets STATIC ${WIDGETS_SRCS})
