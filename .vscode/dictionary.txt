@@ -225,6 +225,7 @@ vcpkg
 verstretch
 vorbisfile
 vsizetype
+waveformtest
 wavpack
 wbpm
 wbpmcalcdisplay
