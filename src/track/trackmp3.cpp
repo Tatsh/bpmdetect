@@ -314,7 +314,6 @@ uint TrackMp3::currentPos() {
  * @return number of samples in buffer
  */
 int TrackMp3::readSamples(SAMPLETYPE *buffer, unsigned int num) {
-    cout << "TrackMp3::readSamples(" << num << ")" << endl;
     if (!isValid() || num < 2)
         return -1;
 
