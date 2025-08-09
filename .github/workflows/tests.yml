@@ -19,24 +19,23 @@ jobs:
           --install-prefix ${{github.workspace}}/build/prefix
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
           -DBUILD_TESTS=ON
+          -DCOVERAGE=ON
       - name: Build
         run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
       - name: Install
         run: cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
       - name: Run tests
-        run: ctest --test-dir ${{github.workspace}}/build/src
+        run: ctest --test-dir ${{github.workspace}}/build/tests
       - if: ${{ matrix.build-type == 'Debug' }}
         name: Generate coverage information
         run: >-
-          lcov -c -d ${{github.workspace}}/build -o coverage1.info
+          lcov -c -d ${{github.workspace}}/build -o coverage1.lcov
           --ignore-errors inconsistent,mismatch
           --include src
-          --exclude test.cpp
+          --exclude tests
       - if: ${{ matrix.build-type == 'Debug' }}
         name: Coveralls
         uses: coverallsapp/github-action@v2
-        with:
-          file: coverage1.info
     strategy:
       fail-fast: false
       matrix:

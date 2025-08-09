@@ -4,7 +4,11 @@
       "cStandard": "gnu23",
       "compilerPath": "/usr/bin/gcc",
       "cppStandard": "gnu++23",
-      "includePath": ["${workspaceFolder}/src/**", "${workspaceFolder}/build/generated"],
+      "includePath": [
+        "${workspaceFolder}/src/**",
+        "${workspaceFolder}/build/src/generated",
+        "${workspaceFolder}/build/src/widgets/bpmdetect-widgets_autogen/include"
+      ],
       "name": "Linux"
     }
   ],

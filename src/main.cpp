@@ -21,13 +21,13 @@
  ***************************************************************************/
 
 #ifndef NO_GUI
-#include "dlgbpmdetect.h"
+#include "widgets/dlgbpmdetect.h"
 #include <QApplication>
 #endif
 
 #include <getopt.h>
 
-#include "trackproxy.h"
+#include "track/trackproxy.h"
 
 #include <cstdlib>
 #include <iostream>

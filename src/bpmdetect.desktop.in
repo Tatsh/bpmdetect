@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Application;AudioVideo;Audio;
+Comment=@CMAKE_PROJECT_DESCRIPTION@
+Encoding=UTF-8
+Exec=@CMAKE_PROJECT_NAME@
+Icon=@CMAKE_PROJECT_NAME@.png
+Name=BPMDetect
+Type=Application

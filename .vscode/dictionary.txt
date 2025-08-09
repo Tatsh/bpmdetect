@@ -1,13 +1,13 @@
 abouttext
 accu
 aditional
-allways
 analyzes
 analyzing
 audioanalyzer
 audioinput
 audo
 autobuild
+autogen
 autoinstall
 automoc
 autorcc
@@ -43,7 +43,6 @@ chng
 cldata
 codeowners
 colorstyle
-continouos
 corrbpm
 coveragerc
 coverallsapp
@@ -55,6 +54,7 @@ customwidgets
 datarootdir
 dbuild
 dcmake
+dcoverage
 decodeded
 destinationlabel
 devmgmt
@@ -71,6 +71,7 @@ dnow
 docstrings
 doxyfile
 emited
+endfunction
 energybeatdetector
 enought
 esbenp
@@ -119,6 +120,7 @@ mainpage
 mathjax
 maxn
 mdfile
+metronometest
 monotoniously
 mstime
 mulbyscalar
@@ -143,6 +145,7 @@ openmp
 paerr
 parlant
 parviainen
+pasample
 pcpx
 peaklevel
 peakpos
@@ -158,8 +161,10 @@ qlcd
 qstarttime
 qstringbuilder
 qtbase
+qtest
 qtime
 qtmultimedia
+qverify
 ravg
 rbeat
 rcur
@@ -186,6 +191,7 @@ sizepolicy
 soundtouch
 sourcelabel
 srate
+srcs
 sround
 stdset
 storaging
