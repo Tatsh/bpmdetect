@@ -25,7 +25,6 @@
 #include "pasample.h"
 
 class Waveform {
-    friend class WWaveform;
     friend class BPMCalculator;
 
 public:

@@ -152,7 +152,6 @@ peakpos
 peaktmp
 pipx
 pointsize
-portaudio
 progressbar
 pycache
 pyyaml

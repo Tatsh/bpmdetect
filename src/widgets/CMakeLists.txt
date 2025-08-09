@@ -8,15 +8,7 @@ set(WIDGETS_SRCS
     progressbar.cpp
     progressbar.h
     qdroplistview.cpp
-    qdroplistview.h
-    wbpmcalcdisplay.cpp
-    wbpmcalcdisplay.h
-    wenergybeatdisplay.cpp
-    wenergybeatdisplay.h
-    wplot.cpp
-    wplot.h
-    wwaveform.cpp
-    wwaveform.h)
+    qdroplistview.h)
 add_library(bpmdetect-widgets STATIC ${WIDGETS_SRCS})
 # Temporary workaround until .ui file is fixed or connections are done in the code.
 set_property(TARGET bpmdetect-widgets PROPERTY AUTOUIC_OPTIONS "--connections;string")

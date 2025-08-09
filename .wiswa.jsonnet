@@ -85,7 +85,6 @@ local utils = import 'utils.libjsonnet';
       'libflac',
       'libmad',
       'libvorbis',
-      'portaudio',
       'taglib',
     ],
   },

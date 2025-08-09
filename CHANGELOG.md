@@ -20,6 +20,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - In the test BPM dialogue, selecting number of beats applies immediately.
+- Removed unused code.
+- Removed unnecessary dependency on PortAudio.
 
 ## [0.7.1] - 2025-06-19
 

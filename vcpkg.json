@@ -22,7 +22,6 @@
     "libflac",
     "libmad",
     "libvorbis",
-    "portaudio",
     "taglib"
   ],
   "description": "Automatic BPM (beats per minute) detection utility.",
