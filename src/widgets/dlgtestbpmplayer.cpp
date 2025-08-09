@@ -10,7 +10,7 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(
     const QString file, uint nBeats_, uint bpm_, qint64 posUS_, QObject *parent)
     : buffer(QByteArray()), decoder(new QAudioDecoder(this)) {
     nBeats = nBeats_;
-    bpm = bpm_;
+    bpm = static_cast<float>(bpm_);
     posUS = posUS_;
 
     if (parent) {
@@ -62,7 +62,7 @@ void DlgTestBPMPlayer::update(uint nBeats_, qint64 posUS_) {
     const qint64 beatsLength = (qint64)(((60000 * nBeats) / bpm) * 1000);
     const qint32 bytesForBeats = format.bytesForDuration(beatsLength);
 
-    dataRemaining = bytesForBeats * nBeats;
+    dataRemaining = static_cast<qint64>(bytesForBeats) * nBeats;
     originalSize = dataRemaining;
     if (posUS > 0) {
         qint32 skipBytes = format.bytesForDuration(posUS);
