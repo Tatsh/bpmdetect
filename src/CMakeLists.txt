@@ -15,8 +15,8 @@ ecm_qt_declare_logging_category(
   "sh.tat.${CMAKE_PROJECT_NAME}")
 
 add_executable(bpmdetect MACOSX_BUNDLE icon.rc images.h main.cpp)
-target_include_directories(bpmdetect PRIVATE ${TAGLIB_INCLUDE_DIRS}
-                                             ${FLAC_INCLUDE_DIRS} ${MAD_INCLUDE_DIRS} . widgets)
+target_include_directories(bpmdetect PRIVATE ${TAGLIB_INCLUDE_DIRS} ${FLAC_INCLUDE_DIRS}
+                                             ${MAD_INCLUDE_DIRS} . widgets)
 target_link_libraries(
   bpmdetect
   Qt6::Gui
