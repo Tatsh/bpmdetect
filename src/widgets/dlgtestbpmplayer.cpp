@@ -86,9 +86,9 @@ void DlgTestBPMPlayer::run() {
     update(nBeats);
 
     while (true) {
-        QtAudio::State state = output->state();
-        if (state != QtAudio::ActiveState && state != QtAudio::IdleState &&
-            state != QtAudio::SuspendedState) {
+        QAudio::State state = output->state();
+        if (state != QAudio::ActiveState && state != QAudio::IdleState &&
+            state != QAudio::SuspendedState) {
             break;
         }
 
