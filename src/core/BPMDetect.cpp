@@ -182,7 +182,8 @@ void BPMDetect::updateXCorr(int process_samples) {
 
         sum = 0;
         for (i = 0; i < process_samples; i++) {
-            sum += pBuffer[i] * pBuffer[i + offs]; // scaling the sub-result shouldn't be necessary
+            sum += (LONG_SAMPLETYPE)pBuffer[i] *
+                   pBuffer[i + offs]; // scaling the sub-result shouldn't be necessary
         }
         //        xcorr[offs] *= xcorr_decay;   // decay 'xcorr' here with suitable coefficients
         // if it's desired that the system adapts automatically to

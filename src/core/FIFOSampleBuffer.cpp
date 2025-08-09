@@ -151,7 +151,8 @@ void FIFOSampleBuffer::ensureCapacity(uint capacityRequirement) {
 
     if (capacityRequirement > getCapacity()) {
         // enlarge the buffer in 4kbyte steps (round up to next 4k boundary)
-        sizeInBytes = (capacityRequirement * channels * sizeof(SAMPLETYPE) + 4095) & (uint)-4096;
+        sizeInBytes =
+            ((ulong)capacityRequirement * channels * sizeof(SAMPLETYPE) + 4095) & (ulong)-4096;
         assert(sizeInBytes % 2 == 0);
         tempUnaligned = new SAMPLETYPE[sizeInBytes / sizeof(SAMPLETYPE) + 16 / sizeof(SAMPLETYPE)];
         if (tempUnaligned == NULL) {
@@ -160,7 +161,9 @@ void FIFOSampleBuffer::ensureCapacity(uint capacityRequirement) {
         // Align the buffer to begin at 16byte cache line boundary for optimal performance
         temp = (SAMPLETYPE *)(((ulong)tempUnaligned + 15) & (ulong)-16);
         if (samplesInBuffer) {
-            memcpy(temp, ptrBegin(), samplesInBuffer * channels * sizeof(SAMPLETYPE));
+            memcpy(temp,
+                   ptrBegin(),
+                   static_cast<size_t>(samplesInBuffer) * channels * sizeof(SAMPLETYPE));
         }
         delete[] bufferUnaligned;
         buffer = temp;
