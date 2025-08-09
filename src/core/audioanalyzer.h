@@ -38,8 +38,8 @@ class BPMCalculator;
 class AudioAnalyzer : public QObject {
     Q_OBJECT
 public:
-    AudioAnalyzer(QObject *parent = 0);
-    ~AudioAnalyzer();
+    AudioAnalyzer(QObject *parent = nullptr);
+    ~AudioAnalyzer() override;
 
     unsigned int samplerate() const;
     unsigned int channels() const;
@@ -71,32 +71,31 @@ protected:
     void calculateRMS(const SAMPLE *inputBuffer, unsigned long size);
     void updateWaveform(const SAMPLE *buffer, unsigned long size);
     /// analyze a mono buffer @a buffer of @a size samples
-    virtual void analyze(const SAMPLE *buffer, unsigned long size, const SAMPLE *prevbuffer = 0);
+    virtual void
+    analyze(const SAMPLE *buffer, unsigned long size, const SAMPLE *prevbuffer = nullptr);
 
 private:
     unsigned int m_uSamplerate, m_uChannels;
-    float m_fRMSVolL, m_fRMSVolR;
-    bool bbeat;
-    EnergyBeatDetector *m_pBeatDetector[NUMDETECTORS];
-
     unsigned long fftsize;
-    kiss_fftr_cfg fftcfg;
-    float *m_magvector; // current magnitude vector (size = fftsize)
-
     unsigned long m_instantBufSize;
     unsigned long m_instantBufSamples; ///< number of samples in instant buffer
-    SAMPLE *m_pInstantBuffer;          ///< instant buffer (mono)
-    SAMPLE *m_pPrevInstantBuffer;
-
-    BeatInfo *m_pBeat; ///< current beat
-
     unsigned long oldstart;
+
+    EnergyBeatDetector *m_pBeatDetector[NUMDETECTORS];
+    kiss_fftr_cfg fftcfg;
+    float *m_magvector;       // current magnitude vector (size = fftsize)
+    SAMPLE *m_pInstantBuffer; ///< instant buffer (mono)
+    SAMPLE *m_pPrevInstantBuffer;
+    BeatInfo *m_pBeat;            ///< current beat
     BPMCounter *m_pCounter;       ///< BPM counter
     BPMCalculator *m_pCalculator; ///< BPM calculator (autocorrelation)
 
 #ifndef NO_GUI
     Waveform *m_pWaveform;
 #endif
+
+    float m_fRMSVolL, m_fRMSVolR;
+    bool bbeat;
 
     void reinit();
 };
