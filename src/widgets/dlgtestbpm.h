@@ -39,7 +39,7 @@ class DlgTestBPM : public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT
 public:
     DlgTestBPM(const QString file, const float bpm, QWidget *parent = 0);
-    ~DlgTestBPM();
+    ~DlgTestBPM() override;
 
 protected Q_SLOTS:
     void setPos1();
