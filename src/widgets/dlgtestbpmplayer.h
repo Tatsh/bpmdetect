@@ -12,15 +12,15 @@ class DlgTestBPMPlayer : public QThread {
 public:
     DlgTestBPMPlayer(
         const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0, QObject *parent = nullptr);
-    ~DlgTestBPMPlayer();
-    const qint64 getLengthUS() {
+    ~DlgTestBPMPlayer() override;
+    qint64 getLengthUS() {
         return lengthUS;
     };
     void update(uint nBeats_, qint64 posUS_ = 0);
     void stop();
 
 protected:
-    void run();
+    void run() override;
     Q_SIGNAL void hasLengthUS(const qint64);
 
 protected Q_SLOTS:
@@ -44,7 +44,5 @@ private:
     qint64 dataRemaining;
     char *data = nullptr;
     char *startptr = nullptr;
-    qint64 beatsLength;
-    qint32 bytesForBeats;
     qint64 originalSize;
 };
