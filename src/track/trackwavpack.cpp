@@ -1,6 +1,7 @@
 #include <iostream>
 
 #ifdef HAVE_TAGLIB
+#include <apetag.h>
 #include <wavpackfile.h>
 #endif
 
@@ -22,10 +23,17 @@ void TrackWavpack::readTags() {
     string sbpm = "000.00";
 #ifdef HAVE_TAGLIB
     TagLib::WavPack::File f(fname.c_str(), false);
+    auto ape = f.APETag();
     TagLib::Tag *tag = f.tag();
     if (tag != NULL) {
         setArtist(tag->artist().toCString());
         setTitle(tag->title().toCString());
+    }
+    if (ape != NULL) {
+        auto bpm = ape->itemListMap()["BPM"].toString().to8Bit();
+        if (bpm.length() > 0) {
+            sbpm = bpm;
+        }
     }
 #endif
     // set filename (without path) as title if the title is empty
@@ -40,7 +48,7 @@ void TrackWavpack::open() {
 
     string fname = filename();
     wpc = WavpackOpenFileInput(
-        fname.c_str(), nullptr, OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_FILE_UTF8, 0);
+        fname.c_str(), nullptr, OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8, 0);
     if (wpc == nullptr) {
 #ifndef NDEBUG
         cerr << "TrackWavpack: can not open file" << endl;
@@ -108,13 +116,37 @@ int TrackWavpack::readSamples(SAMPLETYPE *buffer, unsigned int num) {
 }
 
 void TrackWavpack::storeBPM(string sBPM) {
-    if (wpc == nullptr)
-        return;
-    WavpackAppendTagItem(wpc, "bpm", sBPM.c_str(), 0);
+    bool wasNull = wpc == nullptr;
+    if (wasNull) {
+        wpc = WavpackOpenFileInput(filename().c_str(),
+                                   nullptr,
+                                   OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
+                                   0);
+    }
+    int ret = WavpackAppendTagItem(wpc, "bpm", sBPM.c_str(), sBPM.length());
+    cout << "WavpackAppendTagItem returned " << ret << endl;
+    ret = WavpackWriteTag(wpc);
+    cout << "WavpackWriteTag returned " << ret << endl;
+    if (wasNull) {
+        WavpackCloseFile(wpc);
+        wpc = nullptr;
+    }
 }
 
 void TrackWavpack::removeBPM() {
-    if (wpc == nullptr)
-        return;
-    WavpackDeleteTagItem(wpc, "bpm");
+    bool wasNull = wpc == nullptr;
+    if (wasNull) {
+        wpc = WavpackOpenFileInput(filename().c_str(),
+                                   nullptr,
+                                   OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
+                                   0);
+    }
+    int ret = WavpackDeleteTagItem(wpc, "bpm");
+    cout << "WavpackDeleteTagItem returned " << ret << endl;
+    ret = WavpackWriteTag(wpc);
+    cout << "WavpackWriteTag returned " << ret << endl;
+    if (wasNull) {
+        WavpackCloseFile(wpc);
+        wpc = nullptr;
+    }
 }
