@@ -9,6 +9,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- WavPack support.
+
+### Changed
+
+- Better playback in the test BPM dialogue.
+
+### Fixed
+
+- In the test BPM dialogue, selecting number of beats applies immediately.
+
 ## [0.7.1] - 2025-06-19
 
 ### Changed
