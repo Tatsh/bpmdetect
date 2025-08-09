@@ -50,7 +50,7 @@ void TrackFlac::open() {
     m_iCurPosPCM = 0;
     string fname = filename();
 
-    m_decoder = 0;
+    m_decoder = nullptr;
     m_ibufidx = 0;
     memset(&m_cldata, 0, sizeof(FLAC_CLIENT_DATA));
 
@@ -77,12 +77,12 @@ void TrackFlac::open() {
     int channels = m_cldata.channels;
     uint srate = m_cldata.srate;
     unsigned long long numSamples = m_cldata.total_samples;
-    uint len = (1000 * numSamples / srate);
+    uint len = static_cast<uint>(1000ULL * numSamples / srate);
 
     setLength(len);
     setStartPos(0);
     setEndPos(len);
-    setSamplerate(srate);
+    setSamplerate(static_cast<int>(srate));
     setSampleBytes(2);
     setChannels(channels);
     setTrackType(TYPE_FLAC);
@@ -91,14 +91,14 @@ void TrackFlac::open() {
 
 void TrackFlac::close() {
     if (isOpened()) {
-        if (m_decoder != 0) {
+        if (m_decoder != nullptr) {
             FLAC__stream_decoder_finish(m_decoder);
             FLAC__stream_decoder_delete(m_decoder);
-            m_decoder = 0;
+            m_decoder = nullptr;
         }
-        if (m_cldata.buffer != 0) {
+        if (m_cldata.buffer != nullptr) {
             delete[] m_cldata.buffer;
-            m_cldata.buffer = 0;
+            m_cldata.buffer = nullptr;
             m_ibufidx = 0;
         }
     }
@@ -108,7 +108,8 @@ void TrackFlac::close() {
 
 void TrackFlac::seek(uint ms) {
     if (isValid() && m_decoder) {
-        unsigned long long pos = (ms * samplerate() /* * channels()*/) / 1000;
+        unsigned long long pos =
+            (ms * static_cast<unsigned int>(samplerate()) /* * channels()*/) / 1000;
         m_cldata.numsamples = 0;
         if (FLAC__stream_decoder_seek_absolute(m_decoder, pos)) {
             m_ibufidx = 0;
@@ -127,8 +128,9 @@ void TrackFlac::seek(uint ms) {
 
 uint TrackFlac::currentPos() {
     if (isValid()) {
-        unsigned long long pos = 1000 * m_iCurPosPCM / (samplerate() /* *channels()*/);
-        return (uint)pos;
+        unsigned long long pos =
+            1000 * m_iCurPosPCM / static_cast<unsigned long long>(samplerate() /* *channels()*/);
+        return static_cast<uint>(pos);
     }
     return 0;
 }
@@ -173,7 +175,7 @@ int TrackFlac::readSamples(SAMPLETYPE *buffer, unsigned int num) {
 
     // return the number of samples in buffer
     m_iCurPosPCM += nread;
-    return nread;
+    return static_cast<int>(nread);
 }
 
 void TrackFlac::storeBPM(string format) {
@@ -217,9 +219,9 @@ void TrackFlac::readTags() {
         if (!strl.isEmpty())
             sbpm = strl[0].toCString();
         else {
-            TagLib::ID3v2::Tag *tag = f.ID3v2Tag(true);
-            if (tag != NULL) {
-                TagLib::List<TagLib::ID3v2::Frame *> lst = tag->frameList("TBPM");
+            TagLib::ID3v2::Tag *id3v2tag = f.ID3v2Tag(true);
+            if (id3v2tag != NULL) {
+                TagLib::List<TagLib::ID3v2::Frame *> lst = id3v2tag->frameList("TBPM");
                 if (lst.size() > 0) {
                     TagLib::ID3v2::Frame *frame = lst[0];
                     sbpm = frame->toString().toCString();
@@ -257,18 +259,18 @@ FLAC__StreamDecoderWriteStatus TrackFlac::writeCallback(const FLAC__StreamDecode
                                                         const FLAC__int32 *const buffer[],
                                                         void *client_data) {
     (void)decoder;
-    FLAC_CLIENT_DATA *cldata = (FLAC_CLIENT_DATA *)client_data;
+    FLAC_CLIENT_DATA *cldata = reinterpret_cast<FLAC_CLIENT_DATA *>(client_data);
     if (!cldata) {
         cerr << "TrackFlac: writeCallback: No client data" << endl;
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
 
     // reallocate buffer if required
-    if (cldata->buffer != 0 && frame->header.blocksize * 2 > cldata->bufsize) {
+    if (cldata->buffer != nullptr && frame->header.blocksize * 2 > cldata->bufsize) {
         delete[] cldata->buffer;
-        cldata->buffer = 0;
+        cldata->buffer = nullptr;
     }
-    if (cldata->buffer == 0) {
+    if (cldata->buffer == nullptr) {
         cldata->buffer = new short[frame->header.blocksize * 2];
         cldata->bufsize = frame->header.blocksize * 2;
     }
@@ -310,11 +312,11 @@ void TrackFlac::metadataCallback(const FLAC__StreamDecoder *decoder,
                                  const FLAC__StreamMetadata *metadata,
                                  void *client_data) {
     (void)decoder;
-    FLAC_CLIENT_DATA *info = (FLAC_CLIENT_DATA *)client_data;
+    FLAC_CLIENT_DATA *info = reinterpret_cast<FLAC_CLIENT_DATA *>(client_data);
 
-    if (info != 0 && metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+    if (info != nullptr && metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
         info->srate = metadata->data.stream_info.sample_rate;
-        info->channels = metadata->data.stream_info.channels;
+        info->channels = static_cast<int>(metadata->data.stream_info.channels);
         info->total_samples = metadata->data.stream_info.total_samples;
         info->bps = metadata->data.stream_info.bits_per_sample;
     }

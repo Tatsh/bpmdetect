@@ -40,9 +40,9 @@ extern const char *version;
 DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     setupUi(this);
     setStarted(false);
-    m_pCurItem = 0;
+    m_pCurItem = nullptr;
     m_iCurTrackIdx = 0;
-    m_pProgress = 0;
+    m_pProgress = nullptr;
 
     QImage img;
     img.loadFromData(icon_png, sizeof(icon_png), "PNG");
@@ -178,7 +178,7 @@ void DlgBPMDetect::enableControls(bool enable) {
     }
 
     TrackList->clearSelection();
-    m_pCurItem = 0;
+    m_pCurItem = nullptr;
     m_iCurTrackIdx = 0;
 }
 
@@ -275,17 +275,17 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
 
 void DlgBPMDetect::slotTimerDone() {
     if (m_pProgress)
-        m_pProgress->setValue((int)(10 * m_pTrack->progress()));
-    TotalProgress->setValue(100 * (m_iCurTrackIdx - 1) + (int)m_pTrack->progress());
+        m_pProgress->setValue(static_cast<int>(10 * m_pTrack->progress()));
+    TotalProgress->setValue(100 * (m_iCurTrackIdx - 1) + static_cast<int>(m_pTrack->progress()));
     if (getStarted() && m_pTrack->isFinished()) {
-        TotalProgress->setValue(100 * (m_iCurTrackIdx) + (int)m_pTrack->progress());
+        TotalProgress->setValue(100 * (m_iCurTrackIdx) + static_cast<int>(m_pTrack->progress()));
         slotDetectNext();
     }
 }
 
 void DlgBPMDetect::slotAddFiles(QStringList &files) {
     if (!getStarted() && files.size()) {
-        TotalProgress->setMaximum(files.size());
+        TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
     for (int i = 0; i < files.size(); ++i) {
         TrackProxy track(files[i].toLocal8Bit().constData(), true);
@@ -359,7 +359,6 @@ void DlgBPMDetect::slotListMenuPopup(const QPoint &) {
  * from directory path including files from subdirectories
  * @param path path from which the files are added
  * @return QStringList of files with relative paths
- * to @param path
  */
 QStringList DlgBPMDetect::filesFromDir(QString path) {
     QDir d(path), f(path);
@@ -379,8 +378,8 @@ QStringList DlgBPMDetect::filesFromDir(QString path) {
         if (cdir == QStringLiteral(".") || cdir == QStringLiteral(".."))
             continue;
         QStringList dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
-        for (int i = 0; i < dfiles.size(); ++i) {
-            files.append(cdir + QStringLiteral("/") + dfiles[i]);
+        for (int j = 0; j < dfiles.size(); ++j) {
+            files.append(cdir + QStringLiteral("/") + dfiles[j]);
         }
     }
 
@@ -397,7 +396,7 @@ void DlgBPMDetect::slotTestBPM() {
     if (!item)
         return;
     float bpm = item->text(0).toFloat();
-    if (!bpm)
+    if (bpm == 0.0f)
         return;
 
     DlgTestBPM tbpmd(item->text(TrackList->columnCount() - 1), bpm, this);
