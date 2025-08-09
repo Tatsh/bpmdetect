@@ -24,6 +24,11 @@ set(WIDGETS_SRCS
 add_library(bpmdetect-widgets STATIC ${WIDGETS_SRCS})
 # Temporary workaround until .ui file is fixed or connections are done in the code.
 set_property(TARGET bpmdetect-widgets PROPERTY AUTOUIC_OPTIONS "--connections;string")
+target_compile_definitions(
+  bpmdetect-widgets
+  PRIVATE $<$<BOOL:${FLAC_FOUND}>:HAVE_FLAC> $<$<BOOL:${MAD_FOUND}>:HAVE_MAD>
+          $<$<BOOL:${VORBIS_FOUND}>:HAVE_VORBISFILE> $<$<BOOL:${TAGLIB_FOUND}>:HAVE_TAGLIB>
+          $<$<BOOL:${WAVPACK_FOUND}>:HAVE_WAVPACK>)
 target_include_directories(bpmdetect-widgets PRIVATE ..)
 target_link_libraries(bpmdetect-widgets PRIVATE bpmdetect-core Qt6::Core Qt6::Gui Qt6::Multimedia
                                                 Qt6::Widgets)
