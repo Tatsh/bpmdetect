@@ -131,7 +131,7 @@ namespace soundtouch {
 
 #ifdef ALLOW_X86_OPTIMIZATIONS
     // Allow 3DNow! and SSE optimizations
-#if WIN32
+#ifdef _WIN32
 #define ALLOW_3DNOW 1
 #endif
 
