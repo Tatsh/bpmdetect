@@ -46,6 +46,7 @@ public:
         TYPE_WAV = 2,
         TYPE_OGGVORBIS = 3,
         TYPE_FLAC = 4,
+        TYPE_WAVPACK = 5,
     };
     /// Convert std::string to BPM
     static double str2bpm(std::string sBPM);

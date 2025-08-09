@@ -32,6 +32,7 @@ pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 pkg_check_modules(MAD mad)
 pkg_check_modules(TAGLIB taglib)
 pkg_check_modules(VORBIS vorbisfile)
+pkg_check_modules(WAVPACK wavpack)
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 # Sane flags from Kate

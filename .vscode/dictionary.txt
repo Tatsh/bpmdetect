@@ -214,6 +214,7 @@ trackmp
 trackoggvorbis
 trackproxy
 trackwav
+trackwavpack
 trofimovich
 twidx
 udvare
@@ -224,6 +225,7 @@ vcpkg
 verstretch
 vorbisfile
 vsizetype
+wavpack
 wbpm
 wbpmcalcdisplay
 wenergybeatdisplay
@@ -231,6 +233,7 @@ weverything
 wiswa
 wplot
 wsum
+wvpk
 wvumeter
 wwaveform
 xcorr

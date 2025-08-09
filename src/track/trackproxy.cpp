@@ -31,6 +31,9 @@
 #ifdef HAVE_FLAC
 #include "trackflac.h"
 #endif
+#ifdef HAVE_WAVPACK
+#include "trackwavpack.h"
+#endif
 
 #include <cstring>
 #include <iostream>
@@ -73,6 +76,11 @@ Track *TrackProxy::createTrack(const char *filename, bool readtags) {
     if (ext &&
         (!strcasecmp(ext, ".flac") || !strcasecmp(ext, ".flc") || !strcasecmp(ext, ".fla"))) {
         return new TrackFlac(filename, readtags);
+    }
+#endif
+#ifdef HAVE_WAVPACK
+    if (ext && (!strcasecmp(ext, ".wv") || !strcasecmp(ext, ".wvpk"))) {
+        return new TrackWavpack(filename, readtags);
     }
 #endif
 
