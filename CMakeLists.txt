@@ -16,11 +16,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BPMDETECT_CXX_WARN_ERROR_ALL "Do not use." OFF)
+option(BPMDETECT_CXX_WARN_ALL "Do not use." OFF)
 option(BUILD_TESTS "Build tests." OFF)
 option(COVERAGE "Enable code coverage." OFF)
 option(I18N "Enable i18n support" OFF)
-mark_as_advanced(BPMDETECT_CXX_WARN_ERROR_ALL)
+mark_as_advanced(BPMDETECT_CXX_WARN_ALL)
 
 find_package(Qt6Core REQUIRED)
 find_package(Qt6Gui REQUIRED)
@@ -46,18 +46,9 @@ add_definitions(
   -DQT_USE_QSTRINGBUILDER)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ERROR_ALL)
-    add_compile_options(
-      -Weverything
-      -Wno-c++98-compat
-      -Wno-c++98-compat-pedantic
-      -Wno-deprecated-copy-with-user-provided-dtor
-      -Wno-exit-time-destructors
-      -Wno-global-constructors
-      -Wno-inconsistent-missing-destructor-override
-      -Wno-padded
-      -Wno-redundant-parens)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ALL)
+    add_compile_options(-fsafe-buffer-usage-suggestions -Weverything -Wno-c++98-compat
+                        -Wno-c++98-compat-pedantic)
   endif()
 endif()
 
