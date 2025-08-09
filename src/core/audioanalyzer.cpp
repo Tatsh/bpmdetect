@@ -43,12 +43,12 @@ const int bufferParts = 4;
 AudioAnalyzer::AudioAnalyzer(QObject *parent) : QObject(parent) {
     m_fRMSVolR = m_fRMSVolL = 0;
     fftsize = 512;
-    fftcfg = 0;
-    m_magvector = 0;
+    fftcfg = nullptr;
+    m_magvector = nullptr;
     m_instantBufSamples = 0;
-    m_pInstantBuffer = m_pPrevInstantBuffer = 0;
+    m_pInstantBuffer = m_pPrevInstantBuffer = nullptr;
     bbeat = false;
-    m_pBeat = 0;
+    m_pBeat = nullptr;
     m_pCounter = new BPMCounter();
     m_pCalculator = new BPMCalculator(5);
 
@@ -146,14 +146,18 @@ void AudioAnalyzer::process(const SAMPLE *inputBuffer, ulong size) {
             for (int i = 0; i < n; ++i)
                 avg[i] = 0;
             for (ulong i = 0; i < m_instantBufSamples; ++i) {
-                float val = fabs(m_pInstantBuffer[i]);
-                int cn = i / (m_instantBufSamples / n);
-                avg[cn] += val;
-                avg[cn] += val;
+                if (i < m_instantBufSize) {
+                    float val = fabsf(static_cast<float>(m_pInstantBuffer[i]));
+                    unsigned long cn = static_cast<unsigned long>(i) /
+                                       static_cast<unsigned long>(m_instantBufSamples /
+                                                                  static_cast<unsigned long>(n));
+                    avg[cn] += val;
+                    avg[cn] += val;
+                }
             }
             for (int i = 0; i < n; ++i) {
-                avg[i] /= (float)(m_instantBufSamples / n);
-                //avg[i] /= (float) SAMPLE_MAXVALUE;
+                avg[i] /= static_cast<float>(m_instantBufSamples / n);
+                //avg[i] /= static_cast<float>(SAMPLE_MAXVALUE);
             }
             m_pCalculator->update(avg, n);
 
@@ -250,7 +254,8 @@ void AudioAnalyzer::analyze(const SAMPLE *buffer, ulong size, const SAMPLE *prev
         m_magvector[i] = sqrt(freqdata[i].r * freqdata[i].r + freqdata[i].i * freqdata[i].i);
     }
 
-#define FREQIDX(freq) (int)((freq / ((float)m_uSamplerate / (float)fftsize)))
+#define FREQIDX(freq)                                                                              \
+    static_cast<int>((freq) / (static_cast<float>(m_uSamplerate) / static_cast<float>(fftsize)))
 
     // update beat detectors
     float energy = 0;
@@ -357,10 +362,11 @@ void AudioAnalyzer::reinit() {
     const float bps = 44100. / 1024.; // buffers per second
     //const float bps = 44100. / 512.; // buffers per second
 
-    m_instantBufSize = m_uSamplerate / bps;
+    m_instantBufSize = static_cast<unsigned long>(static_cast<float>(m_uSamplerate) / bps);
     m_instantBufSize -= m_instantBufSize % 2;
     m_instantBufSamples = 0;
-    m_pInstantBuffer = (SAMPLE *)realloc(m_pInstantBuffer, m_instantBufSize * sizeof(SAMPLE));
+    m_pInstantBuffer =
+        static_cast<SAMPLE *>(realloc(m_pInstantBuffer, m_instantBufSize * sizeof(SAMPLE)));
     m_pPrevInstantBuffer =
         (SAMPLE *)realloc(m_pPrevInstantBuffer, m_instantBufSize * sizeof(SAMPLE));
     memset(m_pPrevInstantBuffer, 0, m_instantBufSize * sizeof(SAMPLE));
@@ -373,11 +379,11 @@ void AudioAnalyzer::reinit() {
     if (fftsize > m_instantBufSize)
         fftsize = m_instantBufSize;
     m_pWaveform->setBufferSize(m_instantBufSize);
-    m_pWaveform->setSamplerate(samplerate());
+    m_pWaveform->setSamplerate(static_cast<float>(samplerate()));
     m_pWaveform->setLength(5);
 
-    fftcfg = kiss_fftr_alloc(fftsize, 0, 0, 0);
-    m_magvector = (float *)realloc(m_magvector, fftsize * sizeof(float));
+    fftcfg = kiss_fftr_alloc(static_cast<int>(fftsize), 0, nullptr, nullptr);
+    m_magvector = static_cast<float *>(realloc(m_magvector, fftsize * sizeof(float)));
 
     m_pCalculator->setSamplerate(bps * bufferParts);
     m_pCalculator->setLength(5);
