@@ -34,7 +34,7 @@
 #include <string>
 using namespace std;
 
-const char *version = "0.7.1"; // App version
+const char *version = "0.7.2"; // App version
 
 void display_help() {
     printf("BPM Detect version %s\n\n", version);

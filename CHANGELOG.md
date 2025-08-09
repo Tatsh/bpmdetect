@@ -9,6 +9,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.2] - 2025-08-08
+
 ### Added
 
 - WavPack support.
@@ -33,4 +35,4 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audo immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.7.1...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.7.2...HEAD

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.31)
-project(bpmdetect VERSION 0.7.1)
+project(bpmdetect VERSION 0.7.2)
 
 find_package(ECM NO_MODULE REQUIRED)
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
