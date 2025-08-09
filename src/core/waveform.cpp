@@ -44,9 +44,9 @@ Waveform::Waveform(float srate, float length) {
 
 Waveform::~Waveform() {
     if (m_pWaveformBuffer)
-        delete[] m_pWaveformBuffer;
+        free(m_pWaveformBuffer);
     if (m_pBeatBuffer)
-        delete[] m_pBeatBuffer;
+        free(m_pBeatBuffer);
 }
 
 void Waveform::setLength(float secs) {

@@ -70,12 +70,11 @@ AudioAnalyzer::~AudioAnalyzer() {
     if (fftcfg)
         free(fftcfg);
     if (m_magvector)
-        delete[] m_magvector;
-
+        free(m_magvector);
     if (m_pInstantBuffer)
-        delete[] m_pInstantBuffer;
+        free(m_pInstantBuffer);
     if (m_pPrevInstantBuffer)
-        delete[] m_pPrevInstantBuffer;
+        free(m_pPrevInstantBuffer);
     for (int i = 0; i < NUMDETECTORS; ++i) {
         delete m_pBeatDetector[i];
     }
