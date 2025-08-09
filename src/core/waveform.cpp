@@ -20,12 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "waveform.h"
-#include "bpmcounter.h"
-
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <math.h>
+
+#include "bpmcounter.h"
+#include "waveform.h"
 
 #define MAX_VALBUFFER_SIZE 4096
 

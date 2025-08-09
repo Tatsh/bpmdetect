@@ -20,10 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "metronome.h"
+#include <sys/time.h>
 
 #include <QDebug>
-#include <sys/time.h>
+
+#include "metronome.h"
 
 Metronome::Metronome() {
     setInterval(1000);

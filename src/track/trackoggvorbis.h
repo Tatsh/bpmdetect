@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "track.h"
-
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
+
+#include "track.h"
 
 class TrackOggVorbis : public Track {
 public:

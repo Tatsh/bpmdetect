@@ -47,9 +47,10 @@
 
 #pragma once
 
+#include <cassert>
+#include <cstdlib>
+
 #include "STTypes.h"
-#include <assert.h>
-#include <stdlib.h>
 
 namespace soundtouch {
 

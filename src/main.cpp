@@ -20,18 +20,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef NO_GUI
-#include "widgets/dlgbpmdetect.h"
-#include <QApplication>
-#endif
+#include <cstdlib>
+#include <iostream>
+#include <string>
 
 #include <getopt.h>
 
 #include "track/trackproxy.h"
 
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#ifndef NO_GUI
+#include <QApplication>
+
+#include "widgets/dlgbpmdetect.h"
+#endif
+
 using namespace std;
 
 const char *version = "0.7.2"; // App version

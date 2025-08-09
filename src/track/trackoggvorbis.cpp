@@ -20,31 +20,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "trackoggvorbis.h"
+#include <cassert>
+#include <climits>
+#include <iostream>
 
-#ifdef HAVE_TAGLIB
-#include <textidentificationframe.h>
-#include <vorbisfile.h>
-#include <xiphcomment.h>
-#endif // HAVE_TAGLIB
-
-#include <assert.h>
-#include <limits.h>
-
-#ifdef __WIN__
+#ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
 #endif
-
-#ifdef __MACX__
+#ifdef __APPLE__
 #ifdef __i386
 #define OV_ENDIAN_ARG 0
 #else
 #define OV_ENDIAN_ARG 1
 #endif
 #endif
-
-#ifdef __LINUX__
+#ifdef __linux__
 #include <endian.h>
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define OV_ENDIAN_ARG 0
@@ -55,7 +46,14 @@
 #define OV_ENDIAN_ARG 0
 #endif
 
-#include <iostream>
+#ifdef HAVE_TAGLIB
+#include <textidentificationframe.h>
+#include <vorbisfile.h>
+#include <xiphcomment.h>
+#endif // HAVE_TAGLIB
+
+#include "trackoggvorbis.h"
+
 using namespace std;
 using namespace soundtouch;
 

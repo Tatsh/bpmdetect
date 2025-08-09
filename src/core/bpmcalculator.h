@@ -22,9 +22,10 @@
 
 #pragma once
 
+#include <vector>
+
 #include "energybeatdetector.h"
 #include "waveform.h"
-#include <vector>
 
 struct Peak {
     int firstPos;

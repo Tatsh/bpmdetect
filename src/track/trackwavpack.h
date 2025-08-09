@@ -1,8 +1,8 @@
 #pragma once
 
-#include "track.h"
-
 #include <wavpack/wavpack.h>
+
+#include "track.h"
 
 class TrackWavpack : public Track {
 public:

@@ -20,15 +20,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "track.h"
-#include "core/BPMDetect.h"
-
 #include <iostream>
 
 #ifdef HAVE_TAGLIB
 #include <fileref.h>
 #include <tag.h>
 #endif
+
+#include "core/BPMDetect.h"
+#include "track.h"
 
 using namespace std;
 using namespace soundtouch;

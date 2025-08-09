@@ -21,9 +21,8 @@
  ***************************************************************************/
 #pragma once
 
-#include "track.h"
-
 #include "FLAC/stream_decoder.h"
+#include "track.h"
 
 typedef struct {
     FLAC__uint64 total_samples;

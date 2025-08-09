@@ -20,11 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "trackwav.h"
-
-#include <assert.h>
-#include <limits.h>
-
+#include <cassert>
+#include <climits>
 #include <cstring>
 #include <iostream>
 
@@ -33,6 +30,8 @@
 #include <id3v2tag.h>
 #include <mpegfile.h>
 #endif // HAVE_TAGLIB
+
+#include "trackwav.h"
 
 static const char riffStr[] = "RIFF";
 static const char waveStr[] = "WAVE";

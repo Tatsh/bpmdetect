@@ -20,23 +20,27 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <cstring>
+#include <iostream>
+
 #include "trackproxy.h"
 #include "trackwav.h"
+
 #ifdef HAVE_VORBISFILE
 #include "trackoggvorbis.h"
 #endif
+
 #ifdef HAVE_MAD
 #include "trackmp3.h"
 #endif
+
 #ifdef HAVE_FLAC
 #include "trackflac.h"
 #endif
+
 #ifdef HAVE_WAVPACK
 #include "trackwavpack.h"
 #endif
-
-#include <cstring>
-#include <iostream>
 
 using namespace std;
 using namespace soundtouch;

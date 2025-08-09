@@ -20,7 +20,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "trackmp3.h"
+#include <iostream>
+
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #ifdef HAVE_TAGLIB
 #include <id3v2frame.h>
@@ -39,16 +44,11 @@
 #include <id3/tag.h>
 #endif // HAVE_ID3LIB
 
-#ifdef __WIN__
-#include <fcntl.h>
-#include <io.h>
-#endif
+#include "trackmp3.h"
 
 #ifndef math_min
 #define math_min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
-
-#include <iostream>
 
 using namespace std;
 using namespace soundtouch;

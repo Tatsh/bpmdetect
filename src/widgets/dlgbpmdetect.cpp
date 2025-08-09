@@ -26,12 +26,10 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "qdroplistview.h"
-
 #include "dlgbpmdetect.h"
 #include "dlgtestbpm.h"
-
 #include "images.h"
+#include "qdroplistview.h"
 
 #define PROGRESSCOLUMN 4
 

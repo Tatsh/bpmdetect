@@ -20,11 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "bpmcounter.h"
-#include "beatinfo.h"
-
 #include <QDebug>
 #include <QTime>
+
+#include "beatinfo.h"
+#include "bpmcounter.h"
 
 using namespace std;
 

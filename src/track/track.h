@@ -22,12 +22,13 @@
 
 #pragma once
 
-#include "core/STTypes.h"
 #include <string>
 
+#include "core/STTypes.h"
+
 #ifndef NO_GUI
-#include <qmutex.h>
-#include <qthread.h>
+#include <QMutex>
+#include <QThread>
 #endif
 
 class Track

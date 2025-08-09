@@ -19,14 +19,13 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
-#include "qdroplistview.h"
-
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QKeyEvent>
+
+#include "qdroplistview.h"
 
 QDropListView::QDropListView(QWidget *parent) : QTreeWidget(parent) {
     setAcceptDrops(true);

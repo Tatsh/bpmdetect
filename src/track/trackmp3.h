@@ -22,10 +22,11 @@
 
 #pragma once
 
-#include "track.h"
+#include <vector>
+
 #include <mad.h>
 
-#include <vector>
+#include "track.h"
 
 /** Struct used to store mad frames for seeking */
 typedef struct MadSeekFrameType {

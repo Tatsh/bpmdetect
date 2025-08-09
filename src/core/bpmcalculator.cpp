@@ -20,14 +20,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+
 #include <QDebug>
 
 #include "PeakFinder.h"
 #include "bpmcalculator.h"
-
-#include <cstdlib>
-#include <cstring>
-#include <math.h>
 
 #define MIN_BPM 50
 #define MAX_BPM 230

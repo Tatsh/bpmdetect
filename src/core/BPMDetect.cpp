@@ -54,12 +54,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
+#include <cmath>
+#include <cstring>
+
 #include "BPMDetect.h"
 #include "FIFOSampleBuffer.h"
 #include "PeakFinder.h"
-#include <assert.h>
-#include <math.h>
-#include <string.h>
 
 using namespace soundtouch;
 

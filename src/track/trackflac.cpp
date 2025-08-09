@@ -20,7 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "trackflac.h"
+#include <cstring>
+#include <iostream>
 
 #ifdef HAVE_TAGLIB
 #include <flacfile.h>
@@ -30,8 +31,7 @@
 #include <xiphcomment.h>
 #endif // HAVE_TAGLIB
 
-#include <cstring>
-#include <iostream>
+#include "trackflac.h"
 
 using namespace std;
 using namespace soundtouch;

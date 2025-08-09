@@ -20,11 +20,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "energybeatdetector.h"
-
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <math.h>
+
+#include "energybeatdetector.h"
 
 typedef unsigned long ulong;
 

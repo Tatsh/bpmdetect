@@ -22,9 +22,10 @@
 
 #pragma once
 
+#include <list>
+
 #include <QElapsedTimer>
 #include <QTime>
-#include <list>
 
 #define BUFFER_SIZE 15
 

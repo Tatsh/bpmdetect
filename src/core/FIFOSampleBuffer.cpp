@@ -43,11 +43,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
-#include <memory.h>
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
+#include <memory>
 #include <stdexcept>
-#include <stdlib.h>
-#include <string.h>
 
 #include "FIFOSampleBuffer.h"
 

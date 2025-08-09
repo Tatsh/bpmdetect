@@ -30,9 +30,8 @@
 #include <QList>
 #include <QThread>
 
-#include "ui_dlgtestbpmdlg.h"
-
 #include "dlgtestbpmplayer.h"
+#include "ui_dlgtestbpmdlg.h"
 
 class AudioThread;
 class DlgTestBPM : public QDialog, public Ui_DlgTestBPMDlg {
