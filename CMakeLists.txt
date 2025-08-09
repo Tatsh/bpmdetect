@@ -17,16 +17,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BPMDETECT_CXX_WARN_ALL "Do not use." OFF)
+mark_as_advanced(BPMDETECT_CXX_WARN_ALL)
 option(BUILD_TESTS "Build tests." OFF)
 option(COVERAGE "Enable code coverage." OFF)
 option(I18N "Enable i18n support" OFF)
-mark_as_advanced(BPMDETECT_CXX_WARN_ALL)
 
-find_package(Qt6Core REQUIRED)
-find_package(Qt6Gui REQUIRED)
-find_package(Qt6LinguistTools REQUIRED)
-find_package(Qt6Multimedia REQUIRED)
-find_package(Qt6Widgets REQUIRED)
+find_package(Qt6Core CONFIG REQUIRED)
+find_package(Qt6Gui CONFIG REQUIRED)
+find_package(Qt6LinguistTools CONFIG REQUIRED)
+find_package(Qt6Multimedia CONFIG REQUIRED)
+find_package(Qt6Widgets CONFIG REQUIRED)
+find_package(kissfft CONFIG REQUIRED COMPONENTS float SHARED)
 pkg_check_modules(FLAC flac)
 pkg_check_modules(MAD mad)
 pkg_check_modules(TAGLIB taglib)
@@ -45,16 +46,16 @@ add_definitions(
   -DQT_USE_FAST_OPERATOR_PLUS
   -DQT_USE_QSTRINGBUILDER)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ALL)
-    add_compile_options(-fsafe-buffer-usage-suggestions -Weverything -Wno-c++98-compat
-                        -Wno-c++98-compat-pedantic)
-  endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug"
+   AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
+   AND BPMDETECT_CXX_WARN_ALL)
+  add_compile_options(-fsafe-buffer-usage-suggestions -Weverything -Wno-c++98-compat
+                      -Wno-c++98-compat-pedantic)
 endif()
 
 add_subdirectory(src)
 if(BUILD_TESTS)
-  find_package(Qt6Test REQUIRED)
+  find_package(Qt6Test CONFIG REQUIRED)
   enable_testing()
   add_subdirectory(tests)
 endif()

@@ -1,5 +1,4 @@
 add_subdirectory(core)
-add_subdirectory(kissfft)
 add_subdirectory(track)
 add_subdirectory(widgets)
 
@@ -21,8 +20,8 @@ target_link_libraries(
   bpmdetect
   Qt6::Gui
   Qt6::Widgets
+  kissfft::kissfft
   bpmdetect-core
-  bpmdetect-kissfft
   bpmdetect-track
   bpmdetect-widgets)
 qt_add_translations(bpmdetect MERGE_QT_TRANSLATIONS QM_FILES_OUTPUT_VARIABLE qm_files TS_FILES

@@ -9,6 +9,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## Changed
+
+- Depends on kissfft shared library.
+
 ## [0.7.2] - 2025-08-08
 
 ### Added

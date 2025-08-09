@@ -113,6 +113,7 @@ layoutdefault
 lbpm
 libflac
 libjsonnet
+libkissfft
 libmad
 libvorbis
 loadoncall

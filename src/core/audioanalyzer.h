@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "kissfft/kiss_fftr.h"
-#include "pasample.h"
-
 #include <QObject>
+#include <kissfft/kiss_fftr.h>
+
+#include "pasample.h"
 
 #define NUMDETECTORS 5
 

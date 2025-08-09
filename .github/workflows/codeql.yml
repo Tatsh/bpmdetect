@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y extra-cmake-modules qt6-base-dev qt6-multimedia-dev qt6-tools-dev
+          sudo apt-get install -y extra-cmake-modules libkissfft-dev libkissfft-float131 qt6-base-dev qt6-multimedia-dev qt6-tools-dev
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
