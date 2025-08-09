@@ -1,4 +1,4 @@
-
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include <QtCore/QDebug>
 #include <QtNetwork/QNetworkInterface>
 #include <QtTest/QTest>

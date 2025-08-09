@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 function(create_test test_name test_srcs)
   ecm_qt_declare_logging_category(
     SOURCES

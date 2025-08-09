@@ -56,6 +56,7 @@ dbuild
 dcmake
 dcoverage
 decodeded
+defenses
 destinationlabel
 devmgmt
 dialog
@@ -78,6 +79,7 @@ esbenp
 facbuf
 factorable
 fastfir
+favor
 fbeat
 fftcfg
 fftnd
@@ -130,6 +132,7 @@ ncfft
 newbpmframe
 nfft
 noncommercial
+noncommercially
 norig
 normaloff
 nsamples

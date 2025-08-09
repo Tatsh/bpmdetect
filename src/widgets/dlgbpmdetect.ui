@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <ui version="4.0">
   <class>DlgBPMDetect</class>
   <widget class="QWidget" name="DlgBPMDetect">
