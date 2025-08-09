@@ -20,6 +20,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+
+#include <QDebug>
+#include <QList>
+
 #include "audioanalyzer.h"
 #include "beatinfo.h"
 #include "bpmcalculator.h"
@@ -28,13 +35,6 @@
 #ifndef NO_GUI
 #include "waveform.h"
 #endif
-
-#include <cstdlib>
-#include <cstring>
-#include <math.h>
-
-#include <QDebug>
-#include <QList>
 
 typedef unsigned long ulong;
 
