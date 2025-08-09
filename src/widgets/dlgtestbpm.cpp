@@ -50,6 +50,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
             SLOT(setTrackPositionLength(const qint64)));
     connect(this, &QDialog::accepted, player, &DlgTestBPMPlayer::stop);
     connect(this, &QDialog::rejected, player, &DlgTestBPMPlayer::stop);
+    connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBPM::setNumBeats);
 
     cbNBeats->setEnabled(false);
     btnPos1->setEnabled(false);
@@ -104,15 +105,14 @@ void DlgTestBPM::setCustomPos(uint msec) {
     player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
 }
 
-/**
- * @brief Set number of beats to loop
- * called when combobox currentItemChanged is emited
- * @param text is number of beats to loop (combobox currentText)
- */
-void DlgTestBPM::setNumBeats(const QString &text) {
+void DlgTestBPM::setNumBeats(const QString &s) {
     int value = trackPosition->value();
     if (value < 0) {
         value = 0;
+    }
+    const auto num = s.toInt();
+    if (num <= 0) {
+        return;
     }
     player->update(cbNBeats->currentText().toInt(), value * 1000);
 }

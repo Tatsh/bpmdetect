@@ -48,7 +48,7 @@ protected Q_SLOTS:
     void setPos4();
     void setCustomPos(uint msec);
     /// Set number of beats to loop
-    void setNumBeats(const QString &);
+    void setNumBeats(const QString &s);
     void slotUpdateBpmList();
     void setTrackPositionLength(const qint64);
 
