@@ -1,8 +1,6 @@
 set(WIDGETS_SRCS
     dlgbpmdetect.cpp
     dlgbpmdetect.h
-    dlgrealtime.cpp
-    dlgrealtime.h
     dlgtestbpm.cpp
     dlgtestbpm.h
     dlgtestbpmplayer.cpp
