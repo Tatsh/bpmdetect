@@ -80,32 +80,35 @@ void DlgTestBPMPlayer::run() {
         if (error) {
             return;
         }
-        QThread::msleep(1);
+        usleep(100);
     }
 
     update(nBeats);
 
-    while (dataRemaining > 0) {
-        QAudio::State state = output->state();
-        if (state == QAudio::StoppedState || state == QAudio::SuspendedState) {
+    while (true) {
+        QtAudio::State state = output->state();
+        if (state != QtAudio::ActiveState && state != QtAudio::IdleState &&
+            state != QtAudio::SuspendedState) {
             break;
         }
 
         qint64 bytesFree = output->bytesFree();
         if (bytesFree > 0) {
             qint64 chunk = qMin(bytesFree, qint64(dataRemaining));
-            qint64 bytesWritten = dev->write(data, chunk);
-            if (bytesWritten > 0) {
-                dataRemaining -= bytesWritten;
-                data += bytesWritten;
+            if (chunk > 0) {
+                qint64 bytesWritten = dev->write(data, chunk);
+                if (bytesWritten > 0) {
+                    dataRemaining -= bytesWritten;
+                    data += bytesWritten;
+                }
             }
         }
 
         if (dataRemaining <= 0) {
-            // Optionally loop or stop here
-            break;
+            data = startptr;
+            dataRemaining = originalSize;
         }
 
-        QThread::msleep(5);
+        usleep(200);
     }
 }
