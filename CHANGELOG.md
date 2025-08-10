@@ -12,6 +12,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Changed
 
 - Depends on kissfft shared library.
+- License is now GPL-3 or later.
 
 ## [0.7.2] - 2025-08-08
 
