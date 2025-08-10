@@ -1,4 +1,3 @@
-add_subdirectory(core)
 add_subdirectory(track)
 add_subdirectory(widgets)
 
@@ -21,10 +20,8 @@ target_link_libraries(
   PkgConfig::TAGLIB
   Qt6::Gui
   Qt6::Widgets
-  bpmdetect-core
   bpmdetect-track
-  bpmdetect-widgets
-  kissfft::kissfft)
+  bpmdetect-widgets)
 qt_add_translations(bpmdetect MERGE_QT_TRANSLATIONS QM_FILES_OUTPUT_VARIABLE qm_files TS_FILES
                     ../i18n/bpmdetect_en.ts)
 if(I18N)

@@ -17,8 +17,8 @@ target_compile_definitions(
   PRIVATE $<$<BOOL:${FLAC_FOUND}>:HAVE_FLAC> $<$<BOOL:${MAD_FOUND}>:HAVE_MAD>
           $<$<BOOL:${VORBIS_FOUND}>:HAVE_VORBISFILE> $<$<BOOL:${WAVPACK_FOUND}>:HAVE_WAVPACK>)
 target_include_directories(bpmdetect-widgets PRIVATE ..)
-target_link_libraries(bpmdetect-widgets PRIVATE bpmdetect-core Qt6::Core Qt6::Gui Qt6::Multimedia
-                                                Qt6::Widgets PkgConfig::SOUNDTOUCH)
+target_link_libraries(bpmdetect-widgets PRIVATE Qt6::Core Qt6::Gui Qt6::Multimedia Qt6::Widgets
+                                                PkgConfig::SOUNDTOUCH)
 # https://stackoverflow.com/a/60203765/374110
 get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(_isMultiConfig)

@@ -18,7 +18,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - TagLib is now a hard requirement.
 - Depends on SoundTouch shared library.
-- Depends on kissfft shared library.
+- Removed dead code.
+- Removed kissfft requirement because only dead code referenced it.
 - License is now GPL-3 or later.
 
 ## [0.7.2] - 2025-08-08

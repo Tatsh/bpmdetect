@@ -29,7 +29,6 @@
 #include <vorbisfile.h>
 #include <xiphcomment.h>
 
-#include "core/pasample.h"
 #include "trackoggvorbis.h"
 
 using namespace std;

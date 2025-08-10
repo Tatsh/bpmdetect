@@ -20,5 +20,3 @@ function(create_test test_name test_srcs)
                         PRIVATE Qt6::Test $<$<AND:$<CXX_COMPILER_ID:GNU>,$<BOOL:${COVERAGE}>>:gcov>)
   add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
-
-add_subdirectory(core)

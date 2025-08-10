@@ -8,7 +8,6 @@
 #include <id3v2tag.h>
 #include <mpegfile.h>
 
-#include "core/pasample.h"
 #include "trackwav.h"
 
 static const char riffStr[] = "RIFF";

@@ -27,5 +27,5 @@ target_link_libraries(
           $<$<BOOL:${WAVPACK_FOUND}>:PkgConfig::WAVPACK>
           PkgConfig::SOUNDTOUCH
           PkgConfig::TAGLIB
-          Qt6::Core
-          bpmdetect-core)
+          Qt6::Core)
+target_compile_definitions(bpmdetect-track PRIVATE SAMPLE_MAXVALUE=32768)

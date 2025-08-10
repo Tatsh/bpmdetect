@@ -8,7 +8,6 @@
 #include <textidentificationframe.h>
 #include <xiphcomment.h>
 
-#include "core/pasample.h"
 #include "trackflac.h"
 
 using namespace std;

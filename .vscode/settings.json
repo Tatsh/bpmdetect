@@ -37,7 +37,8 @@
   "files.associations": {
     "*.ui": "xml",
     "i18n/*.ts": "xml",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "ostream": "cpp"
   },
   "files.eol": "\n",
   "files.insertFinalNewline": true,

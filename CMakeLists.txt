@@ -31,7 +31,6 @@ find_package(Qt6Gui CONFIG REQUIRED)
 find_package(Qt6LinguistTools CONFIG REQUIRED)
 find_package(Qt6Multimedia CONFIG REQUIRED)
 find_package(Qt6Widgets CONFIG REQUIRED)
-find_package(kissfft CONFIG REQUIRED COMPONENTS float SHARED)
 pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
 pkg_check_modules(TAGLIB taglib REQUIRED IMPORTED_TARGET GLOBAL)
 

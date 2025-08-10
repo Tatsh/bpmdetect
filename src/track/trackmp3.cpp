@@ -11,7 +11,6 @@
 #include <mpegfile.h>
 #include <textidentificationframe.h>
 
-#include "core/pasample.h"
 #include "trackmp3.h"
 
 #ifndef math_min
