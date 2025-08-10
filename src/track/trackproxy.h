@@ -54,7 +54,7 @@ protected:
     void close() override;
     void seek(uint ms) override;
     uint currentPos() override;
-    int readSamples(soundtouch::SAMPLETYPE *buffer, size_t num) override;
+    int readSamples(std::span<soundtouch::SAMPLETYPE> sp) override;
     void storeBPM(std::string sBPM) override;
     void removeBPM() override;
 

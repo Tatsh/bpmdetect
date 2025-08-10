@@ -124,11 +124,11 @@ uint TrackWav::currentPos() {
  * @param num number of samples (per channel)
  * @return number of read samples
  */
-int TrackWav::readSamples(SAMPLETYPE *buffer, size_t num) {
+int TrackWav::readSamples(std::span<soundtouch::SAMPLETYPE> buffer) {
     if (!isValid())
         return -1;
 
-    int nread = read(buffer, num);
+    int nread = read(buffer.data(), buffer.size());
     return nread;
 }
 

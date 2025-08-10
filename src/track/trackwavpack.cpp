@@ -95,16 +95,17 @@ uint TrackWavpack::currentPos() {
                              static_cast<unsigned long long>(samplerate()));
 }
 
-int TrackWavpack::readSamples(SAMPLETYPE *buffer, size_t num) {
+int TrackWavpack::readSamples(std::span<SAMPLETYPE> buffer) {
+    const auto num = buffer.size();
     const auto sbytes = static_cast<unsigned int>(sampleBytes());
-    if (!isValid() || wpc == nullptr || num < sbytes) {
+    if (!isValid() || wpc == nullptr || buffer.size() < sbytes) {
         return -1;
     }
     const auto samplesRead = static_cast<unsigned int>(WavpackUnpackSamples(
-        wpc, reinterpret_cast<int32_t *>(buffer), static_cast<uint32_t>(num / sbytes)));
+        wpc, reinterpret_cast<int32_t *>(buffer.data()), static_cast<uint32_t>(num / sbytes)));
     // Handle non-float samples.
     if (!(WavpackGetMode(wpc) & MODE_FLOAT)) {
-        int32_t *nativeBuffer = reinterpret_cast<int32_t *>(buffer);
+        int32_t *nativeBuffer = reinterpret_cast<int32_t *>(buffer.data());
         const unsigned int bufferSize = samplesRead * static_cast<unsigned int>(channels());
         const auto bitsPerSample = WavpackGetBytesPerSample(wpc) * 8;
         for (unsigned int index = 0; index < bufferSize; index++) {

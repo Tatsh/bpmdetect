@@ -118,7 +118,8 @@ uint TrackFlac::currentPos() {
  * @param num number of samples (per channel)
  * @return number of samples read
  */
-int TrackFlac::readSamples(SAMPLETYPE *buffer, size_t num) {
+int TrackFlac::readSamples(std::span<SAMPLETYPE> buffer) {
+    auto num = buffer.size();
     if (!isValid() || !m_decoder || num < 2)
         return -1;
 

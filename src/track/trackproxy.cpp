@@ -266,9 +266,9 @@ uint TrackProxy::currentPos() {
     return 0;
 }
 
-int TrackProxy::readSamples(SAMPLETYPE *buffer, size_t num) {
+int TrackProxy::readSamples(std::span<SAMPLETYPE> sp) {
     if (m_pTrack)
-        return m_pTrack->readSamples(buffer, num);
+        return m_pTrack->readSamples(sp);
     return 0;
 }
 

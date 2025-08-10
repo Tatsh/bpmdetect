@@ -125,7 +125,8 @@ uint TrackOggVorbis::currentPos() {
  * @param num number of samples (per channel)
  * @return number of read samples
  */
-int TrackOggVorbis::readSamples(SAMPLETYPE *buffer, size_t num) {
+int TrackOggVorbis::readSamples(std::span<SAMPLETYPE> buffer) {
+    auto num = buffer.size();
     if (!isValid() || num < 2)
         return -1;
 

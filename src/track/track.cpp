@@ -408,7 +408,7 @@ double Track::detectBPM() {
     if (!srate || !chan) {
         return oldbpm;
     }
-    SAMPLETYPE *samples = new SAMPLETYPE[NUMSAMPLES];
+    SAMPLETYPE samples[NUMSAMPLES];
 
     uint totalsteps = endPos() - startPos();
     BPMDetect bpmd(chan, srate);
@@ -416,8 +416,7 @@ double Track::detectBPM() {
     uint cprogress = 0, pprogress = 0;
     int readsamples = 0;
     seek(startPos());
-    while (!m_bStop && currentPos() < endPos() &&
-           0 < (readsamples = readSamples(samples, NUMSAMPLES))) {
+    while (!m_bStop && currentPos() < endPos() && 0 < (readsamples = readSamples(samples))) {
         bpmd.inputSamples(samples, readsamples / chan);
         cprogress = currentPos() - startPos();
 
@@ -430,7 +429,6 @@ double Track::detectBPM() {
         }
     }
 
-    delete[] samples;
     setProgress(100);
     if (m_bConProgress)
         clog << "\r" << flush;
