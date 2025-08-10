@@ -60,11 +60,11 @@ void TrackWavpack::open() {
     setOpened(true);
 
     uint srate = WavpackGetSampleRate(wpc);
-    uint len = (unsigned int)((WavpackGetNumSamples64(wpc) * 1000) / srate);
+    uint len = static_cast<unsigned int>((WavpackGetNumSamples64(wpc) * 1000) / srate);
     setLength(len);
     setStartPos(0);
     setEndPos(len);
-    setSamplerate(WavpackGetSampleRate(wpc));
+    setSamplerate(static_cast<int>(WavpackGetSampleRate(wpc)));
     setSampleBytes(WavpackGetBytesPerSample(wpc));
     setChannels(WavpackGetReducedChannels(wpc));
     setTrackType(TYPE_WAVPACK);
@@ -82,8 +82,9 @@ void TrackWavpack::close() {
 
 void TrackWavpack::seek(uint ms) {
     if (isValid() && wpc != nullptr) {
-        unsigned long long pos = (unsigned long long)((ms * samplerate()) / 1000);
-        if (WavpackSeekSample64(wpc, pos)) {
+        unsigned long long pos = static_cast<unsigned long long>(
+            (static_cast<uint>(ms) * static_cast<uint>(samplerate())) / 1000);
+        if (WavpackSeekSample64(wpc, static_cast<int64_t>(pos))) {
             m_iCurPosPCM = pos;
         } else {
             cerr << "TrackWavpack: seek failed" << endl;
@@ -94,26 +95,29 @@ void TrackWavpack::seek(uint ms) {
 uint TrackWavpack::currentPos() {
     if (wpc == nullptr)
         return 0;
-    return (uint)((m_iCurPosPCM * 1000) / samplerate());
+    return static_cast<uint>((m_iCurPosPCM * 1000ULL) /
+                             static_cast<unsigned long long>(samplerate()));
 }
 
 int TrackWavpack::readSamples(SAMPLETYPE *buffer, unsigned int num) {
-    const auto sbytes = sampleBytes();
+    const auto sbytes = static_cast<unsigned int>(sampleBytes());
     if (!isValid() || wpc == nullptr || num < sbytes) {
         return -1;
     }
-    auto samplesRead = WavpackUnpackSamples(wpc, reinterpret_cast<int32_t *>(buffer), num / sbytes);
+    const auto samplesRead = static_cast<unsigned int>(WavpackUnpackSamples(
+        wpc, reinterpret_cast<int32_t *>(buffer), static_cast<uint32_t>(num / sbytes)));
     // Handle non-float samples.
     if (!(WavpackGetMode(wpc) & MODE_FLOAT)) {
         int32_t *nativeBuffer = reinterpret_cast<int32_t *>(buffer);
-        const long bufferSize = samplesRead * channels();
+        const unsigned int bufferSize = samplesRead * static_cast<unsigned int>(channels());
         const auto bitsPerSample = WavpackGetBytesPerSample(wpc) * 8;
-        for (long index = 0; index < bufferSize; index++) {
-            buffer[index] = static_cast<float>(nativeBuffer[index]) / (1 << (bitsPerSample - 1));
+        for (unsigned int index = 0; index < bufferSize; index++) {
+            buffer[index] = static_cast<float>(nativeBuffer[index]) /
+                            static_cast<float>(1 << (bitsPerSample - 1));
         }
     }
     m_iCurPosPCM += samplesRead;
-    return samplesRead;
+    return static_cast<int>(samplesRead);
 }
 
 void TrackWavpack::storeBPM(string sBPM) {
@@ -124,7 +128,7 @@ void TrackWavpack::storeBPM(string sBPM) {
                                    OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                    0);
     }
-    int ret = WavpackAppendTagItem(wpc, "bpm", sBPM.c_str(), sBPM.length());
+    int ret = WavpackAppendTagItem(wpc, "bpm", sBPM.c_str(), static_cast<int>(sBPM.length()));
     cout << "WavpackAppendTagItem returned " << ret << endl;
     ret = WavpackWriteTag(wpc);
     cout << "WavpackWriteTag returned " << ret << endl;

@@ -112,7 +112,7 @@ void AudioAnalyzer::process(const SAMPLE *inputBuffer, ulong size) {
         if (m_instantBufSamples == m_instantBufSize) {
             bool oldbeat = bbeat;
             //analyze(m_pInstantBuffer, m_instantBufSize, m_pPrevInstantBuffer);
-            analyze(m_pInstantBuffer, m_instantBufSize, 0);
+            analyze(m_pInstantBuffer, m_instantBufSize, nullptr);
 #ifndef NO_GUI
             bool beat = false;
             if (bbeat == true && oldbeat == false)
@@ -135,10 +135,10 @@ void AudioAnalyzer::process(const SAMPLE *inputBuffer, ulong size) {
                 }
             }
             for (int i = 0; i < n; ++i) {
-                avg[i] /= static_cast<float>(m_instantBufSamples / n);
+                avg[i] /= static_cast<float>(m_instantBufSamples / static_cast<unsigned long>(n));
                 //avg[i] /= static_cast<float>(SAMPLE_MAXVALUE);
             }
-            m_pCalculator->update(avg, n);
+            m_pCalculator->update(avg, static_cast<unsigned long>(n));
 
             // reset the number of samples in instant buffer
             m_instantBufSamples = 0;
@@ -175,16 +175,16 @@ void AudioAnalyzer::calculateRMS(const SAMPLE *inputBuffer, ulong size) {
         }
     }
 
-    m_fRMSVolL = log10(rmssumL / ((size / m_uChannels) * 1000) + 1);
-    m_fRMSVolR = log10(rmssumR / ((size / m_uChannels) * 1000) + 1);
+    m_fRMSVolL = log10(rmssumL / (static_cast<float>(size / m_uChannels) * 1000) + 1);
+    m_fRMSVolR = log10(rmssumR / (static_cast<float>(size / m_uChannels) * 1000) + 1);
 }
 
 int AudioAnalyzer::getVuMeterValueL() const {
-    return (int)100 * m_fRMSVolL;
+    return 100 * static_cast<int>(m_fRMSVolL);
 }
 
 int AudioAnalyzer::getVuMeterValueR() const {
-    return (int)100 * m_fRMSVolR;
+    return 100 * static_cast<int>(m_fRMSVolR);
 }
 
 int AudioAnalyzer::getVuMeterValue() const {
@@ -196,7 +196,7 @@ const float *AudioAnalyzer::getMagnitude() const {
 }
 
 int AudioAnalyzer::getFFTSize() const {
-    return fftsize;
+    return static_cast<int>(fftsize);
 }
 
 float AudioAnalyzer::getCurrentBPM() const {
@@ -243,7 +243,7 @@ void AudioAnalyzer::analyze(const SAMPLE *buffer, ulong size, const SAMPLE *prev
         for (int i = start; i <= stop; ++i)
             energy += m_magvector[i];
         if (stop - start > 1)
-            energy /= stop - start;
+            energy /= static_cast<float>(stop - start);
         m_pBeatDetector[0]->addValue(energy);
     }
 
@@ -254,7 +254,7 @@ void AudioAnalyzer::analyze(const SAMPLE *buffer, ulong size, const SAMPLE *prev
         for (int i = start; i <= stop; ++i)
             energy += m_magvector[i];
         if (stop - start > 1)
-            energy /= stop - start;
+            energy /= static_cast<float>(stop - start);
         m_pBeatDetector[1]->addValue(energy);
     }
 
@@ -265,7 +265,7 @@ void AudioAnalyzer::analyze(const SAMPLE *buffer, ulong size, const SAMPLE *prev
         for (int i = start; i <= stop; ++i)
             energy += m_magvector[i];
         if (stop - start > 1)
-            energy /= stop - start;
+            energy /= static_cast<float>(stop - start);
         m_pBeatDetector[2]->addValue(energy);
     }
 
@@ -276,7 +276,7 @@ void AudioAnalyzer::analyze(const SAMPLE *buffer, ulong size, const SAMPLE *prev
         for (int i = start; i <= stop; ++i)
             energy += m_magvector[i];
         if (stop - start > 1)
-            energy /= stop - start;
+            energy /= static_cast<float>(stop - start);
         m_pBeatDetector[3]->addValue(energy);
     }
 
@@ -287,7 +287,7 @@ void AudioAnalyzer::analyze(const SAMPLE *buffer, ulong size, const SAMPLE *prev
         for (int i = start; i <= stop; ++i)
             energy += m_magvector[i];
         if (stop - start > 1)
-            energy /= stop - start;
+            energy /= static_cast<float>(stop - start);
         m_pBeatDetector[4]->addValue(energy);
     }
 
@@ -330,7 +330,7 @@ Waveform *AudioAnalyzer::calculatorWave() const {
 #ifndef NO_GUI
 EnergyBeatDetector *AudioAnalyzer::beatDetector(int idx) const {
     if (idx < 0 || idx >= NUMDETECTORS)
-        return 0;
+        return nullptr;
     return m_pBeatDetector[idx];
 }
 #endif
@@ -347,11 +347,11 @@ void AudioAnalyzer::reinit() {
     m_pInstantBuffer =
         static_cast<SAMPLE *>(realloc(m_pInstantBuffer, m_instantBufSize * sizeof(SAMPLE)));
     m_pPrevInstantBuffer =
-        (SAMPLE *)realloc(m_pPrevInstantBuffer, m_instantBufSize * sizeof(SAMPLE));
+        static_cast<SAMPLE *>(realloc(m_pPrevInstantBuffer, m_instantBufSize * sizeof(SAMPLE)));
     memset(m_pPrevInstantBuffer, 0, m_instantBufSize * sizeof(SAMPLE));
 
     for (int i = 0; i < NUMDETECTORS; ++i) {
-        m_pBeatDetector[i]->setBufferSize((ulong)(bps * 0.2));
+        m_pBeatDetector[i]->setBufferSize(static_cast<ulong>(bps * 0.2f));
     }
 
     fftsize = 1024;

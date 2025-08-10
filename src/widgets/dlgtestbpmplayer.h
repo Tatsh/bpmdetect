@@ -17,7 +17,7 @@ public:
     ~DlgTestBPMPlayer() override;
     qint64 getLengthUS() {
         return lengthUS;
-    };
+    }
     void update(uint nBeats_, qint64 posUS_ = 0);
     void stop();
 
@@ -32,19 +32,19 @@ protected Q_SLOTS:
 
 private:
     QByteArray buffer;
-    QAudioDecoder *decoder = nullptr;
     QAudioBuffer lastBuffer;
     QAudioFormat format;
-    uint nBeats = 4;
-    float bpm;
-    qint64 lengthUS = 0;
-    bool readyToPlay = false;
-    bool error = false;
-    qint64 posUS = 0;
+    QAudioDecoder *decoder = nullptr;
     QAudioSink *output = nullptr;
     QIODevice *dev = nullptr;
-    qint64 dataRemaining;
     char *data = nullptr;
     char *startptr = nullptr;
+    qint64 lengthUS = 0;
+    qint64 posUS = 0;
+    qint64 dataRemaining;
     qint64 originalSize;
+    uint nBeats = 4;
+    float bpm;
+    bool readyToPlay = false;
+    bool error = false;
 };

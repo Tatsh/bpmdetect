@@ -12,9 +12,9 @@ class ProgressBar : public QProgressBar {
 
 public:
     /// Constructor
-    ProgressBar(QWidget *parent = 0);
+    ProgressBar(QWidget *parent = nullptr);
     /// Destructor
-    ~ProgressBar();
+    ~ProgressBar() override;
     /// Return change status
     bool change();
     /// Return enabled status
@@ -32,11 +32,11 @@ public Q_SLOTS:
 
 protected Q_SLOTS:
     /// Receiving mouse press events
-    void mousePressEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e) override;
     /// Receiving mouse move events
-    void mouseMoveEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e) override;
     /// Receiving mouse release events
-    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e) override;
     /// Set change status
     void setChange(bool s);
 

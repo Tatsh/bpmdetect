@@ -43,18 +43,18 @@ int main(int argc, char **argv) {
 
     static struct option long_options[] = {
 #ifndef NO_GUI
-        {"console", no_argument, 0, 'c'},
+        {"console", no_argument, nullptr, 'c'},
 #endif
-        {"format", required_argument, 0, 'f'},
-        {"save", no_argument, 0, 's'},
-        {"detect", no_argument, 0, 'd'},
-        {"remove", no_argument, 0, 'r'},
-        {"noprogress", no_argument, 0, 'p'},
-        {"min", required_argument, 0, 'n'},
-        {"max", required_argument, 0, 'x'},
-        {"limit", no_argument, 0, 'l'},
-        {"help", no_argument, 0, 'h'},
-        {0, 0, 0, 0}};
+        {"format", required_argument, nullptr, 'f'},
+        {"save", no_argument, nullptr, 's'},
+        {"detect", no_argument, nullptr, 'd'},
+        {"remove", no_argument, nullptr, 'r'},
+        {"noprogress", no_argument, nullptr, 'p'},
+        {"min", required_argument, nullptr, 'n'},
+        {"max", required_argument, nullptr, 'x'},
+        {"limit", no_argument, nullptr, 'l'},
+        {"help", no_argument, nullptr, 'h'},
+        {nullptr, 0, nullptr, 0}};
 
     while (true) {
         int option_index = 0;
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
         mainWin->slotAddFiles(filelist);
         app.exec();
         delete mainWin;
-        mainWin = 0;
+        mainWin = nullptr;
     }
 #endif // NO_GUI
     return 0;

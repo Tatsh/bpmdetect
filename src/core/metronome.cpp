@@ -21,13 +21,14 @@ void Metronome::setInterval(unsigned long msec) {
 }
 
 void Metronome::setBPM(float bpm) {
-    m_interval = (unsigned long)(60000. / bpm);
+    m_interval = static_cast<unsigned long>(60000. / static_cast<double>(bpm));
 }
 
 void Metronome::setSync() {
     struct timeval time;
-    gettimeofday(&time, 0);
-    unsigned long msec = time.tv_sec * 1000 + time.tv_usec / 1000;
+    gettimeofday(&time, nullptr);
+    unsigned long msec = static_cast<unsigned long>(static_cast<uint64_t>(time.tv_sec) * 1000UL) +
+                         static_cast<unsigned long>(static_cast<uint64_t>(time.tv_usec) / 1000UL);
     setSync(msec);
 }
 
@@ -41,8 +42,9 @@ unsigned long Metronome::progress() const {
     }
 
     struct timeval time;
-    gettimeofday(&time, 0);
-    unsigned long msec = time.tv_sec * 1000 + time.tv_usec / 1000;
+    gettimeofday(&time, nullptr);
+    unsigned long msec = static_cast<unsigned long>(static_cast<uint64_t>(time.tv_sec) * 1000UL) +
+                         static_cast<unsigned long>(static_cast<uint64_t>(time.tv_usec) / 1000UL);
 
     unsigned long syncms = m_syncTime % m_interval;
     unsigned long iprogress = (msec + m_interval - syncms) % m_interval;
@@ -50,7 +52,7 @@ unsigned long Metronome::progress() const {
 }
 
 float Metronome::progressPercent() const {
-    return 100.0 * ((float)progress() / (float)m_interval);
+    return 100.0f * (static_cast<float>(progress()) / static_cast<float>(m_interval));
 }
 
 void Metronome::start() {

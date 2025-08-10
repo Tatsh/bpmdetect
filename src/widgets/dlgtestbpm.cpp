@@ -18,10 +18,11 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
         close();
     }
 
-    player = new DlgTestBPMPlayer(file, cbNBeats->currentText().toInt(), bpm, 0, this);
+    player = new DlgTestBPMPlayer(
+        file, static_cast<uint>(cbNBeats->currentText().toInt()), static_cast<uint>(bpm), 0, this);
     m_bpm = bpm;
 
-    lblBPM->setText(QString::fromStdString(Track::bpm2str(bpm, "000.00")));
+    lblBPM->setText(QString::fromStdString(Track::bpm2str(static_cast<double>(bpm), "000.00")));
     connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos(uint)));
     connect(player,
             SIGNAL(hasLengthUS(const qint64)),
@@ -47,7 +48,7 @@ DlgTestBPM::~DlgTestBPM() {
 }
 
 void DlgTestBPM::setTrackPositionLength(const qint64 length) {
-    trackPosition->setLength(length / 1000);
+    trackPosition->setLength(static_cast<uint>(length / 1000));
     cbNBeats->setEnabled(true);
     btnPos1->setEnabled(true);
     btnPos2->setEnabled(true);
@@ -58,30 +59,35 @@ void DlgTestBPM::setTrackPositionLength(const qint64 length) {
 
 void DlgTestBPM::setPos1() {
     uint msec = trackPosition->length() / 5;
-    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.2);
+    player->update(cbNBeats->currentText().toUInt(),
+                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.2));
     trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setPos2() {
     uint msec = (trackPosition->length() * 2) / 5;
-    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.4);
+    player->update(cbNBeats->currentText().toUInt(),
+                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.4));
     trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setPos3() {
     uint msec = (trackPosition->length() * 3) / 5;
-    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.6);
+    player->update(cbNBeats->currentText().toUInt(),
+                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.6));
     trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setPos4() {
     uint msec = (trackPosition->length() * 4) / 5;
-    player->update(cbNBeats->currentText().toInt(), player->getLengthUS() * 0.8);
+    player->update(cbNBeats->currentText().toUInt(),
+                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.8));
     trackPosition->setPosition(msec);
 }
 
 void DlgTestBPM::setCustomPos(uint msec) {
-    player->update(cbNBeats->currentText().toInt(), trackPosition->value() * 1000);
+    Q_UNUSED(msec)
+    player->update(cbNBeats->currentText().toUInt(), trackPosition->value() * 1000);
 }
 
 void DlgTestBPM::setNumBeats(const QString &s) {
@@ -93,7 +99,7 @@ void DlgTestBPM::setNumBeats(const QString &s) {
     if (num <= 0) {
         return;
     }
-    player->update(cbNBeats->currentText().toInt(), value * 1000);
+    player->update(cbNBeats->currentText().toUInt(), value * 1000);
 }
 
 void DlgTestBPM::slotUpdateBpmList() {
@@ -104,10 +110,10 @@ void DlgTestBPM::slotUpdateBpmList() {
 
     if (m_bpm > MIN_BPM && m_bpm < MAX_BPM) {
         float cbpm = m_bpm;
-        while (cbpm / 2. > MIN_BPM)
-            cbpm /= 2.;
+        while (cbpm / 2.f > MIN_BPM)
+            cbpm /= 2.f;
 
-        const float d = 0.25 * cbpm;
+        const float d = 0.25f * cbpm;
         while (cbpm - d > MIN_BPM)
             cbpm -= d;
 

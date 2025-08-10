@@ -10,9 +10,10 @@ class WaveformTest : public QObject {
 
 public:
     WaveformTest(QObject *parent = nullptr) {
-        Q_UNUSED(parent);
-    };
-    ~WaveformTest() override {};
+        Q_UNUSED(parent)
+    }
+    ~WaveformTest() override {
+    }
 
 private Q_SLOTS:
     void testInit();

@@ -38,18 +38,18 @@ typedef struct {
 class TrackWav : public Track {
 public:
     TrackWav(const char *filename, bool readtags = true);
-    ~TrackWav();
-    void readTags();
+    ~TrackWav() override;
+    void readTags() override;
 
 protected:
-    void open();
-    void close();
-    void seek(uint ms);
-    uint currentPos();
-    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
+    void open() override;
+    void close() override;
+    void seek(uint ms) override;
+    uint currentPos() override;
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) override;
 
-    void storeBPM(std::string sBPM);
-    void removeBPM();
+    void storeBPM(std::string sBPM) override;
+    void removeBPM() override;
 
     int readWavHeaders();
     int readHeaderBlock();

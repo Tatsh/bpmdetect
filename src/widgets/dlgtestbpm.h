@@ -16,7 +16,7 @@ class AudioThread;
 class DlgTestBPM : public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT
 public:
-    DlgTestBPM(const QString file, const float bpm, QWidget *parent = 0);
+    DlgTestBPM(const QString file, const float bpm, QWidget *parent = nullptr);
     ~DlgTestBPM() override;
 
 protected Q_SLOTS:
@@ -31,7 +31,7 @@ protected Q_SLOTS:
     void setTrackPositionLength(const qint64);
 
 private:
-    float m_bpm;            ///< BPM to test
-    QList<float> m_bpmList; ///< list of possible BPMs
     DlgTestBPMPlayer *player;
+    QList<float> m_bpmList; ///< list of possible BPMs
+    float m_bpm;            ///< BPM to test
 };

@@ -10,9 +10,10 @@ class MetronomeTest : public QObject {
 
 public:
     MetronomeTest(QObject *parent = nullptr) {
-        Q_UNUSED(parent);
-    };
-    ~MetronomeTest() override {};
+        Q_UNUSED(parent)
+    }
+    ~MetronomeTest() override {
+    }
 
 private Q_SLOTS:
     void testSetInterval();
@@ -49,7 +50,7 @@ void MetronomeTest::testProgress() {
     unsigned long progress = metronome.progress();
     QVERIFY(progress >= 0 && progress < 1000);
     float percent = metronome.progressPercent();
-    QVERIFY(percent >= 0.0 && percent < 100.0);
+    QVERIFY(percent >= 0.0f && percent < 100.0f);
 }
 
 void MetronomeTest::testProgressBeforeStarted() {
@@ -58,7 +59,7 @@ void MetronomeTest::testProgressBeforeStarted() {
     unsigned long progress = metronome.progress();
     QVERIFY(progress == 0);
     float percent = metronome.progressPercent();
-    QVERIFY(percent == 0.0);
+    QVERIFY(static_cast<double>(percent) == 0.0);
 }
 
 QTEST_MAIN(MetronomeTest)

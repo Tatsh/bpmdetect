@@ -207,12 +207,12 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
         if (m_pCurItem) {
             // next TrackList item
             int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
-            TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, 0);
-            m_pProgress = 0;
+            TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, nullptr);
+            m_pProgress = nullptr;
             if (curidx >= 0)
                 m_pCurItem = TrackList->topLevelItem(1 + curidx);
             else
-                m_pCurItem = 0;
+                m_pCurItem = nullptr;
         }
     }
 

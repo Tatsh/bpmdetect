@@ -26,9 +26,11 @@ BPMCounter::~BPMCounter() {
 double BPMCounter::correctBPM(double dBPM, float min, float max, bool blimit, double rBPM) {
     if (dBPM < 1)
         return 0.;
+    double dmin = static_cast<double>(min);
+    double dmax = static_cast<double>(max);
 
     // use suggested bpm (rBPM)
-    if (rBPM > min && rBPM < max) {
+    if (rBPM > dmin && rBPM < dmax) {
         double lbpm;
         while (dBPM >= rBPM)
             dBPM /= 2.; // find lower bpm than rBPM
@@ -38,15 +40,15 @@ double BPMCounter::correctBPM(double dBPM, float min, float max, bool blimit, do
         if ((rBPM - lbpm) < (dBPM - rBPM)) {
             dBPM = lbpm;
         }
-        if (blimit && (dBPM < min || dBPM > max))
+        if (blimit && (dBPM < dmin || dBPM > dmax))
             dBPM = 0;
     } else {
-        while (dBPM / 2.0 > min)
+        while (dBPM / 2.0 > dmin)
             dBPM /= 2.; // minimum bpm
-        while (dBPM * 2.0 < max)
+        while (dBPM * 2.0 < dmax)
             dBPM *= 2.; // maximum bpm
 
-        if (dBPM < min || dBPM > max) {
+        if (dBPM < dmin || dBPM > dmax) {
             dBPM = blimit ? 0 : dBPM * 2.;
         }
     }
@@ -88,15 +90,15 @@ void BPMCounter::addBeat() {
     }
 
     // not a first beat
-    int mstime = m_qtime.restart();
-    float cbpm = 60000.0 / (float)(mstime);
+    auto mstime = m_qtime.restart();
+    float cbpm = 60000.0f / static_cast<float>(mstime);
     //qDebug() << "QTime BPM:" << cbpm << "miliseconds:" << mstime;
 
     // if cbpm is 2 times higher than max bpm, wait for next beat
-    if (cbpm > (m_maxBPM * 2))
+    if (cbpm > (static_cast<float>(m_maxBPM) * 2.0f))
         return;
 
-#define GAP_BEATS 5.0
+#define GAP_BEATS 5.0f
     // reset if gap is longer than GAP_BEATS beats
     if (m_beatCount > 5 && cbpm < m_fBPM / GAP_BEATS) {
         qDebug() << "Long gap, more than " << GAP_BEATS << "beats, resetting";
@@ -121,7 +123,7 @@ void BPMCounter::addBeat() {
             }
         }
         if (count > 1)
-            avgbpm /= (float)count;
+            avgbpm /= static_cast<float>(count);
         /*
         ccbpm = correctBPM(cbpm, m_minBPM, m_maxBPM, true, avgbpm);
 if(ccbpm != cbpm) qDebug() << "BPM corrected (original, corrected):" << cbpm << ccbpm;
@@ -143,7 +145,7 @@ if(ccbpm != cbpm) qDebug() << "BPM corrected (original, corrected):" << cbpm << 
         m_bpmbuffer[i - 1] = m_bpmbuffer[i];
     m_bpmbuffer[BUFFER_SIZE - 1] = ccbpm;
 
-    int beats = ccbpm / cbpm;
+    int beats = static_cast<int>(ccbpm / cbpm);
     m_beatCount += beats;
     calcBPM();
 }
@@ -169,6 +171,6 @@ void BPMCounter::calcBPM() {
     }
 
     int timems = m_qstarttime.msecsTo(QTime::currentTime());
-    m_fBPM = (float)m_beatCount * 60000.0 / (float)(timems);
-    m_fError = (60000.0 / (float)(timems)) / m_fBPM * 100.;
+    m_fBPM = static_cast<float>(m_beatCount) * 60000.0f / static_cast<float>(timems);
+    m_fError = (60000.0f / static_cast<float>(timems)) / m_fBPM * 100.0f;
 }

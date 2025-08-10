@@ -11,17 +11,11 @@
 #include "track/trackproxy.h"
 #include "ui_dlgbpmdetect.h"
 
-class Q3PopupMenu;
-class Q3ListViewItem;
-
-using namespace std;
-using namespace soundtouch;
-
 class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetect {
     Q_OBJECT
 public:
-    DlgBPMDetect(QWidget *parent = 0);
-    ~DlgBPMDetect();
+    DlgBPMDetect(QWidget *parent = nullptr);
+    ~DlgBPMDetect() override;
 
 public Q_SLOTS:
     void slotStartStop();
@@ -65,9 +59,9 @@ private:
     QProgressBar *m_pProgress;
     QMenu *m_pListMenu;
     QTreeWidgetItem *m_pCurItem;
-    int m_iCurTrackIdx; // for total progress
-    QString m_qRecentPath;
-    bool m_bStarted;
     TrackProxy *m_pTrack;
     QTimer m_qTimer;
+    QString m_qRecentPath;
+    int m_iCurTrackIdx; // for total progress
+    bool m_bStarted;
 };

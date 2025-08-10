@@ -60,7 +60,8 @@ void DlgTestBPMPlayer::update(uint nBeats_, qint64 posUS_) {
     posUS = posUS_;
 
     data = startptr = buffer.data();
-    const qint64 beatsLength = (qint64)(((60000 * nBeats) / bpm) * 1000);
+    const qint64 beatsLength =
+        static_cast<qint64>(((60000.0f * static_cast<float>(nBeats)) / bpm) * 1000.0f);
     const qint32 bytesForBeats = format.bytesForDuration(beatsLength);
 
     dataRemaining = static_cast<qint64>(bytesForBeats) * nBeats;

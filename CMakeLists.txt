@@ -49,8 +49,14 @@ add_definitions(
 if(CMAKE_BUILD_TYPE STREQUAL "Debug"
    AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
    AND BPMDETECT_CXX_WARN_ALL)
-  add_compile_options(-fsafe-buffer-usage-suggestions -Weverything -Wno-c++98-compat
-                      -Wno-c++98-compat-pedantic)
+  add_compile_options(
+    -fsafe-buffer-usage-suggestions
+    -Weverything
+    -Wno-c++98-compat
+    -Wno-c++98-compat-pedantic
+    -Wno-missing-prototypes
+    -Wno-missing-variable-declarations
+    -Wno-unsafe-buffer-usage)
 endif()
 
 add_subdirectory(src)

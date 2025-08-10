@@ -54,11 +54,11 @@ protected:
     analyze(const SAMPLE *buffer, unsigned long size, const SAMPLE *prevbuffer = nullptr);
 
 private:
-    unsigned int m_uSamplerate, m_uChannels;
     unsigned long fftsize;
     unsigned long m_instantBufSize;
     unsigned long m_instantBufSamples; ///< number of samples in instant buffer
     unsigned long oldstart;
+    unsigned int m_uSamplerate, m_uChannels;
 
     EnergyBeatDetector *m_pBeatDetector[NUMDETECTORS];
     kiss_fftr_cfg fftcfg;

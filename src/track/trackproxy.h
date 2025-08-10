@@ -6,57 +6,57 @@
 class TrackProxy : public Track {
 public:
     TrackProxy(const char *filename, bool readtags = true);
-    ~TrackProxy();
+    ~TrackProxy() override;
 
-    void setFilename(const char *filename, bool readtags = true);
-    void readTags();
-    void readInfo();
-    double detectBPM();
-    void printBPM();
+    void setFilename(const char *filename, bool readtags = true) override;
+    void readTags() override;
+    void readInfo() override;
+    double detectBPM() override;
+    void printBPM() override;
     double progress();
-    void setBPM(double dBPM);
-    double getBPM() const;
-    void clearBPM();
-    void saveBPM();
-    std::string strBPM();
-    std::string strBPM(std::string format);
-    std::string filename() const;
+    void setBPM(double dBPM) override;
+    double getBPM() const override;
+    void clearBPM() override;
+    void saveBPM() override;
+    std::string strBPM() override;
+    std::string strBPM(std::string format) override;
+    std::string filename() const override;
 
     /// track length in miliseconds
-    unsigned int length() const;
-    std::string strLength();
-    bool isValid() const;
-    bool isOpened() const;
-    std::string artist() const;
-    std::string title() const;
-    void setRedetect(bool redetect);
-    bool redetect() const;
-    double progress() const;
-    void setFormat(std::string format = "0.00");
-    std::string format() const;
-    void enableConsoleProgress(bool enable = true);
+    unsigned int length() const override;
+    std::string strLength() override;
+    bool isValid() const override;
+    bool isOpened() const override;
+    std::string artist() const override;
+    std::string title() const override;
+    void setRedetect(bool redetect) override;
+    bool redetect() const override;
+    double progress() const override;
+    void setFormat(std::string format = "0.00") override;
+    std::string format() const override;
+    void enableConsoleProgress(bool enable = true) override;
 
-    void stop();
+    void stop() override;
 
-    void setStartPos(uint ms);
-    uint startPos() const;
-    void setEndPos(uint ms);
-    uint endPos() const;
-    int samplerate() const;
-    int sampleBytes() const;
-    int sampleBits() const;
-    int channels() const;
-    int trackType() const;
+    void setStartPos(uint ms) override;
+    uint startPos() const override;
+    void setEndPos(uint ms) override;
+    uint endPos() const override;
+    int samplerate() const override;
+    int sampleBytes() const override;
+    int sampleBits() const override;
+    int channels() const override;
+    int trackType() const override;
 
 protected:
     Track *createTrack(const char *filename, bool readtags = true);
-    void open();
-    void close();
-    void seek(uint ms);
-    uint currentPos();
-    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num);
-    void storeBPM(std::string sBPM);
-    void removeBPM();
+    void open() override;
+    void close() override;
+    void seek(uint ms) override;
+    uint currentPos() override;
+    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) override;
+    void storeBPM(std::string sBPM) override;
+    void removeBPM() override;
 
 private:
     Track *m_pTrack;
