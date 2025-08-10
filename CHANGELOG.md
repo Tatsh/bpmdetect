@@ -11,6 +11,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Changed
 
+- Depends on SoundTouch shared library.
 - Depends on kissfft shared library.
 - License is now GPL-3 or later.
 

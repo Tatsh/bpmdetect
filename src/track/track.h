@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "core/STTypes.h"
+#include <STTypes.h>
 
 #ifndef NO_GUI
 #include <QMutex>

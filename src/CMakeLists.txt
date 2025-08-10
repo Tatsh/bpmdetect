@@ -18,6 +18,7 @@ target_include_directories(bpmdetect PRIVATE ${TAGLIB_INCLUDE_DIRS} ${FLAC_INCLU
                                              ${MAD_INCLUDE_DIRS} . widgets)
 target_link_libraries(
   bpmdetect
+  PkgConfig::SOUNDTOUCH
   Qt6::Gui
   Qt6::Widgets
   kissfft::kissfft

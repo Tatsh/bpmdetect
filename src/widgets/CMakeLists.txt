@@ -19,7 +19,7 @@ target_compile_definitions(
           $<$<BOOL:${WAVPACK_FOUND}>:HAVE_WAVPACK>)
 target_include_directories(bpmdetect-widgets PRIVATE ..)
 target_link_libraries(bpmdetect-widgets PRIVATE bpmdetect-core Qt6::Core Qt6::Gui Qt6::Multimedia
-                                                Qt6::Widgets)
+                                                Qt6::Widgets PkgConfig::SOUNDTOUCH)
 # https://stackoverflow.com/a/60203765/374110
 get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(_isMultiConfig)

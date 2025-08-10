@@ -28,5 +28,6 @@ target_link_libraries(
           ${TAGLIB_LIBRARIES}
           ${VORBIS_LIBRARIES}
           ${WAVPACK_LIBRARIES}
+          PkgConfig::SOUNDTOUCH
           Qt6::Core
           bpmdetect-core)

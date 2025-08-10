@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <iostream>
 
+#include <BPMDetect.h>
 #ifdef HAVE_TAGLIB
 #include <fileref.h>
 #include <tag.h>
 #endif
 
-#include "core/BPMDetect.h"
 #include "track.h"
 
 using namespace std;

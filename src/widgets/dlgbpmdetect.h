@@ -3,11 +3,11 @@
 
 #include <iostream>
 
+#include <BPMDetect.h>
 #include <QDropEvent>
 #include <QMenu>
 #include <QTimer>
 
-#include "core/BPMDetect.h"
 #include "track/trackproxy.h"
 #include "ui_dlgbpmdetect.h"
 
