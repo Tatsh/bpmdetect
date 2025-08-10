@@ -5,7 +5,6 @@
 
 #include <QDebug>
 
-#include "PeakFinder.h"
 #include "bpmcalculator.h"
 
 #define MIN_BPM 50
