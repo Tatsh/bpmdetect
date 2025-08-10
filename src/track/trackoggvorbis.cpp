@@ -29,6 +29,7 @@
 #include <vorbisfile.h>
 #include <xiphcomment.h>
 
+#include "core/pasample.h"
 #include "trackoggvorbis.h"
 
 using namespace std;
@@ -148,7 +149,7 @@ int TrackOggVorbis::readSamples(SAMPLETYPE *buffer, unsigned int num) {
 
     int nread = index / 2;
     for (int i = 0; i < nread; ++i) {
-        buffer[i] = (float)dest[i] / 32768;
+        buffer[i] = (float)dest[i] / SAMPLE_MAXVALUE;
     }
 
     // return the number of samples in buffer

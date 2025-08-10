@@ -8,6 +8,7 @@
 #include <textidentificationframe.h>
 #include <xiphcomment.h>
 
+#include "core/pasample.h"
 #include "trackflac.h"
 
 using namespace std;
@@ -133,7 +134,7 @@ int TrackFlac::readSamples(SAMPLETYPE *buffer, unsigned int num) {
         if (m_cldata.buffer) {
             // copy samples to destination
             while (m_ibufidx < m_cldata.numsamples && nread < num) {
-                buffer[nread++] = (float)m_cldata.buffer[m_ibufidx++] / 32768;
+                buffer[nread++] = (float)m_cldata.buffer[m_ibufidx++] / SAMPLE_MAXVALUE;
             }
         }
 

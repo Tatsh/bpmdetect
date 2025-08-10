@@ -11,6 +11,7 @@
 #include <mpegfile.h>
 #include <textidentificationframe.h>
 
+#include "core/pasample.h"
 #include "trackmp3.h"
 
 #ifndef math_min
@@ -368,7 +369,7 @@ int TrackMp3::readSamples(SAMPLETYPE *buffer, unsigned int num) {
 
     // convert the samples to float
     for (unsigned int i = 0; i < nsamples; ++i) {
-        buffer[i] = (float)dest[i] / 32768.;
+        buffer[i] = (float)dest[i] / SAMPLE_MAXVALUE;
     }
 
     // cerr << "decoded " << Total_samples_decoded << " samples in " << frames << " frames, rest: " << rest << ", chan " << m_iChannels;

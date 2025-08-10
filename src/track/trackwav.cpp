@@ -8,6 +8,7 @@
 #include <id3v2tag.h>
 #include <mpegfile.h>
 
+#include "core/pasample.h"
 #include "trackwav.h"
 
 static const char riffStr[] = "RIFF";
@@ -263,7 +264,7 @@ int TrackWav::read(float *buffer, int maxElems) {
 
     num = read(temp, maxElems);
 
-    fscale = 1.0 / 32768.0;
+    fscale = 1.0 / SAMPLE_MAXVALUE;
     // convert to floats, scale to range [-1..+1[
     for (i = 0; i < num; i++) {
         buffer[i] = (float)(fscale * (double)temp[i]);
