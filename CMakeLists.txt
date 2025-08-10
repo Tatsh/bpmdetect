@@ -59,18 +59,20 @@ add_definitions(
   -DQT_STRICT_ITERATORS
   -DQT_USE_FAST_OPERATOR_PLUS
   -DQT_USE_QSTRINGBUILDER)
+add_compile_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
+add_link_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug"
-   AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang"
-   AND BPMDETECT_CXX_WARN_ALL)
-  add_compile_options(
-    -fsafe-buffer-usage-suggestions
-    -Weverything
-    -Wno-c++98-compat
-    -Wno-c++98-compat-pedantic
-    -Wno-missing-prototypes
-    -Wno-missing-variable-declarations
-    -Wno-unsafe-buffer-usage)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ALL)
+    add_compile_options(
+      -fsafe-buffer-usage-suggestions
+      -Weverything
+      -Wno-c++98-compat
+      -Wno-c++98-compat-pedantic
+      -Wno-missing-prototypes
+      -Wno-missing-variable-declarations
+      -Wno-unsafe-buffer-usage)
+  endif()
 endif()
 
 add_subdirectory(src)
