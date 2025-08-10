@@ -81,7 +81,7 @@ void Waveform::update(const SAMPLE *buffer, unsigned long size, bool beat, int b
     }
 
     for (unsigned long i = 0; i < size; ++i) {
-        float val = 1.3 * fabs(buffer[i]) / (SAMPLE_MAXVALUE / 2.0);
+        auto val = 1.3 * std::abs(buffer[i]) / (SAMPLE_MAXVALUE / 2.0);
         if (val > m_maxVal)
             m_maxVal = val;
         m_avgSum += val;
