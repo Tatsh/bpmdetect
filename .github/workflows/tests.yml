@@ -12,7 +12,7 @@ jobs:
         run: |
           pipx install cpp-coveralls
           sudo apt-get update
-          sudo apt-get install -y extra-cmake-modules lcov libkissfft-dev libsoundtouch-dev qt6-base-dev qt6-multimedia-dev qt6-tools-dev
+          sudo apt-get install -y extra-cmake-modules lcov libkissfft-dev libsoundtouch-dev libtag1-dev qt6-base-dev qt6-multimedia-dev qt6-tools-dev
       - name: Configure
         run: >-
           cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build

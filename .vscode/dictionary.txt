@@ -22,7 +22,6 @@ bpmcounter
 bpmd
 bpmdetect
 bpmdetectdebug
-bpmfield
 bpmframe
 bpms
 bpmsave
@@ -51,6 +50,7 @@ dcmake
 dcoverage
 decodeded
 defenses
+denable
 destinationlabel
 dialog
 diffmsec
@@ -93,6 +93,7 @@ libjsonnet
 libkissfft
 libmad
 libsoundtouch
+libtag
 libvorbis
 loadoncall
 magvector
@@ -102,7 +103,6 @@ maxn
 mdfile
 metronometest
 mstime
-newbpmframe
 noncommercially
 normaloff
 nsamples

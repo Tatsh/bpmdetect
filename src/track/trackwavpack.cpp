@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <iostream>
 
-#ifdef HAVE_TAGLIB
 #include <apetag.h>
 #include <wavpackfile.h>
-#endif
 
 #include "trackwavpack.h"
 
@@ -22,7 +20,6 @@ TrackWavpack::~TrackWavpack() {
 void TrackWavpack::readTags() {
     string fname = filename();
     string sbpm = "000.00";
-#ifdef HAVE_TAGLIB
     TagLib::WavPack::File f(fname.c_str(), false);
     auto ape = f.APETag();
     TagLib::Tag *tag = f.tag();
@@ -36,7 +33,6 @@ void TrackWavpack::readTags() {
             sbpm = bpm;
         }
     }
-#endif
     // set filename (without path) as title if the title is empty
     if (title().empty())
         setTitle(fname.substr(fname.find_last_of("/") + 1));

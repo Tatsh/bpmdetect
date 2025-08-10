@@ -6,22 +6,10 @@
 #include <io.h>
 #endif
 
-#ifdef HAVE_TAGLIB
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <mpegfile.h>
 #include <textidentificationframe.h>
-#endif // HAVE_TAGLIB
-
-#ifdef HAVE_ID3LIB
-#ifdef _WIN32
-#define ID3LIB_LINKOPTION 1
-#endif
-#include <id3/id3lib_streams.h>
-#include <id3/misc_support.h>
-#include <id3/readers.h>
-#include <id3/tag.h>
-#endif // HAVE_ID3LIB
 
 #include "trackmp3.h"
 
@@ -463,7 +451,6 @@ int TrackMp3::findFrame(int pos) {
 void TrackMp3::storeBPM(string format) {
     string fname = filename();
     string sBPM = bpm2str(getBPM(), format);
-#ifdef HAVE_TAGLIB
     TagLib::MPEG::File f(fname.c_str(), false);
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(true);
     if (tag == NULL) {
@@ -476,23 +463,11 @@ void TrackMp3::storeBPM(string format) {
     bpmframe->setText(sBPM.c_str());
     tag->addFrame(bpmframe); // add new BPM frame
     f.save();                // save file
-#elif defined(HAVE_ID3LIB)
-    ID3_Tag tag(fname.c_str());                 // Open file
-    ID3_Frame *bpmframe = tag.Find(ID3FID_BPM); // find BPM frame
-    if (NULL != bpmframe)                       // if BPM frame found
-        tag.RemoveFrame(bpmframe);              // remove BPM frame
-    ID3_Frame newbpmframe;                      // create BPM frame
-    newbpmframe.SetID(ID3FID_BPM);
-    newbpmframe.Field(ID3FN_TEXT).Add(sBPM.c_str());
-    tag.AddFrame(newbpmframe); // add it to tag
-    tag.Update(ID3TT_ID3V2);   // save
-#endif
 }
 
 void TrackMp3::readTags() {
     string fname = filename();
     string sbpm = "000.00";
-#ifdef HAVE_TAGLIB
     TagLib::MPEG::File f(fname.c_str(), false);
 
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
@@ -506,25 +481,6 @@ void TrackMp3::readTags() {
             sbpm = frame->toString().toCString();
         }
     }
-#elif defined(HAVE_ID3LIB)
-    ID3_Tag tag(fname.c_str());
-    if (char *sArtist = ID3_GetArtist(&tag)) {
-        setArtist(sArtist);
-    }
-    if (char *sTitle = ID3_GetTitle(&tag)) {
-        setTitle(sTitle);
-    }
-
-    ID3_Frame *bpmframe = tag.Find(ID3FID_BPM);
-    if (NULL != bpmframe) {
-        ID3_Field *bpmfield = bpmframe->GetField(ID3FN_TEXT);
-        if (NULL != bpmfield) {
-            char buffer[1024];
-            bpmfield->Get(buffer, 1024);
-            sbpm = buffer;
-        }
-    }
-#endif
     // set filename (without path) as title if the title is empty
     if (title().empty())
         setTitle(fname.substr(fname.find_last_of("/") + 1));
@@ -533,7 +489,6 @@ void TrackMp3::readTags() {
 
 void TrackMp3::removeBPM() {
     string fname = filename();
-#ifdef HAVE_TAGLIB
     TagLib::MPEG::File f(fname.c_str(), false);
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(true);
     if (tag == NULL) {
@@ -541,5 +496,4 @@ void TrackMp3::removeBPM() {
     }
     tag->removeFrames("TBPM");
     f.save();
-#endif
 }

@@ -25,11 +25,9 @@
 #define OV_ENDIAN_ARG 0
 #endif
 
-#ifdef HAVE_TAGLIB
 #include <textidentificationframe.h>
 #include <vorbisfile.h>
 #include <xiphcomment.h>
-#endif // HAVE_TAGLIB
 
 #include "trackoggvorbis.h"
 
@@ -161,7 +159,6 @@ int TrackOggVorbis::readSamples(SAMPLETYPE *buffer, unsigned int num) {
 void TrackOggVorbis::storeBPM(string format) {
     string fname = filename();
     string sBPM = bpm2str(getBPM(), format);
-#ifdef HAVE_TAGLIB
     TagLib::Ogg::Vorbis::File f(fname.c_str(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
     if (tag == NULL) {
@@ -170,13 +167,11 @@ void TrackOggVorbis::storeBPM(string format) {
     }
     tag->addField("TBPM", sBPM.c_str(), true); // add new BPM field (replace existing)
     f.save();
-#endif
 }
 
 void TrackOggVorbis::readTags() {
     string fname = filename();
     string sbpm = "000.00";
-#ifdef HAVE_TAGLIB
     TagLib::Ogg::Vorbis::File f(fname.c_str(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
     if (tag != NULL) {
@@ -187,7 +182,6 @@ void TrackOggVorbis::readTags() {
         if (!strl.isEmpty())
             sbpm = strl[0].toCString();
     }
-#endif
     // set filename (without path) as title if the title is empty
     if (title().empty())
         setTitle(fname.substr(fname.find_last_of("/") + 1));
@@ -196,7 +190,6 @@ void TrackOggVorbis::readTags() {
 
 void TrackOggVorbis::removeBPM() {
     string fname = filename();
-#ifdef HAVE_TAGLIB
     //close();
     TagLib::Ogg::Vorbis::File f(fname.c_str(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
@@ -206,5 +199,4 @@ void TrackOggVorbis::removeBPM() {
     tag->removeFields("TBPM");
     f.save();
     //open();
-#endif
 }

@@ -2,10 +2,8 @@
 #include <iostream>
 
 #include <BPMDetect.h>
-#ifdef HAVE_TAGLIB
 #include <fileref.h>
 #include <tag.h>
-#endif
 
 #include "track.h"
 
@@ -332,7 +330,6 @@ void Track::clearBPM() {
 }
 
 void Track::readInfo() {
-#ifdef HAVE_TAGLIB
     TagLib::FileRef f(filename().c_str());
 
     TagLib::AudioProperties *ap = 0;
@@ -345,7 +342,6 @@ void Track::readInfo() {
         setLength(ap->lengthInSeconds() * 1000);
         setValid(true);
     }
-#endif
 }
 
 /**

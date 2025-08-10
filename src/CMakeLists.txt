@@ -14,17 +14,17 @@ ecm_qt_declare_logging_category(
   "sh.tat.${CMAKE_PROJECT_NAME}")
 
 add_executable(bpmdetect MACOSX_BUNDLE icon.rc images.h main.cpp)
-target_include_directories(bpmdetect PRIVATE ${TAGLIB_INCLUDE_DIRS} ${FLAC_INCLUDE_DIRS}
-                                             ${MAD_INCLUDE_DIRS} . widgets)
+target_include_directories(bpmdetect PRIVATE . widgets)
 target_link_libraries(
   bpmdetect
   PkgConfig::SOUNDTOUCH
+  PkgConfig::TAGLIB
   Qt6::Gui
   Qt6::Widgets
-  kissfft::kissfft
   bpmdetect-core
   bpmdetect-track
-  bpmdetect-widgets)
+  bpmdetect-widgets
+  kissfft::kissfft)
 qt_add_translations(bpmdetect MERGE_QT_TRANSLATIONS QM_FILES_OUTPUT_VARIABLE qm_files TS_FILES
                     ../i18n/bpmdetect_en.ts)
 if(I18N)

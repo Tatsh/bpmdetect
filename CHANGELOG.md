@@ -9,8 +9,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## Added
+
+- Options at build-time to enable FLAC, MP3, OGG, WavPack. All of these options are off by default.
+  Without setting any of these options to `ON`, the app will only support wave files.
+
 ## Changed
 
+- TagLib is now a hard requirement.
 - Depends on SoundTouch shared library.
 - Depends on kissfft shared library.
 - License is now GPL-3 or later.

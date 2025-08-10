@@ -42,13 +42,9 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
 #ifndef Q_OS_MACOS
     m_pListMenu->addAction(tr("Test BPM"), this, SLOT(slotTestBPM()));
 #endif
-#ifdef HAVE_TAGLIB
     m_pListMenu->addSeparator();
     m_pListMenu->addAction(tr("Save BPM"), this, SLOT(slotSaveBPM()));
     m_pListMenu->addAction(tr("Clear BPM"), this, SLOT(slotClearBPM()));
-#else
-    chbSave->setEnabled(false);
-#endif
 
     /// Add columns to TrackList
     QStringList hlabels;

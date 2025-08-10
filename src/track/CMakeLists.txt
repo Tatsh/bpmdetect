@@ -17,17 +17,15 @@ add_library(bpmdetect-track STATIC ${FLAC_SRCS} ${MP3_SRCS} ${TRACK_SRCS} ${VORB
 target_compile_definitions(
   bpmdetect-track
   PRIVATE $<$<BOOL:${FLAC_FOUND}>:HAVE_FLAC> $<$<BOOL:${MAD_FOUND}>:HAVE_MAD>
-          $<$<BOOL:${VORBIS_FOUND}>:HAVE_VORBISFILE> $<$<BOOL:${TAGLIB_FOUND}>:HAVE_TAGLIB>
-          $<$<BOOL:${WAVPACK_FOUND}>:HAVE_WAVPACK>)
-target_include_directories(bpmdetect-track PRIVATE ${FLAC_INCLUDE_DIRS} ${MAD_INCLUDE_DIRS}
-                                                   ${VORBIS_INCLUDE_DIRS} ${TAGLIB_INCLUDE_DIRS} ..)
+          $<$<BOOL:${VORBIS_FOUND}>:HAVE_VORBISFILE> $<$<BOOL:${WAVPACK_FOUND}>:HAVE_WAVPACK>)
+target_include_directories(bpmdetect-track PRIVATE ..)
 target_link_libraries(
   bpmdetect-track
-  PRIVATE ${FLAC_LIBRARIES}
-          ${MAD_LIBRARIES}
-          ${TAGLIB_LIBRARIES}
-          ${VORBIS_LIBRARIES}
-          ${WAVPACK_LIBRARIES}
+  PRIVATE $<$<BOOL:${FLAC_FOUND}>:PkgConfig::FLAC>
+          $<$<BOOL:${MAD_FOUND}>:PkgConfig::MAD>
+          $<$<BOOL:${VORBIS_FOUND}>:PkgConfig::VORBIS>
+          $<$<BOOL:${WAVPACK_FOUND}>:PkgConfig::WAVPACK>
           PkgConfig::SOUNDTOUCH
+          PkgConfig::TAGLIB
           Qt6::Core
           bpmdetect-core)

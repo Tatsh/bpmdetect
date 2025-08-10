@@ -4,19 +4,15 @@
 
 #include "trackproxy.h"
 #include "trackwav.h"
-
 #ifdef HAVE_VORBISFILE
 #include "trackoggvorbis.h"
 #endif
-
 #ifdef HAVE_MAD
 #include "trackmp3.h"
 #endif
-
 #ifdef HAVE_FLAC
 #include "trackflac.h"
 #endif
-
 #ifdef HAVE_WAVPACK
 #include "trackwavpack.h"
 #endif

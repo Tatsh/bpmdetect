@@ -2,13 +2,11 @@
 #include <cstring>
 #include <iostream>
 
-#ifdef HAVE_TAGLIB
 #include <flacfile.h>
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <textidentificationframe.h>
 #include <xiphcomment.h>
-#endif // HAVE_TAGLIB
 
 #include "trackflac.h"
 
@@ -160,7 +158,6 @@ int TrackFlac::readSamples(SAMPLETYPE *buffer, unsigned int num) {
 void TrackFlac::storeBPM(string format) {
     string fname = filename();
     string sBPM = bpm2str(getBPM(), format);
-#ifdef HAVE_TAGLIB
     TagLib::FLAC::File f(fname.c_str(), false);
     TagLib::Ogg::XiphComment *xiph = f.xiphComment(true);
     if (xiph != NULL) {
@@ -177,13 +174,11 @@ void TrackFlac::storeBPM(string format) {
       }
     */
     f.save();
-#endif
 }
 
 void TrackFlac::readTags() {
     string fname = filename();
     string sbpm = "000.00";
-#ifdef HAVE_TAGLIB
     TagLib::FLAC::File f(fname.c_str(), false);
     TagLib::Tag *tag = f.tag();
     if (tag != NULL) {
@@ -208,7 +203,6 @@ void TrackFlac::readTags() {
             }
         }
     }
-#endif
     // set filename (without path) as title if the title is empty
     if (title().empty())
         setTitle(fname.substr(fname.find_last_of("/") + 1));
@@ -217,7 +211,6 @@ void TrackFlac::readTags() {
 
 void TrackFlac::removeBPM() {
     string fname = filename();
-#ifdef HAVE_TAGLIB
     TagLib::FLAC::File f(fname.c_str(), false);
     TagLib::Ogg::XiphComment *xiph = f.xiphComment(true);
     if (xiph != NULL) {
@@ -230,7 +223,6 @@ void TrackFlac::removeBPM() {
     }
 
     f.save();
-#endif
 }
 
 FLAC__StreamDecoderWriteStatus TrackFlac::writeCallback(const FLAC__StreamDecoder *decoder,

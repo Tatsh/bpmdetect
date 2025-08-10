@@ -4,11 +4,9 @@
 #include <cstring>
 #include <iostream>
 
-#ifdef HAVE_TAGLIB
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <mpegfile.h>
-#endif // HAVE_TAGLIB
 
 #include "trackwav.h"
 
@@ -278,7 +276,6 @@ int TrackWav::read(float *buffer, int maxElems) {
 void TrackWav::storeBPM(string format) {
     string fname = filename();
     string sBPM = bpm2str(getBPM(), format);
-#ifdef HAVE_TAGLIB
     close();
     /*
     TagLib::MPEG::File f( fname.c_str(), false );
@@ -298,13 +295,11 @@ void TrackWav::storeBPM(string format) {
     //f.save();
     */
     open();
-#endif
 }
 
 void TrackWav::readTags() {
     string fname = filename();
     string sbpm = "000.00";
-#ifdef HAVE_TAGLIB
     /*
       TagLib::MPEG::File f(fname.c_str(), false);
       long pos = f.rfind("ID3", TagLib::File::End);
@@ -320,7 +315,6 @@ void TrackWav::readTags() {
         sbpm = frame->toString().toCString();
       }
     */
-#endif
     // set filename (without path) as title if the title is empty
     if (title().empty())
         setTitle(fname.substr(fname.find_last_of("/") + 1));
@@ -330,11 +324,9 @@ void TrackWav::readTags() {
 
 void TrackWav::removeBPM() {
     string fname = filename();
-#ifdef HAVE_TAGLIB
     close();
     // TODO
     open();
-#endif
 }
 
 int TrackWav::readRIFFBlock() {
