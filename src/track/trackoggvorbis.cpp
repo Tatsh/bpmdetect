@@ -35,7 +35,7 @@ using namespace std;
 using namespace soundtouch;
 
 TrackOggVorbis::TrackOggVorbis(const char *fname, bool readtags) : Track() {
-    fptr = 0;
+    fptr = nullptr;
     setFilename(fname, readtags);
 }
 
@@ -70,14 +70,14 @@ void TrackOggVorbis::open() {
     vorbis_info *vi = ov_info(&vf, -1);
 
     int channels = vi->channels;
-    uint srate = vi->rate;
-    unsigned long long numSamples = ov_pcm_total(&vf, -1);
-    uint len = (1000 * numSamples / srate);
+    uint srate = static_cast<uint>(vi->rate);
+    unsigned long long numSamples = static_cast<unsigned long long>(ov_pcm_total(&vf, -1));
+    uint len = static_cast<uint>(1000 * numSamples / srate);
 
     setLength(len);
     setStartPos(0);
     setEndPos(len);
-    setSamplerate(srate);
+    setSamplerate(static_cast<int>(srate));
     setSampleBytes(2);
     setChannels(channels);
     setTrackType(TYPE_OGGVORBIS);
@@ -95,8 +95,9 @@ void TrackOggVorbis::close() {
 
 void TrackOggVorbis::seek(uint ms) {
     if (isValid()) {
-        unsigned long long pos = (ms * samplerate() /* * channels()*/) / 1000;
-        if (ov_pcm_seek(&vf, pos) == 0) {
+        unsigned long long pos =
+            (static_cast<uint>(ms) * static_cast<uint>(samplerate()) /* * channels()*/) / 1000;
+        if (ov_pcm_seek(&vf, static_cast<ogg_int64_t>(pos)) == 0) {
             m_iCurPosPCM = pos;
         }
 #ifdef DEBUG
@@ -111,8 +112,9 @@ void TrackOggVorbis::seek(uint ms) {
 
 uint TrackOggVorbis::currentPos() {
     if (isValid()) {
-        unsigned long long pos = 1000 * m_iCurPosPCM / (samplerate() /* *channels()*/);
-        return (uint)pos;
+        unsigned long long pos =
+            1000 * m_iCurPosPCM / static_cast<unsigned long long>(samplerate() /* *channels()*/);
+        return static_cast<uint>(pos);
     }
     return 0;
 }
@@ -123,17 +125,23 @@ uint TrackOggVorbis::currentPos() {
  * @param num number of samples (per channel)
  * @return number of read samples
  */
-int TrackOggVorbis::readSamples(SAMPLETYPE *buffer, unsigned int num) {
+int TrackOggVorbis::readSamples(SAMPLETYPE *buffer, size_t num) {
     if (!isValid() || num < 2)
         return -1;
 
     short dest[num];
-    uint index = 0;
-    int needed = num;
+    long index = 0;
+    int needed = static_cast<int>(num);
     // loop until requested number of samples has been retrieved
     while (needed > 0) {
         // read samples into buffer
-        int ret = ov_read(&vf, (char *)dest + index, needed, OV_ENDIAN_ARG, 2, 1, &current_section);
+        long ret = ov_read(&vf,
+                           reinterpret_cast<char *>(dest) + static_cast<std::ptrdiff_t>(index),
+                           needed,
+                           OV_ENDIAN_ARG,
+                           2,
+                           1,
+                           &current_section);
         // if eof we fill the rest with zero
         if (ret == 0) {
             while (needed > 0) {
@@ -146,13 +154,13 @@ int TrackOggVorbis::readSamples(SAMPLETYPE *buffer, unsigned int num) {
         needed -= ret;
     }
 
-    int nread = index / 2;
+    int nread = static_cast<int>(index / 2);
     for (int i = 0; i < nread; ++i) {
-        buffer[i] = (float)dest[i] / SAMPLE_MAXVALUE;
+        buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAXVALUE;
     }
 
     // return the number of samples in buffer
-    m_iCurPosPCM += nread;
+    m_iCurPosPCM += static_cast<unsigned long long>(nread);
     return nread;
 }
 

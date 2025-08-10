@@ -95,7 +95,7 @@ uint TrackWavpack::currentPos() {
                              static_cast<unsigned long long>(samplerate()));
 }
 
-int TrackWavpack::readSamples(SAMPLETYPE *buffer, unsigned int num) {
+int TrackWavpack::readSamples(SAMPLETYPE *buffer, size_t num) {
     const auto sbytes = static_cast<unsigned int>(sampleBytes());
     if (!isValid() || wpc == nullptr || num < sbytes) {
         return -1;
@@ -125,9 +125,7 @@ void TrackWavpack::storeBPM(string sBPM) {
                                    0);
     }
     int ret = WavpackAppendTagItem(wpc, "bpm", sBPM.c_str(), static_cast<int>(sBPM.length()));
-    cout << "WavpackAppendTagItem returned " << ret << endl;
     ret = WavpackWriteTag(wpc);
-    cout << "WavpackWriteTag returned " << ret << endl;
     if (wasNull) {
         WavpackCloseFile(wpc);
         wpc = nullptr;

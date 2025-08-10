@@ -77,8 +77,7 @@ bool Track::getLimit() {
 }
 
 double Track::str2bpm(string sBPM) {
-    double BPM = 0;
-    BPM = atof(sBPM.c_str());
+    double BPM = std::stod(sBPM);
     while (BPM > 300)
         BPM = BPM / 10;
     return BPM;
@@ -91,15 +90,15 @@ string Track::bpm2str(double dBPM, string format) {
     if (format == "0.0") {
         snprintf(buffer, BPM_LEN, "%.1f", dBPM);
     } else if (format == "0") {
-        snprintf(buffer, BPM_LEN, "%d", (int)dBPM);
+        snprintf(buffer, BPM_LEN, "%d", static_cast<int>(dBPM));
     } else if (format == "000.00") {
         snprintf(buffer, BPM_LEN, "%06.2f", dBPM);
     } else if (format == "000.0") {
         snprintf(buffer, BPM_LEN, "%05.1f", dBPM);
     } else if (format == "000") {
-        snprintf(buffer, BPM_LEN, "%03d", (int)dBPM);
+        snprintf(buffer, BPM_LEN, "%03d", static_cast<int>(dBPM));
     } else if (format == "00000") {
-        snprintf(buffer, BPM_LEN, "%05d", (int)dBPM * 100);
+        snprintf(buffer, BPM_LEN, "%05d", static_cast<int>(dBPM * 100));
     } else { // all other formats are converted to "0.00"
         snprintf(buffer, BPM_LEN, "%.2f", dBPM);
     }
@@ -314,7 +313,7 @@ string Track::strLength() {
 
     const uint TIME_LEN = 20;
     char buffer[TIME_LEN];
-    snprintf(buffer, TIME_LEN, "%d:%02d", mins, secs);
+    snprintf(buffer, TIME_LEN, "%d:%02d", static_cast<int>(mins), static_cast<int>(secs));
     string timestr = buffer;
     return timestr;
 }
@@ -332,14 +331,14 @@ void Track::clearBPM() {
 void Track::readInfo() {
     TagLib::FileRef f(filename().c_str());
 
-    TagLib::AudioProperties *ap = 0;
+    TagLib::AudioProperties *ap = nullptr;
     if (!f.isNull())
         ap = f.audioProperties();
 
     if (ap) {
         setChannels(ap->channels());
         setSamplerate(ap->sampleRate());
-        setLength(ap->lengthInSeconds() * 1000);
+        setLength(static_cast<unsigned int>(ap->lengthInSeconds()) * 1000);
         setValid(true);
     }
 }
@@ -392,7 +391,8 @@ double Track::detectBPM() {
     m_bStop = false;
 
     double oldbpm = getBPM();
-    if (!redetect() && oldbpm != 0) {
+    const double epsilon = 1e-6;
+    if (!redetect() && std::abs(oldbpm) > epsilon) {
         return oldbpm;
     }
 
@@ -421,7 +421,7 @@ double Track::detectBPM() {
         bpmd.inputSamples(samples, readsamples / chan);
         cprogress = currentPos() - startPos();
 
-        setProgress(100. * cprogress / (double)totalsteps);
+        setProgress(100. * cprogress / static_cast<double>(totalsteps));
         if (m_bConProgress) {
             while ((100 * cprogress / totalsteps) > pprogress) {
                 ++pprogress;
@@ -439,7 +439,7 @@ double Track::detectBPM() {
         setProgress(0);
         return 0;
     }
-    double BPM = bpmd.getBpm();
+    double BPM = static_cast<double>(bpmd.getBpm());
     BPM = correctBPM(BPM);
     setBPM(BPM);
     setProgress(0);

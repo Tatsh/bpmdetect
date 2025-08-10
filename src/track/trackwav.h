@@ -46,7 +46,7 @@ protected:
     void close() override;
     void seek(uint ms) override;
     uint currentPos() override;
-    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) override;
+    int readSamples(soundtouch::SAMPLETYPE *buffer, size_t num) override;
 
     void storeBPM(std::string sBPM) override;
     void removeBPM() override;
@@ -55,9 +55,9 @@ protected:
     int readHeaderBlock();
     int readRIFFBlock();
     int checkCharTags();
-    int read(char *buffer, int maxElems);
-    int read(short *buffer, int maxElems);
-    int read(float *buffer, int maxElems);
+    int read(char *buffer, size_t maxElems);
+    int read(short *buffer, size_t maxElems);
+    int read(float *buffer, size_t maxElems);
 
 private:
     unsigned long long m_iCurPosBytes;

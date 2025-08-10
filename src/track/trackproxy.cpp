@@ -21,20 +21,21 @@ using namespace std;
 using namespace soundtouch;
 
 TrackProxy::TrackProxy(const char *filename, bool readtags) : Track() {
-    m_pTrack = 0;
+    m_pTrack = nullptr;
     m_bConsoleProgress = false;
     setFilename(filename, readtags);
 }
 
 TrackProxy::~TrackProxy() {
-    if (m_pTrack)
+    if (m_pTrack) {
         delete m_pTrack;
-    m_pTrack = 0;
+        m_pTrack = nullptr;
+    }
 }
 
 Track *TrackProxy::createTrack(const char *filename, bool readtags) {
     if (strlen(filename) < 1)
-        return 0;
+        return nullptr;
 
     const char *ext = strrchr(filename, '.');
 
@@ -63,7 +64,7 @@ Track *TrackProxy::createTrack(const char *filename, bool readtags) {
     }
 #endif
 
-    return 0;
+    return nullptr;
 }
 
 void TrackProxy::setFilename(const char *filename, bool readtags) {
@@ -73,7 +74,7 @@ void TrackProxy::setFilename(const char *filename, bool readtags) {
     if (m_pTrack) {
         close();
         delete m_pTrack;
-        m_pTrack = 0;
+        m_pTrack = nullptr;
     }
     m_pTrack = createTrack(filename, readtags);
 
@@ -265,7 +266,7 @@ uint TrackProxy::currentPos() {
     return 0;
 }
 
-int TrackProxy::readSamples(SAMPLETYPE *buffer, unsigned int num) {
+int TrackProxy::readSamples(SAMPLETYPE *buffer, size_t num) {
     if (m_pTrack)
         return m_pTrack->readSamples(buffer, num);
     return 0;

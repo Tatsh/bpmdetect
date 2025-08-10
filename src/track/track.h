@@ -101,7 +101,7 @@ protected:
     /// Return the current position from which samples will be read (miliseconds)
     virtual uint currentPos() = 0;
     /// Read @a num samples from current position into @a buffer
-    virtual int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) = 0;
+    virtual int readSamples(soundtouch::SAMPLETYPE *buffer, size_t num) = 0;
     /// Store @a sBPM into tag
     virtual void storeBPM(std::string sBPM) = 0;
     /// Remove BPM from tag

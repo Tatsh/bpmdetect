@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <cassert>
+#include <cctype>
 #include <climits>
 #include <cstring>
 #include <iostream>
 
+#include <QtEndian>
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <mpegfile.h>
@@ -18,84 +20,17 @@ static const char dataStr[] = "data";
 using namespace std;
 using namespace soundtouch;
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// Helper functions for swapping byte order to correctly read/write WAV files
-// with big-endian CPU's: Define compile-time definition _BIG_ENDIAN_ to
-// turn-on the conversion if it appears necessary.
-//
-// For example, Intel x86 is little-endian and doesn't require conversion,
-// while PowerPC of Mac's and many other RISC cpu's are big-endian.
-
-#ifdef BYTE_ORDER
-// In gcc compiler detect the byte order automatically
-#if BYTE_ORDER == BIG_ENDIAN
-// big-endian platform.
-#define _BIG_ENDIAN_
-#endif
-#endif
-
-#ifdef _BIG_ENDIAN_
-// big-endian CPU, swap bytes in 16 & 32 bit words
-
-// helper-function to swap byte-order of 32bit integer
-static inline void _swap32(unsigned int &dwData) {
-    dwData = ((dwData >> 24) & 0x000000FF) | ((dwData >> 8) & 0x0000FF00) |
-             ((dwData << 8) & 0x00FF0000) | ((dwData << 24) & 0xFF000000);
-}
-
-// helper-function to swap byte-order of 16bit integer
-static inline void _swap16(unsigned short &wData) {
-    wData = ((wData >> 8) & 0x00FF) | ((wData << 8) & 0xFF00);
-}
-
-// helper-function to swap byte-order of buffer of 16bit integers
-static inline void _swap16Buffer(unsigned short *pData, unsigned int dwNumWords) {
-    unsigned long i;
-
-    for (i = 0; i < dwNumWords; i++) {
-        _swap16(pData[i]);
+static bool isAlphaStr(char *str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (!isalpha(str[i]))
+            return false;
     }
-}
-
-#else  // BIG_ENDIAN
-// little-endian CPU, WAV file is ok as such
-
-// dummy helper-function
-static inline void _swap32(unsigned int &dwData) {
-    // do nothing
-}
-
-// dummy helper-function
-static inline void _swap16(unsigned short &wData) {
-    // do nothing
-}
-
-// dummy helper-function
-static inline void _swap16Buffer(unsigned short *pData, unsigned int dwNumBytes) {
-    // do nothing
-}
-#endif // BIG_ENDIAN
-
-static int isAlpha(char c) {
-    return (c >= ' ' && c <= 'z') ? 1 : 0;
-}
-
-static int isAlphaStr(char *str) {
-    int c = str[0];
-    while (c) {
-        if (isAlpha(c) == 0)
-            return 0;
-        str++;
-        c = str[0];
-    }
-
-    return 1;
+    return true;
 }
 
 TrackWav::TrackWav(const char *fname, bool readtags) : Track() {
     m_iCurPosBytes = 0;
-    fptr = 0;
+    fptr = nullptr;
     setFilename(fname, readtags);
 }
 
@@ -127,11 +62,12 @@ void TrackWav::open() {
 
     m_iCurPosBytes = 0;
 
-    unsigned long long numSamples = header.data.data_len / header.format.byte_per_sample;
-    uint srate = header.format.sample_rate;
+    unsigned long long numSamples =
+        header.data.data_len / static_cast<unsigned long long>(header.format.byte_per_sample);
+    int srate = header.format.sample_rate;
     int channels = header.format.channel_number;
 
-    uint len = (1000 * numSamples / srate);
+    uint len = (1000 * static_cast<uint>(numSamples) / static_cast<uint>(srate));
     int sbytes = header.format.bits_per_sample;
 
     setLength(len);
@@ -156,10 +92,13 @@ void TrackWav::close() {
 void TrackWav::seek(uint ms) {
     if (isValid()) {
         fseek(fptr, 0, SEEK_SET);
-        unsigned long long pos = (ms * samplerate() * sampleBytes()) / 1000;
+        unsigned long long pos =
+            (static_cast<unsigned long long>(ms) * static_cast<unsigned long long>(samplerate()) *
+             static_cast<unsigned long long>(sampleBytes())) /
+            1000ULL;
         int hdrsOk = readWavHeaders();
         assert(hdrsOk == 0);
-        fseek(fptr, pos, SEEK_CUR);
+        fseek(fptr, static_cast<long>(pos), SEEK_CUR);
         m_iCurPosBytes = pos;
 #ifdef DEBUG
     } else {
@@ -170,9 +109,11 @@ void TrackWav::seek(uint ms) {
 
 uint TrackWav::currentPos() {
     if (isValid()) {
-        unsigned long long pos =
-            1000 * m_iCurPosBytes / (samplerate() * channels() * sampleBytes());
-        return (uint)pos;
+        unsigned long long pos = 1000ULL * m_iCurPosBytes /
+                                 (static_cast<unsigned long long>(samplerate()) *
+                                  static_cast<unsigned long long>(channels()) *
+                                  static_cast<unsigned long long>(sampleBytes()));
+        return static_cast<uint>(pos);
     }
     return 0;
 }
@@ -183,7 +124,7 @@ uint TrackWav::currentPos() {
  * @param num number of samples (per channel)
  * @return number of read samples
  */
-int TrackWav::readSamples(SAMPLETYPE *buffer, unsigned int num) {
+int TrackWav::readSamples(SAMPLETYPE *buffer, size_t num) {
     if (!isValid())
         return -1;
 
@@ -191,9 +132,9 @@ int TrackWav::readSamples(SAMPLETYPE *buffer, unsigned int num) {
     return nread;
 }
 
-int TrackWav::read(char *buffer, int maxElems) {
-    int numBytes;
-    uint afterDataRead;
+int TrackWav::read(char *buffer, size_t maxElems) {
+    unsigned long long numBytes;
+    unsigned long long afterDataRead;
 
     // ensure it's 8 bit format
     if (header.format.bits_per_sample != 8) {
@@ -204,19 +145,19 @@ int TrackWav::read(char *buffer, int maxElems) {
     numBytes = maxElems;
     afterDataRead = m_iCurPosBytes + numBytes;
     if (afterDataRead > header.data.data_len) {
-        // Don't read more samples than are marked available in header
+        // Do not read more samples than are marked available in header
         numBytes = header.data.data_len - m_iCurPosBytes;
         assert(numBytes >= 0);
     }
 
-    numBytes = fread(buffer, 1, numBytes, fptr);
-    m_iCurPosBytes += numBytes;
+    size_t bytesRead = fread(buffer, 1, static_cast<size_t>(numBytes), fptr);
+    m_iCurPosBytes += static_cast<unsigned long long>(bytesRead);
 
-    return numBytes;
+    return static_cast<int>(bytesRead);
 }
 
-int TrackWav::read(short *buffer, int maxElems) {
-    unsigned int afterDataRead;
+int TrackWav::read(short *buffer, size_t maxElems) {
+    unsigned long long afterDataRead;
     int numBytes;
     int numElems;
 
@@ -228,7 +169,7 @@ int TrackWav::read(short *buffer, int maxElems) {
         numElems = read(temp, maxElems);
         // convert from 8 to 16 bit
         for (i = 0; i < numElems; i++) {
-            buffer[i] = temp[i] << 8;
+            buffer[i] = static_cast<short>(temp[i] << 8);
         }
         delete[] temp;
     } else {
@@ -236,26 +177,27 @@ int TrackWav::read(short *buffer, int maxElems) {
         assert(header.format.bits_per_sample == 16);
         assert(sizeof(short) == 2);
 
-        numBytes = maxElems * 2;
-        afterDataRead = m_iCurPosBytes + numBytes;
+        numBytes = static_cast<int>(maxElems * 2);
+        afterDataRead = m_iCurPosBytes + static_cast<unsigned long long>(numBytes);
         if (afterDataRead > header.data.data_len) {
             // Don't read more samples than are marked available in header
-            numBytes = header.data.data_len - m_iCurPosBytes;
+            numBytes = static_cast<int>(header.data.data_len - m_iCurPosBytes);
             assert(numBytes >= 0);
         }
 
-        numBytes = fread(buffer, 1, numBytes, fptr);
-        m_iCurPosBytes += numBytes;
-        numElems = numBytes / 2;
+        size_t bytesRead = fread(buffer, 1, static_cast<size_t>(numBytes), fptr);
+        m_iCurPosBytes += static_cast<unsigned long long>(bytesRead);
+        numElems = static_cast<int>(bytesRead / 2);
 
         // 16bit samples, swap byte order if necessary
-        _swap16Buffer((unsigned short *)buffer, numElems);
+        for (int i = 0; i < numElems; i++)
+            buffer[i] = qToLittleEndian(buffer[i]);
     }
 
     return numElems;
 }
 
-int TrackWav::read(float *buffer, int maxElems) {
+int TrackWav::read(float *buffer, size_t maxElems) {
     short *temp = new short[maxElems];
     int num;
     int i;
@@ -266,7 +208,7 @@ int TrackWav::read(float *buffer, int maxElems) {
     fscale = 1.0 / SAMPLE_MAXVALUE;
     // convert to floats, scale to range [-1..+1[
     for (i = 0; i < num; i++) {
-        buffer[i] = (float)(fscale * (double)temp[i]);
+        buffer[i] = static_cast<float>(fscale * static_cast<double>(temp[i]));
     }
 
     delete[] temp;
@@ -334,7 +276,7 @@ int TrackWav::readRIFFBlock() {
     assert(read > 0);
 
     // swap 32bit data byte order if necessary
-    _swap32((unsigned int &)header.riff.package_len);
+    header.riff.package_len = qToLittleEndian(header.riff.package_len);
 
     // header.riff.riff_char should equal to 'RIFF');
     if (memcmp(riffStr, header.riff.riff_char, 4) != 0)
@@ -355,7 +297,7 @@ int TrackWav::readHeaderBlock() {
     assert(read > 0);
     label[4] = 0;
 
-    if (isAlphaStr(label) == 0)
+    if (!isAlphaStr(label))
         return -1; // not a valid label
 
     // Decode blocks according to their label
@@ -366,14 +308,14 @@ int TrackWav::readHeaderBlock() {
         memcpy(header.format.fmt, fmtStr, 4);
 
         // read length of the format field
-        size_t read = fread(&nLen, sizeof(int), 1, fptr);
-        assert(read > 0);
+        size_t read_len = fread(&nLen, sizeof(int), 1, fptr);
+        assert(read_len > 0);
         // swap byte order if necessary
-        _swap32((unsigned int &)nLen); // int format_len;
+        nLen = qToLittleEndian(nLen); // int format_len;
         header.format.format_len = nLen;
 
         // calculate how much length differs from expected
-        nDump = nLen - (sizeof(header.format) - 8);
+        nDump = static_cast<int>(nLen - static_cast<int>(sizeof(header.format) - 8));
 
         // if format_len is larger than expected, read only as much data as we've space for
         if (nDump > 0) {
@@ -381,16 +323,18 @@ int TrackWav::readHeaderBlock() {
         }
 
         // read data
-        read = fread(&(header.format.fixed), nLen, 1, fptr);
-        assert(read > 0);
+        read_len = fread(&(header.format.fixed), static_cast<size_t>(nLen), 1, fptr);
+        assert(read_len > 0);
 
         // swap byte order if necessary
-        _swap16((unsigned short &)header.format.fixed);           // short int fixed;
-        _swap16((unsigned short &)header.format.channel_number);  // short int channel_number;
-        _swap32((unsigned int &)header.format.sample_rate);       // int sample_rate;
-        _swap32((unsigned int &)header.format.byte_rate);         // int byte_rate;
-        _swap16((unsigned short &)header.format.byte_per_sample); // short int byte_per_sample;
-        _swap16((unsigned short &)header.format.bits_per_sample); // short int bits_per_sample;
+        header.format.fixed = qToLittleEndian(header.format.fixed); // short int fixed;
+        header.format.channel_number =
+            qToLittleEndian(header.format.channel_number);                      // short int channel
+        header.format.sample_rate = qToLittleEndian(header.format.sample_rate); // int sample_rate;
+        header.format.byte_rate = qToLittleEndian(header.format.byte_rate);     // int byte_rate
+        header.format.byte_per_sample = qToLittleEndian(header.format.byte_per_sample); // short
+        header.format.bits_per_sample =
+            qToLittleEndian(header.format.bits_per_sample); // short bits_per_sample
 
         // if format_len is larger than expected, skip the extra data
         if (nDump > 0) {
@@ -405,7 +349,7 @@ int TrackWav::readHeaderBlock() {
         assert(read > 0);
 
         // swap byte order if necessary
-        _swap32((unsigned int &)header.data.data_len);
+        header.data.data_len = qToLittleEndian(header.data.data_len);
 
         return 1;
     } else {

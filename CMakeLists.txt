@@ -71,7 +71,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       -Wno-c++98-compat-pedantic
       -Wno-missing-prototypes
       -Wno-missing-variable-declarations
-      -Wno-unsafe-buffer-usage)
+      -Wno-padded)
   endif()
 endif()
 

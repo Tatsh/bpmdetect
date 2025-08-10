@@ -118,7 +118,7 @@ uint TrackFlac::currentPos() {
  * @param num number of samples (per channel)
  * @return number of samples read
  */
-int TrackFlac::readSamples(SAMPLETYPE *buffer, unsigned int num) {
+int TrackFlac::readSamples(SAMPLETYPE *buffer, size_t num) {
     if (!isValid() || !m_decoder || num < 2)
         return -1;
 
@@ -133,7 +133,8 @@ int TrackFlac::readSamples(SAMPLETYPE *buffer, unsigned int num) {
         if (m_cldata.buffer) {
             // copy samples to destination
             while (m_ibufidx < m_cldata.numsamples && nread < num) {
-                buffer[nread++] = (float)m_cldata.buffer[m_ibufidx++] / SAMPLE_MAXVALUE;
+                buffer[nread++] =
+                    static_cast<float>(m_cldata.buffer[m_ibufidx++]) / SAMPLE_MAXVALUE;
             }
         }
 
@@ -250,29 +251,35 @@ FLAC__StreamDecoderWriteStatus TrackFlac::writeCallback(const FLAC__StreamDecode
 
     // copy samples into the buffer
     for (uint i = 0; i < frame->header.blocksize; ++i) {
-        if (cldata->buffer == 0)
+        if (cldata->buffer == nullptr)
             break;
 
         // 16 bit samples
         if (cldata->bps == 16) {
-            cldata->buffer[i * 2] = (FLAC__int16)buffer[0][i];
+            cldata->buffer[i * 2] = static_cast<FLAC__int16>(buffer[0][i]);
             if (cldata->channels > 1)
-                cldata->buffer[i * 2 + 1] = (FLAC__int16)buffer[1][i];
+                cldata->buffer[i * 2 + 1] = static_cast<FLAC__int16>(buffer[1][i]);
             // 8 bit samples
         } else if (cldata->bps == 8) {
-            cldata->buffer[i * 2] = (FLAC__int16)((FLAC__int8)buffer[0][i]) << 8;
+            cldata->buffer[i * 2] =
+                static_cast<FLAC__int16>(static_cast<FLAC__int8>(buffer[0][i]) << 8);
             if (cldata->channels > 1)
-                cldata->buffer[i * 2 + 1] = (FLAC__int16)((FLAC__int8)buffer[1][i]) << 8;
+                cldata->buffer[i * 2 + 1] =
+                    static_cast<FLAC__int16>(static_cast<FLAC__int8>(buffer[1][i]) << 8);
             // 24 bit samples
         } else if (cldata->bps == 24) {
-            cldata->buffer[i * 2] = (FLAC__int16)((FLAC__int8)buffer[0][i]) >> 8;
+            cldata->buffer[i * 2] =
+                static_cast<FLAC__int16>(static_cast<FLAC__int8>(buffer[0][i])) >> 8;
             if (cldata->channels > 1)
-                cldata->buffer[i * 2 + 1] = (FLAC__int16)((FLAC__int8)buffer[1][i]) >> 8;
+                cldata->buffer[i * 2 + 1] =
+                    static_cast<FLAC__int16>(static_cast<FLAC__int8>(buffer[1][i])) >> 8;
             // 32 bit samples
         } else if (cldata->bps == 32) {
-            cldata->buffer[i * 2] = (FLAC__int16)((FLAC__int8)buffer[0][i]) >> 16;
+            cldata->buffer[i * 2] =
+                static_cast<FLAC__int16>(static_cast<FLAC__int8>(buffer[0][i])) >> 16;
             if (cldata->channels > 1)
-                cldata->buffer[i * 2 + 1] = (FLAC__int16)((FLAC__int8)buffer[1][i]) >> 16;
+                cldata->buffer[i * 2 + 1] =
+                    static_cast<FLAC__int16>(static_cast<FLAC__int8>(buffer[1][i])) >> 16;
         }
     }
 

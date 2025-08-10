@@ -24,14 +24,14 @@ protected:
     void close() override;
     void seek(uint ms) override;
     uint currentPos() override;
-    int readSamples(soundtouch::SAMPLETYPE *buffer, unsigned int num) override;
+    int readSamples(soundtouch::SAMPLETYPE *buffer, size_t num) override;
     inline signed int madScale(mad_fixed_t sample);
 
     void storeBPM(std::string sBPM) override;
     void removeBPM() override;
 
     void clearFrameList();
-    inline unsigned long madLength();
+    inline long madLength();
 
 private:
     unsigned long discard(unsigned long samples_wanted);

@@ -36,9 +36,7 @@
   "editor.wordWrapColumn": 100,
   "files.associations": {
     "*.ui": "xml",
-    "i18n/*.ts": "xml",
-    "iostream": "cpp",
-    "ostream": "cpp"
+    "i18n/*.ts": "xml"
   },
   "files.eol": "\n",
   "files.insertFinalNewline": true,
