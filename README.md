@@ -7,7 +7,7 @@
 [![QA](https://github.com/Tatsh/bpmdetect/actions/workflows/qa.yml/badge.svg)](https://github.com/Tatsh/bpmdetect/actions/workflows/qa.yml)
 [![Tests](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml/badge.svg)](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/Tatsh/bpmdetect/badge.svg?branch=master)](https://coveralls.io/github/Tatsh/bpmdetect?branch=master)
-[![GitHub Pages](https://github.com/Tatsh/bpmdetect/actions/workflows/pages/pages-build-deployment/badge.svg)](https://tatsh.github.io/bpmdetect/)
+[![GitHub Pages](https://github.com/Tatsh/bpmdetect/actions/workflows/pages.yml/badge.svg)](https://tatsh.github.io/bpmdetect/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Stargazers](https://img.shields.io/github/stars/Tatsh/bpmdetect?logo=github&style=flat)](https://github.com/Tatsh/bpmdetect/stargazers)
 
@@ -41,6 +41,8 @@ Required dependencies:
 - Optional: libmad
 - Optional: libvorbis 1.3.7 or later
 - Optional: wavpack 5.8.0 or later
+
+In the cloned project:
 
 ```shell
 mkdir build
