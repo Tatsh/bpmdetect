@@ -25,6 +25,7 @@ codeowners
 colorstyle
 coveragerc
 coverallsapp
+cppreference
 cpptools
 csdrphf
 ctest
@@ -53,6 +54,7 @@ fracbits
 fsafe
 gcov
 gmock
+graphviz
 gtest
 hlabels
 horstretch
@@ -95,6 +97,7 @@ qdroplistview
 qsizetype
 qstringbuilder
 qtbase
+qtcore
 qtgui
 qtlinguisttools
 qtmultimedia
@@ -118,6 +121,7 @@ strequal
 strfname
 sturmlechner
 synthlen
+tagfiles
 taglib
 tatsh
 tbpm

@@ -330,11 +330,6 @@ void Track::readInfo() {
     }
 }
 
-/**
- * @brief Correct BPM
- * if value is lower than min or greater than max
- * @return corrected BPM
- */
 double Track::correctBPM(double dBPM) const {
     double min = getMinBPM();
     double max = getMaxBPM();
@@ -356,15 +351,10 @@ double Track::correctBPM(double dBPM) const {
     return dBPM;
 }
 
-/// Print BPM to stdout
 void Track::printBPM() const {
     std::cout << bpm2str(getBPM(), format()).toStdString() << " BPM" << endl;
 }
 
-/**
- * @brief Detect BPM of one track
- * @return detected BPM
- */
 double Track::detectBPM() {
     open();
     if (!isOpened()) {

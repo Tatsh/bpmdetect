@@ -4,18 +4,25 @@
 #include "FLAC/stream_decoder.h"
 #include "track.h"
 
+/** Used in the metadata callback. */
 typedef struct {
-    FLAC__uint64 total_samples;
-    short *buffer;      // buffer of samples (16 bit)
-    qsizetype bufsize;  // buffer size (maximum number of samples)
-    uint numsamples;    // number of samples in buffer
-    int channels;       // number of channels
-    unsigned int srate; // sample rate
-    unsigned int bps;   // bits per sample
+    FLAC__uint64 total_samples; //!< Total number of samples in the file.
+    short *buffer;              //!< Buffer of samples (16 bit).
+    qsizetype bufsize;          //!< Buffer size (maximum number of samples).
+    uint numsamples;            //!< Number of samples in buffer.
+    int channels;               //!< Number of channels.
+    unsigned int srate;         //!< Sample rate.
+    unsigned int bps;           //!< Bits per sample.
 } FLAC_CLIENT_DATA;
 
+/** FLAC file. */
 class TrackFlac : public Track {
 public:
+    /**
+     * Constructor.
+     * @param filename Filename.
+     * @param readtags If `true`, read tags from the file.
+     */
     TrackFlac(const QString &filename, bool readtags = true);
     ~TrackFlac() override;
     void readTags() override;

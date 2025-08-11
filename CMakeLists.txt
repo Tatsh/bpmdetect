@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.31)
-project(bpmdetect VERSION 0.7.2)
+project(
+  bpmdetect
+  VERSION 0.7.2
+  DESCRIPTION "Automatic BPM detection tool.")
 
-find_package(ECM NO_MODULE REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
-
-include(ECMQtDeclareLoggingCategory)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 
@@ -18,6 +17,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BPMDETECT_CXX_WARN_ALL "Do not use." OFF)
 mark_as_advanced(BPMDETECT_CXX_WARN_ALL)
+option(BUILD_DOCS "Build documentation." OFF)
+option(BUILD_DOCS_ONLY "Build documentation only." OFF)
 option(BUILD_TESTS "Build tests." OFF)
 option(COVERAGE "Enable code coverage." OFF)
 option(ENABLE_FLAC "Enable FLAC support." OFF)
@@ -26,60 +27,78 @@ option(ENABLE_VORBIS "Enable Vorbis support." OFF)
 option(ENABLE_WAVPACK "Enable WavPack support." OFF)
 option(I18N "Enable i18n support." OFF)
 
-find_package(Qt6Core 6.7 CONFIG REQUIRED)
-find_package(Qt6Gui 6.7 CONFIG REQUIRED)
-find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)
-find_package(Qt6Multimedia 6.7 CONFIG REQUIRED)
-find_package(Qt6Widgets 6.7 CONFIG REQUIRED)
-pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
-pkg_check_modules(TAGLIB taglib REQUIRED IMPORTED_TARGET GLOBAL)
+if(NOT BUILD_DOCS_ONLY)
+  find_package(ECM NO_MODULE REQUIRED)
+  list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+  include(ECMQtDeclareLoggingCategory)
 
-if(ENABLE_FLAC)
-  pkg_check_modules(FLAC flac REQUIRED IMPORTED_TARGET GLOBAL)
-endif()
-if(ENABLE_MP3)
-  pkg_check_modules(MAD mad REQUIRED IMPORTED_TARGET GLOBAL)
-endif()
-if(ENABLE_VORBIS)
-  pkg_check_modules(VORBIS vorbisfile REQUIRED IMPORTED_TARGET GLOBAL)
-endif()
-if(ENABLE_WAVPACK)
-  pkg_check_modules(WAVPACK wavpack REQUIRED IMPORTED_TARGET GLOBAL)
-endif()
+  find_package(Qt6Core 6.7 CONFIG REQUIRED)
+  find_package(Qt6Gui 6.7 CONFIG REQUIRED)
+  find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)
+  find_package(Qt6Multimedia 6.7 CONFIG REQUIRED)
+  find_package(Qt6Widgets 6.7 CONFIG REQUIRED)
+  pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
+  pkg_check_modules(TAGLIB taglib REQUIRED IMPORTED_TARGET GLOBAL)
 
-feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+  if(ENABLE_FLAC)
+    pkg_check_modules(FLAC flac REQUIRED IMPORTED_TARGET GLOBAL)
+  endif()
+  if(ENABLE_MP3)
+    pkg_check_modules(MAD mad REQUIRED IMPORTED_TARGET GLOBAL)
+  endif()
+  if(ENABLE_VORBIS)
+    pkg_check_modules(VORBIS vorbisfile REQUIRED IMPORTED_TARGET GLOBAL)
+  endif()
+  if(ENABLE_WAVPACK)
+    pkg_check_modules(WAVPACK wavpack REQUIRED IMPORTED_TARGET GLOBAL)
+  endif()
 
-# Sane flags from Kate
-add_definitions(
-  -DQT_NO_CAST_FROM_ASCII
-  -DQT_NO_CAST_FROM_BYTEARRAY
-  -DQT_NO_CAST_TO_ASCII
-  -DQT_NO_SIGNALS_SLOTS_KEYWORDS
-  -DQT_NO_URL_CAST_FROM_STRING
-  -DQT_STRICT_ITERATORS
-  -DQT_USE_FAST_OPERATOR_PLUS
-  -DQT_USE_QSTRINGBUILDER)
-add_compile_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
-add_link_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
+  feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ALL)
-    add_compile_options(
-      -fsafe-buffer-usage-suggestions
-      -Weverything
-      -Wno-c++98-compat
-      -Wno-c++98-compat-pedantic
-      -Wno-exit-time-destructors
-      -Wno-global-constructors
-      -Wno-missing-prototypes
-      -Wno-missing-variable-declarations
-      -Wno-padded)
+  # Sane flags from Kate
+  add_definitions(
+    -DQT_NO_CAST_FROM_ASCII
+    -DQT_NO_CAST_FROM_BYTEARRAY
+    -DQT_NO_CAST_TO_ASCII
+    -DQT_NO_SIGNALS_SLOTS_KEYWORDS
+    -DQT_NO_URL_CAST_FROM_STRING
+    -DQT_STRICT_ITERATORS
+    -DQT_USE_FAST_OPERATOR_PLUS
+    -DQT_USE_QSTRINGBUILDER)
+  add_compile_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
+  add_link_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
+
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND BPMDETECT_CXX_WARN_ALL)
+      add_compile_options(
+        -fsafe-buffer-usage-suggestions
+        -Weverything
+        -Wno-c++98-compat
+        -Wno-c++98-compat-pedantic
+        -Wno-exit-time-destructors
+        -Wno-global-constructors
+        -Wno-missing-prototypes
+        -Wno-missing-variable-declarations
+        -Wno-padded)
+    endif()
+  endif()
+
+  add_subdirectory(src)
+  if(BUILD_TESTS)
+    find_package(Qt6Test CONFIG REQUIRED)
+    enable_testing()
+    add_subdirectory(tests)
   endif()
 endif()
 
-add_subdirectory(src)
-if(BUILD_TESTS)
-  find_package(Qt6Test CONFIG REQUIRED)
-  enable_testing()
-  add_subdirectory(tests)
+if(BUILD_DOCS OR BUILD_DOCS_ONLY)
+  set(DOXYGEN_INTERACTIVE_SVG YES)
+  set(DOXYGEN_MARKDOWN_ID_STYLE GITHUB)
+  set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
+  set(DOXYGEN_TAGFILES
+      ./.docs/cppreference-doxygen-web.tag.xml=https://en.cppreference.com/w/
+      ./.docs/qtcore.tags=http://doc.qt.io/qt-6/ ./.docs/qtgui.tags=http://doc.qt.io/qt-6/
+      ./.docs/qtwidgets.tags=http://doc.qt.io/qt-6/)
+  find_package(Doxygen REQUIRED COMPONENTS dot)
+  doxygen_add_docs(docs README.md src ALL)
 endif()

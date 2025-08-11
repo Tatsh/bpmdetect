@@ -7,8 +7,13 @@
 
 #include "track.h"
 
+/** Vorbis file. */
 class TrackOggVorbis : public Track {
 public:
+    /** Constructor.
+     * @param filename Filename.
+     * @param readtags If `true`, read tags from the file.
+     */
     TrackOggVorbis(const QString &filename, bool readtags = true);
     ~TrackOggVorbis() override;
     void readTags() override;

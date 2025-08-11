@@ -6,45 +6,39 @@
 #include <QProgressBar>
 #include <QWidget>
 
-/// @brief Progressbar controlled by mouse
+/** Progress bar controlled by mouse. */
 class ProgressBar : public QProgressBar {
     Q_OBJECT
 
 public:
-    /// Constructor
     ProgressBar(QWidget *parent = nullptr);
-    /// Destructor
     ~ProgressBar() override;
-    /// Return change status
+    /** Return change status. */
     bool change();
-    /// Return enabled status
+    /** Return enabled status. */
     bool enabled();
-    /// Return total steps (track length)
+    /** Return total steps (track length). */
     uint length();
 
 public Q_SLOTS:
-    /// Set current position
+    /** Set current position to @a pos. */
     void setPosition(uint pos);
-    /// Set total steps
+    /** Set total steps to @a len. */
     void setLength(uint len);
-    /// Set enabled status
+    /** Set enabled status. */
     void setEnabled(bool s);
 
 protected Q_SLOTS:
-    /// Receiving mouse press events
     void mousePressEvent(QMouseEvent *e) override;
-    /// Receiving mouse move events
     void mouseMoveEvent(QMouseEvent *e) override;
-    /// Receiving mouse release events
     void mouseReleaseEvent(QMouseEvent *e) override;
-    /// Set change status
     void setChange(bool s);
 
 protected:
-    /// Current position changed
+    /** Current position changed signal. */
     Q_SIGNAL void positionChanged(qint64 pos);
 
 private:
-    bool chng;   ///< true if left mouse button is down
-    bool enable; ///< enable status
+    bool chng;
+    bool enable;
 };

@@ -30,7 +30,7 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
 
     loadSettings();
 
-    /// Create TrackList menu
+    // Create TrackList menu
     m_pListMenu = new QMenu(TrackList);
     m_pListMenu->addAction(tr("Add files"), this, SLOT(slotAddFiles()));
     m_pListMenu->addAction(tr("Add directory"), this, SLOT(slotAddDir()));
@@ -46,7 +46,7 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     m_pListMenu->addAction(tr("Save BPM"), this, SLOT(slotSaveBPM()));
     m_pListMenu->addAction(tr("Clear BPM"), this, SLOT(slotClearBPM()));
 
-    /// Add columns to TrackList
+    // Add columns to TrackList
     QStringList hlabels;
     hlabels << tr("BPM") << tr("Artist") << tr("Title") << tr("Length") << tr("Progress")
             << tr("Filename");
@@ -59,7 +59,6 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     TrackList->setColumnWidth(4, 100);
     TrackList->setColumnWidth(5, 400);
 
-    /// Connect signals with slots
     connect(TrackList,
             SIGNAL(customContextMenuRequested(const QPoint &)),
             this,
@@ -125,10 +124,6 @@ void DlgBPMDetect::saveSettings() {
 #endif
 }
 
-/**
- ** Enable or disable controls
- ** @param enable true to enable, false to disable
- **/
 void DlgBPMDetect::enableControls(bool enable) {
     btnAddFiles->setEnabled(enable);
     btnAddDir->setEnabled(enable);
@@ -186,8 +181,6 @@ void DlgBPMDetect::slotStop() {
     enableControls(true);
 }
 
-/// Start detection on next track in the list
-/// @param skipped true if previous track was skipped, so BPM won't be saved
 void DlgBPMDetect::slotDetectNext(bool skipped) {
     if (!m_pCurItem) {
         // No previous item, get the first item and start

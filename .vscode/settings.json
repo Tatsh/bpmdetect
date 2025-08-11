@@ -16,6 +16,7 @@
   },
   "cSpell.enabled": true,
   "cmake.configureArgs": [
+    "-DBUILD_DOCS=ON",
     "-DBUILD_TESTS=ON",
     "-DCOVERAGE=ON",
     "-DENABLE_FLAC=ON",

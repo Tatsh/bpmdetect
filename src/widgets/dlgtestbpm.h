@@ -13,25 +13,38 @@
 #include "ui_dlgtestbpmdlg.h"
 
 class AudioThread;
+/** Dialog to test the BPM. */
 class DlgTestBPM : public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT
 public:
+    /** Constructor.
+     * @param file File to test.
+     * @param bpm BPM value.
+     * @param parent Parent widget.
+     */
     DlgTestBPM(const QString file, const float bpm, QWidget *parent = nullptr);
     ~DlgTestBPM() override;
 
 protected Q_SLOTS:
+    /** Set position 1. */
     void setPos1();
+    /** Set position 2. */
     void setPos2();
+    /** Set position 3. */
     void setPos3();
+    /** Set position 4. */
     void setPos4();
+    /** Set a custom position in milliseconds. */
     void setCustomPos(qint64 msec);
-    /// Set number of beats to loop
+    /** Set number of beats to loop. @a s should contain an integer. */
     void setNumBeats(const QString &s);
+    /** Update BPM list. */
     void slotUpdateBpmList();
+    /** Set track position length. */
     void setTrackPositionLength(qint64);
 
 private:
     DlgTestBPMPlayer *player;
-    QList<float> m_bpmList; ///< list of possible BPMs
-    float m_bpm;            ///< BPM to test
+    QList<float> m_bpmList;
+    float m_bpm;
 };

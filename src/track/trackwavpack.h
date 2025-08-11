@@ -5,8 +5,14 @@
 
 #include "track.h"
 
+/** Wavpack file. */
 class TrackWavpack : public Track {
 public:
+    /**
+     * Constructor.
+     * @param filename Filename.
+     * @param readtags If `true`, read tags from the file.
+     */
     TrackWavpack(const QString &filename, bool readtags = true);
     ~TrackWavpack() override;
     void readTags() override;

@@ -66,12 +66,12 @@ void TrackOggVorbis::open() {
     }
 
     // extract metadata
-    vorbis_info *vi = ov_info(&vf, -1);
+    auto vi = ov_info(&vf, -1);
 
-    int channels = vi->channels;
-    uint srate = static_cast<uint>(vi->rate);
-    unsigned long long numSamples = static_cast<unsigned long long>(ov_pcm_total(&vf, -1));
-    uint len = static_cast<uint>(1000 * numSamples / srate);
+    auto channels = vi->channels;
+    auto srate = vi->rate;
+    auto numSamples = ov_pcm_total(&vf, -1);
+    auto len = 1000 * numSamples / srate;
 
     setLength(len);
     setStartPos(0);
@@ -115,11 +115,6 @@ qint64 TrackOggVorbis::currentPos() {
     return 0;
 }
 
-/**
- * Read @a num samples into @a buffer
- * @param buffer pointer to buffer
- * @return number of read samples
- */
 int TrackOggVorbis::readSamples(QSpan<SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || num < 2)

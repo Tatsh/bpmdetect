@@ -3,8 +3,13 @@
 
 #include "track.h"
 
+/** Used to proxy between different track types. */
 class TrackProxy : public Track {
 public:
+    /** Constructor.
+     * @param filename Filename.
+     * @param readtags If `true`, read tags from the file.
+     */
     TrackProxy(const QString &filename, bool readtags = true);
     ~TrackProxy() override;
 
@@ -13,6 +18,7 @@ public:
     void readInfo() override;
     double detectBPM() override;
     void printBPM() const override;
+    /** Get the progress amount. */
     double progress();
     void setBPM(double dBPM) override;
     double getBPM() const override;
@@ -22,7 +28,6 @@ public:
     QString strBPM(const QString &format) const override;
     QString filename() const override;
 
-    /// track length in miliseconds
     unsigned int length() const override;
     QString strLength() override;
     bool isValid() const override;
@@ -49,6 +54,7 @@ public:
     int trackType() const override;
 
 protected:
+    /** Create the Track to proxy to. */
     Track *createTrack(const QString &filename, bool readtags = true);
     void open() override;
     void close() override;

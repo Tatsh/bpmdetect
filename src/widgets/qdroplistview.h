@@ -8,14 +8,19 @@
 #include <QKeyEvent>
 #include <QTreeWidget>
 
+/** Custom widget to allow for dropping files. */
 class QDropListView : public QTreeWidget {
     Q_OBJECT
 public:
+    /**
+     * Constructor.
+     * @param parent Parent widget.
+     */
     QDropListView(QWidget *parent = nullptr);
     ~QDropListView() override;
 
 public Q_SLOTS:
-    /// Remove selected items from list
+    /** Remove selected items from list. */
     void slotRemoveSelected();
 
 protected:
