@@ -341,8 +341,14 @@ QStringList DlgBPMDetect::filesFromDir(QString path) {
         return files;
     d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
     f.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    QString nameFilters = QStringLiteral("*.wav:*.mp3:*.ogg:*.flac");
-    f.setNameFilters(nameFilters.split(QChar::fromLatin1(':')));
+    f.setNameFilters({QStringLiteral("*.fla"),
+                      QStringLiteral("*.flac"),
+                      QStringLiteral("*.flc"),
+                      QStringLiteral("*.mp3"),
+                      QStringLiteral("*.ogg"),
+                      QStringLiteral("*.wav"),
+                      QStringLiteral("*.wavpack"),
+                      QStringLiteral("*.wv")});
 
     QStringList dirs = d.entryList(QDir::NoDotAndDotDot);
     files = f.entryList();
