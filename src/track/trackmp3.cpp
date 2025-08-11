@@ -16,10 +16,6 @@
 
 #include "trackmp3.h"
 
-#ifndef math_min
-#define math_min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
 using namespace std;
 using namespace soundtouch;
 
@@ -338,7 +334,7 @@ int TrackMp3::readSamples(QSpan<SAMPLETYPE> buffer) {
          */
 
         // cerr << "synthlen " << Synth.pcm.length << ", remain " << (num - nsamples);
-        no = static_cast<int>(math_min(synth.pcm.length, (num - nsamples) / 2));
+        no = static_cast<int>(qMin(static_cast<long long>(synth.pcm.length), (num - nsamples) / 2));
         for (int i = 0; i < no; i++) {
             // Left channel
             if (dest_index < dest.size())
@@ -400,8 +396,8 @@ unsigned long TrackMp3::discard(unsigned long samples_wanted) {
             }
         }
         mad_synth_frame(&synth, frame);
-        no = static_cast<int>(math_min(static_cast<unsigned long>(synth.pcm.length),
-                                       (samples_wanted - Total_samples_decoded) / 2));
+        no = static_cast<int>(qMin(static_cast<unsigned long>(synth.pcm.length),
+                                   (samples_wanted - Total_samples_decoded) / 2));
         Total_samples_decoded += 2 * static_cast<unsigned long>(no);
     }
 
@@ -415,8 +411,8 @@ unsigned long TrackMp3::discard(unsigned long samples_wanted) {
 
 int TrackMp3::findFrame(int framePos) {
     // Guess position of frame in m_qSeekList based on average frame size
-    uint frameIdx = math_min(static_cast<uint>(m_qSeekList.size() - 1),
-                             m_iAvgFrameSize ? static_cast<uint>(framePos / m_iAvgFrameSize) : 0);
+    uint frameIdx = qMin(static_cast<uint>(m_qSeekList.size() - 1),
+                         m_iAvgFrameSize ? static_cast<uint>(framePos / m_iAvgFrameSize) : 0);
     MadSeekFrameType *temp = m_qSeekList.at(frameIdx);
 
     // Ensure that the list element is not at a greater position than framePos
