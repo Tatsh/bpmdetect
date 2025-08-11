@@ -295,7 +295,7 @@ void DlgBPMDetect::slotAddFiles() {
         this,
         tr("Add tracks"),
         getRecentPath(),
-        tr("Audio files (*.wav *.mp3 *.ogg *.flac);;All files (*.*)"));
+        tr("Audio files (*.wav *.mp3 *.ogg *.flac *.wv *.wavpack *.fla *.flc);;All files (*.*)"));
     if (files.size() > 0)
         setRecentPath(files[0].left(files[0].lastIndexOf(QChar::fromLatin1('/'))));
     slotAddFiles(files);
