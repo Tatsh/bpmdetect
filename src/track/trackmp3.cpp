@@ -24,7 +24,6 @@ using namespace std;
 using namespace soundtouch;
 
 TrackMp3::TrackMp3(const QString &fname, bool readtags) : Track() {
-    fptr = nullptr;
     setFilename(fname, readtags);
 }
 
@@ -33,7 +32,7 @@ TrackMp3::~TrackMp3() {
 }
 
 void TrackMp3::clearFrameList() {
-    for (std::size_t i = 0; i < m_qSeekList.size(); i++) {
+    for (qsizetype i = 0; i < m_qSeekList.size(); i++) {
         MadSeekFrameType *p = m_qSeekList.at(i);
         delete p;
         p = nullptr;
@@ -59,17 +58,15 @@ void TrackMp3::open() {
     }
 
     // Read the whole file into inputbuf:
-    QByteArray fileData = file.readAll();
-    inputbuf_len = static_cast<size_t>(fileData.size());
-    inputbuf = new unsigned char[inputbuf_len];
-    std::copy(reinterpret_cast<const unsigned char *>(fileData.constData()),
-              reinterpret_cast<const unsigned char *>(fileData.constData()) + inputbuf_len,
-              inputbuf);
+    inputbuf = new QByteArray(file.readAll());
+    inputbuf_len = inputbuf->size();
 
     // Transfer it to the mad stream-buffer:
     mad_stream_init(&stream);
     mad_stream_options(&stream, MAD_OPTION_IGNORECRC);
-    mad_stream_buffer(&stream, inputbuf, inputbuf_len);
+    mad_stream_buffer(&stream,
+                      reinterpret_cast<const unsigned char *>(inputbuf->constData()),
+                      static_cast<unsigned long>(inputbuf_len));
 
     // Decode all the headers, and fill in stats:
     mad_header header;
@@ -136,9 +133,6 @@ void TrackMp3::open() {
 void TrackMp3::close() {
     if (!isOpened())
         return;
-    if (fptr)
-        fclose(fptr);
-    fptr = NULL;
     m_iCurPosPCM = 0;
     clearFrameList();
     delete inputbuf;
@@ -206,7 +200,9 @@ void TrackMp3::seek(qint64 ms) {
         mad_stream_finish(&stream);
         mad_stream_init(&stream);
         mad_stream_options(&stream, MAD_OPTION_IGNORECRC);
-        mad_stream_buffer(&stream, static_cast<unsigned char *>(inputbuf), inputbuf_len);
+        mad_stream_buffer(&stream,
+                          reinterpret_cast<const unsigned char *>(inputbuf->constData()),
+                          static_cast<unsigned long>(inputbuf_len));
         mad_frame_init(frame);
         mad_synth_init(&synth);
         rest = -1;
@@ -223,7 +219,9 @@ void TrackMp3::seek(qint64 ms) {
             mad_stream_finish(&stream);
             mad_stream_init(&stream);
             mad_stream_options(&stream, MAD_OPTION_IGNORECRC);
-            mad_stream_buffer(&stream, static_cast<unsigned char *>(inputbuf), inputbuf_len);
+            mad_stream_buffer(&stream,
+                              reinterpret_cast<const unsigned char *>(inputbuf->constData()),
+                              static_cast<unsigned long>(inputbuf_len));
             mad_frame_init(frame);
             mad_synth_init(&synth);
             rest = -1;
@@ -236,12 +234,12 @@ void TrackMp3::seek(qint64 ms) {
             mad_stream_finish(&stream);
             mad_stream_init(&stream);
             mad_stream_options(&stream, MAD_OPTION_IGNORECRC);
+            auto length = static_cast<unsigned long>(
+                inputbuf_len -
+                static_cast<long int>(cur->m_pStreamPos - reinterpret_cast<const unsigned char *>(
+                                                              inputbuf->constData())));
             mad_stream_buffer(
-                &stream,
-                static_cast<const unsigned char *>(cur->m_pStreamPos),
-                static_cast<unsigned long>(
-                    inputbuf_len - static_cast<size_t>(cur->m_pStreamPos -
-                                                       static_cast<unsigned char *>(inputbuf))));
+                &stream, static_cast<const unsigned char *>(cur->m_pStreamPos), length);
             mad_synth_mute(&synth);
             mad_frame_mute(frame);
 
@@ -259,7 +257,7 @@ void TrackMp3::seek(qint64 ms) {
         }
 
         // synthesize the samples from the frame which should be discard to reach the requested position
-        discard(seek_pos - cur->pos);
+        discard(static_cast<unsigned long>(seek_pos - cur->pos));
     }
 
     // Unfortunately we don't know the exact position. The returned position is thus an
@@ -274,7 +272,7 @@ qint64 TrackMp3::currentPos() {
     return 0;
 }
 
-int TrackMp3::readSamples(std::span<SAMPLETYPE> buffer) {
+int TrackMp3::readSamples(QSpan<SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || num < 2)
         return -1;
@@ -285,8 +283,8 @@ int TrackMp3::readSamples(std::span<SAMPLETYPE> buffer) {
         num--;
     int nchannels = channels();
     unsigned nsamples = 0;
-    QList<short> dest(num);
-    size_t dest_index = 0;
+    QList<short> dest(static_cast<int>(num));
+    qsizetype dest_index = 0;
 
     // If samples are left from previous read, then copy them to start of destination
     if (rest > 0) {

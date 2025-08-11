@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include <QSpan>
 #include <STTypes.h>
 
 #ifndef NO_GUI
@@ -100,7 +101,7 @@ protected:
     /// Return the current position from which samples will be read (miliseconds)
     virtual qint64 currentPos() = 0;
     /// Read @a num samples from current position into @a buffer
-    virtual int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) = 0;
+    virtual int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) = 0;
     /// Store @a sBPM into tag
     virtual void storeBPM(const QString &sBPM) = 0;
     /// Remove BPM from tag

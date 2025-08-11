@@ -113,7 +113,7 @@ qint64 TrackFlac::currentPos() {
     return 0;
 }
 
-int TrackFlac::readSamples(std::span<SAMPLETYPE> buffer) {
+int TrackFlac::readSamples(QSpan<SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || !m_decoder || num < 2)
         return -1;

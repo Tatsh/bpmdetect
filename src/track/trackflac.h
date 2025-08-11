@@ -7,7 +7,7 @@
 typedef struct {
     FLAC__uint64 total_samples;
     short *buffer;      // buffer of samples (16 bit)
-    size_t bufsize;     // buffer size (maximum number of samples)
+    qsizetype bufsize;  // buffer size (maximum number of samples)
     uint numsamples;    // number of samples in buffer
     int channels;       // number of channels
     unsigned int srate; // sample rate
@@ -25,7 +25,7 @@ protected:
     void close() override;
     void seek(qint64 ms) override;
     qint64 currentPos() override;
-    int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
+    int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
 
     void storeBPM(const QString &sBPM) override;
     void removeBPM() override;

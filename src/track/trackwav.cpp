@@ -12,14 +12,14 @@
 
 #include "trackwav.h"
 
-static const char fmtStr[] = "fmt ";
-static const char dataStr[] = "data";
-
 using namespace std;
 using namespace soundtouch;
 
-static bool isAlphaStr(const std::string &str) {
-    for (char c : str) {
+const QString fmtStr = QStringLiteral("fmt ");
+const QString dataStr = QStringLiteral("data");
+
+static inline bool isAlphaStr(const QString &str) {
+    for (char c : str.toUtf8()) {
         if (!isalpha(static_cast<unsigned char>(c)))
             return false;
     }
@@ -115,13 +115,13 @@ qint64 TrackWav::currentPos() {
  * @param buffer pointer to buffer
  * @return number of read samples
  */
-int TrackWav::readSamples(std::span<soundtouch::SAMPLETYPE> buffer) {
+int TrackWav::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     if (!isValid())
         return -1;
     return static_cast<int>(read(buffer));
 }
 
-qint64 TrackWav::read(std::span<char> buffer) {
+qint64 TrackWav::read(QSpan<char> buffer) {
     auto maxElems = buffer.size();
     qint64 numBytes;
     qint64 afterDataRead;
@@ -144,7 +144,7 @@ qint64 TrackWav::read(std::span<char> buffer) {
     return bytesRead;
 }
 
-qint64 TrackWav::read(std::span<short> buffer) {
+qint64 TrackWav::read(QSpan<short> buffer) {
     auto maxElems = buffer.size();
     qint64 afterDataRead;
     int numBytes;
@@ -152,11 +152,11 @@ qint64 TrackWav::read(std::span<short> buffer) {
 
     if (header.format.bits_per_sample == 8) {
         // 8 bit format
-        QList<char> temp(static_cast<qsizetype>(maxElems));
+        QList<char> temp(maxElems);
 
-        numElems = read(std::span(temp.data(), temp.size()));
+        numElems = read(QSpan(temp.data(), temp.size()));
         // convert from 8 to 16 bit
-        for (size_t i = 0; i < static_cast<size_t>(numElems); i++) {
+        for (qsizetype i = 0; i < static_cast<qsizetype>(numElems); i++) {
             buffer[i] = static_cast<short>(temp[i] << 8);
         }
     } else {
@@ -174,26 +174,26 @@ qint64 TrackWav::read(std::span<short> buffer) {
 
         auto bytesRead = fptr.read(reinterpret_cast<char *>(buffer.data()), numBytes);
         m_iCurPosBytes += bytesRead;
-        numElems = static_cast<int>(bytesRead / 2);
+        numElems = bytesRead / 2;
 
         // 16bit samples, swap byte order if necessary
-        for (int i = 0; i < numElems; i++)
+        for (qsizetype i = 0; i < numElems; i++)
             buffer[i] = qToLittleEndian(buffer[i]);
     }
 
     return numElems;
 }
 
-qint64 TrackWav::read(std::span<float> buffer) {
+qint64 TrackWav::read(QSpan<float> buffer) {
     auto maxElems = buffer.size();
-    QList<short> temp(static_cast<qsizetype>(maxElems));
+    QList<short> temp(maxElems);
     qint64 num;
-    int i;
+    qsizetype i;
     auto fscale = 1.0 / SAMPLE_MAXVALUE;
 
-    num = read(std::span<short>(temp.data(), temp.size()));
+    num = read(QSpan<short>(temp.data(), temp.size()));
     // convert to floats, scale to range [-1..+1[
-    for (i = 0; i < num; i++) {
+    for (i = 0; i < static_cast<qsizetype>(num); i++) {
         buffer[i] = static_cast<float>(fscale * static_cast<double>(temp[i]));
     }
 
@@ -275,22 +275,22 @@ int TrackWav::readRIFFBlock() {
 
 int TrackWav::readHeaderBlock() {
     char label[5];
-    string sLabel;
 
     // lead label string
     auto read = fptr.read(label, 4);
+    QString sLabel = QString::fromUtf8(label);
     assert(read > 0);
     label[4] = 0;
 
-    if (!isAlphaStr(std::string(label)))
+    if (!isAlphaStr(sLabel))
         return -1; // not a valid label
 
     // Decode blocks according to their label
-    if (strcmp(label, fmtStr) == 0) {
+    if (sLabel == fmtStr) {
         int nLen, nDump;
 
         // 'fmt ' block
-        memcpy(header.format.fmt, fmtStr, 4);
+        std::copy(fmtStr.toLocal8Bit().begin(), fmtStr.toLocal8Bit().end(), header.format.fmt);
 
         // read length of the format field
         auto read_len = fptr.read(reinterpret_cast<char *>(&nLen), sizeof(int));
@@ -327,9 +327,10 @@ int TrackWav::readHeaderBlock() {
         }
 
         return 0;
-    } else if (strcmp(label, dataStr) == 0) {
+    } else if (sLabel == dataStr) {
         // 'data' block
-        memcpy(header.data.data_field, dataStr, 4);
+        std::copy(
+            dataStr.toLocal8Bit().begin(), dataStr.toLocal8Bit().end(), header.data.data_field);
         read = fptr.read(reinterpret_cast<char *>(&(header.data.data_len)), sizeof(uint));
         assert(read > 0);
 
@@ -359,7 +360,7 @@ int TrackWav::readHeaderBlock() {
 int TrackWav::readWavHeaders() {
     int res;
 
-    memset(&header, 0, sizeof(header));
+    header = {};
 
     res = readRIFFBlock();
     if (res)
@@ -377,10 +378,10 @@ int TrackWav::readWavHeaders() {
 
 int TrackWav::checkCharTags() {
     // header.format.fmt should equal to 'fmt '
-    if (memcmp(fmtStr, header.format.fmt, 4) != 0)
+    if (fmtStr != QString::fromLocal8Bit(header.format.fmt))
         return -1;
     // header.data.data_field should equal to 'data'
-    if (memcmp(dataStr, header.data.data_field, 4) != 0)
+    if (fmtStr != QString::fromLocal8Bit(header.data.data_field))
         return -1;
 
     return 0;

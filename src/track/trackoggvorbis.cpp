@@ -120,12 +120,12 @@ qint64 TrackOggVorbis::currentPos() {
  * @param buffer pointer to buffer
  * @return number of read samples
  */
-int TrackOggVorbis::readSamples(std::span<SAMPLETYPE> buffer) {
+int TrackOggVorbis::readSamples(QSpan<SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || num < 2)
         return -1;
 
-    std::vector<short> dest(num);
+    QList<short> dest(num);
     unsigned int index = 0;
     auto needed = static_cast<long>(num);
     // loop until requested number of samples has been retrieved
@@ -152,7 +152,7 @@ int TrackOggVorbis::readSamples(std::span<SAMPLETYPE> buffer) {
     }
 
     unsigned int nread = index / 2;
-    for (size_t i = 0; i < nread; ++i) {
+    for (qsizetype i = 0; i < nread; ++i) {
         buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAXVALUE;
     }
 

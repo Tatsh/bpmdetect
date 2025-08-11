@@ -54,7 +54,7 @@ protected:
     void close() override;
     void seek(qint64 ms) override;
     qint64 currentPos() override;
-    int readSamples(std::span<soundtouch::SAMPLETYPE> sp) override;
+    int readSamples(QSpan<soundtouch::SAMPLETYPE> sp) override;
     void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 

@@ -69,6 +69,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       -Weverything
       -Wno-c++98-compat
       -Wno-c++98-compat-pedantic
+      -Wno-exit-time-destructors
+      -Wno-global-constructors
       -Wno-missing-prototypes
       -Wno-missing-variable-declarations
       -Wno-padded)

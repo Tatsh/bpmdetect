@@ -48,7 +48,7 @@ protected:
     void close() override;
     void seek(qint64 ms) override;
     qint64 currentPos() override;
-    int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
+    int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
 
     void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
@@ -57,9 +57,9 @@ protected:
     int readHeaderBlock();
     int readRIFFBlock();
     int checkCharTags();
-    qint64 read(std::span<char> buffer);
-    qint64 read(std::span<short> buffer);
-    qint64 read(std::span<float> buffer);
+    qint64 read(QSpan<char> buffer);
+    qint64 read(QSpan<short> buffer);
+    qint64 read(QSpan<float> buffer);
 
 private:
     qint64 m_iCurPosBytes;

@@ -24,7 +24,7 @@ protected:
     void close() override;
     void seek(qint64 ms) override;
     qint64 currentPos() override;
-    int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
+    int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
     inline signed int madScale(mad_fixed_t sample);
 
     void storeBPM(const QString &sBPM) override;
@@ -42,10 +42,9 @@ private:
      * of past decodeded frame, and their exact position. If a seek occours and it is within the
      * range of frames we keep track of a precise seek occours, otherwise an unprecise seek is performed
      */
-    std::vector<MadSeekFrameType *> m_qSeekList;
-    FILE *fptr;
-    unsigned char *inputbuf;
-    size_t inputbuf_len;
+    QList<MadSeekFrameType *> m_qSeekList;
+    QByteArray *inputbuf;
+    qsizetype inputbuf_len;
     int framecount;
     int currentframe;
     int bitrate;

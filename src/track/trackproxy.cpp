@@ -271,7 +271,7 @@ qint64 TrackProxy::currentPos() {
     return 0;
 }
 
-int TrackProxy::readSamples(std::span<SAMPLETYPE> sp) {
+int TrackProxy::readSamples(QSpan<SAMPLETYPE> sp) {
     if (m_pTrack)
         return m_pTrack->readSamples(sp);
     return 0;

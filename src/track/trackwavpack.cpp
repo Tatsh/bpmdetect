@@ -95,7 +95,7 @@ qint64 TrackWavpack::currentPos() {
     return (m_iCurPosPCM * 1000) / samplerate();
 }
 
-int TrackWavpack::readSamples(std::span<SAMPLETYPE> buffer) {
+int TrackWavpack::readSamples(QSpan<SAMPLETYPE> buffer) {
     const auto num = buffer.size();
     const auto sbytes = static_cast<unsigned int>(sampleBytes());
     if (!isValid() || wpc == nullptr || buffer.size() < sbytes) {
