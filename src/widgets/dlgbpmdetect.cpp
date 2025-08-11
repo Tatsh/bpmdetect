@@ -248,10 +248,10 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
 }
 
 void DlgBPMDetect::slotTimerDone() {
-    if (m_pProgress && m_pTrack)
+    if (m_pProgress)
         m_pProgress->setValue(static_cast<int>(10 * m_pTrack->progress()));
     TotalProgress->setValue(100 * (m_iCurTrackIdx - 1) + static_cast<int>(m_pTrack->progress()));
-    if (getStarted() && m_pTrack && m_pTrack->isFinished()) {
+    if (getStarted() && m_pTrack->isFinished()) {
         TotalProgress->setValue(100 * (m_iCurTrackIdx) + static_cast<int>(m_pTrack->progress()));
         slotDetectNext();
     }
@@ -393,6 +393,8 @@ e-mail:     \tmartin.sakmar@gmail.com \n \
 
 void DlgBPMDetect::slotClearTrackList() {
     TrackList->clear();
+    delete m_pProgress;
+    m_pProgress = nullptr;
 }
 
 void DlgBPMDetect::slotClearDetected() {
