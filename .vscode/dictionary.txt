@@ -69,6 +69,7 @@ layoutdefault
 libflac
 libjsonnet
 libmad
+libogg
 libsoundtouch
 libtag
 libvorbis

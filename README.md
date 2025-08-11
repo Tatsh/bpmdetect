@@ -28,3 +28,29 @@ Qt Multimedia framework is also used for audio output (testing BPMs).
 All file-loading libraries (flac, libmad, etc) are optional.
 
 [Original project](https://sourceforge.net/projects/bpmdetect/)
+
+## Building
+
+Required dependencies:
+
+- CMake at build time
+- Optional: FLAC 1.4.3 or later
+- Qt 6.7 or later with Gui, LinguistTools, Multimedia, and Widgets
+- SoundTouch 2.3.2 or later
+- TagLib 1.13.1 or later
+- Optional: libmad
+- Optional: libogg 1.3.5 or later
+- Optional: wavpack 5.8.0 or later
+
+```shell
+mkdir build
+cmake ..
+make
+```
+
+To build tests, add `-DBUILD_TESTS=ON`. Add `-DCOVERAGE=ON` to enable coverage (Clang and GCC only).
+
+To enable other libraries, use `-DENABLE_*` flags: FLAC, MP3, VORBIS, WAVPACK.
+
+Translation support has been added but there are currently no translations. This can be enabled with
+`-DI18N=ON`.
