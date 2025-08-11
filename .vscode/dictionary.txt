@@ -64,6 +64,7 @@ interprocedural
 iwyu
 jsonnet
 jsonschema
+jurplel
 kissfft
 layoutdefault
 libflac
@@ -94,7 +95,10 @@ qdroplistview
 qsizetype
 qstringbuilder
 qtbase
+qtgui
+qtlinguisttools
 qtmultimedia
+qtwidgets
 readsamples
 rect
 reflow

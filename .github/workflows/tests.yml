@@ -12,7 +12,11 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y extra-cmake-modules lcov libsoundtouch-dev libtag1-dev qt6-base-dev qt6-multimedia-dev qt6-tools-dev
+          sudo apt-get install -y extra-cmake-modules lcov libsoundtouch-dev libtag1-dev
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          modules: qtmultimedia
       - name: Configure
         run: >-
           cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build
