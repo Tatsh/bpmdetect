@@ -35,11 +35,11 @@ Required dependencies:
 
 - CMake at build time
 - Optional: FLAC 1.4.3 or later
-- Qt 6.7 or later with Gui, LinguistTools, Multimedia, and Widgets
+- Qt 6.7 or later with Gui and Multimedia modules
 - SoundTouch 2.3.2 or later
 - TagLib 1.13.1 or later
 - Optional: libmad
-- Optional: libogg 1.3.5 or later
+- Optional: libvorbis 1.3.7 or later
 - Optional: wavpack 5.8.0 or later
 
 ```shell
