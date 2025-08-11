@@ -195,7 +195,7 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
     } else {
         if (!skipped) {
             // display and save BPM
-            m_pCurItem->setText(0, m_pTrack->strBPM(QString::fromUtf8("000.00")));
+            m_pCurItem->setText(0, m_pTrack->strBPM(QStringLiteral("000.00")));
             if (chbSave->isChecked())
                 m_pTrack->setFormat(cbFormat->currentText());
             if (chbSave->isChecked())
@@ -264,7 +264,7 @@ void DlgBPMDetect::slotAddFiles(QStringList &files) {
     for (int i = 0; i < files.size(); ++i) {
         TrackProxy track(files[i], true);
         QStringList columns;
-        columns << track.strBPM(QString::fromUtf8("000.00"));
+        columns << track.strBPM(QStringLiteral("000.00"));
         columns << track.artist();
         columns << track.title();
         columns << track.strLength();
