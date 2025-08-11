@@ -44,7 +44,7 @@ void ProgressBar::mouseReleaseEvent(QMouseEvent *e) {
             setChange(true);
         else if (change() && e->button() == Qt::LeftButton) {
             setChange(false);
-            emit(positionChanged(static_cast<uint>(value())));
+            emit(positionChanged(static_cast<qint64>(value())));
         }
     }
 }

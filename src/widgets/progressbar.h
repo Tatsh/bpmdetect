@@ -42,7 +42,7 @@ protected Q_SLOTS:
 
 protected:
     /// Current position changed
-    Q_SIGNAL void positionChanged(uint pos);
+    Q_SIGNAL void positionChanged(qint64 pos);
 
 private:
     bool chng;   ///< true if left mouse button is down

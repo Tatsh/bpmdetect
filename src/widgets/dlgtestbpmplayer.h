@@ -23,7 +23,7 @@ public:
 
 protected:
     void run() override;
-    Q_SIGNAL void hasLengthUS(const qint64);
+    Q_SIGNAL void hasLengthUS(qint64);
 
 protected Q_SLOTS:
     void readBuffer();

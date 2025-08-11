@@ -334,7 +334,7 @@ void DlgBPMDetect::slotListMenuPopup(const QPoint &) {
  * @param path path from which the files are added
  * @return QStringList of files with relative paths
  */
-QStringList DlgBPMDetect::filesFromDir(QString path) {
+QStringList DlgBPMDetect::filesFromDir(const QString &path) {
     QDir d(path), f(path);
     QStringList files;
     if (!d.exists(path))
@@ -475,7 +475,7 @@ bool DlgBPMDetect::getStarted() const {
     return m_bStarted;
 }
 
-void DlgBPMDetect::setRecentPath(QString path) {
+void DlgBPMDetect::setRecentPath(const QString &path) {
     m_qRecentPath = path;
 }
 

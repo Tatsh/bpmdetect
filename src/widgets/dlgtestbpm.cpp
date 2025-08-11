@@ -23,11 +23,8 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     m_bpm = bpm;
 
     lblBPM->setText(Track::bpm2str(static_cast<double>(bpm), QStringLiteral("000.00")));
-    connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos(uint)));
-    connect(player,
-            SIGNAL(hasLengthUS(const qint64)),
-            this,
-            SLOT(setTrackPositionLength(const qint64)));
+    connect(trackPosition, SIGNAL(positionChanged(qint64)), this, SLOT(setCustomPos(qint64)));
+    connect(player, SIGNAL(hasLengthUS(qint64)), this, SLOT(setTrackPositionLength(qint64)));
     connect(this, &QDialog::accepted, player, &DlgTestBPMPlayer::stop);
     connect(this, &QDialog::rejected, player, &DlgTestBPMPlayer::stop);
     connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBPM::setNumBeats);
@@ -47,7 +44,7 @@ DlgTestBPM::~DlgTestBPM() {
     player->stop();
 }
 
-void DlgTestBPM::setTrackPositionLength(const qint64 length) {
+void DlgTestBPM::setTrackPositionLength(qint64 length) {
     trackPosition->setLength(static_cast<uint>(length / 1000));
     cbNBeats->setEnabled(true);
     btnPos1->setEnabled(true);
@@ -85,7 +82,7 @@ void DlgTestBPM::setPos4() {
     trackPosition->setPosition(msec);
 }
 
-void DlgTestBPM::setCustomPos(uint msec) {
+void DlgTestBPM::setCustomPos(qint64 msec) {
     Q_UNUSED(msec)
     player->update(cbNBeats->currentText().toUInt(), trackPosition->value() * 1000);
 }

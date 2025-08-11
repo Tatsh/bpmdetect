@@ -23,7 +23,7 @@ public Q_SLOTS:
 
 protected:
     /// List of files from directory (including files from subdirectories)
-    QStringList filesFromDir(QString path);
+    QStringList filesFromDir(const QString &path);
     void enableControls(bool enable);
 
     void loadSettings();
@@ -31,7 +31,7 @@ protected:
 
     void setStarted(bool started);
     bool getStarted() const;
-    void setRecentPath(QString path);
+    void setRecentPath(const QString &path);
     QString getRecentPath() const;
 
 protected Q_SLOTS:

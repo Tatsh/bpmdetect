@@ -24,11 +24,11 @@ protected Q_SLOTS:
     void setPos2();
     void setPos3();
     void setPos4();
-    void setCustomPos(uint msec);
+    void setCustomPos(qint64 msec);
     /// Set number of beats to loop
     void setNumBeats(const QString &s);
     void slotUpdateBpmList();
-    void setTrackPositionLength(const qint64);
+    void setTrackPositionLength(qint64);
 
 private:
     DlgTestBPMPlayer *player;
