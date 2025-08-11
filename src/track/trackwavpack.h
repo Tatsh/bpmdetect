@@ -7,21 +7,21 @@
 
 class TrackWavpack : public Track {
 public:
-    TrackWavpack(const char *filename, bool readtags = true);
+    TrackWavpack(const QString &filename, bool readtags = true);
     ~TrackWavpack() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(uint ms) override;
-    uint currentPos() override;
+    void seek(qint64 ms) override;
+    qint64 currentPos() override;
     int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
 
-    void storeBPM(std::string sBPM) override;
+    void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 
 private:
     WavpackContext *wpc = nullptr;
-    unsigned long long m_iCurPosPCM;
+    qint64 m_iCurPosPCM;
 };

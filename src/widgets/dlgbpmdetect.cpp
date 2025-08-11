@@ -68,7 +68,7 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
 
     connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
 
-    m_pTrack = new TrackProxy("");
+    m_pTrack = new TrackProxy(QStringLiteral(""));
     m_pTrack->enableConsoleProgress(false);
 
     connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
@@ -194,9 +194,9 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
     } else {
         if (!skipped) {
             // display and save BPM
-            m_pCurItem->setText(0, QString::fromStdString(m_pTrack->strBPM("000.00")));
+            m_pCurItem->setText(0, m_pTrack->strBPM(QString::fromUtf8("000.00")));
             if (chbSave->isChecked())
-                m_pTrack->setFormat(cbFormat->currentText().toStdString());
+                m_pTrack->setFormat(cbFormat->currentText());
             if (chbSave->isChecked())
                 m_pTrack->saveBPM();
         }
@@ -241,7 +241,7 @@ void DlgBPMDetect::slotDetectNext(bool skipped) {
     m_pProgress->setMaximum(1000);
     m_pProgress->setMaximumHeight(15);
     TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, m_pProgress);
-    m_pTrack->setFilename(file.toLocal8Bit().constData());
+    m_pTrack->setFilename(file);
     m_pTrack->setRedetect(!chbSkipScanned->isChecked());
     m_pTrack->startDetection();
 }
@@ -261,12 +261,12 @@ void DlgBPMDetect::slotAddFiles(QStringList &files) {
         TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
     for (int i = 0; i < files.size(); ++i) {
-        TrackProxy track(files[i].toLocal8Bit().constData(), true);
+        TrackProxy track(files[i], true);
         QStringList columns;
-        columns << QString::fromLocal8Bit(track.strBPM("000.00").c_str());
-        columns << QString::fromLocal8Bit(track.artist().c_str());
-        columns << QString::fromLocal8Bit(track.title().c_str());
-        columns << QString::fromLocal8Bit(track.strLength().c_str());
+        columns << track.strBPM(QString::fromUtf8("000.00"));
+        columns << track.artist();
+        columns << track.title();
+        columns << track.strLength();
         columns << QStringLiteral("");
         columns << files.at(i);
         if (!getStarted()) {
@@ -343,13 +343,11 @@ QStringList DlgBPMDetect::filesFromDir(QString path) {
     QString nameFilters = QStringLiteral("*.wav:*.mp3:*.ogg:*.flac");
     f.setNameFilters(nameFilters.split(QChar::fromLatin1(':')));
 
-    QStringList dirs = d.entryList();
+    QStringList dirs = d.entryList(QDir::NoDotAndDotDot);
     files = f.entryList();
 
     for (int i = 0; i < dirs.size(); ++i) {
         QString cdir = dirs[i];
-        if (cdir == QStringLiteral(".") || cdir == QStringLiteral(".."))
-            continue;
         QStringList dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
         for (int j = 0; j < dfiles.size(); ++j) {
             files.append(cdir + QStringLiteral("/") + dfiles[j]);
@@ -432,9 +430,9 @@ void DlgBPMDetect::slotSaveBPM() {
 
     for (int i = 0; i < items.size(); ++i) {
         QTreeWidgetItem *item = items.at(i);
-        TrackProxy track(item->text(TrackList->columnCount() - 1).toLocal8Bit().data());
+        TrackProxy track(item->text(TrackList->columnCount() - 1));
         track.setBPM(item->text(0).toDouble());
-        track.setFormat(cbFormat->currentText().toStdString());
+        track.setFormat(cbFormat->currentText());
         track.saveBPM();
     }
 }
@@ -454,7 +452,7 @@ void DlgBPMDetect::slotClearBPM() {
 
     for (int i = 0; i < items.size(); ++i) {
         QTreeWidgetItem *item = items.at(i);
-        TrackProxy track(item->text(TrackList->columnCount() - 1).toLocal8Bit().data());
+        TrackProxy track(item->text(TrackList->columnCount() - 1));
         track.clearBPM();
         item->setText(0, QStringLiteral("000.00"));
     }

@@ -9,7 +9,7 @@
 using namespace std;
 using namespace soundtouch;
 
-TrackWavpack::TrackWavpack(const char *filename, bool readtags) : Track() {
+TrackWavpack::TrackWavpack(const QString &filename, bool readtags) : Track() {
     setFilename(filename, readtags);
 }
 
@@ -18,24 +18,24 @@ TrackWavpack::~TrackWavpack() {
 }
 
 void TrackWavpack::readTags() {
-    string fname = filename();
-    string sbpm = "000.00";
-    TagLib::WavPack::File f(fname.c_str(), false);
+    auto fname = filename();
+    auto sbpm = QString::fromUtf8("000.00");
+    TagLib::WavPack::File f(fname.toUtf8().constData(), false);
     auto ape = f.APETag();
     TagLib::Tag *tag = f.tag();
     if (tag != NULL) {
-        setArtist(tag->artist().toCString());
-        setTitle(tag->title().toCString());
+        setArtist(QString::fromUtf8(tag->artist().toCString(true)));
+        setTitle(QString::fromUtf8(tag->title().toCString(true)));
     }
     if (ape != NULL) {
-        auto bpm = ape->itemListMap()["BPM"].toString().to8Bit();
+        auto bpm = QString::fromUtf8(ape->itemListMap()["BPM"].toString().toCString(true));
         if (bpm.length() > 0) {
             sbpm = bpm;
         }
     }
     // set filename (without path) as title if the title is empty
-    if (title().empty())
-        setTitle(fname.substr(fname.find_last_of("/") + 1));
+    if (title().isEmpty())
+        setTitle(fname.mid(fname.lastIndexOf(QLatin1Char('/')) + 1));
     setBPM(str2bpm(sbpm));
 }
 
@@ -43,9 +43,11 @@ void TrackWavpack::open() {
     close();
     m_iCurPosPCM = 0;
 
-    string fname = filename();
-    wpc = WavpackOpenFileInput(
-        fname.c_str(), nullptr, OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8, 0);
+    auto fname = filename();
+    wpc = WavpackOpenFileInput(fname.toUtf8().constData(),
+                               nullptr,
+                               OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
+                               0);
     if (wpc == nullptr) {
 #ifndef NDEBUG
         cerr << "TrackWavpack: can not open file" << endl;
@@ -76,10 +78,9 @@ void TrackWavpack::close() {
     }
 }
 
-void TrackWavpack::seek(uint ms) {
+void TrackWavpack::seek(qint64 ms) {
     if (isValid() && wpc != nullptr) {
-        unsigned long long pos = static_cast<unsigned long long>(
-            (static_cast<uint>(ms) * static_cast<uint>(samplerate())) / 1000);
+        auto pos = ms * samplerate() / 1000;
         if (WavpackSeekSample64(wpc, static_cast<int64_t>(pos))) {
             m_iCurPosPCM = pos;
         } else {
@@ -88,11 +89,10 @@ void TrackWavpack::seek(uint ms) {
     }
 }
 
-uint TrackWavpack::currentPos() {
+qint64 TrackWavpack::currentPos() {
     if (wpc == nullptr)
         return 0;
-    return static_cast<uint>((m_iCurPosPCM * 1000ULL) /
-                             static_cast<unsigned long long>(samplerate()));
+    return (m_iCurPosPCM * 1000) / samplerate();
 }
 
 int TrackWavpack::readSamples(std::span<SAMPLETYPE> buffer) {
@@ -105,8 +105,8 @@ int TrackWavpack::readSamples(std::span<SAMPLETYPE> buffer) {
         wpc, reinterpret_cast<int32_t *>(buffer.data()), static_cast<uint32_t>(num / sbytes)));
     // Handle non-float samples.
     if (!(WavpackGetMode(wpc) & MODE_FLOAT)) {
-        int32_t *nativeBuffer = reinterpret_cast<int32_t *>(buffer.data());
-        const unsigned int bufferSize = samplesRead * static_cast<unsigned int>(channels());
+        const auto nativeBuffer = reinterpret_cast<int32_t *>(buffer.data());
+        const auto bufferSize = samplesRead * static_cast<unsigned int>(channels());
         const auto bitsPerSample = WavpackGetBytesPerSample(wpc) * 8;
         for (unsigned int index = 0; index < bufferSize; index++) {
             buffer[index] = static_cast<float>(nativeBuffer[index]) /
@@ -117,16 +117,16 @@ int TrackWavpack::readSamples(std::span<SAMPLETYPE> buffer) {
     return static_cast<int>(samplesRead);
 }
 
-void TrackWavpack::storeBPM(string sBPM) {
+void TrackWavpack::storeBPM(const QString &sBPM) {
     bool wasNull = wpc == nullptr;
     if (wasNull) {
-        wpc = WavpackOpenFileInput(filename().c_str(),
+        wpc = WavpackOpenFileInput(filename().toUtf8().constData(),
                                    nullptr,
                                    OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                    0);
     }
-    int ret = WavpackAppendTagItem(wpc, "bpm", sBPM.c_str(), static_cast<int>(sBPM.length()));
-    ret = WavpackWriteTag(wpc);
+    WavpackAppendTagItem(wpc, "bpm", sBPM.toUtf8().constData(), static_cast<int>(sBPM.length()));
+    WavpackWriteTag(wpc);
     if (wasNull) {
         WavpackCloseFile(wpc);
         wpc = nullptr;
@@ -136,7 +136,7 @@ void TrackWavpack::storeBPM(string sBPM) {
 void TrackWavpack::removeBPM() {
     bool wasNull = wpc == nullptr;
     if (wasNull) {
-        wpc = WavpackOpenFileInput(filename().c_str(),
+        wpc = WavpackOpenFileInput(filename().toUtf8().constData(),
                                    nullptr,
                                    OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                    0);

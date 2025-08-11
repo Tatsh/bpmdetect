@@ -36,10 +36,10 @@ void display_help() {
            "\n");
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
     bool console = false, redetect = false, bpmsave = false, clear = false, bformat = false,
          progress = true;
-    string format;
+    QString format;
 
     static struct option long_options[] = {
 #ifndef NO_GUI
@@ -82,17 +82,17 @@ int main(int argc, char **argv) {
             break;
         case 'f':
             bformat = true;
-            format = optarg;
+            format = QString::fromUtf8(optarg);
             break;
         case 'n':
-            val = atoi(optarg);
+            val = std::stoi(std::string(optarg));
             Track::setMinBPM(val);
 #ifdef DEBUG
             cerr << "Min BPM set to " << Track::getMinBPM() << endl;
 #endif
             break;
         case 'x':
-            val = atoi(optarg);
+            val = std::stoi(std::string(optarg));
             Track::setMaxBPM(val);
 #ifdef DEBUG
             cerr << "Max BPM set to " << Track::getMaxBPM() << endl;
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
         if (console) {
             if (optind != argc - 1)
                 qDebug() << "[" << idx + 1 - optind << "/" << argc - optind << "] " << argv[idx];
-            TrackProxy track(argv[idx]);
+            TrackProxy track(QString::fromUtf8(argv[idx]));
             if (!clear) {
                 track.enableConsoleProgress(progress);
                 track.setRedetect(redetect);
@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
             }
         } else {
 #ifndef NO_GUI
-            filelist += QString::fromLocal8Bit(argv[idx]);
+            filelist += QString::fromUtf8(argv[idx]);
 #endif // NO_GUI
         }
     }

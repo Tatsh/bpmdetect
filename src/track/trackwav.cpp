@@ -12,25 +12,22 @@
 
 #include "trackwav.h"
 
-static const char riffStr[] = "RIFF";
-static const char waveStr[] = "WAVE";
 static const char fmtStr[] = "fmt ";
 static const char dataStr[] = "data";
 
 using namespace std;
 using namespace soundtouch;
 
-static bool isAlphaStr(char *str) {
-    for (int i = 0; str[i] != '\0'; i++) {
-        if (!isalpha(str[i]))
+static bool isAlphaStr(const std::string &str) {
+    for (char c : str) {
+        if (!isalpha(static_cast<unsigned char>(c)))
             return false;
     }
     return true;
 }
 
-TrackWav::TrackWav(const char *fname, bool readtags) : Track() {
+TrackWav::TrackWav(const QString &fname, bool readtags) : Track() {
     m_iCurPosBytes = 0;
-    fptr = nullptr;
     setFilename(fname, readtags);
 }
 
@@ -40,12 +37,13 @@ TrackWav::~TrackWav() {
 
 void TrackWav::open() {
     close();
-    string fname = filename();
+    auto fname = filename();
 
     // Try to open the file for reading
-    fptr = fopen(fname.c_str(), "rb");
-    if (fptr == NULL)
+    fptr.setFileName(fname);
+    if (!fptr.open(QIODevice::ReadOnly)) {
         return;
+    }
 
     // Read the file headers
     int hdrsOk = readWavHeaders();
@@ -82,23 +80,20 @@ void TrackWav::open() {
 }
 
 void TrackWav::close() {
-    if (fptr)
-        fclose(fptr);
-    fptr = NULL;
+    if (fptr.isOpen()) {
+        fptr.close();
+    }
     m_iCurPosBytes = 0;
     setOpened(false);
 }
 
-void TrackWav::seek(uint ms) {
+void TrackWav::seek(qint64 ms) {
     if (isValid()) {
-        fseek(fptr, 0, SEEK_SET);
-        unsigned long long pos =
-            (static_cast<unsigned long long>(ms) * static_cast<unsigned long long>(samplerate()) *
-             static_cast<unsigned long long>(sampleBytes())) /
-            1000ULL;
+        fptr.seek(0);
+        auto pos = (ms * samplerate() * sampleBytes()) / 1000;
         int hdrsOk = readWavHeaders();
         assert(hdrsOk == 0);
-        fseek(fptr, static_cast<long>(pos), SEEK_CUR);
+        fptr.seek(pos);
         m_iCurPosBytes = pos;
 #ifdef DEBUG
     } else {
@@ -107,13 +102,10 @@ void TrackWav::seek(uint ms) {
     }
 }
 
-uint TrackWav::currentPos() {
+qint64 TrackWav::currentPos() {
     if (isValid()) {
-        unsigned long long pos = 1000ULL * m_iCurPosBytes /
-                                 (static_cast<unsigned long long>(samplerate()) *
-                                  static_cast<unsigned long long>(channels()) *
-                                  static_cast<unsigned long long>(sampleBytes()));
-        return static_cast<uint>(pos);
+        auto pos = 1000 * m_iCurPosBytes / (samplerate() * channels() * sampleBytes());
+        return pos;
     }
     return 0;
 }
@@ -121,72 +113,67 @@ uint TrackWav::currentPos() {
 /**
  * Read @a num samples into @a buffer
  * @param buffer pointer to buffer
- * @param num number of samples (per channel)
  * @return number of read samples
  */
 int TrackWav::readSamples(std::span<soundtouch::SAMPLETYPE> buffer) {
     if (!isValid())
         return -1;
-
-    int nread = read(buffer.data(), buffer.size());
-    return nread;
+    return static_cast<int>(read(buffer));
 }
 
-int TrackWav::read(char *buffer, size_t maxElems) {
-    unsigned long long numBytes;
-    unsigned long long afterDataRead;
+qint64 TrackWav::read(std::span<char> buffer) {
+    auto maxElems = buffer.size();
+    qint64 numBytes;
+    qint64 afterDataRead;
 
     // ensure it's 8 bit format
     if (header.format.bits_per_sample != 8) {
         return -1;
     }
-    assert(sizeof(char) == 1);
 
-    numBytes = maxElems;
+    numBytes = static_cast<qint64>(maxElems);
     afterDataRead = m_iCurPosBytes + numBytes;
     if (afterDataRead > header.data.data_len) {
         // Do not read more samples than are marked available in header
         numBytes = header.data.data_len - m_iCurPosBytes;
         assert(numBytes >= 0);
     }
+    auto bytesRead = fptr.read(buffer.data(), numBytes);
+    m_iCurPosBytes += bytesRead;
 
-    size_t bytesRead = fread(buffer, 1, static_cast<size_t>(numBytes), fptr);
-    m_iCurPosBytes += static_cast<unsigned long long>(bytesRead);
-
-    return static_cast<int>(bytesRead);
+    return bytesRead;
 }
 
-int TrackWav::read(short *buffer, size_t maxElems) {
-    unsigned long long afterDataRead;
+qint64 TrackWav::read(std::span<short> buffer) {
+    auto maxElems = buffer.size();
+    qint64 afterDataRead;
     int numBytes;
-    int numElems;
+    qint64 numElems;
 
     if (header.format.bits_per_sample == 8) {
         // 8 bit format
-        char *temp = new char[maxElems];
-        int i;
+        QList<char> temp(static_cast<qsizetype>(maxElems));
 
-        numElems = read(temp, maxElems);
+        numElems = read(std::span(temp.data(), temp.size()));
         // convert from 8 to 16 bit
-        for (i = 0; i < numElems; i++) {
+        for (size_t i = 0; i < static_cast<size_t>(numElems); i++) {
             buffer[i] = static_cast<short>(temp[i] << 8);
         }
-        delete[] temp;
     } else {
         // 16 bit format
         assert(header.format.bits_per_sample == 16);
         assert(sizeof(short) == 2);
 
         numBytes = static_cast<int>(maxElems * 2);
-        afterDataRead = m_iCurPosBytes + static_cast<unsigned long long>(numBytes);
+        afterDataRead = m_iCurPosBytes + numBytes;
         if (afterDataRead > header.data.data_len) {
             // Don't read more samples than are marked available in header
             numBytes = static_cast<int>(header.data.data_len - m_iCurPosBytes);
             assert(numBytes >= 0);
         }
 
-        size_t bytesRead = fread(buffer, 1, static_cast<size_t>(numBytes), fptr);
-        m_iCurPosBytes += static_cast<unsigned long long>(bytesRead);
+        auto bytesRead = fptr.read(reinterpret_cast<char *>(buffer.data()), numBytes);
+        m_iCurPosBytes += bytesRead;
         numElems = static_cast<int>(bytesRead / 2);
 
         // 16bit samples, swap byte order if necessary
@@ -197,27 +184,25 @@ int TrackWav::read(short *buffer, size_t maxElems) {
     return numElems;
 }
 
-int TrackWav::read(float *buffer, size_t maxElems) {
-    short *temp = new short[maxElems];
-    int num;
+qint64 TrackWav::read(std::span<float> buffer) {
+    auto maxElems = buffer.size();
+    QList<short> temp(static_cast<qsizetype>(maxElems));
+    qint64 num;
     int i;
-    double fscale;
+    auto fscale = 1.0 / SAMPLE_MAXVALUE;
 
-    num = read(temp, maxElems);
-
-    fscale = 1.0 / SAMPLE_MAXVALUE;
+    num = read(std::span<short>(temp.data(), temp.size()));
     // convert to floats, scale to range [-1..+1[
     for (i = 0; i < num; i++) {
         buffer[i] = static_cast<float>(fscale * static_cast<double>(temp[i]));
     }
 
-    delete[] temp;
     return num;
 }
 
-void TrackWav::storeBPM(string format) {
-    string fname = filename();
-    string sBPM = bpm2str(getBPM(), format);
+void TrackWav::storeBPM(const QString &format) {
+    auto fname = filename();
+    auto sBPM = bpm2str(getBPM(), format);
     close();
     /*
     TagLib::MPEG::File f( fname.c_str(), false );
@@ -240,8 +225,8 @@ void TrackWav::storeBPM(string format) {
 }
 
 void TrackWav::readTags() {
-    string fname = filename();
-    string sbpm = "000.00";
+    auto fname = filename();
+    auto sbpm = QString::fromUtf8("000.00");
     /*
       TagLib::MPEG::File f(fname.c_str(), false);
       long pos = f.rfind("ID3", TagLib::File::End);
@@ -258,34 +243,34 @@ void TrackWav::readTags() {
       }
     */
     // set filename (without path) as title if the title is empty
-    if (title().empty())
-        setTitle(fname.substr(fname.find_last_of("/") + 1));
+    if (title().isEmpty())
+        setTitle(fname.mid(fname.lastIndexOf(QLatin1Char('/')) + 1));
     setBPM(str2bpm(sbpm));
     open();
 }
 
 void TrackWav::removeBPM() {
-    string fname = filename();
+    auto fname = filename();
     close();
     // TODO
     open();
 }
 
 int TrackWav::readRIFFBlock() {
-    size_t read = fread(&(header.riff), sizeof(WavRiff), 1, fptr);
+    auto read = fptr.read(reinterpret_cast<char *>(&header.riff), sizeof(WavRiff));
     assert(read > 0);
 
     // swap 32bit data byte order if necessary
     header.riff.package_len = qToLittleEndian(header.riff.package_len);
 
-    // header.riff.riff_char should equal to 'RIFF');
-    if (memcmp(riffStr, header.riff.riff_char, 4) != 0)
-        return -1;
-    // header.riff.wave should equal to 'WAVE'
-    if (memcmp(waveStr, header.riff.wave, 4) != 0)
-        return -1;
+    if (header.riff.riff_char[0] == 'R' && header.riff.riff_char[1] == 'I' &&
+        header.riff.riff_char[2] == 'F' && header.riff.riff_char[3] == 'F' &&
+        header.riff.wave[0] == 'W' && header.riff.wave[1] == 'A' && header.riff.wave[2] == 'V' &&
+        header.riff.wave[3] == 'E') {
+        return 0;
+    }
 
-    return 0;
+    return -1;
 }
 
 int TrackWav::readHeaderBlock() {
@@ -293,11 +278,11 @@ int TrackWav::readHeaderBlock() {
     string sLabel;
 
     // lead label string
-    size_t read = fread(label, 1, 4, fptr);
+    auto read = fptr.read(label, 4);
     assert(read > 0);
     label[4] = 0;
 
-    if (!isAlphaStr(label))
+    if (!isAlphaStr(std::string(label)))
         return -1; // not a valid label
 
     // Decode blocks according to their label
@@ -308,7 +293,7 @@ int TrackWav::readHeaderBlock() {
         memcpy(header.format.fmt, fmtStr, 4);
 
         // read length of the format field
-        size_t read_len = fread(&nLen, sizeof(int), 1, fptr);
+        auto read_len = fptr.read(reinterpret_cast<char *>(&nLen), sizeof(int));
         assert(read_len > 0);
         // swap byte order if necessary
         nLen = qToLittleEndian(nLen); // int format_len;
@@ -323,7 +308,7 @@ int TrackWav::readHeaderBlock() {
         }
 
         // read data
-        read_len = fread(&(header.format.fixed), static_cast<size_t>(nLen), 1, fptr);
+        read_len = fptr.read(reinterpret_cast<char *>(&(header.format.fixed)), nLen);
         assert(read_len > 0);
 
         // swap byte order if necessary
@@ -338,14 +323,14 @@ int TrackWav::readHeaderBlock() {
 
         // if format_len is larger than expected, skip the extra data
         if (nDump > 0) {
-            fseek(fptr, nDump, SEEK_CUR);
+            fptr.skip(nDump);
         }
 
         return 0;
     } else if (strcmp(label, dataStr) == 0) {
         // 'data' block
         memcpy(header.data.data_field, dataStr, 4);
-        read = fread(&(header.data.data_len), sizeof(uint), 1, fptr);
+        read = fptr.read(reinterpret_cast<char *>(&(header.data.data_len)), sizeof(uint));
         assert(read > 0);
 
         // swap byte order if necessary
@@ -358,13 +343,13 @@ int TrackWav::readHeaderBlock() {
         // unknown block
 
         // read length
-        read = fread(&len, sizeof(len), 1, fptr);
+        read = fptr.read(reinterpret_cast<char *>(&len), sizeof(len));
         assert(read > 0);
         // scan through the block
         for (i = 0; i < len; i++) {
-            read = fread(&temp, 1, 1, fptr);
+            read = fptr.read(reinterpret_cast<char *>(&temp), 1);
             assert(read > 0);
-            if (feof(fptr))
+            if (fptr.atEnd())
                 return -1; // unexpected eof
         }
     }

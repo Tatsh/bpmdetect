@@ -32,10 +32,10 @@ public:
         TYPE_FLAC = 4,
         TYPE_WAVPACK = 5,
     };
-    /// Convert std::string to BPM
-    static double str2bpm(std::string sBPM);
-    /// Convert BPM to std::string using selected format
-    static std::string bpm2str(double dBPM, std::string format = "0.00");
+    /// Convert QString to BPM
+    static double str2bpm(const QString &sBPM);
+    /// Convert BPM to QString using selected format
+    static QString bpm2str(double dBPM, QString format = QStringLiteral("0.00"));
     static void setMinBPM(double dMin);
     static void setMaxBPM(double dMax);
     static double getMinBPM();
@@ -46,37 +46,36 @@ public:
     virtual void clearBPM();
     virtual double detectBPM();
     virtual void saveBPM();
-    virtual void printBPM();
+    virtual void printBPM() const;
     virtual void setBPM(double dBPM);
     virtual double getBPM() const;
-    virtual std::string strBPM();
-    virtual std::string strBPM(std::string format);
+    virtual QString strBPM() const;
+    virtual QString strBPM(const QString &format) const;
 
-    virtual void setFilename(const char *filename, bool readtags = true);
-    void setFilename(std::string filename, bool readtags = true);
-    virtual std::string filename() const;
+    virtual void setFilename(const QString &filename, bool readtags = true);
+    virtual QString filename() const;
 
     /// Get track length in miliseconds
     virtual unsigned int length() const;
-    virtual std::string strLength();
+    virtual QString strLength();
     virtual bool isValid() const;
     virtual bool isOpened() const;
-    virtual std::string artist() const;
-    virtual std::string title() const;
+    virtual QString artist() const;
+    virtual QString title() const;
     virtual void setRedetect(bool redetect);
     virtual bool redetect() const;
     virtual double progress() const;
-    virtual void setFormat(std::string format = "0.00");
-    virtual std::string format() const;
+    virtual void setFormat(QString format = QStringLiteral("0.00"));
+    virtual QString format() const;
     virtual void enableConsoleProgress(bool enable = true);
 
     /// Stop detection if running
     virtual void stop();
 
-    virtual void setStartPos(uint ms);
-    virtual uint startPos() const;
-    virtual void setEndPos(uint ms);
-    virtual uint endPos() const;
+    virtual void setStartPos(qint64 ms);
+    virtual qint64 startPos() const;
+    virtual void setEndPos(qint64 ms);
+    virtual qint64 endPos() const;
     virtual int samplerate() const;
     virtual int sampleBytes() const;
     virtual int sampleBits() const;
@@ -97,22 +96,22 @@ protected:
         setOpened(false);
     }
     /// Seek to @a ms miliseconds
-    virtual void seek(uint ms) = 0;
+    virtual void seek(qint64 ms) = 0;
     /// Return the current position from which samples will be read (miliseconds)
-    virtual uint currentPos() = 0;
+    virtual qint64 currentPos() = 0;
     /// Read @a num samples from current position into @a buffer
     virtual int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) = 0;
     /// Store @a sBPM into tag
-    virtual void storeBPM(std::string sBPM) = 0;
+    virtual void storeBPM(const QString &sBPM) = 0;
     /// Remove BPM from tag
     virtual void removeBPM() = 0;
 
     void init();
-    double correctBPM(double dBPM);
+    double correctBPM(double dBPM) const;
     void setValid(bool bValid);
     void setOpened(bool opened);
-    void setArtist(std::string artist);
-    void setTitle(std::string title);
+    void setArtist(const QString &artist);
+    void setTitle(const QString &title);
     void setLength(unsigned int msec);
     void setSamplerate(int samplerate);
     void setSampleBytes(int bytes);
@@ -121,19 +120,19 @@ protected:
     void setProgress(double progress);
 
 private:
-    std::string m_sFilename;
-    std::string m_sArtist;
-    std::string m_sTitle;
+    QString m_sFilename;
+    QString m_sArtist;
+    QString m_sTitle;
     double m_dBPM;
     double m_dProgress;
     int m_iSamplerate;
     int m_iSampleBytes;
     int m_iChannels;
     uint m_iLength;
-    uint m_iStartPos;
-    uint m_iEndPos;
+    qint64 m_iStartPos;
+    qint64 m_iEndPos;
     TRACKTYPE m_eType;
-    std::string m_sBPMFormat;
+    QString m_sBPMFormat;
     bool m_bValid;
     bool m_bRedetect;
     bool m_bStop;

@@ -17,11 +17,11 @@ bool Track::_bLimit = false;
 Track::Track() {
     init();
     enableConsoleProgress(false);
-    setFilename("", false);
+    setFilename(QStringLiteral(""), false);
 }
 
 Track::~Track() {
-    setFilename("");
+    setFilename(QStringLiteral(""));
 }
 
 void Track::init() {
@@ -76,51 +76,40 @@ bool Track::getLimit() {
     return _bLimit;
 }
 
-double Track::str2bpm(string sBPM) {
-    double BPM = std::stod(sBPM);
+double Track::str2bpm(const QString &sBPM) {
+    auto BPM = sBPM.toDouble();
     while (BPM > 300)
         BPM = BPM / 10;
     return BPM;
 }
 
-string Track::bpm2str(double dBPM, string format) {
-    const uint BPM_LEN = 10;
-    char buffer[BPM_LEN];
-
-    if (format == "0.0") {
-        snprintf(buffer, BPM_LEN, "%.1f", dBPM);
-    } else if (format == "0") {
-        snprintf(buffer, BPM_LEN, "%d", static_cast<int>(dBPM));
-    } else if (format == "000.00") {
-        snprintf(buffer, BPM_LEN, "%06.2f", dBPM);
-    } else if (format == "000.0") {
-        snprintf(buffer, BPM_LEN, "%05.1f", dBPM);
-    } else if (format == "000") {
-        snprintf(buffer, BPM_LEN, "%03d", static_cast<int>(dBPM));
-    } else if (format == "00000") {
-        snprintf(buffer, BPM_LEN, "%05d", static_cast<int>(dBPM * 100));
-    } else { // all other formats are converted to "0.00"
-        snprintf(buffer, BPM_LEN, "%.2f", dBPM);
+QString Track::bpm2str(double dBPM, QString format) {
+    if (format == QStringLiteral("0.0")) {
+        return QString::number(dBPM, 'f', 1);
+    } else if (format == QStringLiteral("0")) {
+        return QString::number(dBPM, 'd', 0);
+    } else if (format == QStringLiteral("000.00")) {
+        return QString::number(dBPM, 'f', 2).rightJustified(6, QLatin1Char('0'));
+    } else if (format == QStringLiteral("000.0")) {
+        return QString::number(dBPM, 'f', 1).rightJustified(5, QLatin1Char('0'));
+    } else if (format == QStringLiteral("000")) {
+        return QString::number(dBPM, 'd', 0).rightJustified(3, QLatin1Char('0'));
+    } else if (format == QStringLiteral("00000")) {
+        return QString::number(dBPM, 'd', 0).rightJustified(5, QLatin1Char('0'));
     }
-
-    string sBPM = buffer;
-    return sBPM;
+    // all other formats are converted to "0.00"
+    return QString::number(dBPM, 'g', 2);
 }
 
-string Track::strBPM() {
+QString Track::strBPM() const {
     return bpm2str(getBPM(), format());
 }
 
-string Track::strBPM(string format) {
+QString Track::strBPM(const QString &format) const {
     return bpm2str(getBPM(), format);
 }
 
-void Track::setFilename(const char *filename, bool readtags) {
-    string strfname = filename;
-    setFilename(strfname, readtags);
-}
-
-void Track::setFilename(string filename, bool readtags) {
+void Track::setFilename(const QString &filename, bool readtags) {
 #ifndef NO_GUI
     if (isRunning()) {
 #ifdef DEBUG
@@ -134,14 +123,14 @@ void Track::setFilename(string filename, bool readtags) {
     close();
     init();
     m_sFilename = filename;
-    if (!filename.empty()) {
+    if (!filename.isEmpty()) {
         readInfo();
         if (readtags)
             readTags();
     }
 }
 
-string Track::filename() const {
+QString Track::filename() const {
     return m_sFilename;
 }
 
@@ -161,11 +150,11 @@ bool Track::isOpened() const {
     return m_bOpened;
 }
 
-void Track::setFormat(string format) {
+void Track::setFormat(QString format) {
     m_sBPMFormat = format;
 }
 
-string Track::format() const {
+QString Track::format() const {
     return m_sBPMFormat;
 }
 
@@ -177,19 +166,19 @@ double Track::getBPM() const {
     return m_dBPM;
 }
 
-void Track::setArtist(string artist) {
+void Track::setArtist(const QString &artist) {
     m_sArtist = artist;
 }
 
-string Track::artist() const {
+QString Track::artist() const {
     return m_sArtist;
 }
 
-void Track::setTitle(string title) {
+void Track::setTitle(const QString &title) {
     m_sTitle = title;
 }
 
-string Track::title() const {
+QString Track::title() const {
     return m_sTitle;
 }
 
@@ -201,33 +190,33 @@ bool Track::redetect() const {
     return m_bRedetect;
 }
 
-void Track::setStartPos(uint ms) {
+void Track::setStartPos(qint64 ms) {
     if (ms > length())
         return;
     m_iStartPos = ms;
     if (m_iEndPos < m_iStartPos) {
-        uint tmp = m_iEndPos;
+        auto tmp = m_iEndPos;
         m_iEndPos = m_iStartPos;
         m_iStartPos = tmp;
     }
 }
 
-uint Track::startPos() const {
+qint64 Track::startPos() const {
     return m_iStartPos;
 }
 
-void Track::setEndPos(uint ms) {
+void Track::setEndPos(qint64 ms) {
     if (ms > length())
         return;
     m_iEndPos = ms;
     if (m_iEndPos < m_iStartPos) {
-        uint tmp = m_iEndPos;
+        qint64 tmp = m_iEndPos;
         m_iEndPos = m_iStartPos;
         m_iStartPos = tmp;
     }
 }
 
-uint Track::endPos() const {
+qint64 Track::endPos() const {
     return m_iEndPos;
 }
 
@@ -302,7 +291,7 @@ void Track::setLength(unsigned int msec) {
     m_iLength = msec;
 }
 
-string Track::strLength() {
+QString Track::strLength() {
     uint len = length();
 
     uint csecs = len / 10;
@@ -311,15 +300,13 @@ string Track::strLength() {
     uint mins = secs / 60;
     secs = secs % 60;
 
-    const uint TIME_LEN = 20;
-    char buffer[TIME_LEN];
-    snprintf(buffer, TIME_LEN, "%d:%02d", static_cast<int>(mins), static_cast<int>(secs));
-    string timestr = buffer;
-    return timestr;
+    return QString::fromUtf8("%1:%2")
+        .arg(mins, 2, 10, QLatin1Char('0'))
+        .arg(secs, 2, 10, QLatin1Char('0'));
 }
 
 void Track::saveBPM() {
-    string sBPM = bpm2str(getBPM(), format());
+    auto sBPM = bpm2str(getBPM(), format());
     storeBPM(sBPM);
 }
 
@@ -329,7 +316,7 @@ void Track::clearBPM() {
 }
 
 void Track::readInfo() {
-    TagLib::FileRef f(filename().c_str());
+    TagLib::FileRef f(filename().toUtf8().constData());
 
     TagLib::AudioProperties *ap = nullptr;
     if (!f.isNull())
@@ -348,7 +335,7 @@ void Track::readInfo() {
  * if value is lower than min or greater than max
  * @return corrected BPM
  */
-double Track::correctBPM(double dBPM) {
+double Track::correctBPM(double dBPM) const {
     double min = getMinBPM();
     double max = getMaxBPM();
 
@@ -361,7 +348,7 @@ double Track::correctBPM(double dBPM) {
 
     if (_bLimit && dBPM > max) {
 #ifdef DEBUG
-        cerr << "BPM not within the limit: " << dBPM << " (" << min << ", " << max << ")" << endl;
+        qDebug() << "BPM not within the limit: " << dBPM << " (" << min << ", " << max << ")";
 #endif
         dBPM = 0.;
     }
@@ -370,8 +357,8 @@ double Track::correctBPM(double dBPM) {
 }
 
 /// Print BPM to stdout
-void Track::printBPM() {
-    cout << bpm2str(getBPM(), format()) << " BPM" << endl;
+void Track::printBPM() const {
+    std::cout << bpm2str(getBPM(), format()).toStdString() << " BPM" << endl;
 }
 
 /**
@@ -410,17 +397,17 @@ double Track::detectBPM() {
     }
     SAMPLETYPE samples[NUMSAMPLES];
 
-    uint totalsteps = endPos() - startPos();
+    auto totalsteps = endPos() - startPos();
     BPMDetect bpmd(chan, srate);
 
-    uint cprogress = 0, pprogress = 0;
+    qint64 cprogress = 0, pprogress = 0;
     int readsamples = 0;
     seek(startPos());
     while (!m_bStop && currentPos() < endPos() && 0 < (readsamples = readSamples(samples))) {
         bpmd.inputSamples(samples, readsamples / chan);
         cprogress = currentPos() - startPos();
 
-        setProgress(100. * cprogress / static_cast<double>(totalsteps));
+        setProgress(100. * static_cast<double>(cprogress) / static_cast<double>(totalsteps));
         if (m_bConProgress) {
             while ((100 * cprogress / totalsteps) > pprogress) {
                 ++pprogress;

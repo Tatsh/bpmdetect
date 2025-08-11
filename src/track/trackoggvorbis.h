@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
+#include <QFile>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
@@ -8,23 +9,23 @@
 
 class TrackOggVorbis : public Track {
 public:
-    TrackOggVorbis(const char *filename, bool readtags = true);
+    TrackOggVorbis(const QString &filename, bool readtags = true);
     ~TrackOggVorbis() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(uint ms) override;
-    uint currentPos() override;
+    void seek(qint64 ms) override;
+    qint64 currentPos() override;
     int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
 
-    void storeBPM(std::string sBPM) override;
+    void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 
 private:
-    unsigned long long m_iCurPosPCM;
-    FILE *fptr;
+    qint64 m_iCurPosPCM;
+    QFile fptr;
     OggVorbis_File vf;
     int current_section;
 };

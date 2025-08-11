@@ -22,7 +22,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
         file, static_cast<uint>(cbNBeats->currentText().toInt()), static_cast<uint>(bpm), 0, this);
     m_bpm = bpm;
 
-    lblBPM->setText(QString::fromStdString(Track::bpm2str(static_cast<double>(bpm), "000.00")));
+    lblBPM->setText(Track::bpm2str(static_cast<double>(bpm), QStringLiteral("000.00")));
     connect(trackPosition, SIGNAL(positionChanged(uint)), this, SLOT(setCustomPos(uint)));
     connect(player,
             SIGNAL(hasLengthUS(const qint64)),

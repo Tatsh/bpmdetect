@@ -15,19 +15,19 @@ typedef struct MadSeekFrameType {
 
 class TrackMp3 : public Track {
 public:
-    TrackMp3(const char *filename, bool readtags = true);
+    TrackMp3(const QString &filename, bool readtags = true);
     ~TrackMp3() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(uint ms) override;
-    uint currentPos() override;
+    void seek(qint64 ms) override;
+    qint64 currentPos() override;
     int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
     inline signed int madScale(mad_fixed_t sample);
 
-    void storeBPM(std::string sBPM) override;
+    void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 
     void clearFrameList();
@@ -45,13 +45,13 @@ private:
     std::vector<MadSeekFrameType *> m_qSeekList;
     FILE *fptr;
     unsigned char *inputbuf;
-    unsigned int inputbuf_len;
+    size_t inputbuf_len;
     int framecount;
     int currentframe;
     int bitrate;
     int rest;
     int m_iAvgFrameSize;
-    unsigned long long m_iCurPosPCM;
+    qint64 m_iCurPosPCM;
     mad_timer_t pos;
     mad_timer_t filelength;
     mad_stream stream;

@@ -90,6 +90,7 @@ progressbar
 pycache
 pyyaml
 qdroplistview
+qsizetype
 qstringbuilder
 qtbase
 qtmultimedia

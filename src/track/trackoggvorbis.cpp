@@ -34,8 +34,7 @@
 using namespace std;
 using namespace soundtouch;
 
-TrackOggVorbis::TrackOggVorbis(const char *fname, bool readtags) : Track() {
-    fptr = nullptr;
+TrackOggVorbis::TrackOggVorbis(const QString &fname, bool readtags) : Track() {
     setFilename(fname, readtags);
 }
 
@@ -47,18 +46,18 @@ void TrackOggVorbis::open() {
     close();
 
     m_iCurPosPCM = 0;
-    string fname = filename();
+    auto fname = filename();
     // Try to open the file for reading
-    fptr = fopen(fname.c_str(), "rb");
-    if (fptr == NULL) {
+    fptr.setFileName(fname);
+    if (!fptr.open(QFile::ReadOnly)) {
 #ifdef DEBUG
-        cerr << "TrackOggVorbis: can not open file" << endl;
+        std::cerr << "TrackOggVorbis: can not open file" << endl;
 #endif
         return;
     }
 
     setOpened(true);
-    if (ov_open(fptr, &vf, NULL, 0) < 0) {
+    if (ov_fopen(fptr.fileName().toUtf8().constData(), &vf) < 0) {
 #ifdef DEBUG
         cerr << "TrackOggVorbis: Input does not appear to be an Ogg bitstream" << endl;
 #endif
@@ -88,15 +87,13 @@ void TrackOggVorbis::close() {
     if (isOpened())
         ov_clear(&vf);
     // note that fclose() is not needed, ov_clear() does this as well
-    fptr = NULL;
     m_iCurPosPCM = 0;
     setOpened(false);
 }
 
-void TrackOggVorbis::seek(uint ms) {
+void TrackOggVorbis::seek(qint64 ms) {
     if (isValid()) {
-        unsigned long long pos =
-            (static_cast<uint>(ms) * static_cast<uint>(samplerate()) /* * channels()*/) / 1000;
+        auto pos = (ms * samplerate() /* * channels()*/) / 1000;
         if (ov_pcm_seek(&vf, static_cast<ogg_int64_t>(pos)) == 0) {
             m_iCurPosPCM = pos;
         }
@@ -110,11 +107,10 @@ void TrackOggVorbis::seek(uint ms) {
     }
 }
 
-uint TrackOggVorbis::currentPos() {
+qint64 TrackOggVorbis::currentPos() {
     if (isValid()) {
-        unsigned long long pos =
-            1000 * m_iCurPosPCM / static_cast<unsigned long long>(samplerate() /* *channels()*/);
-        return static_cast<uint>(pos);
+        auto pos = 1000 * m_iCurPosPCM / samplerate() /* *channels()*/;
+        return pos;
     }
     return 0;
 }
@@ -122,7 +118,6 @@ uint TrackOggVorbis::currentPos() {
 /**
  * Read @a num samples into @a buffer
  * @param buffer pointer to buffer
- * @param num number of samples (per channel)
  * @return number of read samples
  */
 int TrackOggVorbis::readSamples(std::span<SAMPLETYPE> buffer) {
@@ -130,19 +125,20 @@ int TrackOggVorbis::readSamples(std::span<SAMPLETYPE> buffer) {
     if (!isValid() || num < 2)
         return -1;
 
-    short dest[num];
-    long index = 0;
-    int needed = static_cast<int>(num);
+    std::vector<short> dest(num);
+    unsigned int index = 0;
+    auto needed = static_cast<long>(num);
     // loop until requested number of samples has been retrieved
     while (needed > 0) {
         // read samples into buffer
-        long ret = ov_read(&vf,
-                           reinterpret_cast<char *>(dest) + static_cast<std::ptrdiff_t>(index),
-                           needed,
-                           OV_ENDIAN_ARG,
-                           2,
-                           1,
-                           &current_section);
+        auto ret =
+            ov_read(&vf,
+                    reinterpret_cast<char *>(dest.data()) + static_cast<std::ptrdiff_t>(index),
+                    static_cast<int>(needed),
+                    OV_ENDIAN_ARG,
+                    2,
+                    1,
+                    &current_section);
         // if eof we fill the rest with zero
         if (ret == 0) {
             while (needed > 0) {
@@ -155,52 +151,52 @@ int TrackOggVorbis::readSamples(std::span<SAMPLETYPE> buffer) {
         needed -= ret;
     }
 
-    int nread = static_cast<int>(index / 2);
-    for (int i = 0; i < nread; ++i) {
+    unsigned int nread = index / 2;
+    for (size_t i = 0; i < nread; ++i) {
         buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAXVALUE;
     }
 
     // return the number of samples in buffer
-    m_iCurPosPCM += static_cast<unsigned long long>(nread);
-    return nread;
+    m_iCurPosPCM += static_cast<qint64>(nread);
+    return static_cast<int>(nread);
 }
 
-void TrackOggVorbis::storeBPM(string format) {
-    string fname = filename();
-    string sBPM = bpm2str(getBPM(), format);
-    TagLib::Ogg::Vorbis::File f(fname.c_str(), false);
-    TagLib::Ogg::XiphComment *tag = f.tag();
-    if (tag == NULL) {
+void TrackOggVorbis::storeBPM(const QString &format) {
+    auto fname = filename();
+    auto sBPM = bpm2str(getBPM(), format);
+    TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
+    auto tag = f.tag();
+    if (tag == nullptr) {
         cerr << "BPM not saved ! (failed)" << endl;
         return;
     }
-    tag->addField("TBPM", sBPM.c_str(), true); // add new BPM field (replace existing)
+    tag->addField("TBPM", sBPM.toUtf8().constData(), true); // add new BPM field (replace existing)
     f.save();
 }
 
 void TrackOggVorbis::readTags() {
-    string fname = filename();
-    string sbpm = "000.00";
-    TagLib::Ogg::Vorbis::File f(fname.c_str(), false);
+    auto fname = filename();
+    auto sbpm = QString::fromUtf8("000.00");
+    TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
     if (tag != NULL) {
-        setArtist(tag->artist().toCString());
-        setTitle(tag->title().toCString());
+        setArtist(QString::fromUtf8(tag->artist().toCString(true)));
+        setTitle(QString::fromUtf8(tag->title().toCString(true)));
         TagLib::Ogg::FieldListMap flmap = tag->fieldListMap();
         TagLib::StringList strl = flmap["TBPM"];
         if (!strl.isEmpty())
-            sbpm = strl[0].toCString();
+            sbpm = QString::fromUtf8(strl[0].toCString(true));
     }
     // set filename (without path) as title if the title is empty
-    if (title().empty())
-        setTitle(fname.substr(fname.find_last_of("/") + 1));
+    if (title().isEmpty())
+        setTitle(fname.mid(fname.lastIndexOf(QLatin1Char('/')) + 1));
     setBPM(str2bpm(sbpm));
 }
 
 void TrackOggVorbis::removeBPM() {
-    string fname = filename();
+    auto fname = filename();
     //close();
-    TagLib::Ogg::Vorbis::File f(fname.c_str(), false);
+    TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
     if (tag == NULL) {
         return;

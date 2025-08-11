@@ -20,7 +20,7 @@
 using namespace std;
 using namespace soundtouch;
 
-TrackProxy::TrackProxy(const char *filename, bool readtags) : Track() {
+TrackProxy::TrackProxy(const QString &filename, bool readtags) : Track() {
     m_pTrack = nullptr;
     m_bConsoleProgress = false;
     setFilename(filename, readtags);
@@ -33,33 +33,38 @@ TrackProxy::~TrackProxy() {
     }
 }
 
-Track *TrackProxy::createTrack(const char *filename, bool readtags) {
-    if (strlen(filename) < 1)
+Track *TrackProxy::createTrack(const QString &filename, bool readtags) {
+    if (filename.isEmpty())
         return nullptr;
 
-    const char *ext = strrchr(filename, '.');
+    const auto dotLastIndex = filename.lastIndexOf(QLatin1Char('.'));
+    if (dotLastIndex == -1)
+        return nullptr;
+    const auto ext = filename.mid(dotLastIndex).toLower().trimmed();
+    if (ext.isEmpty())
+        return nullptr;
 
-    if (ext && !strcasecmp(ext, ".wav")) {
+    if (ext == QStringLiteral(".wav")) {
         return new TrackWav(filename, readtags);
     }
 #ifdef HAVE_VORBISFILE
-    if (ext && !strcasecmp(ext, ".ogg")) {
+    if (ext == QStringLiteral(".ogg")) {
         return new TrackOggVorbis(filename, readtags);
     }
 #endif
 #ifdef HAVE_MAD
-    if (ext && !strcasecmp(ext, ".mp3")) {
+    if (ext == QStringLiteral(".mp3")) {
         return new TrackMp3(filename, readtags);
     }
 #endif
 #ifdef HAVE_FLAC
-    if (ext &&
-        (!strcasecmp(ext, ".flac") || !strcasecmp(ext, ".flc") || !strcasecmp(ext, ".fla"))) {
+    if (ext == QStringLiteral(".flac") || ext == QStringLiteral(".fla") ||
+        ext == QStringLiteral(".flc")) {
         return new TrackFlac(filename, readtags);
     }
 #endif
 #ifdef HAVE_WAVPACK
-    if (ext && (!strcasecmp(ext, ".wv") || !strcasecmp(ext, ".wvpk"))) {
+    if (ext == QStringLiteral(".wv") || ext == QStringLiteral(".wavpack")) {
         return new TrackWavpack(filename, readtags);
     }
 #endif
@@ -67,8 +72,8 @@ Track *TrackProxy::createTrack(const char *filename, bool readtags) {
     return nullptr;
 }
 
-void TrackProxy::setFilename(const char *filename, bool readtags) {
-    string strformat = format();
+void TrackProxy::setFilename(const QString &filename, bool readtags) {
+    auto strformat = format();
     bool bredetect = redetect();
 
     if (m_pTrack) {
@@ -117,7 +122,7 @@ void TrackProxy::setRedetect(bool redetect) {
         m_pTrack->setRedetect(redetect);
 }
 
-void TrackProxy::setFormat(std::string format) {
+void TrackProxy::setFormat(QString format) {
     if (m_pTrack)
         m_pTrack->setFormat(format);
 }
@@ -128,20 +133,20 @@ void TrackProxy::enableConsoleProgress(bool enable) {
     m_bConsoleProgress = enable;
 }
 
-void TrackProxy::setStartPos(uint ms) {
+void TrackProxy::setStartPos(qint64 ms) {
     if (m_pTrack)
         m_pTrack->setStartPos(ms);
 }
 
-void TrackProxy::setEndPos(uint ms) {
+void TrackProxy::setEndPos(qint64 ms) {
     if (m_pTrack)
         m_pTrack->setEndPos(ms);
 }
 
-std::string TrackProxy::filename() const {
+QString TrackProxy::filename() const {
     if (m_pTrack)
         return m_pTrack->filename();
-    return "";
+    return QStringLiteral("");
 }
 
 unsigned int TrackProxy::length() const {
@@ -150,7 +155,7 @@ unsigned int TrackProxy::length() const {
     return 0;
 }
 
-std::string TrackProxy::strLength() {
+QString TrackProxy::strLength() {
     if (m_pTrack)
         return m_pTrack->strLength();
     return Track::strLength();
@@ -168,16 +173,16 @@ bool TrackProxy::isOpened() const {
     return false;
 }
 
-std::string TrackProxy::artist() const {
+QString TrackProxy::artist() const {
     if (m_pTrack)
         return m_pTrack->artist();
-    return "";
+    return QStringLiteral("");
 }
 
-std::string TrackProxy::title() const {
+QString TrackProxy::title() const {
     if (m_pTrack)
         return m_pTrack->title();
-    return "";
+    return QStringLiteral("");
 }
 
 bool TrackProxy::redetect() const {
@@ -192,7 +197,7 @@ double TrackProxy::progress() const {
     return 0;
 }
 
-std::string TrackProxy::format() const {
+QString TrackProxy::format() const {
     if (m_pTrack)
         return m_pTrack->format();
     return Track::format();
@@ -203,13 +208,13 @@ void TrackProxy::stop() {
         m_pTrack->stop();
 }
 
-uint TrackProxy::startPos() const {
+qint64 TrackProxy::startPos() const {
     if (m_pTrack)
         return m_pTrack->startPos();
     return 0;
 }
 
-uint TrackProxy::endPos() const {
+qint64 TrackProxy::endPos() const {
     if (m_pTrack)
         return m_pTrack->endPos();
     return 0;
@@ -255,12 +260,12 @@ void TrackProxy::close() {
         m_pTrack->close();
 }
 
-void TrackProxy::seek(uint ms) {
+void TrackProxy::seek(qint64 ms) {
     if (m_pTrack)
         m_pTrack->seek(ms);
 }
 
-uint TrackProxy::currentPos() {
+qint64 TrackProxy::currentPos() {
     if (m_pTrack)
         return m_pTrack->currentPos();
     return 0;
@@ -272,7 +277,7 @@ int TrackProxy::readSamples(std::span<SAMPLETYPE> sp) {
     return 0;
 }
 
-void TrackProxy::storeBPM(string sBPM) {
+void TrackProxy::storeBPM(const QString &sBPM) {
     if (m_pTrack)
         m_pTrack->storeBPM(sBPM);
 }
@@ -298,18 +303,18 @@ void TrackProxy::saveBPM() {
         m_pTrack->saveBPM();
 }
 
-void TrackProxy::printBPM() {
+void TrackProxy::printBPM() const {
     if (m_pTrack)
         m_pTrack->printBPM();
 }
 
-std::string TrackProxy::strBPM() {
+QString TrackProxy::strBPM() const {
     if (m_pTrack)
         return m_pTrack->strBPM();
     return Track::strBPM();
 }
 
-std::string TrackProxy::strBPM(std::string format) {
+QString TrackProxy::strBPM(const QString &format) const {
     if (m_pTrack)
         return m_pTrack->strBPM(format);
     return Track::strBPM(format);

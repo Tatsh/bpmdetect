@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
+#include <QFile>
+
 #include "track.h"
 
 /// WAV audio file 'riff' section header
@@ -37,30 +39,30 @@ typedef struct {
 
 class TrackWav : public Track {
 public:
-    TrackWav(const char *filename, bool readtags = true);
+    TrackWav(const QString &filename, bool readtags = true);
     ~TrackWav() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(uint ms) override;
-    uint currentPos() override;
+    void seek(qint64 ms) override;
+    qint64 currentPos() override;
     int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
 
-    void storeBPM(std::string sBPM) override;
+    void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 
     int readWavHeaders();
     int readHeaderBlock();
     int readRIFFBlock();
     int checkCharTags();
-    int read(char *buffer, size_t maxElems);
-    int read(short *buffer, size_t maxElems);
-    int read(float *buffer, size_t maxElems);
+    qint64 read(std::span<char> buffer);
+    qint64 read(std::span<short> buffer);
+    qint64 read(std::span<float> buffer);
 
 private:
-    unsigned long long m_iCurPosBytes;
-    FILE *fptr;
+    qint64 m_iCurPosBytes;
+    QFile fptr;
     WavHeader header;
 };

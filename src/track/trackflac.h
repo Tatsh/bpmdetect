@@ -11,23 +11,23 @@ typedef struct {
     uint numsamples;    // number of samples in buffer
     int channels;       // number of channels
     unsigned int srate; // sample rate
-    unsigned bps;       // bits per sample
+    unsigned int bps;   // bits per sample
 } FLAC_CLIENT_DATA;
 
 class TrackFlac : public Track {
 public:
-    TrackFlac(const char *filename, bool readtags = true);
+    TrackFlac(const QString &filename, bool readtags = true);
     ~TrackFlac() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(uint ms) override;
-    uint currentPos() override;
+    void seek(qint64 ms) override;
+    qint64 currentPos() override;
     int readSamples(std::span<soundtouch::SAMPLETYPE> buffer) override;
 
-    void storeBPM(std::string sBPM) override;
+    void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 
 private:
@@ -43,8 +43,14 @@ private:
                               void *client_data);
 
     FLAC__StreamDecoder *m_decoder;
-    FLAC_CLIENT_DATA m_cldata;
+    FLAC_CLIENT_DATA m_cldata = {.total_samples = 0,
+                                 .buffer = nullptr,
+                                 .bufsize = 0,
+                                 .numsamples = 0,
+                                 .channels = 0,
+                                 .srate = 0,
+                                 .bps = 0};
 
     unsigned long m_ibufidx;
-    unsigned long long m_iCurPosPCM;
+    qint64 m_iCurPosPCM;
 };

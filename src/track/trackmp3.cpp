@@ -6,6 +6,9 @@
 #include <io.h>
 #endif
 
+#include <QByteArray>
+#include <QFile>
+#include <QList>
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <mpegfile.h>
@@ -20,7 +23,7 @@
 using namespace std;
 using namespace soundtouch;
 
-TrackMp3::TrackMp3(const char *fname, bool readtags) : Track() {
+TrackMp3::TrackMp3(const QString &fname, bool readtags) : Track() {
     fptr = nullptr;
     setFilename(fname, readtags);
 }
@@ -43,11 +46,12 @@ void TrackMp3::open() {
 
     m_iCurPosPCM = 0;
     rest = 0;
-    string fname = filename();
-    // Try to open the file for reading
-    fptr = fopen(fname.c_str(), "rb");
+    auto fname = filename();
+
+    // Use QFile to open and read the file
+    QFile file(fname);
     setOpened(true);
-    if (fptr == NULL) {
+    if (!file.open(QIODevice::ReadOnly)) {
 #ifdef DEBUG
         cerr << "TrackMp3: can not open file" << endl;
 #endif
@@ -55,19 +59,13 @@ void TrackMp3::open() {
     }
 
     // Read the whole file into inputbuf:
-    fseek(fptr, 0, SEEK_END);
-    inputbuf_len = static_cast<unsigned int>(ftell(fptr));
-    fseek(fptr, 0, SEEK_SET);
+    QByteArray fileData = file.readAll();
+    inputbuf_len = static_cast<size_t>(fileData.size());
     inputbuf = new unsigned char[inputbuf_len];
-#ifdef DEBUG
-    unsigned int tmp = fread(inputbuf, inputbuf_len, 1, fptr);
-    if (tmp != 1) {
-        qWarning() << "MAD: Error reading mp3-file: " << fname << " read only " << tmp
-                   << " bytes, but wanted " << inputbuf_len << " bytes";
-    }
-#else
-    fread(inputbuf, inputbuf_len, 1, fptr);
-#endif // DEBUG
+    std::copy(reinterpret_cast<const unsigned char *>(fileData.constData()),
+              reinterpret_cast<const unsigned char *>(fileData.constData()) + inputbuf_len,
+              inputbuf);
+
     // Transfer it to the mad stream-buffer:
     mad_stream_init(&stream);
     mad_stream_options(&stream, MAD_OPTION_IGNORECRC);
@@ -189,16 +187,14 @@ inline long TrackMp3::madLength() {
     return 2 * mad_timer_count(filelength, units);
 }
 
-void TrackMp3::seek(uint ms) {
+void TrackMp3::seek(qint64 ms) {
     if (!isValid()) {
 #ifdef DEBUG
         cerr << "seek failed: track not valid" << endl;
 #endif
         return;
     }
-    unsigned long long seek_pos = (static_cast<unsigned int>(ms) *
-                                   static_cast<unsigned int>(samplerate()) /* * channels()*/) /
-                                  1000;
+    auto seek_pos = (ms * samplerate() /* * channels()*/) / 1000;
 
     // Ensure that we are seeking to an even pos
     //Q_ASSERT(pos%2==0);
@@ -218,8 +214,7 @@ void TrackMp3::seek(uint ms) {
     } else {
         // Perform precise seek accomplished by using a frame in the seek list
         // Find the frame to seek to in the list
-        unsigned long long framePos =
-            static_cast<unsigned long long>(findFrame(static_cast<int>(seek_pos)));
+        auto framePos = findFrame(static_cast<int>(seek_pos));
 
         uint frameIdx = 10; //m_qSeekList.at();
 
@@ -245,8 +240,8 @@ void TrackMp3::seek(uint ms) {
                 &stream,
                 static_cast<const unsigned char *>(cur->m_pStreamPos),
                 static_cast<unsigned long>(
-                    inputbuf_len - static_cast<long int>(cur->m_pStreamPos -
-                                                         static_cast<unsigned char *>(inputbuf))));
+                    inputbuf_len - static_cast<size_t>(cur->m_pStreamPos -
+                                                       static_cast<unsigned char *>(inputbuf))));
             mad_synth_mute(&synth);
             mad_frame_mute(frame);
 
@@ -264,7 +259,7 @@ void TrackMp3::seek(uint ms) {
         }
 
         // synthesize the samples from the frame which should be discard to reach the requested position
-        discard(seek_pos - static_cast<unsigned long long>(cur->pos));
+        discard(seek_pos - cur->pos);
     }
 
     // Unfortunately we don't know the exact position. The returned position is thus an
@@ -272,21 +267,13 @@ void TrackMp3::seek(uint ms) {
     m_iCurPosPCM = seek_pos;
 }
 
-uint TrackMp3::currentPos() {
+qint64 TrackMp3::currentPos() {
     if (isValid()) {
-        unsigned long long cur_pos = 1000ULL * static_cast<unsigned long long>(m_iCurPosPCM) /
-                                     static_cast<unsigned long long>(samplerate() /* *channels()*/);
-        return static_cast<uint>(cur_pos);
+        return 1000 * m_iCurPosPCM / samplerate() /* *channels()*/;
     }
     return 0;
 }
 
-/**
- * Read @a num samples into @a buffer
- * @param buffer pointer to buffer
- * @param num number of samples (per channel)
- * @return number of samples in buffer
- */
 int TrackMp3::readSamples(std::span<SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || num < 2)
@@ -298,17 +285,18 @@ int TrackMp3::readSamples(std::span<SAMPLETYPE> buffer) {
         num--;
     int nchannels = channels();
     unsigned nsamples = 0;
-    short dest[num];
-    short *destination = dest;
+    QList<short> dest(num);
+    size_t dest_index = 0;
 
     // If samples are left from previous read, then copy them to start of destination
     if (rest > 0) {
         for (int i = rest; i < synth.pcm.length; i++) {
             // Left channel
-            *(destination++) = static_cast<short>(madScale(synth.pcm.samples[0][i]));
+            if (dest_index < dest.size())
+                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[0][i]));
             // Right channel
-            if (nchannels > 1)
-                *(destination++) = static_cast<short>(madScale(synth.pcm.samples[1][i]));
+            if (nchannels > 1 && dest_index < dest.size())
+                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[1][i]));
         }
         nsamples += static_cast<unsigned int>(nchannels) *
                     (static_cast<unsigned int>(synth.pcm.length) - static_cast<unsigned int>(rest));
@@ -355,11 +343,12 @@ int TrackMp3::readSamples(std::span<SAMPLETYPE> buffer) {
         no = static_cast<int>(math_min(synth.pcm.length, (num - nsamples) / 2));
         for (int i = 0; i < no; i++) {
             // Left channel
-            *(destination++) = static_cast<short>(madScale(synth.pcm.samples[0][i]));
+            if (dest_index < dest.size())
+                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[0][i]));
 
             // Right channel
-            if (nchannels > 1)
-                *(destination++) = static_cast<short>(madScale(synth.pcm.samples[1][i]));
+            if (nchannels > 1 && dest_index < dest.size())
+                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[1][i]));
         }
         nsamples += static_cast<unsigned int>(nchannels) * static_cast<unsigned int>(no);
 
@@ -455,50 +444,49 @@ int TrackMp3::findFrame(int framePos) {
     return 0;
 }
 
-void TrackMp3::storeBPM(string format) {
-    string fname = filename();
-    string sBPM = bpm2str(getBPM(), format);
-    TagLib::MPEG::File f(fname.c_str(), false);
-    TagLib::ID3v2::Tag *tag = f.ID3v2Tag(true);
-    if (tag == NULL) {
+void TrackMp3::storeBPM(const QString &format) {
+    auto fname = filename();
+    auto sBPM = bpm2str(getBPM(), format);
+    TagLib::MPEG::File f(fname.toUtf8().constData(), false);
+    auto tag = f.ID3v2Tag(true);
+    if (tag == nullptr) {
         cerr << "BPM not saved !" << endl;
         return;
     }
     tag->removeFrames("TBPM"); // remove existing BPM frames
-    TagLib::ID3v2::TextIdentificationFrame *bpmframe =
-        new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-    bpmframe->setText(sBPM.c_str());
+    auto bpmframe = new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
+    bpmframe->setText(TagLib::String(sBPM.toStdString()));
     tag->addFrame(bpmframe); // add new BPM frame
     f.save();                // save file
 }
 
 void TrackMp3::readTags() {
-    string fname = filename();
-    string sbpm = "000.00";
-    TagLib::MPEG::File f(fname.c_str(), false);
+    auto fname = filename();
+    auto sbpm = QString::fromUtf8("000.00");
+    TagLib::MPEG::File f(fname.toUtf8().constData(), false);
 
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
     if (tag != NULL) {
-        setArtist(tag->artist().toCString());
-        setTitle(tag->title().toCString());
+        setArtist(QString::fromUtf8(tag->artist().toCString(true)));
+        setTitle(QString::fromUtf8(tag->title().toCString(true)));
 
-        TagLib::List<TagLib::ID3v2::Frame *> lst = tag->frameList("TBPM");
+        auto lst = tag->frameList("TBPM");
         if (lst.size() > 0) {
             TagLib::ID3v2::Frame *frame2 = lst[0];
-            sbpm = frame2->toString().toCString();
+            sbpm = QString::fromUtf8(frame2->toString().toCString(true));
         }
     }
     // set filename (without path) as title if the title is empty
-    if (title().empty())
-        setTitle(fname.substr(fname.find_last_of("/") + 1));
+    if (title().isEmpty())
+        setTitle(fname.mid(fname.lastIndexOf(QLatin1Char('/')) + 1));
     setBPM(str2bpm(sbpm));
 }
 
 void TrackMp3::removeBPM() {
-    string fname = filename();
-    TagLib::MPEG::File f(fname.c_str(), false);
+    auto fname = filename();
+    TagLib::MPEG::File f(fname.toUtf8().constData(), false);
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(true);
-    if (tag == NULL) {
+    if (tag == nullptr) {
         return;
     }
     tag->removeFrames("TBPM");
