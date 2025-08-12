@@ -68,11 +68,13 @@ void DlgTestBPMPlayer::update(uint nBeats_, qint64 posUS_) {
     originalSize = dataRemaining;
     if (posUS > 0) {
         auto skipBytes = format.bytesForDuration(posUS);
-        if ((data + skipBytes) >= (data + buffer.size())) {
+        if (skipBytes >= buffer.size()) {
             return;
         }
-
+#pragma clang unsafe_buffer_usage begin
+        // This should be left using raw pointers to avoid performance problems.
         data += skipBytes;
+#pragma clang unsafe_buffer_usage end
         startptr = data;
     }
 }
@@ -88,20 +90,23 @@ void DlgTestBPMPlayer::run() {
     update(nBeats);
 
     while (true) {
-        QAudio::State state = output->state();
+        auto state = output->state();
         if (state != QAudio::ActiveState && state != QAudio::IdleState &&
             state != QAudio::SuspendedState) {
             break;
         }
 
-        qint64 bytesFree = output->bytesFree();
+        auto bytesFree = output->bytesFree();
         if (bytesFree > 0) {
-            qint64 chunk = qMin(bytesFree, qint64(dataRemaining));
+            auto chunk = qMin(bytesFree, dataRemaining);
             if (chunk > 0) {
-                qint64 bytesWritten = dev->write(data, chunk);
+                auto bytesWritten = dev->write(data, chunk);
                 if (bytesWritten > 0) {
                     dataRemaining -= bytesWritten;
+#pragma clang unsafe_buffer_usage begin
+                    // This should be left using raw pointers to avoid performance problems.
                     data += bytesWritten;
+#pragma clang unsafe_buffer_usage end
                 }
             }
         }
