@@ -1,4 +1,4 @@
-# bpmdetect
+# BPM Detect
 
 [![GitHub tag (with filter)](https://img.shields.io/github/v/tag/Tatsh/bpmdetect)](https://github.com/Tatsh/bpmdetect/tags)
 [![License](https://img.shields.io/github/license/Tatsh/bpmdetect)](https://github.com/Tatsh/bpmdetect/blob/master/LICENSE.txt)
