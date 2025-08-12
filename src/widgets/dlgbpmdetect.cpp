@@ -379,8 +379,8 @@ Version:    \t%1 \n \
 Description:\t%2 \n \
 License:    \tGNU General Public License \n \
 \n \
-Author:     \tMartin Sakmar \n \
-e-mail:     \tmartin.sakmar@gmail.com \n \
+Authors:    \tAndrew Udvare, Martin Sakmar \n \
+e-mail:     \taudvare+bpmdetect@gmail.com \n \
 ")
                             .arg(QCoreApplication::applicationVersion())
                             .arg(description);
