@@ -18,6 +18,8 @@ public:
     bool enabled();
     /** Return total steps (track length). */
     int length();
+    /** Current position changed signal. */
+    Q_SIGNAL void positionChanged(int pos);
 
 public Q_SLOTS:
     /** Set current position to @a pos. */
@@ -32,10 +34,6 @@ protected Q_SLOTS:
     void mouseMoveEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void setChange(bool s);
-
-protected:
-    /** Current position changed signal. */
-    Q_SIGNAL void positionChanged(int pos);
 
 private:
     bool chng;
