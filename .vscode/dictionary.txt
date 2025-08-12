@@ -25,6 +25,7 @@ codeowners
 colorstyle
 coveragerc
 coverallsapp
+cppdbg
 cppreference
 cpptools
 csdrphf
