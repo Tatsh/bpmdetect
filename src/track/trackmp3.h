@@ -18,9 +18,9 @@ class TrackMp3 : public Track {
 public:
     /** Constructor.
      * @param filename Filename.
-     * @param readtags If `true`, read tags from the file.
+     * @param readMetadata If `true`, read tags from the file.
      */
-    TrackMp3(const QString &filename, bool readtags = true);
+    TrackMp3(const QString &filename, bool readMetadata = true);
     ~TrackMp3() override;
     void readTags() override;
 

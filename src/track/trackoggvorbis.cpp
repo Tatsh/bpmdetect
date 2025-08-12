@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <cassert>
 #include <climits>
-#include <iostream>
 
 #ifdef _WIN32
 #include <fcntl.h>
@@ -25,17 +23,15 @@
 #define OV_ENDIAN_ARG 0
 #endif
 
+#include <QDebug>
 #include <textidentificationframe.h>
 #include <vorbisfile.h>
 #include <xiphcomment.h>
 
 #include "trackoggvorbis.h"
 
-using namespace std;
-using namespace soundtouch;
-
-TrackOggVorbis::TrackOggVorbis(const QString &fname, bool readtags) : Track() {
-    setFilename(fname, readtags);
+TrackOggVorbis::TrackOggVorbis(const QString &fname, bool readMetadata) : Track() {
+    setFilename(fname, readMetadata);
 }
 
 TrackOggVorbis::~TrackOggVorbis() {
@@ -73,7 +69,7 @@ void TrackOggVorbis::open() {
     auto numSamples = ov_pcm_total(&vf, -1);
     auto len = 1000 * numSamples / srate;
 
-    setLength(len);
+    setLength(static_cast<unsigned int>(len));
     setStartPos(0);
     setEndPos(len);
     setSamplerate(static_cast<int>(srate));
@@ -115,7 +111,7 @@ qint64 TrackOggVorbis::currentPos() {
     return 0;
 }
 
-int TrackOggVorbis::readSamples(QSpan<SAMPLETYPE> buffer) {
+int TrackOggVorbis::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || num < 2)
         return -1;
@@ -126,14 +122,13 @@ int TrackOggVorbis::readSamples(QSpan<SAMPLETYPE> buffer) {
     // loop until requested number of samples has been retrieved
     while (needed > 0) {
         // read samples into buffer
-        auto ret =
-            ov_read(&vf,
-                    reinterpret_cast<char *>(dest.data()) + static_cast<std::ptrdiff_t>(index),
-                    static_cast<int>(needed),
-                    OV_ENDIAN_ARG,
-                    2,
-                    1,
-                    &current_section);
+        auto ret = ov_read(&vf,
+                           reinterpret_cast<char *>(&dest[index]),
+                           static_cast<int>(needed),
+                           OV_ENDIAN_ARG,
+                           2,
+                           1,
+                           &current_section);
         // if eof we fill the rest with zero
         if (ret == 0) {
             while (needed > 0) {
@@ -162,7 +157,7 @@ void TrackOggVorbis::storeBPM(const QString &format) {
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     auto tag = f.tag();
     if (tag == nullptr) {
-        cerr << "BPM not saved ! (failed)" << endl;
+        qCritical() << "Failed to save BPM.";
         return;
     }
     tag->addField("TBPM", sBPM.toUtf8().constData(), true); // add new BPM field (replace existing)
@@ -171,7 +166,7 @@ void TrackOggVorbis::storeBPM(const QString &format) {
 
 void TrackOggVorbis::readTags() {
     auto fname = filename();
-    auto sbpm = QString::fromUtf8("000.00");
+    auto sbpm = QStringLiteral("000.00");
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
     if (tag != NULL) {
@@ -184,7 +179,7 @@ void TrackOggVorbis::readTags() {
     }
     // set filename (without path) as title if the title is empty
     if (title().isEmpty())
-        setTitle(fname.mid(fname.lastIndexOf(QLatin1Char('/')) + 1));
+        setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
     setBPM(str2bpm(sbpm));
 }
 

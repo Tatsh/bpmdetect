@@ -48,7 +48,7 @@ public:
      * "000", "00000").
      * @return Formatted BPM string.
      */
-    static QString bpm2str(double dBPM, QString format = QStringLiteral("0.00"));
+    static QString bpm2str(double dBPM, const QString &format = QStringLiteral("0.00"));
     /**
      * Set minimum BPM.
      * @param dMin Minimum BPM.
@@ -88,9 +88,9 @@ public:
     /**
      * Set the filename of the track.
      * @param filename Filename.
-     * @param readtags If `true`, read tags from the file.
+     * @param readMetadata If `true`, read tags from the file.
      */
-    virtual void setFilename(const QString &filename, bool readtags = true);
+    virtual void setFilename(const QString &filename, bool readMetadata = true);
     /** Get the filename. */
     virtual QString filename() const;
 
@@ -113,7 +113,7 @@ public:
     /** Get the progress value. */
     virtual double progress() const;
     /** Set the format of the BPM string. */
-    virtual void setFormat(QString format = QStringLiteral("0.00"));
+    virtual void setFormat(const QString &format = QStringLiteral("0.00"));
     /** Get the BPM format. */
     virtual QString format() const;
     /** Enable console progress. */

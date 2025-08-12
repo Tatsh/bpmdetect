@@ -7,9 +7,6 @@
 
 #include "track.h"
 
-using namespace std;
-using namespace soundtouch;
-
 double Track::_dMinBPM = 80.;
 double Track::_dMaxBPM = 185.;
 bool Track::_bLimit = false;
@@ -83,22 +80,23 @@ double Track::str2bpm(const QString &sBPM) {
     return BPM;
 }
 
-QString Track::bpm2str(double dBPM, QString format) {
+QString Track::bpm2str(double dBPM, const QString &format) {
+    auto zero = QChar::fromLatin1('0');
     if (format == QStringLiteral("0.0")) {
         return QString::number(dBPM, 'f', 1);
     } else if (format == QStringLiteral("0")) {
         return QString::number(dBPM, 'd', 0);
     } else if (format == QStringLiteral("000.00")) {
-        return QString::number(dBPM, 'f', 2).rightJustified(6, QLatin1Char('0'));
+        return QString::number(dBPM, 'f', 2).rightJustified(6, zero);
     } else if (format == QStringLiteral("000.0")) {
-        return QString::number(dBPM, 'f', 1).rightJustified(5, QLatin1Char('0'));
+        return QString::number(dBPM, 'f', 1).rightJustified(5, zero);
     } else if (format == QStringLiteral("000")) {
-        return QString::number(dBPM, 'd', 0).rightJustified(3, QLatin1Char('0'));
+        return QString::number(dBPM, 'd', 0).rightJustified(3, zero);
     } else if (format == QStringLiteral("00000")) {
-        return QString::number(dBPM, 'd', 0).rightJustified(5, QLatin1Char('0'));
+        return QString::number(dBPM, 'd', 0).rightJustified(5, zero);
     }
     // all other formats are converted to "0.00"
-    return QString::number(dBPM, 'g', 2);
+    return QString::number(dBPM, 'f', 2);
 }
 
 QString Track::strBPM() const {
@@ -109,7 +107,7 @@ QString Track::strBPM(const QString &format) const {
     return bpm2str(getBPM(), format);
 }
 
-void Track::setFilename(const QString &filename, bool readtags) {
+void Track::setFilename(const QString &filename, bool readMetadata) {
 #ifndef NO_GUI
     if (isRunning()) {
 #ifdef DEBUG
@@ -125,7 +123,7 @@ void Track::setFilename(const QString &filename, bool readtags) {
     m_sFilename = filename;
     if (!filename.isEmpty()) {
         readInfo();
-        if (readtags)
+        if (readMetadata)
             readTags();
     }
 }
@@ -150,7 +148,7 @@ bool Track::isOpened() const {
     return m_bOpened;
 }
 
-void Track::setFormat(QString format) {
+void Track::setFormat(const QString &format) {
     m_sBPMFormat = format;
 }
 
@@ -299,10 +297,9 @@ QString Track::strLength() {
     csecs = csecs % 100;
     uint mins = secs / 60;
     secs = secs % 60;
+    auto zero = QChar::fromLatin1('0');
 
-    return QString::fromUtf8("%1:%2")
-        .arg(mins, 2, 10, QLatin1Char('0'))
-        .arg(secs, 2, 10, QLatin1Char('0'));
+    return QStringLiteral("%1:%2").arg(mins, 2, 10, zero).arg(secs, 2, 10, zero);
 }
 
 void Track::saveBPM() {
@@ -352,7 +349,8 @@ double Track::correctBPM(double dBPM) const {
 }
 
 void Track::printBPM() const {
-    std::cout << bpm2str(getBPM(), format()).toStdString() << " BPM" << endl;
+    std::cout << filename().toStdString() << ": " << bpm2str(getBPM(), format()).toStdString()
+              << " BPM" << std::endl;
 }
 
 double Track::detectBPM() {
@@ -385,10 +383,10 @@ double Track::detectBPM() {
     if (!srate || !chan) {
         return oldbpm;
     }
-    SAMPLETYPE samples[NUMSAMPLES];
+    soundtouch::SAMPLETYPE samples[NUMSAMPLES];
 
     auto totalsteps = endPos() - startPos();
-    BPMDetect bpmd(chan, srate);
+    soundtouch::BPMDetect bpmd(chan, srate);
 
     qint64 cprogress = 0, pprogress = 0;
     int readsamples = 0;
@@ -401,14 +399,14 @@ double Track::detectBPM() {
         if (m_bConProgress) {
             while ((100 * cprogress / totalsteps) > pprogress) {
                 ++pprogress;
-                clog << "\r" << (100 * cprogress / totalsteps) << "% " << flush;
+                std::clog << "\r" << (100 * cprogress / totalsteps) << "% " << std::flush;
             }
         }
     }
 
     setProgress(100);
     if (m_bConProgress)
-        clog << "\r" << flush;
+        std::clog << "\r" << std::flush;
 
     if (m_bStop) {
         setProgress(0);

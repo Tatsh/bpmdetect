@@ -8,12 +8,12 @@ class TrackProxy : public Track {
 public:
     /** Constructor.
      * @param filename Filename.
-     * @param readtags If `true`, read tags from the file.
+     * @param readMetadata If `true`, read tags from the file.
      */
-    TrackProxy(const QString &filename, bool readtags = true);
+    TrackProxy(const QString &filename, bool readMetadata = true);
     ~TrackProxy() override;
 
-    void setFilename(const QString &filename, bool readtags = true) override;
+    void setFilename(const QString &filename, bool readMetadata = true) override;
     void readTags() override;
     void readInfo() override;
     double detectBPM() override;
@@ -37,7 +37,7 @@ public:
     void setRedetect(bool redetect) override;
     bool redetect() const override;
     double progress() const override;
-    void setFormat(QString format = QStringLiteral("0.00")) override;
+    void setFormat(const QString &format = QStringLiteral("0.00")) override;
     QString format() const override;
     void enableConsoleProgress(bool enable = true) override;
 
@@ -55,7 +55,7 @@ public:
 
 protected:
     /** Create the Track to proxy to. */
-    Track *createTrack(const QString &filename, bool readtags = true);
+    Track *createTrack(const QString &filename, bool readMetadata = true);
     void open() override;
     void close() override;
     void seek(qint64 ms) override;

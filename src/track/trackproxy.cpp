@@ -17,13 +17,10 @@
 #include "trackwavpack.h"
 #endif
 
-using namespace std;
-using namespace soundtouch;
-
-TrackProxy::TrackProxy(const QString &filename, bool readtags) : Track() {
+TrackProxy::TrackProxy(const QString &filename, bool readMetadata) : Track() {
     m_pTrack = nullptr;
     m_bConsoleProgress = false;
-    setFilename(filename, readtags);
+    setFilename(filename, readMetadata);
 }
 
 TrackProxy::~TrackProxy() {
@@ -33,11 +30,11 @@ TrackProxy::~TrackProxy() {
     }
 }
 
-Track *TrackProxy::createTrack(const QString &filename, bool readtags) {
+Track *TrackProxy::createTrack(const QString &filename, bool readMetadata) {
     if (filename.isEmpty())
         return nullptr;
 
-    const auto dotLastIndex = filename.lastIndexOf(QLatin1Char('.'));
+    const auto dotLastIndex = filename.lastIndexOf(QStringLiteral("."));
     if (dotLastIndex == -1)
         return nullptr;
     const auto ext = filename.mid(dotLastIndex).toLower().trimmed();
@@ -45,34 +42,34 @@ Track *TrackProxy::createTrack(const QString &filename, bool readtags) {
         return nullptr;
 
     if (ext == QStringLiteral(".wav")) {
-        return new TrackWav(filename, readtags);
+        return new TrackWav(filename, readMetadata);
     }
 #ifdef HAVE_VORBISFILE
     if (ext == QStringLiteral(".ogg")) {
-        return new TrackOggVorbis(filename, readtags);
+        return new TrackOggVorbis(filename, readMetadata);
     }
 #endif
 #ifdef HAVE_MAD
     if (ext == QStringLiteral(".mp3")) {
-        return new TrackMp3(filename, readtags);
+        return new TrackMp3(filename, readMetadata);
     }
 #endif
 #ifdef HAVE_FLAC
     if (ext == QStringLiteral(".flac") || ext == QStringLiteral(".fla") ||
         ext == QStringLiteral(".flc")) {
-        return new TrackFlac(filename, readtags);
+        return new TrackFlac(filename, readMetadata);
     }
 #endif
 #ifdef HAVE_WAVPACK
     if (ext == QStringLiteral(".wv") || ext == QStringLiteral(".wavpack")) {
-        return new TrackWavpack(filename, readtags);
+        return new TrackWavpack(filename, readMetadata);
     }
 #endif
 
     return nullptr;
 }
 
-void TrackProxy::setFilename(const QString &filename, bool readtags) {
+void TrackProxy::setFilename(const QString &filename, bool readMetadata) {
     auto strformat = format();
     bool bredetect = redetect();
 
@@ -81,7 +78,7 @@ void TrackProxy::setFilename(const QString &filename, bool readtags) {
         delete m_pTrack;
         m_pTrack = nullptr;
     }
-    m_pTrack = createTrack(filename, readtags);
+    m_pTrack = createTrack(filename, readMetadata);
 
     if (m_pTrack) {
         m_pTrack->setRedetect(bredetect);
@@ -122,7 +119,7 @@ void TrackProxy::setRedetect(bool redetect) {
         m_pTrack->setRedetect(redetect);
 }
 
-void TrackProxy::setFormat(QString format) {
+void TrackProxy::setFormat(const QString &format) {
     if (m_pTrack)
         m_pTrack->setFormat(format);
 }
@@ -271,7 +268,7 @@ qint64 TrackProxy::currentPos() {
     return 0;
 }
 
-int TrackProxy::readSamples(QSpan<SAMPLETYPE> sp) {
+int TrackProxy::readSamples(QSpan<soundtouch::SAMPLETYPE> sp) {
     if (m_pTrack)
         return m_pTrack->readSamples(sp);
     return 0;

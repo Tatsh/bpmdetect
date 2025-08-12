@@ -145,5 +145,6 @@ vsizetype
 wavpack
 weverything
 wiswa
+wunsafe
 wvpk
 xiph

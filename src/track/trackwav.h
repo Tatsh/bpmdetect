@@ -42,9 +42,9 @@ class TrackWav : public Track {
 public:
     /** Constructor.
      * @param filename Filename.
-     * @param readtags If `true`, read tags from the file.
+     * @param readMetadata If `true`, read tags from the file.
      */
-    TrackWav(const QString &filename, bool readtags = true);
+    TrackWav(const QString &filename, bool readMetadata = true);
     ~TrackWav() override;
     void readTags() override;
 

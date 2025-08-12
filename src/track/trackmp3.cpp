@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <iostream>
-
 #ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
 #endif
 
 #include <QByteArray>
+#include <QDebug>
 #include <QFile>
 #include <QList>
 #include <id3v2frame.h>
@@ -15,12 +14,10 @@
 #include <textidentificationframe.h>
 
 #include "trackmp3.h"
+#include "utils.h"
 
-using namespace std;
-using namespace soundtouch;
-
-TrackMp3::TrackMp3(const QString &fname, bool readtags) : Track() {
-    setFilename(fname, readtags);
+TrackMp3::TrackMp3(const QString &fname, bool readMetadata) : Track() {
+    setFilename(fname, readMetadata);
 }
 
 TrackMp3::~TrackMp3() {
@@ -75,10 +72,11 @@ void TrackMp3::open() {
     clearFrameList();
     while ((stream.bufend - stream.this_frame) > 0) {
         if (mad_header_decode(&header, &stream) == -1) {
-            cerr << "mad_header_decode() error: " << mad_stream_errorstr(&stream) << endl;
-            if (!MAD_RECOVERABLE(stream.error))
+            if (!MAD_RECOVERABLE(stream.error)) {
+                qCritical() << "mad_header_decode() error:" << mad_stream_errorstr(&stream);
+                qCritical() << "Above error is not recoverable.";
                 break;
-            cerr << "Error not recoverable." << endl;
+            }
             continue;
         }
 
@@ -244,7 +242,7 @@ void TrackMp3::seek(qint64 ms) {
             mad_frame_decode(frame, &stream);
             mad_frame_decode(frame, &stream);
             if (mad_frame_decode(frame, &stream))
-                cerr << "MP3 decode warning" << endl;
+                qDebug() << "MP3 decode warning.";
             mad_synth_frame(&synth, frame);
 
             // Set current position
@@ -268,7 +266,7 @@ qint64 TrackMp3::currentPos() {
     return 0;
 }
 
-int TrackMp3::readSamples(QSpan<SAMPLETYPE> buffer) {
+int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     auto num = buffer.size();
     if (!isValid() || num < 2)
         return -1;
@@ -284,13 +282,16 @@ int TrackMp3::readSamples(QSpan<SAMPLETYPE> buffer) {
 
     // If samples are left from previous read, then copy them to start of destination
     if (rest > 0) {
+        auto leftSpan = unsafe_forge_span(synth.pcm.samples[0], synth.pcm.length);
+        auto rightSpan = nchannels > 1 ? unsafe_forge_span(synth.pcm.samples[1], synth.pcm.length) :
+                                         QSpan<mad_fixed_t>();
         for (int i = rest; i < synth.pcm.length; i++) {
             // Left channel
             if (dest_index < dest.size())
-                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[0][i]));
+                dest[dest_index++] = static_cast<short>(madScale(leftSpan[i]));
             // Right channel
             if (nchannels > 1 && dest_index < dest.size())
-                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[1][i]));
+                dest[dest_index++] = static_cast<short>(madScale(rightSpan[i]));
         }
         nsamples += static_cast<unsigned int>(nchannels) *
                     (static_cast<unsigned int>(synth.pcm.length) - static_cast<unsigned int>(rest));
@@ -335,14 +336,17 @@ int TrackMp3::readSamples(QSpan<SAMPLETYPE> buffer) {
 
         // cerr << "synthlen " << Synth.pcm.length << ", remain " << (num - nsamples);
         no = static_cast<int>(qMin(static_cast<long long>(synth.pcm.length), (num - nsamples) / 2));
+        auto leftSpan = unsafe_forge_span(synth.pcm.samples[0], no);
+        auto rightSpan =
+            nchannels > 1 ? unsafe_forge_span(synth.pcm.samples[1], no) : QSpan<mad_fixed_t>();
         for (int i = 0; i < no; i++) {
             // Left channel
             if (dest_index < dest.size())
-                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[0][i]));
+                dest[dest_index++] = static_cast<short>(madScale(leftSpan[i]));
 
             // Right channel
             if (nchannels > 1 && dest_index < dest.size())
-                dest[dest_index++] = static_cast<short>(madScale(synth.pcm.samples[1][i]));
+                dest[dest_index++] = static_cast<short>(madScale(rightSpan[i]));
         }
         nsamples += static_cast<unsigned int>(nchannels) * static_cast<unsigned int>(no);
 
@@ -444,7 +448,7 @@ void TrackMp3::storeBPM(const QString &format) {
     TagLib::MPEG::File f(fname.toUtf8().constData(), false);
     auto tag = f.ID3v2Tag(true);
     if (tag == nullptr) {
-        cerr << "BPM not saved !" << endl;
+        qCritical() << "BPM not saved.";
         return;
     }
     tag->removeFrames("TBPM"); // remove existing BPM frames
@@ -456,7 +460,7 @@ void TrackMp3::storeBPM(const QString &format) {
 
 void TrackMp3::readTags() {
     auto fname = filename();
-    auto sbpm = QString::fromUtf8("000.00");
+    auto sbpm = QStringLiteral("000.00");
     TagLib::MPEG::File f(fname.toUtf8().constData(), false);
 
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
@@ -472,7 +476,7 @@ void TrackMp3::readTags() {
     }
     // set filename (without path) as title if the title is empty
     if (title().isEmpty())
-        setTitle(fname.mid(fname.lastIndexOf(QLatin1Char('/')) + 1));
+        setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
     setBPM(str2bpm(sbpm));
 }
 

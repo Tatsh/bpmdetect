@@ -12,9 +12,9 @@ class TrackOggVorbis : public Track {
 public:
     /** Constructor.
      * @param filename Filename.
-     * @param readtags If `true`, read tags from the file.
+     * @param readMetadata If `true`, read tags from the file.
      */
-    TrackOggVorbis(const QString &filename, bool readtags = true);
+    TrackOggVorbis(const QString &filename, bool readMetadata = true);
     ~TrackOggVorbis() override;
     void readTags() override;
 

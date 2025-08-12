@@ -7,7 +7,7 @@
 /** Used in the metadata callback. */
 typedef struct {
     FLAC__uint64 total_samples; //!< Total number of samples in the file.
-    short *buffer;              //!< Buffer of samples (16 bit).
+    QList<short> *buffer;       //!< Buffer of samples (16 bit).
     qsizetype bufsize;          //!< Buffer size (maximum number of samples).
     uint numsamples;            //!< Number of samples in buffer.
     int channels;               //!< Number of channels.
@@ -21,9 +21,9 @@ public:
     /**
      * Constructor.
      * @param filename Filename.
-     * @param readtags If `true`, read tags from the file.
+     * @param readMetadata If `true`, read tags from the file.
      */
-    TrackFlac(const QString &filename, bool readtags = true);
+    TrackFlac(const QString &filename, bool readMetadata = true);
     ~TrackFlac() override;
     void readTags() override;
 
@@ -58,6 +58,6 @@ private:
                                  .srate = 0,
                                  .bps = 0};
 
-    unsigned long m_ibufidx;
+    qsizetype m_ibufidx;
     qint64 m_iCurPosPCM;
 };
