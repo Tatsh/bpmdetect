@@ -69,10 +69,6 @@ void Track::setLimit(bool bLimit) {
     _bLimit = bLimit;
 }
 
-bool Track::getLimit() {
-    return _bLimit;
-}
-
 double Track::str2bpm(const QString &sBPM) {
     auto BPM = sBPM.toDouble();
     while (BPM > 300)
@@ -289,7 +285,7 @@ void Track::setLength(unsigned int msec) {
     m_iLength = msec;
 }
 
-QString Track::strLength() {
+QString Track::strLength() const {
     uint len = length();
 
     uint csecs = len / 10;

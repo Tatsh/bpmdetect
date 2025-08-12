@@ -57,22 +57,15 @@ protected:
     void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
 
-    /** Read WAV headers. */
+private:
     int readWavHeaders();
-    /** Read header block. */
     int readHeaderBlock();
-    /** Read `RIFF` block. */
     int readRIFFBlock();
-    /** Check the @c fmt and @c data tags. */
     int checkCharTags();
-    /** Read into @a buffer. */
     qint64 read(QSpan<char> buffer);
-    /** Read into @a buffer. */
     qint64 read(QSpan<short> buffer);
-    /** Read into @a buffer. */
     qint64 read(QSpan<float> buffer);
 
-private:
     qint64 m_iCurPosBytes;
     QFile fptr;
     WavHeader header;

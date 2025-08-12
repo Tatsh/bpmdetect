@@ -29,7 +29,7 @@ public:
     QString filename() const override;
 
     unsigned int length() const override;
-    QString strLength() override;
+    QString strLength() const override;
     bool isValid() const override;
     bool isOpened() const override;
     QString artist() const override;
@@ -54,8 +54,6 @@ public:
     int trackType() const override;
 
 protected:
-    /** Create the Track to proxy to. */
-    Track *createTrack(const QString &filename, bool readMetadata = true);
     void open() override;
     void close() override;
     void seek(qint64 ms) override;
@@ -65,6 +63,7 @@ protected:
     void removeBPM() override;
 
 private:
+    Track *createTrack(const QString &filename, bool readMetadata = true);
     Track *m_pTrack;
     bool m_bConsoleProgress;
 };

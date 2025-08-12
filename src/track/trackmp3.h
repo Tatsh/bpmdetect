@@ -30,27 +30,15 @@ protected:
     void seek(qint64 ms) override;
     qint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
-    /**
-     * Convert mad fixed point sample to signed int.
-     * @param sample Mad fixed point sample.
-     * @return Signed int sample.
-     */
-    inline signed int madScale(mad_fixed_t sample);
-
     void storeBPM(const QString &sBPM) override;
     void removeBPM() override;
-
-    /** Clear the frame list. */
-    void clearFrameList();
-    /**
-     * Get the length of the MP3 file in samples.
-     * @return Length in samples.
-     */
-    inline long madLength();
 
 private:
     unsigned long discard(unsigned long samples_wanted);
     int findFrame(int pos);
+    void clearFrameList();
+    inline long madLength();
+    inline signed int madScale(mad_fixed_t sample);
 
     // It is not possible to make a precise seek in an mp3 file without decoding the whole stream.
     // To have precise seek within a limited range from the current decode position, we keep track

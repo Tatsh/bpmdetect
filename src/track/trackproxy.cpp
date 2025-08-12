@@ -152,7 +152,7 @@ unsigned int TrackProxy::length() const {
     return 0;
 }
 
-QString TrackProxy::strLength() {
+QString TrackProxy::strLength() const {
     if (m_pTrack)
         return m_pTrack->strLength();
     return Track::strLength();

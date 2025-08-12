@@ -29,19 +29,19 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
 
     // Create TrackList menu
     m_pListMenu = new QMenu(TrackList);
-    m_pListMenu->addAction(tr("Add files"), this, SLOT(slotAddFiles()));
-    m_pListMenu->addAction(tr("Add directory"), this, SLOT(slotAddDir()));
+    m_pListMenu->addAction(tr("Add files"), [this]() { slotAddFiles(QStringList()); });
+    m_pListMenu->addAction(tr("Add directory"), this, &DlgBPMDetect::slotAddDir);
     m_pListMenu->addSeparator();
-    m_pListMenu->addAction(tr("Remove selected tracks"), this, SLOT(slotRemoveSelected()));
-    m_pListMenu->addAction(tr("Remove tracks with BPM"), this, SLOT(slotClearDetected()));
-    m_pListMenu->addAction(tr("Clear list"), this, SLOT(slotClearTrackList()));
+    m_pListMenu->addAction(tr("Remove selected tracks"), this, &DlgBPMDetect::slotRemoveSelected);
+    m_pListMenu->addAction(tr("Remove tracks with BPM"), this, &DlgBPMDetect::slotClearDetected);
+    m_pListMenu->addAction(tr("Clear list"), this, &DlgBPMDetect::slotClearTrackList);
     m_pListMenu->addSeparator();
 #ifndef Q_OS_MACOS
-    m_pListMenu->addAction(tr("Test BPM"), this, SLOT(slotTestBPM()));
+    m_pListMenu->addAction(tr("Test BPM"), this, &DlgBPMDetect::slotTestBPM);
 #endif
     m_pListMenu->addSeparator();
-    m_pListMenu->addAction(tr("Save BPM"), this, SLOT(slotSaveBPM()));
-    m_pListMenu->addAction(tr("Clear BPM"), this, SLOT(slotClearBPM()));
+    m_pListMenu->addAction(tr("Save BPM"), this, &DlgBPMDetect::slotSaveBPM);
+    m_pListMenu->addAction(tr("Clear BPM"), this, &DlgBPMDetect::slotClearBPM);
 
     // Add columns to TrackList
     QStringList hlabels;
@@ -247,7 +247,7 @@ void DlgBPMDetect::slotTimerDone() {
     }
 }
 
-void DlgBPMDetect::slotAddFiles(QStringList &files) {
+void DlgBPMDetect::slotAddFiles(const QStringList &files) {
     if (!getStarted() && files.size()) {
         TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
@@ -324,7 +324,7 @@ void DlgBPMDetect::slotListMenuPopup(const QPoint &) {
  * @param path path from which the files are added
  * @return QStringList of files with relative paths
  */
-QStringList DlgBPMDetect::filesFromDir(const QString &path) {
+QStringList DlgBPMDetect::filesFromDir(const QString &path) const {
     QDir d(path), f(path);
     QStringList files;
     if (!d.exists(path))

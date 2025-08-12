@@ -65,9 +65,6 @@ public:
     static double getMaxBPM();
     /** Set limit flag. */
     static void setLimit(bool bLimit);
-    /** Get limit flag. */
-    static bool getLimit();
-
     /** Clear the BPM. */
     virtual void clearBPM();
     /** Detect the BPM. */
@@ -84,7 +81,6 @@ public:
     virtual QString strBPM() const;
     /** Get the BPM as a string according to the @a format passed in. */
     virtual QString strBPM(const QString &format) const;
-
     /**
      * Set the filename of the track.
      * @param filename Filename.
@@ -93,11 +89,10 @@ public:
     virtual void setFilename(const QString &filename, bool readMetadata = true);
     /** Get the filename. */
     virtual QString filename() const;
-
     /** Get the track length in miliseconds. */
     virtual unsigned int length() const;
     /** Get the track length as a formatted string. */
-    virtual QString strLength();
+    virtual QString strLength() const;
     /** Check if the track is valid. */
     virtual bool isValid() const;
     /** Check if the file is opened. */
@@ -118,10 +113,8 @@ public:
     virtual QString format() const;
     /** Enable console progress. */
     virtual void enableConsoleProgress(bool enable = true);
-
     /** Stop detection if it is running. */
     virtual void stop();
-
     /** Set the start position to @a ms. */
     virtual void setStartPos(qint64 ms);
     /** Get the start position (milliseconds). */
@@ -165,11 +158,6 @@ protected:
     virtual void storeBPM(const QString &sBPM) = 0;
     /** Remove BPM metadata from the file. */
     virtual void removeBPM() = 0;
-
-    /** Initialise member variables. */
-    void init();
-    /** Correct the BPM. */
-    double correctBPM(double dBPM) const;
     /** Mark the file validity state. */
     void setValid(bool bValid);
     /** Set if the file is opened. */
@@ -188,28 +176,30 @@ protected:
     void setChannels(int channels);
     /** Set the track type. */
     void setTrackType(TRACKTYPE type);
-    /** Set the progress of BPM detection, from `0.0f` to `100.0f`. */
-    void setProgress(double progress);
 
 private:
-    QString m_sFilename;
+    double correctBPM(double dBPM) const;
+    void init();
+    void setProgress(double progress);
+
     QString m_sArtist;
-    QString m_sTitle;
-    double m_dBPM;
-    double m_dProgress;
-    int m_iSamplerate;
-    int m_iSampleBytes;
-    int m_iChannels;
-    uint m_iLength;
-    qint64 m_iStartPos;
-    qint64 m_iEndPos;
-    TRACKTYPE m_eType;
     QString m_sBPMFormat;
-    bool m_bValid;
-    bool m_bRedetect;
-    bool m_bStop;
+    QString m_sFilename;
+    QString m_sTitle;
+    TRACKTYPE m_eType;
     bool m_bConProgress;
     bool m_bOpened;
+    bool m_bRedetect;
+    bool m_bStop;
+    bool m_bValid;
+    double m_dBPM;
+    double m_dProgress;
+    int m_iChannels;
+    int m_iSampleBytes;
+    int m_iSamplerate;
+    qint64 m_iEndPos;
+    qint64 m_iStartPos;
+    uint m_iLength;
 
     static double _dMinBPM;
     static double _dMaxBPM;

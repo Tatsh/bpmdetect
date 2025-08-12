@@ -57,7 +57,6 @@ private:
                                  .channels = 0,
                                  .srate = 0,
                                  .bps = 0};
-
     qsizetype m_ibufidx;
     qint64 m_iCurPosPCM;
 };
