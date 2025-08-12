@@ -12,7 +12,7 @@ ecm_qt_declare_logging_category(
   CATEGORY_NAME
   "sh.tat.${CMAKE_PROJECT_NAME}")
 
-add_executable(bpmdetect MACOSX_BUNDLE icon.rc images.h main.cpp)
+add_executable(bpmdetect MACOSX_BUNDLE icon.rc images.h main.cpp utils.h)
 target_include_directories(bpmdetect PRIVATE . widgets)
 target_link_libraries(
   bpmdetect
