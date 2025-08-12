@@ -5,8 +5,6 @@
 
 #include "progressbar.h"
 
-using namespace std;
-
 ProgressBar::ProgressBar(QWidget *parent) : QProgressBar(parent) {
     setTextVisible(false);
     setChange(false);
@@ -44,18 +42,18 @@ void ProgressBar::mouseReleaseEvent(QMouseEvent *e) {
             setChange(true);
         else if (change() && e->button() == Qt::LeftButton) {
             setChange(false);
-            emit(positionChanged(static_cast<qint64>(value())));
+            emit(positionChanged(value()));
         }
     }
 }
 
-void ProgressBar::setLength(uint len) {
-    setMaximum(static_cast<int>(len));
+void ProgressBar::setLength(int len) {
+    setMaximum(len);
 }
 
-void ProgressBar::setPosition(uint pos) {
+void ProgressBar::setPosition(int pos) {
     if (!change())
-        setValue(static_cast<int>(pos));
+        setValue(pos);
 }
 
 bool ProgressBar::change() {
@@ -74,6 +72,6 @@ void ProgressBar::setEnabled(bool s) {
     enable = s;
 }
 
-uint ProgressBar::length() {
-    return static_cast<uint>(maximum());
+int ProgressBar::length() {
+    return maximum();
 }

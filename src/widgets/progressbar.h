@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
-#pragma once
 
 #include <QMouseEvent>
 #include <QProgressBar>
@@ -18,13 +17,13 @@ public:
     /** Return enabled status. */
     bool enabled();
     /** Return total steps (track length). */
-    uint length();
+    int length();
 
 public Q_SLOTS:
     /** Set current position to @a pos. */
-    void setPosition(uint pos);
+    void setPosition(int pos);
     /** Set total steps to @a len. */
-    void setLength(uint len);
+    void setLength(int len);
     /** Set enabled status. */
     void setEnabled(bool s);
 
@@ -36,7 +35,7 @@ protected Q_SLOTS:
 
 protected:
     /** Current position changed signal. */
-    Q_SIGNAL void positionChanged(qint64 pos);
+    Q_SIGNAL void positionChanged(int pos);
 
 private:
     bool chng;

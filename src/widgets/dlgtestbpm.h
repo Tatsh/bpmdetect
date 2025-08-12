@@ -35,7 +35,7 @@ protected Q_SLOTS:
     /** Set position 4. */
     void setPos4();
     /** Set a custom position in milliseconds. */
-    void setCustomPos(qint64 msec);
+    void setCustomPos(int msec);
     /** Set number of beats to loop. @a s should contain an integer. */
     void setNumBeats(const QString &s);
     /** Update BPM list. */
