@@ -18,6 +18,18 @@ public:
      */
     QDropListView(QWidget *parent = nullptr);
     ~QDropListView() override;
+    /** Signal for key press event. */
+    Q_SIGNAL void keyPress(QKeyEvent *e);
+    /** Signal for key release event. */
+    Q_SIGNAL void keyRelease(QKeyEvent *e);
+    /** Signal for drag enter event. */
+    Q_SIGNAL void dragEnter(QDragEnterEvent *e);
+    /** Signal for drag move event. */
+    Q_SIGNAL void dragMove(QDragMoveEvent *e);
+    /** Signal for drag leave event. */
+    Q_SIGNAL void dragLeave(QDragLeaveEvent *e);
+    /** Signal for drop event. */
+    Q_SIGNAL void drop(QDropEvent *e);
 
 public Q_SLOTS:
     /** Remove selected items from list. */
@@ -30,11 +42,4 @@ protected:
     void dragMoveEvent(QDragMoveEvent *e) override;
     void dragLeaveEvent(QDragLeaveEvent *e) override;
     void dropEvent(QDropEvent *e) override;
-
-    Q_SIGNAL void keyPress(QKeyEvent *e);
-    Q_SIGNAL void keyRelease(QKeyEvent *e);
-    Q_SIGNAL void dragEnter(QDragEnterEvent *e);
-    Q_SIGNAL void dragMove(QDragMoveEvent *e);
-    Q_SIGNAL void dragLeave(QDragLeaveEvent *e);
-    Q_SIGNAL void drop(QDropEvent *e);
 };
