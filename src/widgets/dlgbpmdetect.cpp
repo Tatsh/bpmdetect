@@ -12,8 +12,6 @@
 
 #define PROGRESSCOLUMN 4
 
-extern const char *version;
-
 DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     setupUi(this);
     setStarted(false);
@@ -24,8 +22,7 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     QImage img;
     img.loadFromData(icon_png, sizeof(icon_png), "PNG");
     setWindowIcon(QPixmap::fromImage(img));
-    QString strcaption = QStringLiteral("BPM Detect v");
-    strcaption.append(QString::fromLocal8Bit(version));
+    auto strcaption = QStringLiteral("BPM Detect v%1").arg(QCoreApplication::applicationVersion());
     setWindowTitle(strcaption);
 
     loadSettings();
@@ -94,7 +91,7 @@ void DlgBPMDetect::loadSettings() {
         settings.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
     bool skip = settings.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
     bool save = settings.value(QStringLiteral("/BPMDetect/SaveBPM"), true).toBool();
-    QString recentpath =
+    QString recentPath =
         settings.value(QStringLiteral("/BPMDetect/RecentPath"), QStringLiteral("")).toString();
     int minBPM = settings.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
     int maxBPM = settings.value(QStringLiteral("/BPMDetect/MaxBPM"), 190).toInt();
@@ -103,7 +100,7 @@ void DlgBPMDetect::loadSettings() {
     int idx = cbFormat->findText(format);
     if (idx >= 0)
         cbFormat->setCurrentIndex(idx);
-    setRecentPath(recentpath);
+    setRecentPath(recentPath);
     spMin->setValue(minBPM);
     spMax->setValue(maxBPM);
 }
@@ -377,7 +374,7 @@ void DlgBPMDetect::slotTestBPM() {
 
 void DlgBPMDetect::slotShowAbout() {
     QString description = tr("Automatic BPM (beats per minute) detecting application.");
-    QString abouttext = tr(" \
+    QString aboutText = tr(" \
 Version:    \t%1 \n \
 Description:\t%2 \n \
 License:    \tGNU General Public License \n \
@@ -385,9 +382,9 @@ License:    \tGNU General Public License \n \
 Author:     \tMartin Sakmar \n \
 e-mail:     \tmartin.sakmar@gmail.com \n \
 ")
-                            .arg(QString::fromLocal8Bit(version))
+                            .arg(QCoreApplication::applicationVersion())
                             .arg(description);
-    QMessageBox::about(this, tr("About BPM Detect"), abouttext);
+    QMessageBox::about(this, tr("About BPM Detect"), aboutText);
 }
 
 void DlgBPMDetect::slotClearTrackList() {
