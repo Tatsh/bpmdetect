@@ -21,11 +21,15 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     m_bpm = bpm;
 
     lblBPM->setText(Track::bpm2str(static_cast<double>(bpm), QStringLiteral("000.00")));
-    connect(trackPosition, SIGNAL(positionChanged(int)), this, SLOT(setCustomPos(int)));
-    connect(player, SIGNAL(hasLengthUS(qint64)), this, SLOT(setTrackPositionLength(qint64)));
+    connect(trackPosition, &ProgressBar::positionChanged, this, &DlgTestBPM::setCustomPos);
+    connect(player, &DlgTestBPMPlayer::hasLengthUS, this, &DlgTestBPM::setTrackPositionLength);
     connect(this, &QDialog::accepted, player, &DlgTestBPMPlayer::stop);
     connect(this, &QDialog::rejected, player, &DlgTestBPMPlayer::stop);
     connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBPM::setNumBeats);
+    connect(this->btnPos1, &QPushButton::clicked, this, [this]() { setPosFromButton(1); });
+    connect(this->btnPos2, &QPushButton::clicked, this, [this]() { setPosFromButton(2); });
+    connect(this->btnPos3, &QPushButton::clicked, this, [this]() { setPosFromButton(3); });
+    connect(this->btnPos4, &QPushButton::clicked, this, [this]() { setPosFromButton(4); });
 
     cbNBeats->setEnabled(false);
     btnPos1->setEnabled(false);
@@ -52,31 +56,10 @@ void DlgTestBPM::setTrackPositionLength(qint64 length) {
     trackPosition->setEnabled(true);
 }
 
-void DlgTestBPM::setPos1() {
-    auto msec = trackPosition->length() / 5;
+void DlgTestBPM::setPosFromButton(int index) {
+    auto msec = (trackPosition->length() * index) / 5;
     player->update(cbNBeats->currentText().toUInt(),
-                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.2));
-    trackPosition->setPosition(msec);
-}
-
-void DlgTestBPM::setPos2() {
-    auto msec = (trackPosition->length() * 2) / 5;
-    player->update(cbNBeats->currentText().toUInt(),
-                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.4));
-    trackPosition->setPosition(msec);
-}
-
-void DlgTestBPM::setPos3() {
-    auto msec = (trackPosition->length() * 3) / 5;
-    player->update(cbNBeats->currentText().toUInt(),
-                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.6));
-    trackPosition->setPosition(msec);
-}
-
-void DlgTestBPM::setPos4() {
-    auto msec = (trackPosition->length() * 4) / 5;
-    player->update(cbNBeats->currentText().toUInt(),
-                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * 0.8));
+                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * (index * 0.2)));
     trackPosition->setPosition(msec);
 }
 

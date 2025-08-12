@@ -21,12 +21,12 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(
     decoder->setSource(QUrl::fromLocalFile(file));
     decoder->start();
 
-    connect(decoder, SIGNAL(bufferReady()), this, SLOT(readBuffer()));
+    connect(decoder, &QAudioDecoder::bufferReady, this, &DlgTestBPMPlayer::readBuffer);
     connect(decoder,
-            SIGNAL(error(QAudioDecoder::Error)),
+            QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error),
             this,
-            SLOT(decodeError(QAudioDecoder::Error)));
-    connect(decoder, SIGNAL(finished()), this, SLOT(finishedDecoding()));
+            &DlgTestBPMPlayer::decodeError);
+    connect(decoder, &QAudioDecoder::finished, this, &DlgTestBPMPlayer::finishedDecoding);
 }
 
 DlgTestBPMPlayer::~DlgTestBPMPlayer() {

@@ -60,14 +60,14 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
             SIGNAL(customContextMenuRequested(const QPoint &)),
             this,
             SLOT(slotListMenuPopup(const QPoint &)));
-    connect(TrackList, SIGNAL(drop(QDropEvent *)), this, SLOT(slotDropped(QDropEvent *)));
+    connect(TrackList, &QDropListView::drop, this, &DlgBPMDetect::slotDropped);
 
-    connect(btnStart, SIGNAL(clicked()), this, SLOT(slotStartStop()));
+    connect(btnStart, &QPushButton::clicked, this, &DlgBPMDetect::slotStartStop);
 
     m_pTrack = new TrackProxy(QStringLiteral(""));
     m_pTrack->enableConsoleProgress(false);
 
-    connect(&m_qTimer, SIGNAL(timeout()), this, SLOT(slotTimerDone()));
+    connect(&m_qTimer, &QTimer::timeout, this, &DlgBPMDetect::slotTimerDone);
     m_qTimer.start(20);
 }
 

@@ -35,11 +35,11 @@ public:
     void update(uint nBeats_, qint64 posUS_ = 0);
     /** Stop the player. */
     void stop();
+    /** Signal for when length is discovered. */
+    Q_SIGNAL void hasLengthUS(qint64);
 
 protected:
     void run() override;
-    /** Signal for when length is discovered. */
-    Q_SIGNAL void hasLengthUS(qint64);
 
 protected Q_SLOTS:
     /** Read buffer. */

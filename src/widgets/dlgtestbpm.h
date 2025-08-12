@@ -26,14 +26,6 @@ public:
     ~DlgTestBPM() override;
 
 protected Q_SLOTS:
-    /** Set position 1. */
-    void setPos1();
-    /** Set position 2. */
-    void setPos2();
-    /** Set position 3. */
-    void setPos3();
-    /** Set position 4. */
-    void setPos4();
     /** Set a custom position in milliseconds. */
     void setCustomPos(int msec);
     /** Set number of beats to loop. @a s should contain an integer. */
@@ -44,6 +36,7 @@ protected Q_SLOTS:
     void setTrackPositionLength(qint64);
 
 private:
+    void setPosFromButton(int msec);
     DlgTestBPMPlayer *player;
     QList<float> m_bpmList;
     float m_bpm;
