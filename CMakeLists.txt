@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.31)
+# set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 project(
   bpmdetect
   VERSION 0.7.2

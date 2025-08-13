@@ -23,26 +23,40 @@ jobs:
   #     fail-fast: false
   #     matrix:
   #       build-type: [Debug, Release]
-  # build-macos:
-  #   runs-on: macos-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: install deps
-  #       run: brew install flac libvorbis qt sound-touch taglib wavpack
-  #     - run: |
-  #         cmake -S . -B build -DCMAKE_VERBOSE_MAKEFILE=ON \
-  #           -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
-  #           -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/build/prefix
-  #         cmake --build build --config ${{matrix.build-type}} --verbose
-  #         cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
-  #     - name: Package
-  #       run: >-
-  #         cpack -C ${{matrix.build-type}}
-  #         --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       build-type: [Debug, Release]
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install deps
+        run: brew install extra-cmake-modules flac libvorbis qt sound-touch taglib wavpack
+      - run: |
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
+            --install-prefix ${{github.workspace}}/build/prefix \
+            -DCMAKE_APPLE_SILICON_PROCESSOR=arm64
+          cmake --build build --config ${{matrix.build-type}} --verbose
+          cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
+      - name: Package
+        run: >-
+          cpack -C ${{matrix.build-type}}
+          --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
+      - name: Get Latest Tag
+        id: latest_tag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: v0.7.2
+      - name: Upload package
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{github.workspace}}/bpmdetect-*.zip
+            ${{github.workspace}}/bpmdetect-*.dmg
+          tag_name: ${{ steps.latest_tag.outputs.tag }}
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type: [Debug, Release]
   # build-win:
   #   permissions:
   #     contents: write
@@ -114,7 +128,6 @@ jobs:
           cmake -G Ninja -B ${{steps.fixed_workspace.outputs.out}}/build
           --install-prefix ${{steps.fixed_workspace.outputs.out}}/build/prefix
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
-          -DCMAKE_PREFIX_PATH=${{steps.fixed_workspace.outputs.out}}/build/prefix
           -DENABLE_FLAC=ON
           -DENABLE_MP3=ON
           -DENABLE_VORBIS=ON

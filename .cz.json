@@ -2,6 +2,7 @@
   "commitizen": {
     "tag_format": "v$version",
     "version_files": [
+      ".github/workflows/cmake.yml",
       ".wiswa.jsonnet",
       "CITATION.cff",
       "CMakeLists.txt",

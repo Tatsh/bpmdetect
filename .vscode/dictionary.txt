@@ -1,3 +1,4 @@
+appl
 autobuild
 autogen
 autoinstall
@@ -65,6 +66,7 @@ htmlcov
 iconset
 ifdef
 ignorecrc
+infoplist
 interprocedural
 iwyu
 jbig

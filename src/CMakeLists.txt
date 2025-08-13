@@ -24,17 +24,28 @@ qt_add_executable(
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)
+elseif(APPLE)
+  set_target_properties(
+    bpmdetect
+    PROPERTIES OUTPUT_NAME "BPM Detect"
+               MACOSX_BUNDLE_BUNDLE_NAME "BPM Detect"
+               MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+               MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
+               MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 BPM Detect authors."
+               MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
 endif()
 target_include_directories(bpmdetect PRIVATE . widgets)
 target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Gui
                                         Qt6::Widgets bpmdetect-track bpmdetect-widgets)
 if(NOT FHS)
   if(APPLE)
-    set(deploy_tool_options_arg --hardened-runtime)
+    set(deploy_tool_options_arg -hardened-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>.app")
+    set(executable_dir .)
   elseif(WIN32)
     set(deploy_tool_options_arg --no-compiler-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>")
+    set(executable_dir "${CMAKE_INSTALL_BINDIR}")
   endif()
   qt_generate_deploy_script(
     TARGET
@@ -44,15 +55,20 @@ if(NOT FHS)
     CONTENT
     [[
     qt_deploy_runtime_dependencies(
-    EXECUTABLE "${CMAKE_INSTALL_BINDIR}/${executable_path}"
+    EXECUTABLE "${executable_dir}/${executable_path}"
     DEPLOY_TOOL_OPTIONS ${deploy_tool_options_arg}
     GENERATE_QT_CONF
     VERBOSE)
     ]])
   install(TARGETS bpmdetect RUNTIME_DEPENDENCY_SET bpmdetect-deps BUNDLE DESTINATION .)
   install(SCRIPT ${deploy_script})
-  install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
-  install(FILES ../CITATION.cff DESTINATION ${CMAKE_INSTALL_DATADIR}/bpmdetect)
+  if(APPLE)
+    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
+            DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
+  else()
+    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
+    install(FILES ../CITATION.cff DESTINATION ${CMAKE_INSTALL_DATADIR}/bpmdetect)
+  endif()
   if(MINGW)
     get_filename_component(_mingw_bin_dir ${CMAKE_C_COMPILER} DIRECTORY)
     install(
@@ -119,6 +135,12 @@ if(__cpack_system_name MATCHES "Windows")
     set(__cpack_system_name win64)
   else()
     set(__cpack_system_name win32)
+  endif()
+elseif(APPLE)
+  if(CMAKE_APPLE_SILICON_PROCESSOR)
+    set(__cpack_system_name Darwin-arm64)
+  else()
+    set(__cpack_system_name Darwin-x86_64)
   endif()
 endif()
 set(CPACK_PACKAGE_FILE_NAME
