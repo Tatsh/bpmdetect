@@ -96,7 +96,7 @@ void DlgBPMDetect::loadSettings() {
     spMax->setValue(maxBPM);
     restoreGeometry(
         settings.value(QStringLiteral("/BPMDetect/Geometry"), saveGeometry()).toByteArray());
-    //move(settings.value(QStringLiteral("/BPMDetect/Position"), pos()).toPoint());
+    move(settings.value(QStringLiteral("/BPMDetect/Position"), pos()).toPoint());
     resize(settings.value(QStringLiteral("/BPMDetect/Size"), size()).toSize());
 }
 

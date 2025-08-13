@@ -16,6 +16,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - CMake: `FHS` option, off by default. Please enable this option if you are packaging for Linux or
   a similar system.
 - Save window size in settings.
+- Save window position in settings (not working on Linux Wayland for me).
 
 ## Changed
 
