@@ -24,6 +24,7 @@ jobs:
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
           -DBUILD_TESTS=ON
           -DCOVERAGE=ON
+          -DFHS=ON
       - name: Build
         run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
       - name: Install

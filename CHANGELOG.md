@@ -11,8 +11,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Added
 
-- Options at build-time to enable FLAC, MP3, OGG, WavPack. All of these options are off by default.
+- Options at build time to enable FLAC, MP3, OGG, WavPack. All of these options are off by default.
   Without setting any of these options to `ON`, the app will only support wave files.
+- CMake: `FHS` option, off by default. Please enable this option if you are packaging for Linux or
+  a similar system.
 
 ## Changed
 

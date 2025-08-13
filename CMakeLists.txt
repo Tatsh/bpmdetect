@@ -4,6 +4,7 @@ project(
   VERSION 0.7.2
   DESCRIPTION "Automatic BPM detection tool.")
 
+include(FeatureSummary)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 
@@ -25,6 +26,7 @@ option(ENABLE_FLAC "Enable FLAC support." OFF)
 option(ENABLE_MP3 "Enable MP3 support." OFF)
 option(ENABLE_VORBIS "Enable Vorbis support." OFF)
 option(ENABLE_WAVPACK "Enable WavPack support." OFF)
+option(FHS "Install to FHS-compliant directories." OFF)
 option(I18N "Enable i18n support." OFF)
 
 if(NOT BUILD_DOCS_ONLY)
@@ -37,6 +39,7 @@ if(NOT BUILD_DOCS_ONLY)
   find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)
   find_package(Qt6Multimedia 6.7 CONFIG REQUIRED)
   find_package(Qt6Widgets 6.7 CONFIG REQUIRED)
+  qt_standard_project_setup()
   pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
   pkg_check_modules(TAGLIB taglib REQUIRED IMPORTED_TARGET GLOBAL)
 
