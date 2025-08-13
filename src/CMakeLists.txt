@@ -12,14 +12,11 @@ ecm_qt_declare_logging_category(
   CATEGORY_NAME
   "sh.tat.${CMAKE_PROJECT_NAME}")
 
-qt_add_executable(
-  bpmdetect
-  WIN32
-  MACOSX_BUNDLE
-  icon.rc
-  images.h
-  main.cpp
-  utils.h)
+qt_add_executable(bpmdetect WIN32 MACOSX_BUNDLE images.h main.cpp utils.h)
+if(WIN32)
+  configure_file("version.rc.in" version.rc @ONLY)
+  target_sources(bpmdetect PRIVATE version.rc)
+endif()
 target_include_directories(bpmdetect PRIVATE . widgets)
 target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Gui
                                         Qt6::Widgets bpmdetect-track bpmdetect-widgets)

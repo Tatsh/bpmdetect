@@ -177,3 +177,12 @@ wyri
 xiph
 xvidcore
 zvbi
+dlgtestbpmdlg
+fileflags
+fileflagsmask
+fileos
+filesubtype
+fileversion
+ifdef
+productversion
+versioninfo
