@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 
     QCoreApplication::setApplicationName(QStringLiteral("bpmdetect"));
     QCoreApplication::setApplicationVersion(QStringLiteral("0.7.2"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("tat.sh"));
     QCoreApplication::setOrganizationName(QStringLiteral("Tatsh"));
 
     QCommandLineParser parser;
