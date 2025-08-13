@@ -79,13 +79,7 @@ DlgBPMDetect::~DlgBPMDetect() {
 }
 
 void DlgBPMDetect::loadSettings() {
-#ifdef DEBUG
-    qDebug("Loading settings");
-#endif
-    QSettings settings(QSettings::IniFormat,
-                       QSettings::UserScope,
-                       QStringLiteral(""),
-                       QStringLiteral("BPMDetect"));
+    QSettings settings;
     QString format =
         settings.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
     bool skip = settings.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
@@ -105,19 +99,14 @@ void DlgBPMDetect::loadSettings() {
 }
 
 void DlgBPMDetect::saveSettings() {
-    QSettings settings(QSettings::IniFormat,
-                       QSettings::UserScope,
-                       QStringLiteral(""),
-                       QStringLiteral("BPMDetect"));
+    QSettings settings;
     settings.setValue(QStringLiteral("/BPMDetect/TBPMFormat"), cbFormat->currentText());
     settings.setValue(QStringLiteral("/BPMDetect/SkipScanned"), chbSkipScanned->isChecked());
     settings.setValue(QStringLiteral("/BPMDetect/SaveBPM"), chbSave->isChecked());
     settings.setValue(QStringLiteral("/BPMDetect/RecentPath"), getRecentPath());
     settings.setValue(QStringLiteral("/BPMDetect/MinBPM"), spMin->value());
     settings.setValue(QStringLiteral("/BPMDetect/MaxBPM"), spMax->value());
-#ifdef DEBUG
-    qDebug("Settings saved");
-#endif
+    settings.sync();
 }
 
 void DlgBPMDetect::enableControls(bool enable) {
