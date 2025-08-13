@@ -15,6 +15,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Without setting any of these options to `ON`, the app will only support wave files.
 - CMake: `FHS` option, off by default. Please enable this option if you are packaging for Linux or
   a similar system.
+- Save window size in settings.
 
 ## Changed
 
