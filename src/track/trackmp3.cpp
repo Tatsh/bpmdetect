@@ -26,7 +26,7 @@ TrackMp3::~TrackMp3() {
 
 void TrackMp3::clearFrameList() {
     for (qsizetype i = 0; i < m_qSeekList.size(); i++) {
-        MadSeekFrameType *p = m_qSeekList.at(i);
+        auto p = m_qSeekList.at(i);
         delete p;
         p = nullptr;
     }
@@ -67,7 +67,7 @@ void TrackMp3::open() {
     filelength = mad_timer_zero;
     pos = mad_timer_zero;
 
-    int channels = 0;
+    auto channels = 0;
     uint sRate = 44100;
     clearFrameList();
     while ((stream.bufend - stream.this_frame) > 0) {
@@ -81,7 +81,7 @@ void TrackMp3::open() {
         }
 
         // Add frame to list of frames
-        MadSeekFrameType *p = new MadSeekFrameType;
+        auto p = new MadSeekFrameType;
         p->m_pStreamPos = const_cast<unsigned char *>(stream.this_frame);
         p->pos = madLength();
         m_qSeekList.push_back(p);
@@ -138,7 +138,7 @@ void TrackMp3::close() {
 inline long TrackMp3::madLength() {
     enum mad_units units;
 
-    int sRate = sampleRate();
+    auto sRate = sampleRate();
     switch (sRate) {
     case 8000:
         units = MAD_UNITS_8000_HZ;
@@ -337,7 +337,7 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
         auto leftSpan = unsafe_forge_span(synth.pcm.samples[0], no);
         auto rightSpan =
             nchannels > 1 ? unsafe_forge_span(synth.pcm.samples[1], no) : QSpan<mad_fixed_t>();
-        for (int i = 0; i < no; i++) {
+        for (auto i = 0; i < no; i++) {
             // Left channel
             if (dest_index < dest.size())
                 dest[dest_index++] = static_cast<short>(madScale(leftSpan[i]));
@@ -378,7 +378,7 @@ inline signed int TrackMp3::madScale(mad_fixed_t sample) {
 // Decode the chosen number of samples and discard
 unsigned long TrackMp3::discard(unsigned long samples_wanted) {
     unsigned long Total_samples_decoded = 0;
-    int no = 0;
+    auto no = 0;
 
     if (rest > 0)
         Total_samples_decoded +=
@@ -412,7 +412,7 @@ int TrackMp3::findFrame(int framePos) {
     // Guess position of frame in m_qSeekList based on average frame size
     uint frameIdx = qMin(static_cast<uint>(m_qSeekList.size() - 1),
                          m_iAvgFrameSize ? static_cast<uint>(framePos / m_iAvgFrameSize) : 0);
-    MadSeekFrameType *temp = m_qSeekList.at(frameIdx);
+    auto temp = m_qSeekList.at(frameIdx);
 
     // Ensure that the list element is not at a greater position than framePos
     while (temp != nullptr && temp->pos > framePos) {
@@ -459,7 +459,7 @@ void TrackMp3::readTags() {
     TagLib::MPEG::File f(fname.toUtf8().constData(), false);
 
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
-    if (tag != NULL) {
+    if (tag != nullptr) {
         setArtist(QString::fromUtf8(tag->artist().toCString(true)));
         setTitle(QString::fromUtf8(tag->title().toCString(true)));
 

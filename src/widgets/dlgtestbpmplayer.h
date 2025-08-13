@@ -24,7 +24,7 @@ public:
         const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0, QObject *parent = nullptr);
     ~DlgTestBPMPlayer() override;
     /** Get the length in microseconds. */
-    qint64 getLengthUS() {
+    auto getLengthUS() {
         return lengthUS;
     }
     /**

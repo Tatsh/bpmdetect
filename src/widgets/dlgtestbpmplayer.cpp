@@ -45,7 +45,7 @@ void DlgTestBPMPlayer::readBuffer() {
 }
 
 void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
-    qDebug() << err;
+    qDebug() << "Audio decoder error:" << err;
     error = true;
 }
 

@@ -12,7 +12,15 @@ ecm_qt_declare_logging_category(
   CATEGORY_NAME
   "sh.tat.${CMAKE_PROJECT_NAME}")
 
-qt_add_executable(bpmdetect WIN32 MACOSX_BUNDLE images.h main.cpp utils.h)
+qt_add_executable(
+  bpmdetect
+  WIN32
+  MACOSX_BUNDLE
+  bpmdetect.png
+  bpmdetect.qrc
+  icon.ico
+  main.cpp
+  utils.h)
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)

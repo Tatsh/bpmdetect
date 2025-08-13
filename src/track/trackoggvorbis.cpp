@@ -46,17 +46,13 @@ void TrackOggVorbis::open() {
     // Try to open the file for reading
     fptr.setFileName(fname);
     if (!fptr.open(QFile::ReadOnly)) {
-#ifdef DEBUG
-        std::cerr << "TrackOggVorbis: can not open file" << endl;
-#endif
+        qCritical() << "TrackOggVorbis: can not open file";
         return;
     }
 
     setOpened(true);
     if (ov_fopen(fptr.fileName().toUtf8().constData(), &vf) < 0) {
-#ifdef DEBUG
-        cerr << "TrackOggVorbis: Input does not appear to be an Ogg bitstream" << endl;
-#endif
+        qCritical() << "TrackOggVorbis: Input does not appear to be an Ogg bitstream";
         close();
         return;
     }
@@ -92,14 +88,11 @@ void TrackOggVorbis::seek(qint64 ms) {
         auto pos = (ms * sampleRate() /* * channels()*/) / 1000;
         if (ov_pcm_seek(&vf, static_cast<ogg_int64_t>(pos)) == 0) {
             m_iCurPosPCM = pos;
-        }
-#ifdef DEBUG
-        else {
-            cerr << "seek failed: seek ERR.";
+        } else {
+            qCritical() << "seek failed: seek ERR.";
         }
     } else {
-        cerr << "seek failed: track not valid" << endl;
-#endif
+        qCritical() << "seek failed: track not valid";
     }
 }
 
@@ -168,12 +161,12 @@ void TrackOggVorbis::readTags() {
     auto fname = filename();
     auto sBPM = QStringLiteral("000.00");
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
-    TagLib::Ogg::XiphComment *tag = f.tag();
-    if (tag != NULL) {
+    auto tag = f.tag();
+    if (tag != nullptr) {
         setArtist(QString::fromUtf8(tag->artist().toCString(true)));
         setTitle(QString::fromUtf8(tag->title().toCString(true)));
-        TagLib::Ogg::FieldListMap flMap = tag->fieldListMap();
-        TagLib::StringList strl = flMap["TBPM"];
+        auto flMap = tag->fieldListMap();
+        auto strl = flMap["TBPM"];
         if (!strl.isEmpty())
             sBPM = QString::fromUtf8(strl[0].toCString(true));
     }
@@ -187,8 +180,8 @@ void TrackOggVorbis::removeBPM() {
     auto fname = filename();
     //close();
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
-    TagLib::Ogg::XiphComment *tag = f.tag();
-    if (tag == NULL) {
+    auto tag = f.tag();
+    if (tag == nullptr) {
         return;
     }
     tag->removeFields("TBPM");

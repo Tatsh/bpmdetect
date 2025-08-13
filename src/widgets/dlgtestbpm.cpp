@@ -74,7 +74,7 @@ void DlgTestBPM::setCustomPos(int msec) {
 }
 
 void DlgTestBPM::setNumBeats(const QString &s) {
-    int value = trackPosition->value();
+    auto value = trackPosition->value();
     if (value < 0) {
         value = 0;
     }
@@ -86,17 +86,17 @@ void DlgTestBPM::setNumBeats(const QString &s) {
 }
 
 void DlgTestBPM::slotUpdateBpmList() {
-    const int MIN_BPM = 45;
-    const int MAX_BPM = 220;
+    const auto MIN_BPM = 45;
+    const auto MAX_BPM = 220;
 
     m_bpmList.clear();
 
     if (m_bpm > MIN_BPM && m_bpm < MAX_BPM) {
-        float cBPM = m_bpm;
+        auto cBPM = m_bpm;
         while (cBPM / 2.f > MIN_BPM)
             cBPM /= 2.f;
 
-        const float d = 0.25f * cBPM;
+        const auto d = 0.25f * cBPM;
         while (cBPM - d > MIN_BPM)
             cBPM -= d;
 
@@ -104,7 +104,7 @@ void DlgTestBPM::slotUpdateBpmList() {
             m_bpmList.append(cBPM);
         }
     }
-#ifdef DEBUG
+#ifndef NDEBUG
     qDebug() << m_bpmList;
     qDebug() << "total list size:" << m_bpmList.size();
 #endif

@@ -16,8 +16,8 @@ QDropListView::~QDropListView() {
 }
 
 void QDropListView::slotRemoveSelected() {
-    QList<QTreeWidgetItem *> items = selectedItems();
-    for (int i = 0; i < items.size(); ++i) {
+    auto items = selectedItems();
+    for (auto i = 0; i < items.size(); ++i) {
         delete items.at(i);
     }
 }

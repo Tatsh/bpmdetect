@@ -40,7 +40,7 @@ void Track::setMinBPM(double dMin) {
         _dMinBPM = dMin;
     // swap min and max if min is greater than max
     if (_dMinBPM > _dMaxBPM) {
-        double temp = _dMinBPM;
+        auto temp = _dMinBPM;
         _dMinBPM = _dMaxBPM;
         _dMaxBPM = temp;
     }
@@ -51,7 +51,7 @@ void Track::setMaxBPM(double dMax) {
         _dMaxBPM = dMax;
     // swap min and max if min is greater than max
     if (_dMinBPM > _dMaxBPM) {
-        double temp = _dMinBPM;
+        auto temp = _dMinBPM;
         _dMinBPM = _dMaxBPM;
         _dMaxBPM = temp;
     }
@@ -204,7 +204,7 @@ void Track::setEndPos(qint64 ms) {
         return;
     m_iEndPos = ms;
     if (m_iEndPos < m_iStartPos) {
-        qint64 tmp = m_iEndPos;
+        auto tmp = m_iEndPos;
         m_iEndPos = m_iStartPos;
         m_iStartPos = tmp;
     }
@@ -324,8 +324,8 @@ void Track::readInfo() {
 }
 
 double Track::correctBPM(double dBPM) const {
-    double min = getMinBPM();
-    double max = getMaxBPM();
+    auto min = getMinBPM();
+    auto max = getMaxBPM();
 
     if (dBPM < 1)
         return 0.;
@@ -361,14 +361,14 @@ double Track::detectBPM() {
     setProgress(0);
     m_bStop = false;
 
-    double oldBPM = getBPM();
-    const double epsilon = 1e-6;
+    auto oldBPM = getBPM();
+    const auto epsilon = 1e-6;
     if (!redetect() && std::abs(oldBPM) > epsilon) {
         return oldBPM;
     }
 
     const uint NUM_SAMPLES = 4096;
-    int chan = channels();
+    auto chan = channels();
 
     if (!sampleRate() || !chan) {
         return oldBPM;
@@ -379,7 +379,7 @@ double Track::detectBPM() {
     soundtouch::BPMDetect detector(chan, sampleRate());
 
     qint64 currentProgress = 0, pProgress = 0;
-    int readSamples_ = 0;
+    auto readSamples_ = 0;
     seek(startPos());
     while (!m_bStop && currentPos() < endPos() && 0 < (readSamples_ = readSamples(samples))) {
         detector.inputSamples(samples, readSamples_ / chan);

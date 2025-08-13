@@ -28,7 +28,7 @@ void TrackFlac::open() {
 
     FLAC__StreamDecoderInitStatus init_status;
 
-    if ((m_decoder = FLAC__stream_decoder_new()) == NULL) {
+    if ((m_decoder = FLAC__stream_decoder_new()) == nullptr) {
         qCritical() << "Error allocating decoder.";
         return;
     }
@@ -110,7 +110,7 @@ int TrackFlac::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     if (!isValid() || !m_decoder || num < 2)
         return -1;
 
-    FLAC__StreamDecoderState state = FLAC__stream_decoder_get_state(m_decoder);
+    auto state = FLAC__stream_decoder_get_state(m_decoder);
     if (state == FLAC__STREAM_DECODER_END_OF_STREAM || state == FLAC__STREAM_DECODER_ABORTED) {
         return 0;
     }
@@ -149,7 +149,7 @@ void TrackFlac::storeBPM(const QString &format) {
     auto sBPM = bpm2str(getBPM(), format);
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
     auto xiph = f.xiphComment(true);
-    if (xiph != NULL) {
+    if (xiph != nullptr) {
         xiph->addField(
             "TBPM", sBPM.toUtf8().constData(), true); // add new BPM field (replace existing)
     }
@@ -160,24 +160,24 @@ void TrackFlac::readTags() {
     auto fname = filename();
     auto sBPM = QStringLiteral("000.00");
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
-    TagLib::Tag *tag = f.tag();
-    if (tag != NULL) {
+    auto tag = f.tag();
+    if (tag != nullptr) {
         setArtist(QString::fromUtf8(tag->artist().toCString(true)));
         setTitle(QString::fromUtf8(tag->title().toCString(true)));
     }
 
     TagLib::Ogg::XiphComment *xiph = f.xiphComment(true);
-    if (xiph != NULL) {
-        TagLib::Ogg::FieldListMap flMap = xiph->fieldListMap();
-        TagLib::StringList strl = flMap["TBPM"];
+    if (xiph != nullptr) {
+        auto flMap = xiph->fieldListMap();
+        auto strl = flMap["TBPM"];
         if (!strl.isEmpty())
             sBPM = QString::fromUtf8(strl[0].toCString(true));
         else {
-            TagLib::ID3v2::Tag *id3v2tag = f.ID3v2Tag(true);
-            if (id3v2tag != NULL) {
-                TagLib::List<TagLib::ID3v2::Frame *> lst = id3v2tag->frameList("TBPM");
+            auto id3v2tag = f.ID3v2Tag(true);
+            if (id3v2tag != nullptr) {
+                auto lst = id3v2tag->frameList("TBPM");
                 if (lst.size() > 0) {
-                    TagLib::ID3v2::Frame *frame = lst[0];
+                    auto frame = lst[0];
                     sBPM = QString::fromUtf8(frame->toString().toCString(true));
                 }
             }
@@ -213,7 +213,7 @@ FLAC__StreamDecoderWriteStatus TrackFlac::writeCallback(const FLAC__StreamDecode
 #pragma clang diagnostic pop
                                                         void *client_data) {
     (void)decoder;
-    FLAC_CLIENT_DATA *clientData = reinterpret_cast<FLAC_CLIENT_DATA *>(client_data);
+    auto clientData = reinterpret_cast<FLAC_CLIENT_DATA *>(client_data);
     if (!clientData) {
         qCritical() << "No client data.";
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
@@ -274,7 +274,7 @@ void TrackFlac::metadataCallback(const FLAC__StreamDecoder *decoder,
                                  const FLAC__StreamMetadata *metadata,
                                  void *client_data) {
     Q_UNUSED(decoder)
-    FLAC_CLIENT_DATA *info = reinterpret_cast<FLAC_CLIENT_DATA *>(client_data);
+    auto info = reinterpret_cast<FLAC_CLIENT_DATA *>(client_data);
 
     if (info != nullptr && metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
         info->sRate = metadata->data.stream_info.sample_rate;

@@ -5,9 +5,12 @@
 #include <QtCore>
 #include <QtGui>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 #include "dlgbpmdetect.h"
 #include "dlgtestbpm.h"
-#include "images.h"
 #include "qdroplistview.h"
 
 #define PROGRESSCOLUMN 4
@@ -18,11 +21,6 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     m_pCurItem = nullptr;
     m_iCurTrackIdx = 0;
     m_pProgress = nullptr;
-
-    QImage img;
-    img.loadFromData(icon_png, sizeof(icon_png), "PNG");
-    setWindowIcon(QPixmap::fromImage(img));
-    setWindowTitle(QStringLiteral("BPM Detect"));
 
     loadSettings();
 
@@ -45,11 +43,14 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
                       0,
                       KEY_READ,
                       &hKey);
-    auto result2 = RegQueryValueExA(hKey, "WindowsMediaVersion", nullptr, &type, nullptr, nullptr);
+    auto result2 =
+        RegQueryValueExA(hKey, "WindowsMediaVersion", nullptr, nullptr, nullptr, nullptr);
     if (result != ERROR_SUCCESS || result2 != ERROR_SUCCESS) {
         testBpmAction->setEnabled(false);
     }
     RegCloseKey(hKey);
+#else
+    Q_UNUSED(testBpmAction)
 #endif
     m_pListMenu->addSeparator();
     m_pListMenu->addAction(tr("Save BPM"), this, &DlgBPMDetect::slotSaveBPM);

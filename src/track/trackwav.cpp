@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#include <QDebug>
 #include <QtEndian>
 #include <id3v2frame.h>
 #include <id3v2tag.h>
@@ -9,7 +10,7 @@
 const QString fmtStr = QStringLiteral("fmt ");
 const QString dataStr = QStringLiteral("data");
 
-static inline bool isAlphaStr(const QString &str) {
+static inline auto isAlphaStr(const QString &str) {
     for (char c : str.toUtf8()) {
         if (!isalpha(static_cast<unsigned char>(c)))
             return false;
@@ -53,11 +54,11 @@ void TrackWav::open() {
 
     unsigned long long numSamples =
         header.data.data_len / static_cast<unsigned long long>(header.format.byte_per_sample);
-    int sRate = header.format.sample_rate;
-    int channels = header.format.channel_number;
+    auto sRate = header.format.sample_rate;
+    auto channels = header.format.channel_number;
 
     uint len = (1000 * static_cast<uint>(numSamples) / static_cast<uint>(sRate));
-    int sbytes = header.format.bits_per_sample;
+    auto sbytes = header.format.bits_per_sample;
 
     setLength(len);
     setStartPos(0);
@@ -82,14 +83,12 @@ void TrackWav::seek(qint64 ms) {
     if (isValid()) {
         fptr.seek(0);
         auto pos = (ms * sampleRate() * sampleBytes()) / 1000;
-        int hdrsOk = readWavHeaders();
+        auto hdrsOk = readWavHeaders();
         Q_ASSERT(hdrsOk == 0);
         fptr.seek(pos);
         m_iCurPosBytes = pos;
-#ifdef DEBUG
     } else {
-        cerr << "seek failed: track not valid" << endl;
-#endif
+        qCritical() << "seek failed: track not valid";
     }
 }
 
@@ -269,7 +268,7 @@ int TrackWav::readHeaderBlock() {
 
     // lead label string
     auto read = fptr.read(label, 4);
-    QString sLabel = QString::fromUtf8(label);
+    auto sLabel = QString::fromUtf8(label);
     Q_ASSERT(read > 0);
     label[4] = 0;
 
