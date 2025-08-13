@@ -22,8 +22,7 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     QImage img;
     img.loadFromData(icon_png, sizeof(icon_png), "PNG");
     setWindowIcon(QPixmap::fromImage(img));
-    auto strcaption = QStringLiteral("BPM Detect v%1").arg(QCoreApplication::applicationVersion());
-    setWindowTitle(strcaption);
+    setWindowTitle(QStringLiteral("BPM Detect"));
 
     loadSettings();
 
@@ -60,7 +59,6 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
             this,
             SLOT(slotListMenuPopup(const QPoint &)));
     connect(TrackList, &QDropListView::drop, this, &DlgBPMDetect::slotDropped);
-
     connect(btnStart, &QPushButton::clicked, this, &DlgBPMDetect::slotStartStop);
 
     m_pTrack = new TrackProxy(QStringLiteral(""));
@@ -96,6 +94,10 @@ void DlgBPMDetect::loadSettings() {
     setRecentPath(recentPath);
     spMin->setValue(minBPM);
     spMax->setValue(maxBPM);
+    restoreGeometry(
+        settings.value(QStringLiteral("/BPMDetect/Geometry"), saveGeometry()).toByteArray());
+    //move(settings.value(QStringLiteral("/BPMDetect/Position"), pos()).toPoint());
+    resize(settings.value(QStringLiteral("/BPMDetect/Size"), size()).toSize());
 }
 
 void DlgBPMDetect::saveSettings() {
@@ -106,6 +108,9 @@ void DlgBPMDetect::saveSettings() {
     settings.setValue(QStringLiteral("/BPMDetect/RecentPath"), getRecentPath());
     settings.setValue(QStringLiteral("/BPMDetect/MinBPM"), spMin->value());
     settings.setValue(QStringLiteral("/BPMDetect/MaxBPM"), spMax->value());
+    settings.setValue(QStringLiteral("/BPMDetect/Geometry"), saveGeometry());
+    settings.setValue(QStringLiteral("/BPMDetect/Position"), pos());
+    settings.setValue(QStringLiteral("/BPMDetect/Size"), size());
     settings.sync();
 }
 
