@@ -26,8 +26,12 @@
     <property name="windowTitle">
       <string>BPM Detect</string>
     </property>
+    <property name="windowIcon">
+      <iconset>
+        <normaloff>../bpmdetect.png</normaloff>../bpmdetect.png</iconset>
+    </property>
     <layout class="QGridLayout">
-      <property name="margin">
+      <property name="margin" stdset="0">
         <number>5</number>
       </property>
       <item row="0" column="0">
@@ -135,7 +139,8 @@
                 <string>BPM tag format:</string>
               </property>
               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set
+                >Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
               <property name="wordWrap">
                 <bool>false</bool>
@@ -204,13 +209,13 @@
       <item row="1" column="0">
         <widget class="QDropListView" name="TrackList">
           <property name="contextMenuPolicy">
-            <enum>Qt::CustomContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
           </property>
           <property name="acceptDrops">
             <bool>true</bool>
           </property>
           <property name="selectionMode">
-            <enum>QAbstractItemView::ExtendedSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
           </property>
           <property name="rootIsDecorated">
             <bool>false</bool>
@@ -244,7 +249,7 @@
             <property name="spacing">
               <number>2</number>
             </property>
-            <property name="margin">
+            <property name="margin" stdset="0">
               <number>2</number>
             </property>
             <item>
@@ -361,10 +366,10 @@
           <item>
             <spacer>
               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeType">
-                <enum>QSizePolicy::Expanding</enum>
+                <enum>QSizePolicy::Policy::Expanding</enum>
               </property>
               <property name="sizeHint" stdset="0">
                 <size>
@@ -473,9 +478,7 @@
   <includes>
     <include location="local">widgets/qdroplistview.h</include>
   </includes>
-  <resources>
-    <include location="resource.qrc" />
-  </resources>
+  <resources />
   <connections>
     <connection>
       <sender>btnAddFiles</sender>
@@ -558,4 +561,11 @@
       </hints>
     </connection>
   </connections>
+  <slots>
+    <slot>slotAddFiles()</slot>
+    <slot>slotAddDir()</slot>
+    <slot>slotRemoveSelected()</slot>
+    <slot>slotShowAbout()</slot>
+    <slot>slotClearTrackList()</slot>
+  </slots>
 </ui>
