@@ -26,10 +26,10 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     connect(this, &QDialog::accepted, player, &DlgTestBPMPlayer::stop);
     connect(this, &QDialog::rejected, player, &DlgTestBPMPlayer::stop);
     connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBPM::setNumBeats);
-    connect(this->btnPos1, &QPushButton::clicked, this, [this]() { setPosFromButton(1); });
-    connect(this->btnPos2, &QPushButton::clicked, this, [this]() { setPosFromButton(2); });
-    connect(this->btnPos3, &QPushButton::clicked, this, [this]() { setPosFromButton(3); });
-    connect(this->btnPos4, &QPushButton::clicked, this, [this]() { setPosFromButton(4); });
+    connect(this->btnPos1, &QPushButton::clicked, [this]() { setPosFromButton(1); });
+    connect(this->btnPos2, &QPushButton::clicked, [this]() { setPosFromButton(2); });
+    connect(this->btnPos3, &QPushButton::clicked, [this]() { setPosFromButton(3); });
+    connect(this->btnPos4, &QPushButton::clicked, [this]() { setPosFromButton(4); });
 
     cbNBeats->setEnabled(false);
     btnPos1->setEnabled(false);
