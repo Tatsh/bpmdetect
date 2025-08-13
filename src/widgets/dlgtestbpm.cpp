@@ -23,6 +23,11 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     lblBPM->setText(Track::bpm2str(static_cast<double>(bpm), QStringLiteral("000.00")));
     connect(trackPosition, &ProgressBar::positionChanged, this, &DlgTestBPM::setCustomPos);
     connect(player, &DlgTestBPMPlayer::hasLengthUS, this, &DlgTestBPM::setTrackPositionLength);
+    connect(player, &DlgTestBPMPlayer::audioError, [this](QAudio::Error e) {
+        if (e == QAudio::FatalError) {
+            reject();
+        }
+    });
     connect(this, &QDialog::accepted, player, &DlgTestBPMPlayer::stop);
     connect(this, &QDialog::rejected, player, &DlgTestBPMPlayer::stop);
     connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBPM::setNumBeats);

@@ -27,11 +27,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Removed kissfft requirement because only dead code referenced it.
 - License is now GPL-3 or later.
 - Do not enable _Save_ on first launch.
+- Test BPM dialog is now a fixed size.
 
 ### Fixed
 
 - Updated name filter so Wavpack files can be picked with the _Add files_ functionality.
 - Possible crash when clearing the list of files and adding more or adding a directory.
+- Not a great way to handle this: the test BPM dialog will close on fatal error.
 
 ## [0.7.2] - 2025-08-08
 

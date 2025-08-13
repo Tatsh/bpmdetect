@@ -37,6 +37,8 @@ public:
     void stop();
     /** Signal for when length is discovered. */
     Q_SIGNAL void hasLengthUS(qint64);
+    /** Signal for when the player encounters an error. */
+    Q_SIGNAL void audioError(QAudio::Error error);
 
 protected:
     void run() override;

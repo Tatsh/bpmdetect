@@ -53,30 +53,45 @@ void DlgTestBPMPlayer::finishedDecoding() {
     emit hasLengthUS(lengthUS);
 }
 
-void DlgTestBPMPlayer::handleStateChange(QtAudio::State newState) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch-default"
+void DlgTestBPMPlayer::handleStateChange(QAudio::State newState) {
     switch (newState) {
-#pragma clang diagnostic pop
-    case QtAudio::ActiveState:
+    case QAudio::ActiveState:
         qDebug() << "Audio output is active.";
         break;
-    case QtAudio::SuspendedState:
+    case QAudio::SuspendedState:
         qDebug() << "Audio output is suspended.";
         break;
-    case QtAudio::StoppedState:
-        if (output->error() != QtAudio::NoError) {
-            qDebug() << "Stopped. Audio output error:" << output->error();
-        } else {
-            qDebug() << "Audio output is stopped.";
-        }
+    case QAudio::StoppedState:
+        qDebug() << "Audio output is stopped.";
         break;
-    case QtAudio::IdleState:
+    case QAudio::IdleState:
         qDebug() << "Audio output is idle.";
-        stop();
         break;
     }
+    if (output->error() != QAudio::NoError) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch"
+        switch (output->error()) {
+#pragma clang diagnostic pop
+        case QAudio::OpenError:
+            qCritical() << "Audio output error: The audio device could not be opened.";
+            break;
+        case QAudio::IOError:
+            qCritical() << "Audio output error: An I/O error occurred.";
+            break;
+        case QAudio::UnderrunError:
+            qCritical() << "Audio output error: An underrun occurred.";
+            break;
+        case QAudio::FatalError:
+            qCritical() << "Audio output error: A fatal error occurred.";
+            break;
+        }
+        emit audioError(output->error());
+    }
 }
+#pragma clang diagnostic pop
 
 void DlgTestBPMPlayer::stop() {
     output->stop();
