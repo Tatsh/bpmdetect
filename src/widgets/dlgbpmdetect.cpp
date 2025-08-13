@@ -89,7 +89,7 @@ void DlgBPMDetect::loadSettings() {
     QString format =
         settings.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
     bool skip = settings.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
-    bool save = settings.value(QStringLiteral("/BPMDetect/SaveBPM"), true).toBool();
+    bool save = settings.value(QStringLiteral("/BPMDetect/SaveBPM"), false).toBool();
     QString recentPath =
         settings.value(QStringLiteral("/BPMDetect/RecentPath"), QStringLiteral("")).toString();
     int minBPM = settings.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
