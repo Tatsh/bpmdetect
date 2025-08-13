@@ -171,6 +171,7 @@ webpmux
 weverything
 winpbcopy
 wiswa
+wswitch
 wunsafe
 wyri
 xiph

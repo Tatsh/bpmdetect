@@ -48,6 +48,8 @@ protected Q_SLOTS:
     void decodeError(QAudioDecoder::Error);
     /** Call when decoding is finished. */
     void finishedDecoding();
+    /** Handle state change of audio output. */
+    void handleStateChange(QAudio::State state);
 
 private:
     QByteArray buffer;

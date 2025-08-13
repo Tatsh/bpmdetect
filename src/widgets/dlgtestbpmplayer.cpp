@@ -3,6 +3,7 @@
 #include <QAudioSink>
 #include <QDebug>
 #include <QMediaDevices>
+#include <QMessageBox>
 #include <QUrl>
 
 #include "dlgtestbpmplayer.h"
@@ -46,9 +47,35 @@ void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
 void DlgTestBPMPlayer::finishedDecoding() {
     format = lastBuffer.format();
     output = new QAudioSink(format, this);
+    connect(output, &QAudioSink::stateChanged, this, &DlgTestBPMPlayer::handleStateChange);
     dev = output->start();
     readyToPlay = true;
     emit hasLengthUS(lengthUS);
+}
+
+void DlgTestBPMPlayer::handleStateChange(QtAudio::State newState) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-default"
+    switch (newState) {
+#pragma clang diagnostic pop
+    case QtAudio::ActiveState:
+        qDebug() << "Audio output is active.";
+        break;
+    case QtAudio::SuspendedState:
+        qDebug() << "Audio output is suspended.";
+        break;
+    case QtAudio::StoppedState:
+        if (output->error() != QtAudio::NoError) {
+            qDebug() << "Stopped. Audio output error:" << output->error();
+        } else {
+            qDebug() << "Audio output is stopped.";
+        }
+        break;
+    case QtAudio::IdleState:
+        qDebug() << "Audio output is idle.";
+        stop();
+        break;
+    }
 }
 
 void DlgTestBPMPlayer::stop() {
