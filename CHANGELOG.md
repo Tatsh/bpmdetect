@@ -24,6 +24,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Removed dead code.
 - Removed kissfft requirement because only dead code referenced it.
 - License is now GPL-3 or later.
+- Do not enable _Save_ on first launch.
 
 ### Fixed
 
