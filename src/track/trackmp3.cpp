@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 #include <fcntl.h>
 #include <io.h>
 #endif
