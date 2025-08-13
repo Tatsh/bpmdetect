@@ -35,8 +35,21 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     m_pListMenu->addAction(tr("Remove tracks with BPM"), this, &DlgBPMDetect::slotClearDetected);
     m_pListMenu->addAction(tr("Clear list"), this, &DlgBPMDetect::slotClearTrackList);
     m_pListMenu->addSeparator();
-#ifndef Q_OS_MACOS
-    m_pListMenu->addAction(tr("Test BPM"), this, &DlgBPMDetect::slotTestBPM);
+    auto testBpmAction = m_pListMenu->addAction(tr("Test BPM"), this, &DlgBPMDetect::slotTestBPM);
+#ifdef Q_OS_WIN
+    // Check if Media Feature Pack is installed.
+    HKEY hKey;
+    auto result =
+        RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                      "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\WindowsFeatures",
+                      0,
+                      KEY_READ,
+                      &hKey);
+    auto result2 = RegQueryValueExA(hKey, "WindowsMediaVersion", nullptr, &type, nullptr, nullptr);
+    if (result != ERROR_SUCCESS || result2 != ERROR_SUCCESS) {
+        testBpmAction->setEnabled(false);
+    }
+    RegCloseKey(hKey);
 #endif
     m_pListMenu->addSeparator();
     m_pListMenu->addAction(tr("Save BPM"), this, &DlgBPMDetect::slotSaveBPM);

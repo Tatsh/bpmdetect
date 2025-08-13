@@ -28,6 +28,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - License is now GPL-3 or later.
 - Do not enable _Save_ on first launch.
 - Test BPM dialog is now a fixed size.
+- _Test BPM_ menu option will not be displayed on Windows if Media Feature Pack is not installed.
+- Allow _Test BPM_ on macOS.
 
 ### Fixed
 
