@@ -47,7 +47,7 @@
           <item>
             <widget class="QPushButton" name="btnOk">
               <property name="text">
-                <string>O&amp;k</string>
+                <string>O&amp;K</string>
               </property>
               <property name="shortcut">
                 <string>Alt+K</string>
