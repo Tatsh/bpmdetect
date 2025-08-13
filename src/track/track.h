@@ -124,7 +124,7 @@ public:
     /** Get the end position (milliseconds). */
     virtual qint64 endPos() const;
     /** Get the sample rate. */
-    virtual int samplerate() const;
+    virtual int sampleRate() const;
     /** Get the number of bytes per sample. */
     virtual int sampleBytes() const;
     /** Get the number of bits per sample. */
@@ -169,7 +169,7 @@ protected:
     /** Set the length in miliseconds. */
     void setLength(unsigned int msec);
     /** Set the sample rate. */
-    void setSamplerate(int samplerate);
+    void setSampleRate(int sRate);
     /** Set the amount of bytes per sample. This is the bit-depth divided by `8` normally. */
     void setSampleBytes(int bytes);
     /** Set the amount of channels. */

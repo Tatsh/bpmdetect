@@ -25,7 +25,7 @@ void Track::init() {
     setTrackType(TYPE_UNKNOWN);
     setValid(false);
     setOpened(false);
-    setSamplerate(0);
+    setSampleRate(0);
     setSampleBytes(0);
     setChannels(0);
     setBPM(0);
@@ -235,11 +235,11 @@ int Track::trackType() const {
     return m_eType;
 }
 
-void Track::setSamplerate(int samplerate) {
-    m_iSamplerate = samplerate;
+void Track::setSampleRate(int sRate) {
+    m_iSamplerate = sRate;
 }
 
-int Track::samplerate() const {
+int Track::sampleRate() const {
     return m_iSamplerate;
 }
 
@@ -317,7 +317,7 @@ void Track::readInfo() {
 
     if (ap) {
         setChannels(ap->channels());
-        setSamplerate(ap->sampleRate());
+        setSampleRate(ap->sampleRate());
         setLength(static_cast<unsigned int>(ap->lengthInSeconds()) * 1000);
         setValid(true);
     }
@@ -361,41 +361,35 @@ double Track::detectBPM() {
     setProgress(0);
     m_bStop = false;
 
-    double oldbpm = getBPM();
+    double oldBPM = getBPM();
     const double epsilon = 1e-6;
-    if (!redetect() && std::abs(oldbpm) > epsilon) {
-        return oldbpm;
+    if (!redetect() && std::abs(oldBPM) > epsilon) {
+        return oldBPM;
     }
 
-    const uint NUMSAMPLES = 4096;
+    const uint NUM_SAMPLES = 4096;
     int chan = channels();
-    int srate = samplerate();
 
-#ifdef DEBUG
-    cerr << "samplerate: " << srate << ", channels: " << chan << ", sample bits: " << sampleBits()
-         << endl;
-#endif
-
-    if (!srate || !chan) {
-        return oldbpm;
+    if (!sampleRate() || !chan) {
+        return oldBPM;
     }
-    soundtouch::SAMPLETYPE samples[NUMSAMPLES];
+    soundtouch::SAMPLETYPE samples[NUM_SAMPLES];
 
-    auto totalsteps = endPos() - startPos();
-    soundtouch::BPMDetect bpmd(chan, srate);
+    auto totalSteps = endPos() - startPos();
+    soundtouch::BPMDetect detector(chan, sampleRate());
 
-    qint64 cprogress = 0, pprogress = 0;
-    int readsamples = 0;
+    qint64 currentProgress = 0, pProgress = 0;
+    int readSamples_ = 0;
     seek(startPos());
-    while (!m_bStop && currentPos() < endPos() && 0 < (readsamples = readSamples(samples))) {
-        bpmd.inputSamples(samples, readsamples / chan);
-        cprogress = currentPos() - startPos();
+    while (!m_bStop && currentPos() < endPos() && 0 < (readSamples_ = readSamples(samples))) {
+        detector.inputSamples(samples, readSamples_ / chan);
+        currentProgress = currentPos() - startPos();
 
-        setProgress(100. * static_cast<double>(cprogress) / static_cast<double>(totalsteps));
+        setProgress(100. * static_cast<double>(currentProgress) / static_cast<double>(totalSteps));
         if (m_bConProgress) {
-            while ((100 * cprogress / totalsteps) > pprogress) {
-                ++pprogress;
-                std::clog << "\r" << (100 * cprogress / totalsteps) << "% " << std::flush;
+            while ((100 * currentProgress / totalSteps) > pProgress) {
+                ++pProgress;
+                std::clog << "\r" << (100 * currentProgress / totalSteps) << "% " << std::flush;
             }
         }
     }
@@ -408,7 +402,7 @@ double Track::detectBPM() {
         setProgress(0);
         return 0;
     }
-    double BPM = static_cast<double>(bpmd.getBpm());
+    double BPM = static_cast<double>(detector.getBpm());
     BPM = correctBPM(BPM);
     setBPM(BPM);
     setProgress(0);

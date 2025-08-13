@@ -36,6 +36,6 @@ protected Q_SLOTS:
     void setChange(bool s);
 
 private:
-    bool chng;
+    bool bChange;
     bool enable;
 };

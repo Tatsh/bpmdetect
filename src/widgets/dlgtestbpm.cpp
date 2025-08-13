@@ -87,16 +87,16 @@ void DlgTestBPM::slotUpdateBpmList() {
     m_bpmList.clear();
 
     if (m_bpm > MIN_BPM && m_bpm < MAX_BPM) {
-        float cbpm = m_bpm;
-        while (cbpm / 2.f > MIN_BPM)
-            cbpm /= 2.f;
+        float cBPM = m_bpm;
+        while (cBPM / 2.f > MIN_BPM)
+            cBPM /= 2.f;
 
-        const float d = 0.25f * cbpm;
-        while (cbpm - d > MIN_BPM)
-            cbpm -= d;
+        const float d = 0.25f * cBPM;
+        while (cBPM - d > MIN_BPM)
+            cBPM -= d;
 
-        for (; cbpm < MAX_BPM; cbpm += d) {
-            m_bpmList.append(cbpm);
+        for (; cBPM < MAX_BPM; cBPM += d) {
+            m_bpmList.append(cBPM);
         }
     }
 #ifdef DEBUG

@@ -22,10 +22,18 @@ This version has been modified to use the Qt Multimedia framework for BPM testin
 only available on Windows and Linux at this time.
 
 It uses SoundTouch's BPM library for detecting BPMs, TagLib for reading and writing BPMs to tags
-and Qt 6 for the GUI. Aditional libraries (mad, vorbisfile, FLAC) are used for decoding and the
-Qt Multimedia framework is also used for audio output (testing BPMs).
+and Qt 6 for the GUI. Additional libraries (FLAC, libmad, libvorbis, WavPack) are used for decoding
+and the Qt Multimedia framework is used for audio output (testing BPMs).
 
-All file-loading libraries (flac, libmad, etc) are optional.
+All file-loading libraries (FLAC, mad, etc) are optional.
+
+Supported file types:
+
+- FLAC
+- MP3
+- Ogg
+- Wave
+- WavPack
 
 [Original project](https://sourceforge.net/projects/bpmdetect/)
 
@@ -34,10 +42,11 @@ All file-loading libraries (flac, libmad, etc) are optional.
 Required dependencies:
 
 - CMake at build time
-- Optional: FLAC 1.4.3 or later
+- [ECM](https://invent.kde.org/frameworks/extra-cmake-modules) at build time
 - Qt 6.7 or later with Gui and Multimedia modules
 - SoundTouch 2.3.2 or later
 - TagLib 1.13.1 or later
+- Optional: FLAC 1.4.3 or later
 - Optional: libmad
 - Optional: libvorbis 1.3.7 or later
 - Optional: wavpack 5.8.0 or later

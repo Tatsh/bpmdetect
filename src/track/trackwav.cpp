@@ -53,16 +53,16 @@ void TrackWav::open() {
 
     unsigned long long numSamples =
         header.data.data_len / static_cast<unsigned long long>(header.format.byte_per_sample);
-    int srate = header.format.sample_rate;
+    int sRate = header.format.sample_rate;
     int channels = header.format.channel_number;
 
-    uint len = (1000 * static_cast<uint>(numSamples) / static_cast<uint>(srate));
+    uint len = (1000 * static_cast<uint>(numSamples) / static_cast<uint>(sRate));
     int sbytes = header.format.bits_per_sample;
 
     setLength(len);
     setStartPos(0);
     setEndPos(len);
-    setSamplerate(srate);
+    setSampleRate(sRate);
     setSampleBytes(sbytes);
     setChannels(channels);
     setTrackType(TYPE_WAV);
@@ -81,7 +81,7 @@ void TrackWav::close() {
 void TrackWav::seek(qint64 ms) {
     if (isValid()) {
         fptr.seek(0);
-        auto pos = (ms * samplerate() * sampleBytes()) / 1000;
+        auto pos = (ms * sampleRate() * sampleBytes()) / 1000;
         int hdrsOk = readWavHeaders();
         Q_ASSERT(hdrsOk == 0);
         fptr.seek(pos);
@@ -95,7 +95,7 @@ void TrackWav::seek(qint64 ms) {
 
 qint64 TrackWav::currentPos() {
     if (isValid()) {
-        auto pos = 1000 * m_iCurPosBytes / (samplerate() * channels() * sampleBytes());
+        auto pos = 1000 * m_iCurPosBytes / (sampleRate() * channels() * sampleBytes());
         return pos;
     }
     return 0;
@@ -180,7 +180,7 @@ qint64 TrackWav::read(QSpan<float> buffer) {
     QList<short> temp(maxElems);
     qint64 num;
     qsizetype i;
-    auto fscale = 1.0 / SAMPLE_MAXVALUE;
+    auto fscale = 1.0 / SAMPLE_MAX_VALUE;
 
     num = read(QSpan<short>(temp.data(), temp.size()));
     // convert to floats, scale to range [-1..+1[
@@ -202,10 +202,10 @@ void TrackWav::storeBPM(const QString &format) {
     TagLib::ID3v2::Tag tag(&f, offset);
     tag.removeFrames("TBPM");                     // remove existing BPM frames
 
-    TagLib::ID3v2::TextIdentificationFrame* bpmframe =
+    TagLib::ID3v2::TextIdentificationFrame* bpmFrame =
         new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-    bpmframe->setText(sBPM.c_str());
-    tag.addFrame(bpmframe);                       // add new BPM frame
+    bpmFrame->setText(sBPM.c_str());
+    tag.addFrame(bpmFrame);                       // add new BPM frame
 
     TagLib::ByteVector tdata = tag.render();      // render tag to binary data
     f.seek(offset);
@@ -217,7 +217,7 @@ void TrackWav::storeBPM(const QString &format) {
 
 void TrackWav::readTags() {
     auto fname = filename();
-    auto sbpm = QStringLiteral("000.00");
+    auto sBPM = QStringLiteral("000.00");
     /*
       TagLib::MPEG::File f(fname.c_str(), false);
       long pos = f.rfind("ID3", TagLib::File::End);
@@ -230,13 +230,13 @@ void TrackWav::readTags() {
       TagLib::List<TagLib::ID3v2::Frame*> lst = tag.frameList("TBPM");
       if(lst.size() > 0) {
         TagLib::ID3v2::Frame* frame = lst[0];
-        sbpm = frame->toString().toCString();
+        sBPM = frame->toString().toCString();
       }
     */
     // set filename (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sbpm));
+    setBPM(str2bpm(sBPM));
     open();
 }
 

@@ -9,9 +9,9 @@ typedef struct {
     FLAC__uint64 total_samples; //!< Total number of samples in the file.
     QList<short> *buffer;       //!< Buffer of samples (16 bit).
     qsizetype bufsize;          //!< Buffer size (maximum number of samples).
-    uint numsamples;            //!< Number of samples in buffer.
+    uint numSamples;            //!< Number of samples in buffer.
     int channels;               //!< Number of channels.
-    unsigned int srate;         //!< Sample rate.
+    unsigned int sRate;         //!< Sample rate.
     unsigned int bps;           //!< Bits per sample.
 } FLAC_CLIENT_DATA;
 
@@ -50,12 +50,12 @@ private:
                               void *client_data);
 
     FLAC__StreamDecoder *m_decoder;
-    FLAC_CLIENT_DATA m_cldata = {.total_samples = 0,
+    FLAC_CLIENT_DATA m_clData = {.total_samples = 0,
                                  .buffer = nullptr,
                                  .bufsize = 0,
-                                 .numsamples = 0,
+                                 .numSamples = 0,
                                  .channels = 0,
-                                 .srate = 0,
+                                 .sRate = 0,
                                  .bps = 0};
     qsizetype m_ibufidx;
     qint64 m_iCurPosPCM;

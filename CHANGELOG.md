@@ -52,6 +52,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Test dialogue: stop audo immediately on close.
+- Test dialogue: stop audio immediately on close.
 
 [unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.7.2...HEAD

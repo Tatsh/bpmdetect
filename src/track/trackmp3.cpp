@@ -68,7 +68,7 @@ void TrackMp3::open() {
     pos = mad_timer_zero;
 
     int channels = 0;
-    uint srate = 44100;
+    uint sRate = 44100;
     clearFrameList();
     while ((stream.bufend - stream.this_frame) > 0) {
         if (mad_header_decode(&header, &stream) == -1) {
@@ -89,7 +89,7 @@ void TrackMp3::open() {
         currentframe++;
         mad_timer_add(&filelength, header.duration);
         bitrate += header.bitrate;
-        srate = header.samplerate;
+        sRate = header.samplerate;
         channels = MAD_NCHANNELS(&header);
     }
     // Find average frame size
@@ -111,10 +111,10 @@ void TrackMp3::open() {
     setValid(true);
     seek(0);
 
-    setSamplerate(static_cast<int>(srate));
+    setSampleRate(static_cast<int>(sRate));
     unsigned long long numSamples =
         static_cast<unsigned long long>(madLength()) / static_cast<unsigned long long>(channels);
-    uint len = static_cast<uint>(1000 * numSamples / srate);
+    uint len = static_cast<uint>(1000 * numSamples / sRate);
 
     setLength(len);
     setStartPos(0);
@@ -138,8 +138,8 @@ void TrackMp3::close() {
 inline long TrackMp3::madLength() {
     enum mad_units units;
 
-    int srate = samplerate();
-    switch (srate) {
+    int sRate = sampleRate();
+    switch (sRate) {
     case 8000:
         units = MAD_UNITS_8000_HZ;
         break;
@@ -167,9 +167,9 @@ inline long TrackMp3::madLength() {
     case 48000:
         units = MAD_UNITS_48000_HZ;
         break;
-    default: // By the MP3 specs, an MP3 _has_ to have one of the above samplerates...
+    default: // By the MP3 specs, an MP3 _has_ to have one of the above sample rates...
         units = MAD_UNITS_44100_HZ;
-        setSamplerate(44100);
+        setSampleRate(44100);
     }
 
     return 2 * mad_timer_count(filelength, units);
@@ -182,7 +182,7 @@ void TrackMp3::seek(qint64 ms) {
 #endif
         return;
     }
-    auto seek_pos = (ms * samplerate() /* * channels()*/) / 1000;
+    auto seek_pos = (ms * sampleRate() /* * channels()*/) / 1000;
 
     // Ensure that we are seeking to an even pos
     //Q_ASSERT(pos%2==0);
@@ -261,7 +261,7 @@ void TrackMp3::seek(qint64 ms) {
 
 qint64 TrackMp3::currentPos() {
     if (isValid()) {
-        return 1000 * m_iCurPosPCM / samplerate() /* *channels()*/;
+        return 1000 * m_iCurPosPCM / sampleRate() /* *channels()*/;
     }
     return 0;
 }
@@ -276,7 +276,7 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     if (num % 2 != 0)
         num--;
     int nchannels = channels();
-    unsigned nsamples = 0;
+    unsigned nSamples = 0;
     QList<short> dest(static_cast<int>(num));
     qsizetype dest_index = 0;
 
@@ -293,12 +293,12 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
             if (nchannels > 1 && dest_index < dest.size())
                 dest[dest_index++] = static_cast<short>(madScale(rightSpan[i]));
         }
-        nsamples += static_cast<unsigned int>(nchannels) *
+        nSamples += static_cast<unsigned int>(nchannels) *
                     (static_cast<unsigned int>(synth.pcm.length) - static_cast<unsigned int>(rest));
     }
 
     int no = 0;
-    while (nsamples < num) {
+    while (nSamples < num) {
         if (mad_frame_decode(frame, &stream)) {
             if (MAD_RECOVERABLE(stream.error)) {
 #ifdef DEBUG
@@ -333,9 +333,7 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
          * are temporarily stored in a buffer that is flushed when
          * full.
          */
-
-        // cerr << "synthlen " << Synth.pcm.length << ", remain " << (num - nsamples);
-        no = static_cast<int>(qMin(static_cast<long long>(synth.pcm.length), (num - nsamples) / 2));
+        no = static_cast<int>(qMin(static_cast<long long>(synth.pcm.length), (num - nSamples) / 2));
         auto leftSpan = unsafe_forge_span(synth.pcm.samples[0], no);
         auto rightSpan =
             nchannels > 1 ? unsafe_forge_span(synth.pcm.samples[1], no) : QSpan<mad_fixed_t>();
@@ -348,9 +346,7 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
             if (nchannels > 1 && dest_index < dest.size())
                 dest[dest_index++] = static_cast<short>(madScale(rightSpan[i]));
         }
-        nsamples += static_cast<unsigned int>(nchannels) * static_cast<unsigned int>(no);
-
-        // cerr << "decoded: " << nsamples << ", wanted: " << num;
+        nSamples += static_cast<unsigned int>(nchannels) * static_cast<unsigned int>(no);
     }
 
     // If samples are still left in buffer, set rest to the index of the unused samples
@@ -360,13 +356,12 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
         rest = -1;
 
     // convert the samples to float
-    for (unsigned int i = 0; i < nsamples; ++i) {
-        buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAXVALUE;
+    for (unsigned int i = 0; i < nSamples; ++i) {
+        buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAX_VALUE;
     }
 
-    // cerr << "decoded " << Total_samples_decoded << " samples in " << frames << " frames, rest: " << rest << ", chan " << m_iChannels;
-    m_iCurPosPCM += nsamples;
-    return static_cast<int>(nsamples);
+    m_iCurPosPCM += nSamples;
+    return static_cast<int>(nSamples);
 }
 
 inline signed int TrackMp3::madScale(mad_fixed_t sample) {
@@ -452,15 +447,15 @@ void TrackMp3::storeBPM(const QString &format) {
         return;
     }
     tag->removeFrames("TBPM"); // remove existing BPM frames
-    auto bpmframe = new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-    bpmframe->setText(TagLib::String(sBPM.toStdString()));
-    tag->addFrame(bpmframe); // add new BPM frame
+    auto bpmFrame = new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
+    bpmFrame->setText(TagLib::String(sBPM.toStdString()));
+    tag->addFrame(bpmFrame); // add new BPM frame
     f.save();                // save file
 }
 
 void TrackMp3::readTags() {
     auto fname = filename();
-    auto sbpm = QStringLiteral("000.00");
+    auto sBPM = QStringLiteral("000.00");
     TagLib::MPEG::File f(fname.toUtf8().constData(), false);
 
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
@@ -471,13 +466,13 @@ void TrackMp3::readTags() {
         auto lst = tag->frameList("TBPM");
         if (lst.size() > 0) {
             TagLib::ID3v2::Frame *frame2 = lst[0];
-            sbpm = QString::fromUtf8(frame2->toString().toCString(true));
+            sBPM = QString::fromUtf8(frame2->toString().toCString(true));
         }
     }
     // set filename (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sbpm));
+    setBPM(str2bpm(sBPM));
 }
 
 void TrackMp3::removeBPM() {

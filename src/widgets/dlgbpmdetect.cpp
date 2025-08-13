@@ -44,10 +44,9 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
     m_pListMenu->addAction(tr("Clear BPM"), this, &DlgBPMDetect::slotClearBPM);
 
     // Add columns to TrackList
-    QStringList hlabels;
-    hlabels << tr("BPM") << tr("Artist") << tr("Title") << tr("Length") << tr("Progress")
-            << tr("Filename");
-    TrackList->setHeaderLabels(hlabels);
+    QStringList hLabels{
+        tr("BPM"), tr("Artist"), tr("Title"), tr("Length"), tr("Progress"), tr("Filename")};
+    TrackList->setHeaderLabels(hLabels);
 
     TrackList->setColumnWidth(0, 60);
     TrackList->setColumnWidth(1, 200);
@@ -367,8 +366,8 @@ void DlgBPMDetect::slotTestBPM() {
     if (bpm == 0.0f)
         return;
 
-    DlgTestBPM tbpmd(item->text(TrackList->columnCount() - 1), bpm, this);
-    tbpmd.exec();
+    DlgTestBPM testBpmDialog(item->text(TrackList->columnCount() - 1), bpm, this);
+    testBpmDialog.exec();
 #endif
 }
 

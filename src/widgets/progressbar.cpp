@@ -57,11 +57,11 @@ void ProgressBar::setPosition(int pos) {
 }
 
 bool ProgressBar::change() {
-    return chng;
+    return bChange;
 }
 
 void ProgressBar::setChange(bool s) {
-    chng = s;
+    bChange = s;
 }
 
 bool ProgressBar::enabled() {

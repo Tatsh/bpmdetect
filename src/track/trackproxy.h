@@ -47,7 +47,7 @@ public:
     qint64 startPos() const override;
     void setEndPos(qint64 ms) override;
     qint64 endPos() const override;
-    int samplerate() const override;
+    int sampleRate() const override;
     int sampleBytes() const override;
     int sampleBits() const override;
     int channels() const override;

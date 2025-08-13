@@ -3,7 +3,7 @@ function(create_test test_name test_srcs)
   ecm_qt_declare_logging_category(
     SOURCES
     HEADER
-    generated/bpmdetectdebug.h
+    generated/bpmdetect-debug.h
     IDENTIFIER
     "LOG_BPMDETECT"
     CATEGORY_NAME

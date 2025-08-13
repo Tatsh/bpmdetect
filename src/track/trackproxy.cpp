@@ -70,8 +70,8 @@ Track *TrackProxy::createTrack(const QString &filename, bool readMetadata) {
 }
 
 void TrackProxy::setFilename(const QString &filename, bool readMetadata) {
-    auto strformat = format();
-    bool bredetect = redetect();
+    auto strFormat = format();
+    bool bRedetect = redetect();
 
     if (m_pTrack) {
         close();
@@ -81,8 +81,8 @@ void TrackProxy::setFilename(const QString &filename, bool readMetadata) {
     m_pTrack = createTrack(filename, readMetadata);
 
     if (m_pTrack) {
-        m_pTrack->setRedetect(bredetect);
-        m_pTrack->setFormat(strformat);
+        m_pTrack->setRedetect(bRedetect);
+        m_pTrack->setFormat(strFormat);
         m_pTrack->enableConsoleProgress(m_bConsoleProgress);
     }
 }
@@ -217,9 +217,9 @@ qint64 TrackProxy::endPos() const {
     return 0;
 }
 
-int TrackProxy::samplerate() const {
+int TrackProxy::sampleRate() const {
     if (m_pTrack)
-        return m_pTrack->samplerate();
+        return m_pTrack->sampleRate();
     return 0;
 }
 

@@ -16,7 +16,7 @@ TrackWavpack::~TrackWavpack() {
 
 void TrackWavpack::readTags() {
     auto fname = filename();
-    auto sbpm = QStringLiteral("000.00");
+    auto sBPM = QStringLiteral("000.00");
     TagLib::WavPack::File f(fname.toUtf8().constData(), false);
     auto ape = f.APETag();
     TagLib::Tag *tag = f.tag();
@@ -27,13 +27,13 @@ void TrackWavpack::readTags() {
     if (ape != NULL) {
         auto bpm = QString::fromUtf8(ape->itemListMap()["BPM"].toString().toCString(true));
         if (bpm.length() > 0) {
-            sbpm = bpm;
+            sBPM = bpm;
         }
     }
     // set filename (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sbpm));
+    setBPM(str2bpm(sBPM));
 }
 
 void TrackWavpack::open() {
@@ -54,12 +54,12 @@ void TrackWavpack::open() {
 
     setOpened(true);
 
-    uint srate = WavpackGetSampleRate(wpc);
-    uint len = static_cast<unsigned int>((WavpackGetNumSamples64(wpc) * 1000) / srate);
+    uint sRate = WavpackGetSampleRate(wpc);
+    uint len = static_cast<unsigned int>((WavpackGetNumSamples64(wpc) * 1000) / sRate);
     setLength(len);
     setStartPos(0);
     setEndPos(len);
-    setSamplerate(static_cast<int>(WavpackGetSampleRate(wpc)));
+    setSampleRate(static_cast<int>(WavpackGetSampleRate(wpc)));
     setSampleBytes(WavpackGetBytesPerSample(wpc));
     setChannels(WavpackGetReducedChannels(wpc));
     setTrackType(TYPE_WAVPACK);
@@ -77,7 +77,7 @@ void TrackWavpack::close() {
 
 void TrackWavpack::seek(qint64 ms) {
     if (isValid() && wpc != nullptr) {
-        auto pos = ms * samplerate() / 1000;
+        auto pos = ms * sampleRate() / 1000;
         if (WavpackSeekSample64(wpc, static_cast<int64_t>(pos))) {
             m_iCurPosPCM = pos;
         } else {
@@ -89,7 +89,7 @@ void TrackWavpack::seek(qint64 ms) {
 qint64 TrackWavpack::currentPos() {
     if (wpc == nullptr)
         return 0;
-    return (m_iCurPosPCM * 1000) / samplerate();
+    return (m_iCurPosPCM * 1000) / sampleRate();
 }
 
 int TrackWavpack::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {

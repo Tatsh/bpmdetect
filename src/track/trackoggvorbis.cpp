@@ -65,14 +65,14 @@ void TrackOggVorbis::open() {
     auto vi = ov_info(&vf, -1);
 
     auto channels = vi->channels;
-    auto srate = vi->rate;
+    auto sRate = vi->rate;
     auto numSamples = ov_pcm_total(&vf, -1);
-    auto len = 1000 * numSamples / srate;
+    auto len = 1000 * numSamples / sRate;
 
     setLength(static_cast<unsigned int>(len));
     setStartPos(0);
     setEndPos(len);
-    setSamplerate(static_cast<int>(srate));
+    setSampleRate(static_cast<int>(sRate));
     setSampleBytes(2);
     setChannels(channels);
     setTrackType(TYPE_OGGVORBIS);
@@ -89,7 +89,7 @@ void TrackOggVorbis::close() {
 
 void TrackOggVorbis::seek(qint64 ms) {
     if (isValid()) {
-        auto pos = (ms * samplerate() /* * channels()*/) / 1000;
+        auto pos = (ms * sampleRate() /* * channels()*/) / 1000;
         if (ov_pcm_seek(&vf, static_cast<ogg_int64_t>(pos)) == 0) {
             m_iCurPosPCM = pos;
         }
@@ -105,7 +105,7 @@ void TrackOggVorbis::seek(qint64 ms) {
 
 qint64 TrackOggVorbis::currentPos() {
     if (isValid()) {
-        auto pos = 1000 * m_iCurPosPCM / samplerate() /* *channels()*/;
+        auto pos = 1000 * m_iCurPosPCM / sampleRate() /* *channels()*/;
         return pos;
     }
     return 0;
@@ -143,7 +143,7 @@ int TrackOggVorbis::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
 
     unsigned int nread = index / 2;
     for (qsizetype i = 0; i < nread; ++i) {
-        buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAXVALUE;
+        buffer[i] = static_cast<float>(dest[i]) / SAMPLE_MAX_VALUE;
     }
 
     // return the number of samples in buffer
@@ -166,21 +166,21 @@ void TrackOggVorbis::storeBPM(const QString &format) {
 
 void TrackOggVorbis::readTags() {
     auto fname = filename();
-    auto sbpm = QStringLiteral("000.00");
+    auto sBPM = QStringLiteral("000.00");
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     TagLib::Ogg::XiphComment *tag = f.tag();
     if (tag != NULL) {
         setArtist(QString::fromUtf8(tag->artist().toCString(true)));
         setTitle(QString::fromUtf8(tag->title().toCString(true)));
-        TagLib::Ogg::FieldListMap flmap = tag->fieldListMap();
-        TagLib::StringList strl = flmap["TBPM"];
+        TagLib::Ogg::FieldListMap flMap = tag->fieldListMap();
+        TagLib::StringList strl = flMap["TBPM"];
         if (!strl.isEmpty())
-            sbpm = QString::fromUtf8(strl[0].toCString(true));
+            sBPM = QString::fromUtf8(strl[0].toCString(true));
     }
     // set filename (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sbpm));
+    setBPM(str2bpm(sBPM));
 }
 
 void TrackOggVorbis::removeBPM() {

@@ -28,4 +28,4 @@ target_link_libraries(
           PkgConfig::SOUNDTOUCH
           PkgConfig::TAGLIB
           Qt6::Core)
-target_compile_definitions(bpmdetect-track PRIVATE SAMPLE_MAXVALUE=32768)
+target_compile_definitions(bpmdetect-track PRIVATE SAMPLE_MAX_VALUE=32768)
