@@ -14,6 +14,11 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(
     nBeats = nBeats_;
     bpm = static_cast<float>(bpm_);
     posUS = posUS_;
+    if (!decoder->isSupported()) {
+        qDebug() << "Audio decoder is not supported on this platform.";
+        emit audioError(QAudio::FatalError);
+        return;
+    }
 
     if (parent) {
         setParent(parent);
