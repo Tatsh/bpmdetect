@@ -27,30 +27,35 @@ option(ENABLE_FLAC "Enable FLAC support." OFF)
 option(ENABLE_MP3 "Enable MP3 support." OFF)
 option(ENABLE_VORBIS "Enable Vorbis support." OFF)
 option(ENABLE_WAVPACK "Enable WavPack support." OFF)
-option(FHS "Install to FHS-compliant directories." OFF)
 option(NON_PORTABLE_MACOS_BUNDLE
        "Create a macOS bundle which will depend on libraries within FHS-compliant directories \
 (Homebrew, MacPorts). Implies FHS=ON." OFF)
 set(BUNDLE_INSTALL_PREFIX
     .
-    CACHE STRING "Install the bundle to a custom directory. This can be an absolute path or \
+    CACHE FILEPATH "Install the bundle to a custom directory. This can be an absolute path or \
 relative to CMAKE_INSTALL_PREFIX.")
 option(I18N "Enable i18n support." OFF)
-option(EXTRA_DOCS "Install extra documentation." ON)
 
 if(NOT APPLE)
   set(NON_PORTABLE_MACOS_BUNDLE
       OFF
       CACHE BOOL "Non-portable macOS bundle mode." FORCE)
 endif()
-if(NON_PORTABLE_MACOS_BUNDLE)
+if(APPLE)
+  if(NON_PORTABLE_MACOS_BUNDLE)
+    set(FHS
+        ON
+        CACHE BOOL "Use FHS directories." FORCE)
+  else()
+    set(EXTRA_DOCS
+        ON
+        CACHE BOOL "Install extra documentation.")
+  endif()
+endif()
+if(CMAKE_SYSTEM_NAME MATCHES "Linux|MSYS|CYGWIN|FreeBSD|NetBSD|OpenBSD|DragonFly")
   set(FHS
       ON
-      CACHE BOOL "Use FHS." FORCE)
-else()
-  set(FHS
-      OFF
-      CACHE BOOL "Install to FHS-compliant directories." FORCE)
+      CACHE BOOL "Use FHS directories.")
 endif()
 
 if(NOT BUILD_DOCS_ONLY)

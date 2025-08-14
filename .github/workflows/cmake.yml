@@ -128,6 +128,7 @@ jobs:
           cmake -G Ninja -B ${{steps.fixed_workspace.outputs.out}}/build
           --install-prefix ${{steps.fixed_workspace.outputs.out}}/build/prefix
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DFHS=OFF
           -DENABLE_FLAC=ON
           -DENABLE_MP3=ON
           -DENABLE_VORBIS=ON

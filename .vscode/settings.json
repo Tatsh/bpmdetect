@@ -21,8 +21,7 @@
     "-DENABLE_FLAC=ON",
     "-DENABLE_MP3=ON",
     "-DENABLE_VORBIS=ON",
-    "-DENABLE_WAVPACK=ON",
-    "-DFHS=ON"
+    "-DENABLE_WAVPACK=ON"
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll": "always"
