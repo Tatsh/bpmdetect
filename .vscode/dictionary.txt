@@ -63,6 +63,7 @@ haximus
 horstretch
 hsizetype
 htmlcov
+icns
 iconset
 ifdef
 ignorecrc

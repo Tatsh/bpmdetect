@@ -65,8 +65,8 @@ if(NOT FHS)
   install(TARGETS bpmdetect RUNTIME_DEPENDENCY_SET bpmdetect-deps BUNDLE DESTINATION .)
   install(SCRIPT ${deploy_script})
   if(APPLE)
-    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff bpmdetect.icns
-            DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
+    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
+                  bpmdetect.icns DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
   else()
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
     install(FILES ../CITATION.cff DESTINATION ${CMAKE_INSTALL_DATADIR}/bpmdetect)
