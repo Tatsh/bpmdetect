@@ -1,5 +1,18 @@
 <RCC>
   <qresource prefix="icon">
-    <file>bpmdetect.png</file>
+    <file>icons/16x16.png</file>
+    <file>icons/16x16@2x.png</file>
+    <file>icons/32x32.png</file>
+    <file>icons/48x48.png</file>
+    <file>icons/32x32@2x.png</file>
+    <file>icons/64x64.png</file>
+    <file>icons/48x48@2x.png</file>
+    <file>icons/96x96.png</file>
+    <file>icons/64x64@2x.png</file>
+    <file>icons/128x128.png</file>
+    <file>icons/128x128@2x.png</file>
+    <file>icons/256x256.png</file>
+    <file>icons/256x256@2x.png</file>
+    <file>icons/512x512.png</file>
   </qresource>
 </RCC>

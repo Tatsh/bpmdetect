@@ -15,10 +15,23 @@ ecm_qt_declare_logging_category(
 qt_add_executable(
   bpmdetect
   WIN32
-  bpmdetect.icns
-  bpmdetect.png
   bpmdetect.qrc
-  icon.ico
+  icons/16x16.png
+  icons/16x16@2x.png
+  icons/32x32.png
+  icons/32x32@2x.png
+  icons/48x48.png
+  icons/48x48@2x.png
+  icons/64x64.png
+  icons/64x64@2x.png
+  icons/96x96.png
+  icons/128x128.png
+  icons/128x128@2x.png
+  icons/256x256.png
+  icons/256x256@2x.png
+  icons/512x512.png
+  icons/bpmdetect.icns
+  icons/bpmdetect.ico
   main.cpp
   utils.h)
 if(WIN32)
@@ -66,7 +79,8 @@ if(NOT FHS)
   install(SCRIPT ${deploy_script})
   if(APPLE)
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
-                  bpmdetect.icns DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
+                  icons/bpmdetect.icns
+            DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
   else()
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
     install(FILES ../CITATION.cff DESTINATION ${CMAKE_INSTALL_DATADIR}/bpmdetect)
@@ -122,8 +136,21 @@ else()
   install(TARGETS bpmdetect)
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop"
           DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
-  install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/bpmdetect.png"
-          DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps")
+  foreach(
+    size
+    16
+    32
+    48
+    64
+    96
+    128
+    256
+    512)
+    install(
+      FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/${size}x${size}.png"
+      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
+      RENAME bpmdetect.png)
+  endforeach()
   install(FILES ../README.md TYPE DOC)
 endif()
 
