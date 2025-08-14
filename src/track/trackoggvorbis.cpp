@@ -5,23 +5,6 @@
 #include <fcntl.h>
 #include <io.h>
 #endif
-#ifdef __APPLE__
-#ifdef __i386
-#define OV_ENDIAN_ARG 0
-#else
-#define OV_ENDIAN_ARG 1
-#endif
-#endif
-#ifdef __linux__
-#include <endian.h>
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define OV_ENDIAN_ARG 0
-#else
-#define OV_ENDIAN_ARG 1
-#endif
-#else
-#define OV_ENDIAN_ARG 0
-#endif
 
 #include <QDebug>
 #include <textidentificationframe.h>
@@ -118,7 +101,7 @@ int TrackOggVorbis::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
         auto ret = ov_read(&vf,
                            reinterpret_cast<char *>(&dest[index]),
                            static_cast<int>(needed),
-                           OV_ENDIAN_ARG,
+                           0, // Little endian. Wait and see if anyone reports an issue.
                            2,
                            1,
                            &current_section);
