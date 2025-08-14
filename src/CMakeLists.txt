@@ -34,35 +34,38 @@ qt_add_executable(
   icons/bpmdetect.ico
   main.cpp
   utils.h)
+
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)
-elseif(APPLE AND (NOT FHS OR NON_PORTABLE_MACOS_BUNDLE))
-  set_target_properties(
-    bpmdetect
-    PROPERTIES OUTPUT_NAME "BPM Detect"
-               MACOSX_BUNDLE TRUE
-               MACOSX_BUNDLE_BUNDLE_NAME "BPM Detect"
-               MACOSX_BUNDLE_ICON_FILE "bpmdetect.icns"
-               MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
-               MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
-               MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 BPM Detect authors."
-               MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
 endif()
+
 target_include_directories(bpmdetect PRIVATE . widgets)
 target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Gui
                                         Qt6::Widgets bpmdetect-track bpmdetect-widgets)
-if(NOT FHS AND NOT NON_PORTABLE_MACOS_BUNDLE)
+
+if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bundle, or plain Windows
+                                         # (no MSYS, etc).
   if(APPLE)
+    set_target_properties(
+      bpmdetect
+      PROPERTIES OUTPUT_NAME "BPM Detect"
+                 MACOSX_BUNDLE TRUE
+                 MACOSX_BUNDLE_BUNDLE_NAME "BPM Detect"
+                 MACOSX_BUNDLE_ICON_FILE "bpmdetect.icns"
+                 MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+                 MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
+                 MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 BPM Detect authors."
+                 MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
     set(deploy_tool_options_arg -hardened-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>.app")
-    set(executable_dir .)
+    set(executable_dir ${BUNDLE_INSTALL_PREFIX})
   elseif(WIN32)
     set(deploy_tool_options_arg --no-compiler-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>")
     set(executable_dir "${CMAKE_INSTALL_BINDIR}")
   endif()
-  if((APPLE AND NOT NON_PORTABLE_MACOS_BUNDLE) OR WIN32)
+  if(NOT NON_PORTABLE_MACOS_BUNDLE OR WIN32)
     qt_generate_deploy_script(
       TARGET
       bpmdetect
@@ -77,19 +80,25 @@ if(NOT FHS AND NOT NON_PORTABLE_MACOS_BUNDLE)
     VERBOSE)
     ]])
   endif()
-  install(TARGETS bpmdetect RUNTIME_DEPENDENCY_SET bpmdetect-deps BUNDLE DESTINATION .)
-  if((APPLE AND NOT NON_PORTABLE_MACOS_BUNDLE) OR WIN32)
+  install(TARGETS bpmdetect RUNTIME_DEPENDENCY_SET bpmdetect-deps
+          BUNDLE DESTINATION ${BUNDLE_INSTALL_PREFIX})
+  if(NOT NON_PORTABLE_MACOS_BUNDLE OR WIN32)
     install(SCRIPT ${deploy_script})
   endif()
-  if(APPLE
-     AND NOT FHS
-     AND NOT NON_PORTABLE_MACOS_BUNDLE)
-    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
-                  icons/bpmdetect.icns
-            DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
-  else()
+  if(APPLE)
+    install(
+      FILES icons/bpmdetect.icns
+      DESTINATION "${BUNDLE_INSTALL_PREFIX}/$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
+  endif()
+  if(APPLE AND NOT NON_PORTABLE_MACOS_BUNDLE)
+    install(
+      FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
+      DESTINATION "${BUNDLE_INSTALL_PREFIX}/$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
+  elseif(WIN32)
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
     install(FILES ../CITATION.cff DESTINATION ${CMAKE_INSTALL_DATADIR}/bpmdetect)
+  else()
+    install(FILES ../README.md TYPE DOC)
   endif()
   if(MINGW)
     get_filename_component(_mingw_bin_dir ${CMAKE_C_COMPILER} DIRECTORY)
@@ -131,12 +140,12 @@ if(NOT FHS AND NOT NON_PORTABLE_MACOS_BUNDLE)
       FILES_MATCHING
       REGEX
         "lib(jbig|datrie|expat|fribidi|gmodule-2.0|jpeg|lcms2|pangoft2-1.0|pangowin32-1.0|sharpyuv|\
-        thai|tiff|bluray|cairo|cairo-gobject|crypto|dav1d|ffi|fontconfig|gdk_pixbuf-2.0|gio-2.0|\
-        gmp|gnutls|gobject-2.0|gomp|hogweed|idn2|lc3|lzma|modplug|mp3lame|nettle|opencore-amr[nw]b|\
-        openjp2|opus|p11-kit|pango-1.0|pangocairo-1.0|pixman-1|rsvg-2|rtmp|speex|SvtAv1Enc|tasn1|\
-        theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi)-.*\.dll")
+thai|tiff|bluray|cairo|cairo-gobject|crypto|dav1d|ffi|fontconfig|gdk_pixbuf-2.0|gio-2.0|\
+gmp|gnutls|gobject-2.0|gomp|hogweed|idn2|lc3|lzma|modplug|mp3lame|nettle|opencore-amr[nw]b|\
+openjp2|opus|p11-kit|pango-1.0|pangocairo-1.0|pixman-1|rsvg-2|rtmp|speex|SvtAv1Enc|tasn1|\
+theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi)-.*\.dll")
   endif()
-else()
+else() # Linux, MSYS package, macOS package without creating a bundle.
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bpmdetect.desktop.in"
                  "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop" @ONLY)
   install(TARGETS bpmdetect)
