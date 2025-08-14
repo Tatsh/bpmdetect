@@ -366,7 +366,6 @@ void DlgBPMDetect::slotRemoveSelected() {
 }
 
 void DlgBPMDetect::slotTestBPM() {
-#ifndef Q_OS_MACOS
     QTreeWidgetItem *item = TrackList->currentItem();
     if (!item)
         return;
@@ -376,7 +375,6 @@ void DlgBPMDetect::slotTestBPM() {
 
     DlgTestBPM testBpmDialog(item->text(TrackList->columnCount() - 1), bpm, this);
     testBpmDialog.exec();
-#endif
 }
 
 void DlgBPMDetect::slotShowAbout() {
