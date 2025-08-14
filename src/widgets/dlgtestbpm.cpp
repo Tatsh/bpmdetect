@@ -25,6 +25,7 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     connect(player, &DlgTestBPMPlayer::hasLengthUS, this, &DlgTestBPM::setTrackPositionLength);
     connect(player, &DlgTestBPMPlayer::audioError, [this](QAudio::Error e) {
         if (e == QAudio::FatalError) {
+            qCritical() << "Fatal audio error occurred.";
             reject();
         }
     });
