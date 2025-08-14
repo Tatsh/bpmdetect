@@ -110,8 +110,11 @@ if(NOT FHS)
       DESTINATION .
       FILES_MATCHING
       REGEX
-        "lib(jbig|datrie|expat|fribidi|gmodule-2.0|jpeg|lcms2|pangoft2-1.0|pangowin32-1.0|sharpyuv|thai|tiff|bluray|cairo|cairo-gobject|crypto|dav1d|ffi|fontconfig|gdk_pixbuf-2.0|gio-2.0|gmp|gnutls|gobject-2.0|gomp|hogweed|idn2|lc3|lzma|modplug|mp3lame|nettle|opencore-amr[nw]b|openjp2|opus|p11-kit|pango-1.0|pangocairo-1.0|pixman-1|rsvg-2|rtmp|speex|SvtAv1Enc|tasn1|theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi)-.*\.dll"
-    )
+        "lib(jbig|datrie|expat|fribidi|gmodule-2.0|jpeg|lcms2|pangoft2-1.0|pangowin32-1.0|sharpyuv|\
+        thai|tiff|bluray|cairo|cairo-gobject|crypto|dav1d|ffi|fontconfig|gdk_pixbuf-2.0|gio-2.0|\
+        gmp|gnutls|gobject-2.0|gomp|hogweed|idn2|lc3|lzma|modplug|mp3lame|nettle|opencore-amr[nw]b|\
+        openjp2|opus|p11-kit|pango-1.0|pangocairo-1.0|pixman-1|rsvg-2|rtmp|speex|SvtAv1Enc|tasn1|\
+        theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi)-.*\.dll")
   endif()
 else()
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bpmdetect.desktop.in"
