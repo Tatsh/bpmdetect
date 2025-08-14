@@ -37,7 +37,7 @@ qt_add_executable(
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)
-elseif(APPLE AND NOT FHS)
+elseif(APPLE AND (NOT FHS OR NON_PORTABLE_MACOS_BUNDLE))
   set_target_properties(
     bpmdetect
     PROPERTIES OUTPUT_NAME "BPM Detect"
@@ -52,7 +52,7 @@ endif()
 target_include_directories(bpmdetect PRIVATE . widgets)
 target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Gui
                                         Qt6::Widgets bpmdetect-track bpmdetect-widgets)
-if(NOT FHS)
+if(NOT FHS AND NOT NON_PORTABLE_MACOS_BUNDLE)
   if(APPLE)
     set(deploy_tool_options_arg -hardened-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>.app")
@@ -62,22 +62,28 @@ if(NOT FHS)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>")
     set(executable_dir "${CMAKE_INSTALL_BINDIR}")
   endif()
-  qt_generate_deploy_script(
-    TARGET
-    bpmdetect
-    OUTPUT_SCRIPT
-    deploy_script
-    CONTENT
-    [[
+  if((APPLE AND NOT NON_PORTABLE_MACOS_BUNDLE) OR WIN32)
+    qt_generate_deploy_script(
+      TARGET
+      bpmdetect
+      OUTPUT_SCRIPT
+      deploy_script
+      CONTENT
+      [[
     qt_deploy_runtime_dependencies(
     EXECUTABLE "${executable_dir}/${executable_path}"
     DEPLOY_TOOL_OPTIONS ${deploy_tool_options_arg}
     GENERATE_QT_CONF
     VERBOSE)
     ]])
+  endif()
   install(TARGETS bpmdetect RUNTIME_DEPENDENCY_SET bpmdetect-deps BUNDLE DESTINATION .)
-  install(SCRIPT ${deploy_script})
-  if(APPLE)
+  if((APPLE AND NOT NON_PORTABLE_MACOS_BUNDLE) OR WIN32)
+    install(SCRIPT ${deploy_script})
+  endif()
+  if(APPLE
+     AND NOT FHS
+     AND NOT NON_PORTABLE_MACOS_BUNDLE)
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
                   icons/bpmdetect.icns
             DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")

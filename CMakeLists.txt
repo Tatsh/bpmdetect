@@ -28,6 +28,9 @@ option(ENABLE_MP3 "Enable MP3 support." OFF)
 option(ENABLE_VORBIS "Enable Vorbis support." OFF)
 option(ENABLE_WAVPACK "Enable WavPack support." OFF)
 option(FHS "Install to FHS-compliant directories." OFF)
+option(NON_PORTABLE_MACOS_BUNDLE
+       "Create a macOS bundle which will depend on libraries within FHS-compliant directories \
+(Homebrew, MacPorts). Must enable FHS." OFF)
 option(I18N "Enable i18n support." OFF)
 
 if(NOT BUILD_DOCS_ONLY)
