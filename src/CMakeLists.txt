@@ -15,6 +15,7 @@ ecm_qt_declare_logging_category(
 qt_add_executable(
   bpmdetect
   WIN32
+  bpmdetect.icns
   bpmdetect.png
   bpmdetect.qrc
   icon.ico
@@ -29,6 +30,7 @@ elseif(APPLE AND NOT FHS)
     PROPERTIES OUTPUT_NAME "BPM Detect"
                MACOSX_BUNDLE TRUE
                MACOSX_BUNDLE_BUNDLE_NAME "BPM Detect"
+               MACOSX_BUNDLE_ICON_FILE "bpmdetect.icns"
                MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
                MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
                MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 BPM Detect authors."
@@ -63,7 +65,7 @@ if(NOT FHS)
   install(TARGETS bpmdetect RUNTIME_DEPENDENCY_SET bpmdetect-deps BUNDLE DESTINATION .)
   install(SCRIPT ${deploy_script})
   if(APPLE)
-    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff
+    install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md ../CITATION.cff bpmdetect.icns
             DESTINATION "$<TARGET_FILE_NAME:bpmdetect>.app/Contents/Resources")
   else()
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
