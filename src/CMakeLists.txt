@@ -15,7 +15,6 @@ ecm_qt_declare_logging_category(
 qt_add_executable(
   bpmdetect
   WIN32
-  MACOSX_BUNDLE
   bpmdetect.png
   bpmdetect.qrc
   icon.ico
@@ -24,10 +23,11 @@ qt_add_executable(
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)
-elseif(APPLE)
+elseif(APPLE AND NOT FHS)
   set_target_properties(
     bpmdetect
     PROPERTIES OUTPUT_NAME "BPM Detect"
+               MACOSX_BUNDLE TRUE
                MACOSX_BUNDLE_BUNDLE_NAME "BPM Detect"
                MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
                MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
