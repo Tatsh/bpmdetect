@@ -1,4 +1,3 @@
-appl
 autobuild
 autogen
 autoinstall
@@ -33,13 +32,11 @@ denable
 destinationlabel
 dfhs
 dialog
-discardable
 dlgbpmdetect
 dlgtestbpm
 dlgtestbpmdlg
 dlgtestbpmplayer
 docstrings
-egor
 endforeach
 endfunction
 esbenp
@@ -66,10 +63,8 @@ hsizetype
 htmlcov
 icns
 iconset
-ifdef
 ifndef
 ignorecrc
-infoplist
 interprocedural
 iwyu
 jbig
@@ -82,13 +77,11 @@ lcms
 lerc
 libaom
 libbrotlienc
-libcdio
 libdeflate
 libflac
 libgme
 libgsm
 libhwy
-libiso
 libjsonnet
 libjxl
 libmad
@@ -100,12 +93,10 @@ libssh
 libtag
 libva
 libvorbis
-loadoncall
 lzma
 mainpage
 mdfile
 modplug
-msvc
 msys
 msystem
 ndebug
@@ -138,7 +129,6 @@ qtmultimedia
 qtwidgets
 rect
 reflow
-rpath
 rsvg
 rtmp
 sakmar
@@ -151,9 +141,7 @@ softprops
 soundtouch
 sourcelabel
 speex
-srate
 srcs
-stdc
 stdset
 strequal
 sturmlechner
@@ -162,7 +150,6 @@ taglib
 tasn
 tatsh
 tbpm
-tensin
 theora
 trackflac
 trackmp
@@ -174,7 +161,6 @@ trofimovich
 ucrt
 udvare
 unistring
-unshield
 vcpkg
 versioninfo
 verstretch
