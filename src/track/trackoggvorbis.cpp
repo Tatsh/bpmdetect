@@ -1,11 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <climits>
-
-#ifdef Q_OS_WIN
-#include <fcntl.h>
-#include <io.h>
-#endif
-
 #include <QtCore/QDebug>
 #include <textidentificationframe.h>
 #include <vorbisfile.h>

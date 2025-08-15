@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#ifdef Q_OS_WIN
-#include <fcntl.h>
-#include <io.h>
-#endif
-
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
