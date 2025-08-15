@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include <QTreeWidget>
+#include <QtWidgets/QTreeWidget>
 
 class QDragEnterEvent;
 class QDragLeaveEvent;

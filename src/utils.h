@@ -2,8 +2,8 @@
 /** @file */
 #pragma once
 
-#include <QSpan>
-#include <QString>
+#include <QtCore/QSpan>
+#include <QtCore/QString>
 
 #pragma clang unsafe_buffer_usage begin
 /**

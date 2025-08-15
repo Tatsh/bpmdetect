@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QDebug>
-#include <QtEndian>
+#include <QtCore/QDebug>
+#include <QtCore/QtEndian>
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <mpegfile.h>

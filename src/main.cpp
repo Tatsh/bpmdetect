@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QCommandLineParser>
+#include <QtCore/QCommandLineParser>
 #ifndef NO_GUI
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #else
-#include <QCoreApplication>
+#include <QtCore/QCoreApplication>
 #endif
 
 #include "track/trackproxy.h"
-
 #ifndef NO_GUI
 #include "widgets/dlgbpmdetect.h"
 #endif

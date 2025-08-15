@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <flacfile.h>
 #include <id3v2frame.h>
 #include <id3v2tag.h>

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QAudioDecoder>
-#include <QAudioSink>
-#include <QDebug>
-#include <QMediaDevices>
-#include <QMessageBox>
-#include <QUrl>
+#include <QtCore/QDebug>
+#include <QtCore/QUrl>
+#include <QtMultimedia/QAudioDecoder>
+#include <QtMultimedia/QAudioSink>
+#include <QtMultimedia/QMediaDevices>
+#include <QtWidgets/QMessageBox>
 
 #include "dlgtestbpmplayer.h"
 

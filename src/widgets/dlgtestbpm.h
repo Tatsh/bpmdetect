@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include <QDialog>
-#include <QList>
+#include <QtCore/QList>
+#include <QtWidgets/QDialog>
 
 #include "dlgtestbpmplayer.h"
 #include "ui_dlgtestbpmdlg.h"

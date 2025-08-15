@@ -2,7 +2,7 @@
 #pragma once
 
 #include <BPMDetect.h>
-#include <QTimer>
+#include <QtCore/QTimer>
 
 #include "track/trackproxy.h"
 #include "ui_dlgbpmdetect.h"

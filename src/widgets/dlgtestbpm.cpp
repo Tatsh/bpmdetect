@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QComboBox>
-#include <QDebug>
-#include <QLabel>
-#include <QString>
+#include <QtCore/QDebug>
+#include <QtCore/QString>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QLabel>
 
 #include "dlgtestbpm.h"
 #include "dlgtestbpmplayer.h"

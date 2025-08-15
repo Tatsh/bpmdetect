@@ -6,7 +6,7 @@
 #include <io.h>
 #endif
 
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <textidentificationframe.h>
 #include <vorbisfile.h>
 #include <xiphcomment.h>

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <apetag.h>
 #include <wavpackfile.h>
 

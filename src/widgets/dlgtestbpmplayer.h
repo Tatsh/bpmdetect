@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include <QAudioBuffer>
-#include <QAudioDecoder>
-#include <QAudioFormat>
-#include <QThread>
+#include <QtCore/QThread>
+#include <QtMultimedia/QAudioBuffer>
+#include <QtMultimedia/QAudioDecoder>
+#include <QtMultimedia/QAudioFormat>
 
 class QAudioSink;
 class QIODevice;

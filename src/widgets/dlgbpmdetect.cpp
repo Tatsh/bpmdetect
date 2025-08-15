@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QCursor>
-#include <QFileDialog>
-#include <QMenu>
-#include <QMessageBox>
-#include <QtCore>
-#include <QtGui>
+#include <QtCore/QMimeData>
+#include <QtCore/QSettings>
+#include <QtCore/QString>
+#include <QtGui/QCursor>
+#include <QtGui/QDropEvent>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
 
 #ifdef Q_OS_WIN
 #include <windows.h>

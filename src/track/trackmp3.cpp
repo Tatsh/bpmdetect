@@ -4,10 +4,10 @@
 #include <io.h>
 #endif
 
-#include <QByteArray>
-#include <QDebug>
-#include <QFile>
-#include <QList>
+#include <QtCore/QByteArray>
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QList>
 #include <id3v2frame.h>
 #include <id3v2tag.h>
 #include <mpegfile.h>

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <iostream>
-
-#include <QMouseEvent>
+#include <QtGui/QMouseEvent>
 
 #include "progressbar.h"
 

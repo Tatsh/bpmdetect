@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include <BPMDetect.h>
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <fileref.h>
 #include <tag.h>
 

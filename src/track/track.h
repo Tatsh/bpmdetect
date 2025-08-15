@@ -3,12 +3,12 @@
 
 #include <string>
 
-#include <QSpan>
+#include <QtCore/QSpan>
 #include <STTypes.h>
 
 #ifndef NO_GUI
-#include <QMutex>
-#include <QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QThread>
 #endif
 
 #include "utils.h"

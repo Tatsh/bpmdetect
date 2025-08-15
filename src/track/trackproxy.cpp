@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <cstring>
-#include <iostream>
-
 #include "trackproxy.h"
 #include "trackwav.h"
 #ifdef HAVE_VORBISFILE
