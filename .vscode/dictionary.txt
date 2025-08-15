@@ -103,7 +103,6 @@ msystem
 ndebug
 noncommercially
 normaloff
-oggvorbis
 opencore
 openjp
 pacboy
