@@ -69,9 +69,9 @@ protected Q_SLOTS:
     void slotShowAbout();
 
 private:
-    QString getRecentPath() const;
+    QString recentPath() const;
     QStringList filesFromDir(const QString &path) const;
-    bool getStarted() const;
+    bool started() const;
     void enableControls(bool enable);
     void loadSettings();
     void saveSettings();

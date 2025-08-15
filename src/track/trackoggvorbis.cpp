@@ -14,7 +14,7 @@
 #include "trackoggvorbis.h"
 
 TrackOggVorbis::TrackOggVorbis(const QString &fname, bool readMetadata) : Track() {
-    setFilename(fname, readMetadata);
+    setFileName(fname, readMetadata);
 }
 
 TrackOggVorbis::~TrackOggVorbis() {
@@ -25,7 +25,7 @@ void TrackOggVorbis::open() {
     close();
 
     m_iCurPosPCM = 0;
-    auto fname = filename();
+    auto fname = fileName();
     // Try to open the file for reading
     fptr.setFileName(fname);
     if (!fptr.open(QFile::ReadOnly)) {
@@ -48,13 +48,13 @@ void TrackOggVorbis::open() {
     auto numSamples = ov_pcm_total(&vf, -1);
     auto len = 1000 * numSamples / sRate;
 
-    setLength(static_cast<unsigned int>(len));
+    setLength(static_cast<quint64>(len));
     setStartPos(0);
-    setEndPos(len);
-    setSampleRate(static_cast<int>(sRate));
+    setEndPos(static_cast<quint64>(len));
+    setSampleRate(static_cast<unsigned int>(sRate));
     setSampleBytes(2);
-    setChannels(channels);
-    setTrackType(TYPE_OGGVORBIS);
+    setChannels(static_cast<unsigned int>(channels));
+    setTrackType(Ogg);
     setValid(true);
 }
 
@@ -66,7 +66,7 @@ void TrackOggVorbis::close() {
     setOpened(false);
 }
 
-void TrackOggVorbis::seek(qint64 ms) {
+void TrackOggVorbis::seek(quint64 ms) {
     if (isValid()) {
         auto pos = (ms * sampleRate() /* * channels()*/) / 1000;
         if (ov_pcm_seek(&vf, static_cast<ogg_int64_t>(pos)) == 0) {
@@ -79,7 +79,7 @@ void TrackOggVorbis::seek(qint64 ms) {
     }
 }
 
-qint64 TrackOggVorbis::currentPos() {
+quint64 TrackOggVorbis::currentPos() {
     if (isValid()) {
         auto pos = 1000 * m_iCurPosPCM / sampleRate() /* *channels()*/;
         return pos;
@@ -123,13 +123,13 @@ int TrackOggVorbis::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     }
 
     // return the number of samples in buffer
-    m_iCurPosPCM += static_cast<qint64>(nread);
+    m_iCurPosPCM += nread;
     return static_cast<int>(nread);
 }
 
 void TrackOggVorbis::storeBPM(const QString &format) {
-    auto fname = filename();
-    auto sBPM = bpm2str(getBPM(), format);
+    auto fname = fileName();
+    auto sBPM = bpmToString(bpm(), format);
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     auto tag = f.tag();
     if (tag == nullptr) {
@@ -141,7 +141,7 @@ void TrackOggVorbis::storeBPM(const QString &format) {
 }
 
 void TrackOggVorbis::readTags() {
-    auto fname = filename();
+    auto fname = fileName();
     auto sBPM = QStringLiteral("000.00");
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     auto tag = f.tag();
@@ -153,14 +153,14 @@ void TrackOggVorbis::readTags() {
         if (!strl.isEmpty())
             sBPM = QString::fromUtf8(strl[0].toCString(true));
     }
-    // set filename (without path) as title if the title is empty
+    // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sBPM));
+    setBpm(stringToBpm(sBPM));
 }
 
-void TrackOggVorbis::removeBPM() {
-    auto fname = filename();
+void TrackOggVorbis::removeBpm() {
+    auto fname = fileName();
     //close();
     TagLib::Ogg::Vorbis::File f(fname.toUtf8().constData(), false);
     auto tag = f.tag();

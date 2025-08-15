@@ -20,11 +20,14 @@ public:
      * @param posUS_ Position in microseconds.
      * @param parent Parent object.
      */
-    DlgTestBPMPlayer(
-        const QString file, uint nBeats_, uint bpm_, qint64 posUS_ = 0, QObject *parent = nullptr);
+    DlgTestBPMPlayer(const QString file,
+                     unsigned int nBeats_,
+                     unsigned int bpm_,
+                     qint64 posUS_ = 0,
+                     QObject *parent = nullptr);
     ~DlgTestBPMPlayer() override;
     /** Get the length in microseconds. */
-    auto getLengthUS() {
+    auto lengthUs() {
         return lengthUS;
     }
     /**
@@ -32,7 +35,7 @@ public:
      * @param nBeats_ New number of beats.
      * @param posUS_ New position in microseconds.
      */
-    void update(uint nBeats_, qint64 posUS_ = 0);
+    void update(unsigned int nBeats_, qint64 posUS_ = 0);
     /** Stop the player. */
     void stop();
     /** Signal for when length is discovered. */
@@ -54,9 +57,9 @@ protected Q_SLOTS:
     void handleStateChange(QAudio::State state);
 
 private:
-    QByteArray buffer;
     QAudioBuffer lastBuffer;
     QAudioFormat format;
+    QByteArray buffer;
     QAudioDecoder *decoder = nullptr;
     QAudioSink *output = nullptr;
     QIODevice *dev = nullptr;
@@ -66,7 +69,7 @@ private:
     qint64 posUS = 0;
     qint64 dataRemaining;
     qint64 originalSize;
-    uint nBeats = 4;
+    unsigned int nBeats = 4;
     float bpm;
     bool readyToPlay = false;
     bool error = false;

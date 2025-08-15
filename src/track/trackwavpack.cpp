@@ -4,10 +4,9 @@
 #include <wavpackfile.h>
 
 #include "trackwavpack.h"
-#include "utils.h"
 
-TrackWavpack::TrackWavpack(const QString &filename, bool readMetadata) : Track() {
-    setFilename(filename, readMetadata);
+TrackWavpack::TrackWavpack(const QString &fileName, bool readMetadata) : Track() {
+    setFileName(fileName, readMetadata);
 }
 
 TrackWavpack::~TrackWavpack() {
@@ -15,7 +14,7 @@ TrackWavpack::~TrackWavpack() {
 }
 
 void TrackWavpack::readTags() {
-    auto fname = filename();
+    auto fname = fileName();
     auto sBPM = QStringLiteral("000.00");
     TagLib::WavPack::File f(fname.toUtf8().constData(), false);
     auto ape = f.APETag();
@@ -30,39 +29,37 @@ void TrackWavpack::readTags() {
             sBPM = bpm;
         }
     }
-    // set filename (without path) as title if the title is empty
+    // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sBPM));
+    setBpm(stringToBpm(sBPM));
 }
 
 void TrackWavpack::open() {
     close();
     m_iCurPosPCM = 0;
 
-    auto fname = filename();
+    auto fname = fileName();
     wpc = WavpackOpenFileInput(fname.toUtf8().constData(),
                                nullptr,
                                OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                0);
     if (wpc == nullptr) {
-#ifndef NDEBUG
         qCritical() << "Cannot open file.";
-#endif
         return;
     }
 
     setOpened(true);
 
-    uint sRate = WavpackGetSampleRate(wpc);
-    uint len = static_cast<unsigned int>((WavpackGetNumSamples64(wpc) * 1000) / sRate);
+    auto sRate = WavpackGetSampleRate(wpc);
+    auto len = static_cast<unsigned int>((WavpackGetNumSamples64(wpc) * 1000) / sRate);
     setLength(len);
     setStartPos(0);
     setEndPos(len);
-    setSampleRate(static_cast<int>(WavpackGetSampleRate(wpc)));
-    setSampleBytes(WavpackGetBytesPerSample(wpc));
-    setChannels(WavpackGetReducedChannels(wpc));
-    setTrackType(TYPE_WAVPACK);
+    setSampleRate(WavpackGetSampleRate(wpc));
+    setSampleBytes(static_cast<unsigned int>(WavpackGetBytesPerSample(wpc)));
+    setChannels(static_cast<unsigned int>(WavpackGetReducedChannels(wpc)));
+    setTrackType(WavPack);
     setValid(true);
 }
 
@@ -75,18 +72,18 @@ void TrackWavpack::close() {
     }
 }
 
-void TrackWavpack::seek(qint64 ms) {
+void TrackWavpack::seek(quint64 ms) {
     if (isValid() && wpc != nullptr) {
         auto pos = ms * sampleRate() / 1000;
         if (WavpackSeekSample64(wpc, static_cast<int64_t>(pos))) {
-            m_iCurPosPCM = pos;
+            m_iCurPosPCM = static_cast<quint64>(pos);
         } else {
             qCritical() << "Seek failed.";
         }
     }
 }
 
-qint64 TrackWavpack::currentPos() {
+quint64 TrackWavpack::currentPos() {
     if (wpc == nullptr)
         return 0;
     return (m_iCurPosPCM * 1000) / sampleRate();
@@ -118,7 +115,7 @@ int TrackWavpack::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
 void TrackWavpack::storeBPM(const QString &sBPM) {
     auto wasNull = wpc == nullptr;
     if (wasNull) {
-        wpc = WavpackOpenFileInput(filename().toUtf8().constData(),
+        wpc = WavpackOpenFileInput(fileName().toUtf8().constData(),
                                    nullptr,
                                    OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                    0);
@@ -131,10 +128,10 @@ void TrackWavpack::storeBPM(const QString &sBPM) {
     }
 }
 
-void TrackWavpack::removeBPM() {
+void TrackWavpack::removeBpm() {
     auto wasNull = wpc == nullptr;
     if (wasNull) {
-        wpc = WavpackOpenFileInput(filename().toUtf8().constData(),
+        wpc = WavpackOpenFileInput(fileName().toUtf8().constData(),
                                    nullptr,
                                    OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                    0);

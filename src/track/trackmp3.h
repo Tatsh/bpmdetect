@@ -10,32 +10,32 @@
 /** Struct used to store mad frames for seeking. */
 typedef struct MadSeekFrameType {
     unsigned char *m_pStreamPos; //!< Stream position.
-    long int pos;                //!< Position in PCM samples.
+    unsigned long int pos;       //!< Position in PCM samples.
 } MadSeekFrameType;
 
 /** MP3 file. */
 class TrackMp3 : public Track {
 public:
     /** Constructor.
-     * @param filename Filename.
+     * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
      */
-    TrackMp3(const QString &filename, bool readMetadata = true);
+    TrackMp3(const QString &fileName, bool readMetadata = true);
     ~TrackMp3() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(qint64 ms) override;
-    qint64 currentPos() override;
+    void seek(quint64 ms) override;
+    quint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
     void storeBPM(const QString &sBPM) override;
-    void removeBPM() override;
+    void removeBpm() override;
 
 private:
     unsigned long discard(unsigned long samples_wanted);
-    int findFrame(int pos);
+    unsigned long findFrame(unsigned long pos);
     void clearFrameList();
     inline long madLength();
     inline signed int madScale(mad_fixed_t sample);
@@ -48,12 +48,12 @@ private:
     QList<MadSeekFrameType *> m_qSeekList;
     QByteArray *inputbuf;
     qsizetype inputbuf_len;
-    int framecount;
-    int currentframe;
-    int bitrate;
+    unsigned int framecount;
+    unsigned int currentframe;
+    unsigned int bitrate;
     int rest;
-    int m_iAvgFrameSize;
-    qint64 m_iCurPosPCM;
+    quint64 m_iAvgFrameSize;
+    quint64 m_iCurPosPCM;
     mad_timer_t pos;
     mad_timer_t filelength;
     mad_stream stream;

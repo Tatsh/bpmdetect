@@ -11,6 +11,8 @@
 #include <QThread>
 #endif
 
+#include "utils.h"
+
 /** Represents a file on the system. */
 class Track
 #ifndef NO_GUI
@@ -27,72 +29,58 @@ public:
         ;
 
     /** Track type enumeration. */
-    enum TRACKTYPE {
-        TYPE_UNKNOWN = 0,   //!< Unknown type.
-        TYPE_MPEG = 1,      //!< MP3.
-        TYPE_WAV = 2,       //!< Wave (RIFF) file.
-        TYPE_OGGVORBIS = 3, //!< Ogg Vorbis.
-        TYPE_FLAC = 4,      //!< FLAC.
-        TYPE_WAVPACK = 5,   //!< WavPack.
+    enum TrackType {
+        Unknown = 0, //!< Unknown type.
+        Flac,        //!< FLAC.
+        Mp3,         //!< MP3.
+        Ogg,         //!< Ogg Vorbis.
+        WavPack,     //!< WavPack.
+        Wave,        //!< Wave (RIFF) file.
     };
-    /**
-     * Convert QString to BPM.
-     * @param sBPM BPM string.
-     * @return BPM value.
-     */
-    static double str2bpm(const QString &sBPM);
-    /**
-     * Convert BPM to QString using selected format.
-     * @param dBPM BPM value.
-     * @param format Format (default "0.00", other possible values: "0.0", "0", "000.00", "000.0",
-     * "000", "00000").
-     * @return Formatted BPM string.
-     */
-    static QString bpm2str(double dBPM, const QString &format = QStringLiteral("0.00"));
     /**
      * Set minimum BPM.
      * @param dMin Minimum BPM.
      */
-    static void setMinBPM(double dMin);
+    static void setMinimumBpm(bpmtype dMin);
     /**
      * Set maximum BPM.
      * @param dMax Maximum BPM.
      */
-    static void setMaxBPM(double dMax);
+    static void setMaximumBpm(bpmtype dMax);
     /** Get the minimum BPM. */
-    static double getMinBPM();
+    static bpmtype minimumBpm();
     /** Get the maximum BPM. */
-    static double getMaxBPM();
+    static bpmtype maximumBpm();
     /** Set limit flag. */
     static void setLimit(bool bLimit);
     /** Clear the BPM. */
-    virtual void clearBPM();
+    virtual void clearBpm();
     /** Detect the BPM. */
-    virtual double detectBPM();
+    virtual bpmtype detectBpm();
     /** Save the BPM to the metadata of the file. */
-    virtual void saveBPM();
+    virtual void saveBpm();
     /** Print the BPM to standard output. */
-    virtual void printBPM() const;
+    virtual void printBpm() const;
     /** Set the BPM. */
-    virtual void setBPM(double dBPM);
+    virtual void setBpm(bpmtype dBPM);
     /** Get the BPM. */
-    virtual double getBPM() const;
+    virtual bpmtype bpm() const;
     /** Get the BPM as a formatted string. */
-    virtual QString strBPM() const;
+    virtual QString formatted() const;
     /** Get the BPM as a string according to the @a format passed in. */
-    virtual QString strBPM(const QString &format) const;
+    virtual QString formatted(const QString &format) const;
     /**
-     * Set the filename of the track.
-     * @param filename Filename.
+     * Set the fileName of the track.
+     * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
      */
-    virtual void setFilename(const QString &filename, bool readMetadata = true);
-    /** Get the filename. */
-    virtual QString filename() const;
+    virtual void setFileName(const QString &fileName, bool readMetadata = true);
+    /** Get the fileName. */
+    virtual QString fileName() const;
     /** Get the track length in miliseconds. */
-    virtual unsigned int length() const;
+    virtual quint64 length() const;
     /** Get the track length as a formatted string. */
-    virtual QString strLength() const;
+    virtual QString formattedLength() const;
     /** Check if the track is valid. */
     virtual bool isValid() const;
     /** Check if the file is opened. */
@@ -112,27 +100,27 @@ public:
     /** Get the BPM format. */
     virtual QString format() const;
     /** Enable console progress. */
-    virtual void enableConsoleProgress(bool enable = true);
+    virtual void setConsoleProgress(bool enable = true);
     /** Stop detection if it is running. */
     virtual void stop();
     /** Set the start position to @a ms. */
-    virtual void setStartPos(qint64 ms);
+    virtual void setStartPos(quint64 ms);
     /** Get the start position (milliseconds). */
-    virtual qint64 startPos() const;
+    virtual quint64 startPos() const;
     /** Set the end position to @a ms. */
-    virtual void setEndPos(qint64 ms);
+    virtual void setEndPos(quint64 ms);
     /** Get the end position (milliseconds). */
-    virtual qint64 endPos() const;
+    virtual quint64 endPos() const;
     /** Get the sample rate. */
-    virtual int sampleRate() const;
+    virtual unsigned int sampleRate() const;
     /** Get the number of bytes per sample. */
-    virtual int sampleBytes() const;
+    virtual unsigned int sampleBytes() const;
     /** Get the number of bits per sample. */
-    virtual int sampleBits() const;
+    virtual unsigned int sampleBits() const;
     /** Get the number of channels. */
-    virtual int channels() const;
+    virtual unsigned int channels() const;
     /** Get the track type. */
-    virtual int trackType() const;
+    virtual TrackType trackType() const;
     /** Read tags (artist, title, BPM). */
     virtual void readTags() = 0;
     /** Read track information. */
@@ -149,15 +137,15 @@ protected:
         setOpened(false);
     }
     /** Seek to @a ms miliseconds. */
-    virtual void seek(qint64 ms) = 0;
+    virtual void seek(quint64 ms) = 0;
     /** Return the current position from which samples will be read (miliseconds). */
-    virtual qint64 currentPos() = 0;
+    virtual quint64 currentPos() = 0;
     /** Read samples from current position into @a buffer. */
     virtual int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) = 0;
     /** Store @a sBPM into the metadata of the file. */
     virtual void storeBPM(const QString &sBPM) = 0;
     /** Remove BPM metadata from the file. */
-    virtual void removeBPM() = 0;
+    virtual void removeBpm() = 0;
     /** Mark the file validity state. */
     void setValid(bool bValid);
     /** Set if the file is opened. */
@@ -167,53 +155,52 @@ protected:
     /** Set the title. */
     void setTitle(const QString &title);
     /** Set the length in miliseconds. */
-    void setLength(unsigned int msec);
+    void setLength(quint64 msec);
     /** Set the sample rate. */
-    void setSampleRate(int sRate);
+    void setSampleRate(unsigned int sRate);
     /** Set the amount of bytes per sample. This is the bit-depth divided by `8` normally. */
-    void setSampleBytes(int bytes);
+    void setSampleBytes(unsigned int bytes);
     /** Set the amount of channels. */
-    void setChannels(int channels);
+    void setChannels(unsigned int channels);
     /** Set the track type. */
-    void setTrackType(TRACKTYPE type);
+    void setTrackType(TrackType type);
 
 private:
-    double correctBPM(double dBPM) const;
-    void init();
+    bpmtype correctBPM(bpmtype dBPM) const;
     void setProgress(double progress);
 
     QString m_sArtist;
-    QString m_sBPMFormat;
-    QString m_sFilename;
+    QString m_sBPMFormat = QStringLiteral("0.00");
+    QString m_sFilename = QStringLiteral("");
     QString m_sTitle;
-    TRACKTYPE m_eType;
-    bool m_bConProgress;
-    bool m_bOpened;
-    bool m_bRedetect;
-    bool m_bStop;
-    bool m_bValid;
-    double m_dBPM;
-    double m_dProgress;
-    int m_iChannels;
-    int m_iSampleBytes;
-    int m_iSamplerate;
-    qint64 m_iEndPos;
-    qint64 m_iStartPos;
-    uint m_iLength;
+    TrackType m_eType = Unknown;
+    bool m_bConProgress = false;
+    bool m_bOpened = false;
+    bool m_bRedetect = false;
+    bool m_bStop = false;
+    bool m_bValid = false;
+    bpmtype m_dBPM = 0;
+    double m_dProgress = 0;
+    unsigned int m_iChannels = 0;
+    unsigned int m_iSampleBytes = 0;
+    unsigned int m_iSamplerate = 0;
+    quint64 m_iEndPos = 0;
+    quint64 m_iStartPos = 0;
+    quint64 m_iLength = 0;
 
-    static double _dMinBPM;
-    static double _dMaxBPM;
     static bool _bLimit;
+    static bpmtype _dMaxBPM;
+    static bpmtype _dMinBPM;
 
 #ifndef NO_GUI
-private:
-    QMutex m_qMutex;
+public:
+    /** Start the BPM detection process. */
+    void startDetection();
 
 protected:
     void run() override;
 
-public:
-    /** Start the BPM detection process. */
-    void startDetection();
+private:
+    QMutex m_qMutex;
 #endif // NO_GUI
 };

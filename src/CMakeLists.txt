@@ -33,6 +33,7 @@ qt_add_executable(
   icons/bpmdetect.icns
   icons/bpmdetect.ico
   main.cpp
+  utils.cpp
   utils.h)
 
 if(WIN32)

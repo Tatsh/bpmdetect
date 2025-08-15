@@ -109,8 +109,6 @@ if(NOT BUILD_DOCS_ONLY)
         -Wno-c++98-compat-pedantic
         -Wno-exit-time-destructors
         -Wno-global-constructors
-        -Wno-missing-prototypes
-        -Wno-missing-variable-declarations
         -Wno-padded)
     endif()
   endif()

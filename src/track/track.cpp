@@ -2,40 +2,23 @@
 #include <iostream>
 
 #include <BPMDetect.h>
+#include <QDebug>
 #include <fileref.h>
 #include <tag.h>
 
 #include "track.h"
 
-double Track::_dMinBPM = 80.;
-double Track::_dMaxBPM = 185.;
+bpmtype Track::_dMinBPM = 80.;
+bpmtype Track::_dMaxBPM = 185.;
 bool Track::_bLimit = false;
 
 Track::Track() {
-    init();
-    enableConsoleProgress(false);
-    setFilename(QStringLiteral(""), false);
 }
 
 Track::~Track() {
-    setFilename(QStringLiteral(""));
 }
 
-void Track::init() {
-    setTrackType(TYPE_UNKNOWN);
-    setValid(false);
-    setOpened(false);
-    setSampleRate(0);
-    setSampleBytes(0);
-    setChannels(0);
-    setBPM(0);
-    setProgress(0);
-    setLength(0);
-    setStartPos(0);
-    setEndPos(0);
-}
-
-void Track::setMinBPM(double dMin) {
+void Track::setMinimumBpm(bpmtype dMin) {
     if (dMin > 30. && dMin < 300.)
         _dMinBPM = dMin;
     // swap min and max if min is greater than max
@@ -46,7 +29,7 @@ void Track::setMinBPM(double dMin) {
     }
 }
 
-void Track::setMaxBPM(double dMax) {
+void Track::setMaximumBpm(bpmtype dMax) {
     if (dMax > 30. && dMax < 300.)
         _dMaxBPM = dMax;
     // swap min and max if min is greater than max
@@ -57,11 +40,11 @@ void Track::setMaxBPM(double dMax) {
     }
 }
 
-double Track::getMinBPM() {
+bpmtype Track::minimumBpm() {
     return _dMinBPM;
 }
 
-double Track::getMaxBPM() {
+bpmtype Track::maximumBpm() {
     return _dMaxBPM;
 }
 
@@ -69,62 +52,44 @@ void Track::setLimit(bool bLimit) {
     _bLimit = bLimit;
 }
 
-double Track::str2bpm(const QString &sBPM) {
-    auto BPM = sBPM.toDouble();
-    while (BPM > 300)
-        BPM = BPM / 10;
-    return BPM;
+QString Track::formatted() const {
+    return bpmToString(bpm(), format());
 }
 
-QString Track::bpm2str(double dBPM, const QString &format) {
-    auto zero = QChar::fromLatin1('0');
-    if (format == QStringLiteral("0.0")) {
-        return QString::number(dBPM, 'f', 1);
-    } else if (format == QStringLiteral("0")) {
-        return QString::number(dBPM, 'd', 0);
-    } else if (format == QStringLiteral("000.00")) {
-        return QString::number(dBPM, 'f', 2).rightJustified(6, zero);
-    } else if (format == QStringLiteral("000.0")) {
-        return QString::number(dBPM, 'f', 1).rightJustified(5, zero);
-    } else if (format == QStringLiteral("000")) {
-        return QString::number(dBPM, 'd', 0).rightJustified(3, zero);
-    } else if (format == QStringLiteral("00000")) {
-        return QString::number(dBPM, 'd', 0).rightJustified(5, zero);
-    }
-    // all other formats are converted to "0.00"
-    return QString::number(dBPM, 'f', 2);
+QString Track::formatted(const QString &format) const {
+    return bpmToString(bpm(), format);
 }
 
-QString Track::strBPM() const {
-    return bpm2str(getBPM(), format());
-}
-
-QString Track::strBPM(const QString &format) const {
-    return bpm2str(getBPM(), format);
-}
-
-void Track::setFilename(const QString &filename, bool readMetadata) {
+void Track::setFileName(const QString &fileName, bool readMetadata) {
 #ifndef NO_GUI
     if (isRunning()) {
-#ifdef DEBUG
-        clog << "setFilename: thread not finished, stopping..." << endl;
-#endif
+        qCritical() << "Track thread is running, stopping it before setting fileName.";
         stop();
         wait();
     }
 #endif
 
+    m_eType = Unknown;
+    m_bValid = false;
+    m_bOpened = false;
+    m_iSamplerate = 0;
+    m_iChannels = 0;
+    m_iSampleBytes = 0;
+    m_dBPM = 0;
+    m_dProgress = 0;
+    m_iLength = 0;
+    m_iStartPos = 0;
+    m_iEndPos = 0;
     close();
-    init();
-    m_sFilename = filename;
-    if (!filename.isEmpty()) {
+    m_sFilename = fileName;
+    if (!fileName.isEmpty()) {
         readInfo();
         if (readMetadata)
             readTags();
     }
 }
 
-QString Track::filename() const {
+QString Track::fileName() const {
     return m_sFilename;
 }
 
@@ -152,11 +117,11 @@ QString Track::format() const {
     return m_sBPMFormat;
 }
 
-void Track::setBPM(double dBPM) {
+void Track::setBpm(bpmtype dBPM) {
     m_dBPM = dBPM;
 }
 
-double Track::getBPM() const {
+bpmtype Track::bpm() const {
     return m_dBPM;
 }
 
@@ -184,7 +149,7 @@ bool Track::redetect() const {
     return m_bRedetect;
 }
 
-void Track::setStartPos(qint64 ms) {
+void Track::setStartPos(quint64 ms) {
     if (ms > length())
         return;
     m_iStartPos = ms;
@@ -195,11 +160,11 @@ void Track::setStartPos(qint64 ms) {
     }
 }
 
-qint64 Track::startPos() const {
+quint64 Track::startPos() const {
     return m_iStartPos;
 }
 
-void Track::setEndPos(qint64 ms) {
+void Track::setEndPos(quint64 ms) {
     if (ms > length())
         return;
     m_iEndPos = ms;
@@ -210,7 +175,7 @@ void Track::setEndPos(qint64 ms) {
     }
 }
 
-qint64 Track::endPos() const {
+quint64 Track::endPos() const {
     return m_iEndPos;
 }
 
@@ -223,36 +188,32 @@ void Track::setProgress(double progress) {
         m_dProgress = progress;
 }
 
-void Track::enableConsoleProgress(bool enable) {
+void Track::setConsoleProgress(bool enable) {
     m_bConProgress = enable;
 }
 
-void Track::setTrackType(TRACKTYPE type) {
+void Track::setTrackType(TrackType type) {
     m_eType = type;
 }
 
-int Track::trackType() const {
+Track::TrackType Track::trackType() const {
     return m_eType;
 }
 
-void Track::setSampleRate(int sRate) {
+void Track::setSampleRate(unsigned int sRate) {
     m_iSamplerate = sRate;
 }
 
-int Track::sampleRate() const {
+unsigned int Track::sampleRate() const {
     return m_iSamplerate;
 }
 
-void Track::setSampleBytes(int bytes) {
-    if (bytes < 0)
-        return;
+void Track::setSampleBytes(unsigned int bytes) {
     if (bytes > 4) {
         if (!(bytes % 8)) {
             bytes = bytes / 8;
         } else {
-#ifdef DEBUG
-            cerr << "Error: setSampleBytes: " << bytes << endl;
-#endif
+            qWarning() << "Not divisible by 8:" << bytes;
             return;
         }
     }
@@ -261,71 +222,71 @@ void Track::setSampleBytes(int bytes) {
     m_iSampleBytes = bytes;
 }
 
-int Track::sampleBits() const {
+unsigned int Track::sampleBits() const {
     return 8 * sampleBytes();
 }
 
-int Track::sampleBytes() const {
+unsigned int Track::sampleBytes() const {
     return m_iSampleBytes;
 }
 
-void Track::setChannels(int channels) {
+void Track::setChannels(unsigned int channels) {
     m_iChannels = channels;
 }
 
-int Track::channels() const {
+unsigned int Track::channels() const {
     return m_iChannels;
 }
 
-unsigned int Track::length() const {
+quint64 Track::length() const {
     return m_iLength;
 }
 
-void Track::setLength(unsigned int msec) {
+void Track::setLength(quint64 msec) {
     m_iLength = msec;
 }
 
-QString Track::strLength() const {
-    uint len = length();
+QString Track::formattedLength() const {
+    auto len = length();
 
-    uint csecs = len / 10;
-    uint secs = csecs / 100;
+    auto csecs = len / 10;
+    auto secs = csecs / 100;
     csecs = csecs % 100;
-    uint mins = secs / 60;
+    auto mins = secs / 60;
     secs = secs % 60;
-    auto zero = QChar::fromLatin1('0');
+    static const auto zero = QChar::fromLatin1('0');
 
     return QStringLiteral("%1:%2").arg(mins, 2, 10, zero).arg(secs, 2, 10, zero);
 }
 
-void Track::saveBPM() {
-    auto sBPM = bpm2str(getBPM(), format());
+void Track::saveBpm() {
+    auto sBPM = bpmToString(bpm(), format());
     storeBPM(sBPM);
 }
 
-void Track::clearBPM() {
-    setBPM(0);
-    removeBPM();
+void Track::clearBpm() {
+    setBpm(0);
+    removeBpm();
 }
 
 void Track::readInfo() {
-    TagLib::FileRef f(filename().toUtf8().constData());
+    TagLib::FileRef f(fileName().toUtf8().constData());
 
     TagLib::AudioProperties *ap = nullptr;
     if (!f.isNull())
         ap = f.audioProperties();
 
     if (ap) {
-        setChannels(ap->channels());
-        setSampleRate(ap->sampleRate());
-        setLength(static_cast<unsigned int>(ap->lengthInSeconds()) * 1000);
+        setChannels(static_cast<unsigned int>(ap->channels()));
+        setSampleRate(static_cast<unsigned int>(ap->sampleRate()));
+        setLength(static_cast<quint64>(ap->lengthInSeconds() * 1000));
         setValid(true);
     }
 }
 
-double Track::correctBPM(double dBPM) const {
-    auto min = getMinBPM();
-    auto max = getMaxBPM();
+bpmtype Track::correctBPM(bpmtype dBPM) const {
+    auto min = minimumBpm();
+    auto max = maximumBpm();
 
     if (dBPM < 1)
         return 0.;
@@ -335,40 +296,36 @@ double Track::correctBPM(double dBPM) const {
         dBPM *= 2.;
 
     if (_bLimit && dBPM > max) {
-#ifdef DEBUG
         qDebug() << "BPM not within the limit: " << dBPM << " (" << min << ", " << max << ")";
-#endif
         dBPM = 0.;
     }
 
     return dBPM;
 }
 
-void Track::printBPM() const {
-    std::cout << filename().toStdString() << ": " << bpm2str(getBPM(), format()).toStdString()
+void Track::printBpm() const {
+    std::cout << fileName().toStdString() << ": " << bpmToString(bpm(), format()).toStdString()
               << " BPM" << std::endl;
 }
 
-double Track::detectBPM() {
+bpmtype Track::detectBpm() {
     open();
     if (!isOpened()) {
-#ifdef DEBUG
-        qWarning() << "detectBPM: can not open track";
-#endif
+        qCritical() << "Cannot open track";
         return 0;
     }
 
     setProgress(0);
     m_bStop = false;
 
-    auto oldBPM = getBPM();
+    auto oldBPM = bpm();
     const auto epsilon = 1e-6;
     if (!redetect() && std::abs(oldBPM) > epsilon) {
         return oldBPM;
     }
 
-    const uint NUM_SAMPLES = 4096;
-    auto chan = channels();
+    static const auto NUM_SAMPLES = 4096;
+    auto chan = static_cast<int>(channels());
 
     if (!sampleRate() || !chan) {
         return oldBPM;
@@ -376,10 +333,10 @@ double Track::detectBPM() {
     soundtouch::SAMPLETYPE samples[NUM_SAMPLES];
 
     auto totalSteps = endPos() - startPos();
-    soundtouch::BPMDetect detector(chan, sampleRate());
+    soundtouch::BPMDetect detector(chan, static_cast<int>(sampleRate()));
 
-    qint64 currentProgress = 0, pProgress = 0;
-    auto readSamples_ = 0;
+    quint64 currentProgress = 0, pProgress = 0;
+    int readSamples_ = 0;
     seek(startPos());
     while (!m_bStop && currentPos() < endPos() && 0 < (readSamples_ = readSamples(samples))) {
         detector.inputSamples(samples, readSamples_ / chan);
@@ -402,9 +359,9 @@ double Track::detectBPM() {
         setProgress(0);
         return 0;
     }
-    double BPM = static_cast<double>(detector.getBpm());
+    bpmtype BPM = static_cast<bpmtype>(detector.getBpm());
     BPM = correctBPM(BPM);
-    setBPM(BPM);
+    setBpm(BPM);
     setProgress(0);
     close();
     return BPM;
@@ -416,17 +373,17 @@ void Track::stop() {
 
 #ifndef NO_GUI
 void Track::startDetection() {
-#ifdef DEBUG
+#ifndef NDEBUG
     if (isRunning()) {
-        cerr << "Start: thread is running (not starting)" << endl;
+        qCritical() << "Thread is running (not starting).";
         return;
     }
-#endif // DEBUG
+#endif // NDEBUG
     start(QThread::IdlePriority);
 }
 
 void Track::run() {
-    detectBPM();
+    detectBpm();
     setProgress(0);
 }
 

@@ -77,12 +77,10 @@ int main(int argc, char *argv[]) {
 #endif
 
     if (parser.isSet(minOpt)) {
-        Track::setMinBPM(parser.value(minOpt).toDouble());
-        qDebug() << "Min BPM set to" << Track::getMinBPM();
+        Track::setMinimumBpm(parser.value(minOpt).toDouble());
     }
     if (parser.isSet(maxOpt)) {
-        Track::setMaxBPM(parser.value(maxOpt).toDouble());
-        qDebug() << "Max BPM set to" << Track::getMaxBPM();
+        Track::setMaximumBpm(parser.value(maxOpt).toDouble());
     }
     Track::setLimit(parser.isSet(limitOpt));
     auto files = parser.positionalArguments();
@@ -94,16 +92,16 @@ int main(int argc, char *argv[]) {
         for (const auto &file : files) {
             TrackProxy track(file);
             if (!parser.isSet(removeOpt)) {
-                track.enableConsoleProgress(!parser.isSet(noprogressOpt));
+                track.setConsoleProgress(!parser.isSet(noprogressOpt));
                 track.setRedetect(parser.isSet(detectOpt));
                 track.setFormat(parser.value(formatOpt));
-                track.detectBPM();
-                track.printBPM();
+                track.detectBpm();
+                track.printBpm();
                 if (parser.isSet(saveOpt)) {
-                    track.saveBPM();
+                    track.saveBpm();
                 }
             } else {
-                track.clearBPM();
+                track.clearBpm();
             }
         }
         return 0;

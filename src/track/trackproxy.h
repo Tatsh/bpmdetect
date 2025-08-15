@@ -7,27 +7,27 @@
 class TrackProxy : public Track {
 public:
     /** Constructor.
-     * @param filename Filename.
+     * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
      */
-    TrackProxy(const QString &filename, bool readMetadata = true);
+    TrackProxy(const QString &fileName, bool readMetadata = true);
     ~TrackProxy() override;
-    void setFilename(const QString &filename, bool readMetadata = true) override;
+    void setFileName(const QString &fileName, bool readMetadata = true) override;
     void readTags() override;
     void readInfo() override;
-    double detectBPM() override;
-    void printBPM() const override;
+    bpmtype detectBpm() override;
+    void printBpm() const override;
     /** Get the progress amount. */
     double progress();
-    void setBPM(double dBPM) override;
-    double getBPM() const override;
-    void clearBPM() override;
-    void saveBPM() override;
-    QString strBPM() const override;
-    QString strBPM(const QString &format) const override;
-    QString filename() const override;
-    unsigned int length() const override;
-    QString strLength() const override;
+    void setBpm(bpmtype dBPM) override;
+    bpmtype bpm() const override;
+    void clearBpm() override;
+    void saveBpm() override;
+    QString formatted() const override;
+    QString formatted(const QString &format) const override;
+    QString fileName() const override;
+    quint64 length() const override;
+    QString formattedLength() const override;
     bool isValid() const override;
     bool isOpened() const override;
     QString artist() const override;
@@ -37,29 +37,29 @@ public:
     double progress() const override;
     void setFormat(const QString &format = QStringLiteral("0.00")) override;
     QString format() const override;
-    void enableConsoleProgress(bool enable = true) override;
+    void setConsoleProgress(bool enable = true) override;
     void stop() override;
-    void setStartPos(qint64 ms) override;
-    qint64 startPos() const override;
-    void setEndPos(qint64 ms) override;
-    qint64 endPos() const override;
-    int sampleRate() const override;
-    int sampleBytes() const override;
-    int sampleBits() const override;
-    int channels() const override;
-    int trackType() const override;
+    void setStartPos(quint64 ms) override;
+    quint64 startPos() const override;
+    void setEndPos(quint64 ms) override;
+    quint64 endPos() const override;
+    unsigned int sampleRate() const override;
+    unsigned int sampleBytes() const override;
+    unsigned int sampleBits() const override;
+    unsigned int channels() const override;
+    TrackType trackType() const override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(qint64 ms) override;
-    qint64 currentPos() override;
+    void seek(quint64 ms) override;
+    quint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> sp) override;
     void storeBPM(const QString &sBPM) override;
-    void removeBPM() override;
+    void removeBpm() override;
 
 private:
-    Track *createTrack(const QString &filename, bool readMetadata = true);
+    Track *createTrack(const QString &fileName, bool readMetadata = true);
     Track *m_pTrack;
     bool m_bConsoleProgress;
 };

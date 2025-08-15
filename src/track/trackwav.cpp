@@ -20,7 +20,7 @@ static inline auto isAlphaStr(const QString &str) {
 
 TrackWav::TrackWav(const QString &fname, bool readMetadata) : Track() {
     m_iCurPosBytes = 0;
-    setFilename(fname, readMetadata);
+    setFileName(fname, readMetadata);
 }
 
 TrackWav::~TrackWav() {
@@ -29,7 +29,7 @@ TrackWav::~TrackWav() {
 
 void TrackWav::open() {
     close();
-    auto fname = filename();
+    auto fname = fileName();
 
     // Try to open the file for reading
     fptr.setFileName(fname);
@@ -52,21 +52,21 @@ void TrackWav::open() {
 
     m_iCurPosBytes = 0;
 
-    unsigned long long numSamples =
-        header.data.data_len / static_cast<unsigned long long>(header.format.byte_per_sample);
-    auto sRate = header.format.sample_rate;
-    auto channels = header.format.channel_number;
+    auto numSamples =
+        header.data.data_len / static_cast<unsigned short>(header.format.byte_per_sample);
+    auto sRate = static_cast<unsigned int>(header.format.sample_rate);
+    auto channels = static_cast<unsigned int>(header.format.channel_number);
 
-    uint len = (1000 * static_cast<uint>(numSamples) / static_cast<uint>(sRate));
+    auto len = 1000 * numSamples / sRate;
     auto sbytes = header.format.bits_per_sample;
 
     setLength(len);
     setStartPos(0);
     setEndPos(len);
     setSampleRate(sRate);
-    setSampleBytes(sbytes);
+    setSampleBytes(static_cast<unsigned int>(sbytes));
     setChannels(channels);
-    setTrackType(TYPE_WAV);
+    setTrackType(Wave);
     setValid(true);
     setOpened(true);
 }
@@ -79,20 +79,20 @@ void TrackWav::close() {
     setOpened(false);
 }
 
-void TrackWav::seek(qint64 ms) {
+void TrackWav::seek(quint64 ms) {
     if (isValid()) {
         fptr.seek(0);
         auto pos = (ms * sampleRate() * sampleBytes()) / 1000;
         auto hdrsOk = readWavHeaders();
         Q_ASSERT(hdrsOk == 0);
-        fptr.seek(pos);
+        fptr.seek(static_cast<qint64>(pos));
         m_iCurPosBytes = pos;
     } else {
         qCritical() << "seek failed: track not valid";
     }
 }
 
-qint64 TrackWav::currentPos() {
+quint64 TrackWav::currentPos() {
     if (isValid()) {
         auto pos = 1000 * m_iCurPosBytes / (sampleRate() * channels() * sampleBytes());
         return pos;
@@ -113,30 +113,30 @@ int TrackWav::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
 
 qint64 TrackWav::read(QSpan<char> buffer) {
     auto maxElems = buffer.size();
-    qint64 numBytes;
-    qint64 afterDataRead;
+    quint64 numBytes;
+    quint64 afterDataRead;
 
     // ensure it's 8 bit format
     if (header.format.bits_per_sample != 8) {
         return -1;
     }
 
-    numBytes = static_cast<qint64>(maxElems);
+    numBytes = static_cast<quint64>(maxElems);
     afterDataRead = m_iCurPosBytes + numBytes;
     if (afterDataRead > header.data.data_len) {
         // Do not read more samples than are marked available in header
         numBytes = header.data.data_len - m_iCurPosBytes;
         Q_ASSERT(numBytes >= 0);
     }
-    auto bytesRead = fptr.read(buffer.data(), numBytes);
-    m_iCurPosBytes += bytesRead;
+    auto bytesRead = fptr.read(buffer.data(), static_cast<qint64>(numBytes));
+    m_iCurPosBytes += static_cast<quint64>(bytesRead);
 
     return bytesRead;
 }
 
 qint64 TrackWav::read(QSpan<short> buffer) {
     auto maxElems = buffer.size();
-    qint64 afterDataRead;
+    quint64 afterDataRead;
     int numBytes;
     qint64 numElems;
 
@@ -155,7 +155,7 @@ qint64 TrackWav::read(QSpan<short> buffer) {
         Q_ASSERT(sizeof(short) == 2);
 
         numBytes = static_cast<int>(maxElems * 2);
-        afterDataRead = m_iCurPosBytes + numBytes;
+        afterDataRead = m_iCurPosBytes + static_cast<quint64>(numBytes);
         if (afterDataRead > header.data.data_len) {
             // Don't read more samples than are marked available in header
             numBytes = static_cast<int>(header.data.data_len - m_iCurPosBytes);
@@ -163,7 +163,7 @@ qint64 TrackWav::read(QSpan<short> buffer) {
         }
 
         auto bytesRead = fptr.read(reinterpret_cast<char *>(buffer.data()), numBytes);
-        m_iCurPosBytes += bytesRead;
+        m_iCurPosBytes += static_cast<quint64>(bytesRead);
         numElems = bytesRead / 2;
 
         // 16bit samples, swap byte order if necessary
@@ -191,8 +191,8 @@ qint64 TrackWav::read(QSpan<float> buffer) {
 }
 
 void TrackWav::storeBPM(const QString &format) {
-    auto fname = filename();
-    auto sBPM = bpm2str(getBPM(), format);
+    auto fname = fileName();
+    auto sBPM = bpmToString(bpm(), format);
     close();
     /*
     TagLib::MPEG::File f( fname.c_str(), false );
@@ -215,7 +215,7 @@ void TrackWav::storeBPM(const QString &format) {
 }
 
 void TrackWav::readTags() {
-    auto fname = filename();
+    auto fname = fileName();
     auto sBPM = QStringLiteral("000.00");
     /*
       TagLib::MPEG::File f(fname.c_str(), false);
@@ -232,15 +232,15 @@ void TrackWav::readTags() {
         sBPM = frame->toString().toCString();
       }
     */
-    // set filename (without path) as title if the title is empty
+    // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sBPM));
+    setBpm(stringToBpm(sBPM));
     open();
 }
 
-void TrackWav::removeBPM() {
-    auto fname = filename();
+void TrackWav::removeBpm() {
+    auto fname = fileName();
     close();
     // TODO
     open();
@@ -321,7 +321,7 @@ int TrackWav::readHeaderBlock() {
         // 'data' block
         std::copy(
             dataStr.toLocal8Bit().begin(), dataStr.toLocal8Bit().end(), header.data.data_field);
-        read = fptr.read(reinterpret_cast<char *>(&(header.data.data_len)), sizeof(uint));
+        read = fptr.read(reinterpret_cast<char *>(&(header.data.data_len)), sizeof(unsigned int));
         Q_ASSERT(read > 0);
 
         // swap byte order if necessary
@@ -329,8 +329,7 @@ int TrackWav::readHeaderBlock() {
 
         return 1;
     } else {
-        uint len, i;
-        uint temp;
+        unsigned int len, i, temp;
         // unknown block
 
         // read length

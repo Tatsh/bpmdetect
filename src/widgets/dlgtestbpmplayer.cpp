@@ -9,7 +9,7 @@
 #include "dlgtestbpmplayer.h"
 
 DlgTestBPMPlayer::DlgTestBPMPlayer(
-    const QString file, uint nBeats_, uint bpm_, qint64 posUS_, QObject *parent)
+    const QString file, unsigned int nBeats_, unsigned int bpm_, qint64 posUS_, QObject *parent)
     : buffer(QByteArray()), decoder(new QAudioDecoder(this)) {
     nBeats = nBeats_;
     bpm = static_cast<float>(bpm_);
@@ -102,7 +102,7 @@ void DlgTestBPMPlayer::stop() {
     output->stop();
 }
 
-void DlgTestBPMPlayer::update(uint nBeats_, qint64 posUS_) {
+void DlgTestBPMPlayer::update(unsigned int nBeats_, qint64 posUS_) {
     nBeats = nBeats_;
     posUS = posUS_;
 

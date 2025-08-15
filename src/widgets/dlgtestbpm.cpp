@@ -17,10 +17,10 @@ DlgTestBPM::DlgTestBPM(const QString file, const float bpm, QWidget *parent) : Q
     }
 
     player = new DlgTestBPMPlayer(
-        file, static_cast<uint>(cbNBeats->currentText().toInt()), static_cast<uint>(bpm), 0, this);
+        file, cbNBeats->currentText().toUInt(), static_cast<unsigned int>(bpm), 0, this);
     m_bpm = bpm;
 
-    lblBPM->setText(Track::bpm2str(static_cast<double>(bpm), QStringLiteral("000.00")));
+    lblBPM->setText(bpmToString(static_cast<bpmtype>(bpm), QStringLiteral("000.00")));
     connect(trackPosition, &ProgressBar::positionChanged, this, &DlgTestBPM::setCustomPos);
     connect(player, &DlgTestBPMPlayer::hasLengthUS, this, &DlgTestBPM::setTrackPositionLength);
     connect(player, &DlgTestBPMPlayer::audioError, [this](QAudio::Error e) {
@@ -65,7 +65,7 @@ void DlgTestBPM::setTrackPositionLength(qint64 length) {
 void DlgTestBPM::setPosFromButton(int index) {
     auto msec = (trackPosition->length() * index) / 5;
     player->update(cbNBeats->currentText().toUInt(),
-                   static_cast<qint64>(static_cast<double>(player->getLengthUS()) * (index * 0.2)));
+                   static_cast<qint64>(static_cast<double>(player->lengthUs()) * (index * 0.2)));
     trackPosition->setPosition(msec);
 }
 
@@ -105,8 +105,4 @@ void DlgTestBPM::slotUpdateBpmList() {
             m_bpmList.append(cBPM);
         }
     }
-#ifndef NDEBUG
-    qDebug() << m_bpmList;
-    qDebug() << "total list size:" << m_bpmList.size();
-#endif
 }

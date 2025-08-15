@@ -3,9 +3,9 @@
 #pragma once
 
 #include <QSpan>
+#include <QString>
 
 #pragma clang unsafe_buffer_usage begin
-
 /**
  * Get a QSpan that will not be flagged by `-Wunsafe-buffer-usage`.
  * @param pointer Pointer to the data.
@@ -16,5 +16,23 @@ template <typename T>
 QSpan<T> unsafe_forge_span(T *pointer, qsizetype size) {
     return QSpan(pointer, size);
 }
-
 #pragma clang unsafe_buffer_usage end
+
+/** BPM type. */
+typedef double bpmtype;
+
+/**
+ * Convert QString to BPM.
+ * @param sBPM BPM string.
+ * @return BPM value.
+ */
+bpmtype stringToBpm(const QString &sBPM);
+
+/**
+ * Convert BPM to QString using selected format.
+ * @param dBPM BPM value.
+ * @param format Format (default "0.00", other possible values: "0.0", "0", "000.00", "000.0",
+ * "000", "00000").
+ * @return Formatted BPM string.
+ */
+QString bpmToString(bpmtype dBPM, const QString &format = QStringLiteral("0.00"));

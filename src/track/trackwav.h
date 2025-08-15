@@ -26,8 +26,8 @@ typedef struct {
 
 /** WAV audio file 'data' section header. */
 typedef struct {
-    char data_field[4]; //!< 'data' field.
-    uint data_len;      //!< Length of the data.
+    char data_field[4];    //!< 'data' field.
+    unsigned int data_len; //!< Length of the data.
 } WavData;
 
 /** WAV audio file header. */
@@ -41,21 +41,21 @@ typedef struct {
 class TrackWav : public Track {
 public:
     /** Constructor.
-     * @param filename Filename.
+     * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
      */
-    TrackWav(const QString &filename, bool readMetadata = true);
+    TrackWav(const QString &fileName, bool readMetadata = true);
     ~TrackWav() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(qint64 ms) override;
-    qint64 currentPos() override;
+    void seek(quint64 ms) override;
+    quint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
     void storeBPM(const QString &sBPM) override;
-    void removeBPM() override;
+    void removeBpm() override;
 
 private:
     int readWavHeaders();
@@ -66,7 +66,7 @@ private:
     qint64 read(QSpan<short> buffer);
     qint64 read(QSpan<float> buffer);
 
-    qint64 m_iCurPosBytes;
+    quint64 m_iCurPosBytes;
     QFile fptr;
     WavHeader header;
 };

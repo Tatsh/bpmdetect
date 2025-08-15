@@ -11,24 +11,24 @@
 class TrackOggVorbis : public Track {
 public:
     /** Constructor.
-     * @param filename Filename.
+     * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
      */
-    TrackOggVorbis(const QString &filename, bool readMetadata = true);
+    TrackOggVorbis(const QString &fileName, bool readMetadata = true);
     ~TrackOggVorbis() override;
     void readTags() override;
 
 protected:
     void open() override;
     void close() override;
-    void seek(qint64 ms) override;
-    qint64 currentPos() override;
+    void seek(quint64 ms) override;
+    quint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
     void storeBPM(const QString &sBPM) override;
-    void removeBPM() override;
+    void removeBpm() override;
 
 private:
-    qint64 m_iCurPosPCM;
+    quint64 m_iCurPosPCM;
     QFile fptr;
     OggVorbis_File vf;
     int current_section;

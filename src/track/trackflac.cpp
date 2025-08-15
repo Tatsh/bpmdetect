@@ -7,10 +7,9 @@
 #include <xiphcomment.h>
 
 #include "trackflac.h"
-#include "utils.h"
 
 TrackFlac::TrackFlac(const QString &fname, bool readMetadata) : Track() {
-    setFilename(fname, readMetadata);
+    setFileName(fname, readMetadata);
 }
 
 TrackFlac::~TrackFlac() {
@@ -21,7 +20,7 @@ void TrackFlac::open() {
     close();
 
     m_iCurPosPCM = 0;
-    auto fname = filename();
+    auto fname = fileName();
 
     m_decoder = nullptr;
     m_ibufidx = 0;
@@ -55,13 +54,13 @@ void TrackFlac::open() {
     auto numSamples = m_clData.total_samples;
     auto len = 1000 * numSamples / sRate;
 
-    setLength(static_cast<unsigned int>(len));
+    setLength(len);
     setStartPos(0);
-    setEndPos(static_cast<qint64>(len));
-    setSampleRate(static_cast<int>(sRate));
+    setEndPos(len);
+    setSampleRate(sRate);
     setSampleBytes(2);
-    setChannels(channels);
-    setTrackType(TYPE_FLAC);
+    setChannels(static_cast<unsigned int>(channels));
+    setTrackType(Flac);
     setValid(true);
 }
 
@@ -82,7 +81,7 @@ void TrackFlac::close() {
     setOpened(false);
 }
 
-void TrackFlac::seek(qint64 ms) {
+void TrackFlac::seek(quint64 ms) {
     if (isValid() && m_decoder) {
         auto pos = (ms * static_cast<unsigned int>(sampleRate()) /* * channels()*/) / 1000;
         m_clData.numSamples = 0;
@@ -97,7 +96,7 @@ void TrackFlac::seek(qint64 ms) {
     }
 }
 
-qint64 TrackFlac::currentPos() {
+quint64 TrackFlac::currentPos() {
     if (isValid()) {
         auto pos = (1000 * m_iCurPosPCM) / sampleRate() /* *channels()*/;
         return pos;
@@ -145,8 +144,8 @@ int TrackFlac::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
 }
 
 void TrackFlac::storeBPM(const QString &format) {
-    auto fname = filename();
-    auto sBPM = bpm2str(getBPM(), format);
+    auto fname = fileName();
+    auto sBPM = bpmToString(bpm(), format);
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
     auto xiph = f.xiphComment(true);
     if (xiph != nullptr) {
@@ -157,7 +156,7 @@ void TrackFlac::storeBPM(const QString &format) {
 }
 
 void TrackFlac::readTags() {
-    auto fname = filename();
+    auto fname = fileName();
     auto sBPM = QStringLiteral("000.00");
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
     auto tag = f.tag();
@@ -183,14 +182,14 @@ void TrackFlac::readTags() {
             }
         }
     }
-    // set filename (without path) as title if the title is empty
+    // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBPM(str2bpm(sBPM));
+    setBpm(stringToBpm(sBPM));
 }
 
-void TrackFlac::removeBPM() {
-    auto fname = filename();
+void TrackFlac::removeBpm() {
+    auto fname = fileName();
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
     auto xiph = f.xiphComment(true);
     if (xiph != nullptr) {
@@ -237,7 +236,7 @@ FLAC__StreamDecoderWriteStatus TrackFlac::writeCallback(const FLAC__StreamDecode
                              QSpan<FLAC__int32>();
 
     // copy samples into the buffer
-    for (uint i = 0; i < frame->header.blocksize; ++i) {
+    for (uint32_t i = 0; i < frame->header.blocksize; ++i) {
         // 16 bit samples
         if (clientData->bps == 16) {
             (*clientData->buffer)[i * 2] = static_cast<FLAC__int16>(leftBuffSpan[i]);
