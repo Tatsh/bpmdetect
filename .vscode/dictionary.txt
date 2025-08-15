@@ -8,6 +8,7 @@ autouic
 bindir
 bluray
 bpmdetect
+bpmtype
 bsky
 buildsystems
 bytearray

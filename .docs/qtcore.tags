@@ -83369,6 +83369,13 @@
             <arglist></arglist>
         </member>
         <member kind="typedef">
+            <type>long long</type>
+            <name>quint64</name>
+            <anchorfile>qttypes.html</anchorfile>
+            <anchor>quint64-typedef</anchor>
+            <arglist></arglist>
+        </member>
+        <member kind="typedef">
             <type>ssize_t</type>
             <name>qsizetype</name>
             <anchorfile>qttypes.html</anchorfile>
