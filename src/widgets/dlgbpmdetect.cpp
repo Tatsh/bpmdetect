@@ -26,7 +26,7 @@ DlgBPMDetect::DlgBPMDetect(QWidget *parent) : QWidget(parent) {
 
     // Create TrackList menu
     m_pListMenu = new QMenu(TrackList);
-    m_pListMenu->addAction(tr("Add files"), [this]() { slotAddFiles(QStringList()); });
+    m_pListMenu->addAction(tr("Add files"), [this]() { slotAddFiles(); });
     m_pListMenu->addAction(tr("Add directory"), this, &DlgBPMDetect::slotAddDir);
     m_pListMenu->addSeparator();
     m_pListMenu->addAction(tr("Remove selected tracks"), this, &DlgBPMDetect::slotRemoveSelected);
