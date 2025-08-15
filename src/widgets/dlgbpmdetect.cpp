@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QCursor>
 #include <QFileDialog>
+#include <QMenu>
 #include <QMessageBox>
 #include <QtCore>
 #include <QtGui>

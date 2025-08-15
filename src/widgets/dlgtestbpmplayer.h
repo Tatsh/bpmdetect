@@ -4,9 +4,10 @@
 #include <QAudioBuffer>
 #include <QAudioDecoder>
 #include <QAudioFormat>
-#include <QAudioSink>
-#include <QIODevice>
 #include <QThread>
+
+class QAudioSink;
+class QIODevice;
 
 /** The player for the test dialog. */
 class DlgTestBPMPlayer : public QThread {
@@ -39,7 +40,7 @@ public:
     /** Stop the player. */
     void stop();
     /** Signal for when length is discovered. */
-    Q_SIGNAL void hasLengthUS(qint64);
+    Q_SIGNAL void hasLengthUS(qint64 length);
     /** Signal for when the player encounters an error. */
     Q_SIGNAL void audioError(QAudio::Error error);
 

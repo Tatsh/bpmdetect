@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include <QDragEnterEvent>
-#include <QDragLeaveEvent>
-#include <QDragMoveEvent>
-#include <QDropEvent>
-#include <QKeyEvent>
 #include <QTreeWidget>
+
+class QDragEnterEvent;
+class QDragLeaveEvent;
+class QDragMoveEvent;
+class QDropEvent;
+class QKeyEvent;
 
 /** Custom widget to allow for dropping files. */
 class QDropListView : public QTreeWidget {

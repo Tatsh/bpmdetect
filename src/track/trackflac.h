@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include "FLAC/stream_decoder.h"
+#include <FLAC/stream_decoder.h>
+
 #include "track.h"
 
 /** Used in the metadata callback. */

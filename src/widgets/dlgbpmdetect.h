@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include <iostream>
-
 #include <BPMDetect.h>
-#include <QDropEvent>
-#include <QMenu>
 #include <QTimer>
 
 #include "track/trackproxy.h"
 #include "ui_dlgbpmdetect.h"
+
+class QDropEvent;
+class QMenu;
 
 /** Main dialog of the application. */
 class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetect {

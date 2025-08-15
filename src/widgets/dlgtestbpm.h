@@ -1,13 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-#include <QAudioDecoder>
-#include <QAudioFormat>
-#include <QAudioOutput>
 #include <QDialog>
-#include <QIODevice>
 #include <QList>
-#include <QThread>
 
 #include "dlgtestbpmplayer.h"
 #include "ui_dlgtestbpmdlg.h"
