@@ -12,7 +12,6 @@ public:
      */
     TrackProxy(const QString &filename, bool readMetadata = true);
     ~TrackProxy() override;
-
     void setFilename(const QString &filename, bool readMetadata = true) override;
     void readTags() override;
     void readInfo() override;
@@ -27,7 +26,6 @@ public:
     QString strBPM() const override;
     QString strBPM(const QString &format) const override;
     QString filename() const override;
-
     unsigned int length() const override;
     QString strLength() const override;
     bool isValid() const override;
@@ -40,9 +38,7 @@ public:
     void setFormat(const QString &format = QStringLiteral("0.00")) override;
     QString format() const override;
     void enableConsoleProgress(bool enable = true) override;
-
     void stop() override;
-
     void setStartPos(qint64 ms) override;
     qint64 startPos() const override;
     void setEndPos(qint64 ms) override;

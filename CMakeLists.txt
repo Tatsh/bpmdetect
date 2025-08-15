@@ -124,13 +124,16 @@ if(NOT BUILD_DOCS_ONLY)
 endif()
 
 if(BUILD_DOCS OR BUILD_DOCS_ONLY)
+  set(DOXYGEN_GENERATE_TAGFILE "${CMAKE_BINARY_DIR}/html/bpmdetect.tags")
   set(DOXYGEN_INTERACTIVE_SVG YES)
   set(DOXYGEN_MARKDOWN_ID_STYLE GITHUB)
   set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
   set(DOXYGEN_TAGFILES
       ./.docs/cppreference-doxygen-web.tag.xml=https://en.cppreference.com/w/
-      ./.docs/qtcore.tags=http://doc.qt.io/qt-6/ ./.docs/qtgui.tags=http://doc.qt.io/qt-6/
-      ./.docs/qtwidgets.tags=http://doc.qt.io/qt-6/)
+      ./.docs/qtcore.tags=http://doc.qt.io/qt-6/
+      ./.docs/qtgui.tags=http://doc.qt.io/qt-6/
+      ./.docs/qtwidgets.tags=http://doc.qt.io/qt-6/
+      ./.docs/soundtouch.tags=https://codeberg.org/soundtouch/soundtouch/)
   find_package(Doxygen REQUIRED COMPONENTS dot)
   doxygen_add_docs(docs README.md src ALL)
 endif()

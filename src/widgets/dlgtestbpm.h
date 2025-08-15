@@ -12,7 +12,6 @@
 #include "dlgtestbpmplayer.h"
 #include "ui_dlgtestbpmdlg.h"
 
-class AudioThread;
 /** Dialog to test the BPM. */
 class DlgTestBPM : public QDialog, public Ui_DlgTestBPMDlg {
     Q_OBJECT

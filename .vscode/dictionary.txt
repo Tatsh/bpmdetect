@@ -145,6 +145,7 @@ srcs
 stdset
 strequal
 sturmlechner
+tagfile
 tagfiles
 taglib
 tasn

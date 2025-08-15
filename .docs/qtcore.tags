@@ -83358,4 +83358,22 @@
             <arglist>(qfloat16 sign) const const</arglist>
         </member>
     </compound>
+    <compound kind="file">
+        <name>QtTypes.h</name>
+        <filename>qttypes.html</filename>
+        <member kind="typedef">
+            <type>long long</type>
+            <name>qint64</name>
+            <anchorfile>qttypes.html</anchorfile>
+            <anchor>qint64-typedef</anchor>
+            <arglist></arglist>
+        </member>
+        <member kind="typedef">
+            <type>ssize_t</type>
+            <name>qsizetype</name>
+            <anchorfile>qttypes.html</anchorfile>
+            <anchor>qsizetype-typedef</anchor>
+            <arglist></arglist>
+        </member>
+    </compound>
 </tagfile>

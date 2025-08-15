@@ -26,21 +26,46 @@ public Q_SLOTS:
     void slotAddFiles(const QStringList &files);
 
 protected Q_SLOTS:
+    /** Slot to start or stop BPM detection. */
     void slotStartStop();
+    /** Slot to add a directory of files. */
     void slotAddDir();
+    /** Slot to add files via file dialog. */
     void slotAddFiles();
+    /** Slot to start BPM detection. */
     void slotStart();
+    /** Slot to stop BPM detection. */
     void slotStop();
-    void slotListMenuPopup(const QPoint &);
+    /**
+     * Slot to show context menu for the track list.
+     * @param point Position for the menu popup.
+     */
+    void slotListMenuPopup(const QPoint &point);
+    /**
+     * Slot to handle files dropped onto the widget.
+     * @param e Drop event containing dropped files.
+     */
     void slotDropped(QDropEvent *e);
+    /**
+     * Slot to detect BPM for the next track.
+     * @param skipped Whether the current track was skipped.
+    */
     void slotDetectNext(bool skipped = false);
+    /** Slot called when the timer finishes. */
     void slotTimerDone();
+    /** Slot to remove selected tracks from the list. */
     void slotRemoveSelected();
+    /** Slot to clear the track list. */
     void slotClearTrackList();
+    /** Slot to clear detected BPM values. */
     void slotClearDetected();
+    /** Slot to test BPM detection. */
     void slotTestBPM();
+    /** Slot to clear BPM results. */
     void slotClearBPM();
+    /** Slot to save detected BPM values. */
     void slotSaveBPM();
+    /** * Slot to show the About dialog. */
     void slotShowAbout();
 
 private:

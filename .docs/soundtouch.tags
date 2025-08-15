@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tagfile>
+    <compound kind="namespace">
+        <name>soundtouch</name>
+        <filename>src/branch/master/include/STTypes.h</filename>
+        <member kind="typedef">
+            <type>float</type>
+            <name>SAMPLETYPE</name>
+            <anchorfile>src/branch/master/include/STTypes.h</anchorfile>
+            <anchor>L131</anchor>
+        </member>
+    </compound>
+</tagfile>

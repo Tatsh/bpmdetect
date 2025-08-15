@@ -112,9 +112,9 @@
   },
   "scripts": {
     "build": "cmake --preset=default -DBUILD_DOCS=ON && cmake --build build",
-    "check-formatting": "cmake-format --check CMakeLists.txt src/CMakeLists.txt && clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
+    "check-formatting": "cmake-format --check CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
     "check-spelling": "cspell --no-progress .",
-    "format": "cmake-format -i CMakeLists.txt src/CMakeLists.txt && clang-format -i src/*.cpp src/*.h && yarn prettier -w .",
+    "format": "cmake-format -i CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -i src/*.cpp src/*.h && yarn prettier -w .",
     "qa": "yarn check-spelling && yarn check-formatting"
   },
   "version": "0.7.2"
