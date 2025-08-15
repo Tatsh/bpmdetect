@@ -3,10 +3,28 @@
     {
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/prefix",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       },
       "generator": "Ninja",
       "name": "vcpkg"
+    },
+    {
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "BPMDETECT_CXX_WARN_ALL": "ON",
+        "BUILD_TESTS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "/usr/lib/llvm/20/bin/clang++",
+        "CMAKE_C_COMPILER": "/usr/lib/llvm/20/bin/clang",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/prefix",
+        "ENABLE_FLAC": "ON",
+        "ENABLE_MP3": "ON",
+        "ENABLE_VORBIS": "ON",
+        "ENABLE_WAVPACK": "ON"
+      },
+      "generator": "Ninja",
+      "name": "Clang with -Weverything"
     }
   ],
   "version": 2
