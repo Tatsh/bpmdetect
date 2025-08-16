@@ -17,6 +17,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a similar system.
 - Save window size in settings.
 - Save window position in settings (not working on Linux Wayland for me).
+- Ability to build without GUI support. Still requires Qt Core.
 
 ## Changed
 
