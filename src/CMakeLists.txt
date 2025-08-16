@@ -48,7 +48,7 @@ target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB 
                                         bpmdetect-track)
 if(NOT NO_GUI)
   target_include_directories(bpmdetect PRIVATE widgets)
-  target_link_libraries(bpmdetect PRIVATE Qt6::Gui Qt6-Widgets bpmdetect-widgets)
+  target_link_libraries(bpmdetect PRIVATE Qt6::Gui Qt6::Widgets bpmdetect-widgets)
 endif()
 
 if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bundle, or plain Windows
