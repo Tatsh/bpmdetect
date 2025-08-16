@@ -7,15 +7,12 @@ repos:
   - hooks:
       - exclude: "yarn-\\d+.*\\.cjs$"
         id: 'check-added-large-files'
-      - id: 'check-ast'
-      - id: 'check-builtin-literals'
       - id: 'check-case-conflict'
       - id: 'check-executables-have-shebangs'
       - id: 'check-merge-conflict'
       - id: 'check-shebang-scripts-are-executable'
       - id: 'check-symlinks'
       - id: 'check-toml'
-      - id: 'debug-statements'
       - id: 'destroyed-symlinks'
       - id: 'detect-aws-credentials'
       - id: 'detect-private-key'
