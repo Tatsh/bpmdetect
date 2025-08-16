@@ -230,10 +230,9 @@ FLAC__StreamDecoderWriteStatus TrackFlac::writeCallback(const FLAC__StreamDecode
     }
 
     clientData->numSamples = frame->header.blocksize * 2;
-    auto leftBuffSpan = unsafe_forge_span(buffer[0], frame->header.blocksize);
-    auto rightBuffSpan = clientData->channels > 1 ?
-                             unsafe_forge_span(buffer[1], frame->header.blocksize) :
-                             QSpan<FLAC__int32>();
+    auto leftBuffSpan = unsafeSpan(buffer[0], frame->header.blocksize);
+    auto rightBuffSpan = clientData->channels > 1 ? unsafeSpan(buffer[1], frame->header.blocksize) :
+                                                    QSpan<FLAC__int32>();
 
     // copy samples into the buffer
     for (uint32_t i = 0; i < frame->header.blocksize; ++i) {

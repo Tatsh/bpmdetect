@@ -100,8 +100,7 @@ int TrackWavpack::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     // Handle non-float samples.
     if (!(WavpackGetMode(wpc) & MODE_FLOAT)) {
         const auto bufferSize = samplesRead * static_cast<unsigned int>(channels());
-        const auto nativeBuffer =
-            unsafe_forge_span(reinterpret_cast<int32_t *>(buffer.data()), num);
+        const auto nativeBuffer = unsafeSpan(reinterpret_cast<int32_t *>(buffer.data()), num);
         const auto bitsPerSample = WavpackGetBytesPerSample(wpc) * 8;
         for (unsigned int index = 0; index < bufferSize; index++) {
             buffer[index] = static_cast<float>(nativeBuffer[index]) /

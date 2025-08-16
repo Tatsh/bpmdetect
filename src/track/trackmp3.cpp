@@ -270,8 +270,8 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
 
     // If samples are left from previous read, then copy them to start of destination
     if (rest > 0) {
-        auto leftSpan = unsafe_forge_span(synth.pcm.samples[0], synth.pcm.length);
-        auto rightSpan = nchannels > 1 ? unsafe_forge_span(synth.pcm.samples[1], synth.pcm.length) :
+        auto leftSpan = unsafeSpan(synth.pcm.samples[0], synth.pcm.length);
+        auto rightSpan = nchannels > 1 ? unsafeSpan(synth.pcm.samples[1], synth.pcm.length) :
                                          QSpan<mad_fixed_t>();
         for (int i = rest; i < synth.pcm.length; i++) {
             // Left channel
@@ -314,9 +314,9 @@ int TrackMp3::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
          * full.
          */
         no = static_cast<int>(qMin(static_cast<long long>(synth.pcm.length), (num - nSamples) / 2));
-        auto leftSpan = unsafe_forge_span(synth.pcm.samples[0], no);
+        auto leftSpan = unsafeSpan(synth.pcm.samples[0], no);
         auto rightSpan =
-            nchannels > 1 ? unsafe_forge_span(synth.pcm.samples[1], no) : QSpan<mad_fixed_t>();
+            nchannels > 1 ? unsafeSpan(synth.pcm.samples[1], no) : QSpan<mad_fixed_t>();
         for (auto i = 0; i < no; i++) {
             // Left channel
             if (dest_index < dest.size())
