@@ -1,5 +1,7 @@
 add_subdirectory(track)
-add_subdirectory(widgets)
+if(NOT NO_GUI)
+  add_subdirectory(widgets)
+endif()
 
 set(SOURCES images.h main.cpp)
 
@@ -41,9 +43,13 @@ if(WIN32)
   target_sources(bpmdetect PRIVATE version.rc)
 endif()
 
-target_include_directories(bpmdetect PRIVATE . widgets)
-target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Gui
-                                        Qt6::Widgets bpmdetect-track bpmdetect-widgets)
+target_include_directories(bpmdetect PRIVATE .)
+target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Core
+                                        bpmdetect-track)
+if(NOT NO_GUI)
+  target_include_directories(bpmdetect PRIVATE widgets)
+  target_link_libraries(bpmdetect PRIVATE Qt6::Gui Qt6-Widgets bpmdetect-widgets)
+endif()
 
 if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bundle, or plain Windows
                                          # (no MSYS, etc).
@@ -147,26 +153,28 @@ openjp2|opus|p11-kit|pango-1.0|pangocairo-1.0|pixman-1|rsvg-2|rtmp|speex|SvtAv1E
 theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi)-.*\.dll")
   endif()
 else() # Linux, MSYS package, macOS package without creating a bundle.
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bpmdetect.desktop.in"
-                 "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop" @ONLY)
   install(TARGETS bpmdetect)
-  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop"
-          DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
-  foreach(
-    size
-    16
-    32
-    48
-    64
-    96
-    128
-    256
-    512)
-    install(
-      FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/not-padded/${size}x${size}.png"
-      DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/not-padded/hicolor/${size}x${size}/apps"
-      RENAME bpmdetect.png)
-  endforeach()
+  if(NOT NO_GUI)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bpmdetect.desktop.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop" @ONLY)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop"
+            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
+    foreach(
+      size
+      16
+      32
+      48
+      64
+      96
+      128
+      256
+      512)
+      install(
+        FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/not-padded/${size}x${size}.png"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/not-padded/hicolor/${size}x${size}/apps"
+        RENAME bpmdetect.png)
+    endforeach()
+  endif()
   install(FILES ../README.md TYPE DOC)
 endif()
 

@@ -30,6 +30,7 @@ option(ENABLE_WAVPACK "Enable WavPack support." OFF)
 option(NON_PORTABLE_MACOS_BUNDLE
        "Create a macOS bundle which will depend on libraries within FHS-compliant directories \
 (Homebrew, MacPorts). Implies FHS=ON." OFF)
+option(NO_GUI "Build CLI-only version.")
 set(BUNDLE_INSTALL_PREFIX
     .
     CACHE FILEPATH "Install the bundle to a custom directory. This can be an absolute path or \
@@ -64,10 +65,12 @@ if(NOT BUILD_DOCS_ONLY)
   include(ECMQtDeclareLoggingCategory)
 
   find_package(Qt6Core 6.7 CONFIG REQUIRED)
-  find_package(Qt6Gui 6.7 CONFIG REQUIRED)
-  find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)
-  find_package(Qt6Multimedia 6.7 CONFIG REQUIRED)
-  find_package(Qt6Widgets 6.7 CONFIG REQUIRED)
+  if(NOT NO_GUI)
+    find_package(Qt6Gui 6.7 CONFIG REQUIRED)
+    find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)
+    find_package(Qt6Multimedia 6.7 CONFIG REQUIRED)
+    find_package(Qt6Widgets 6.7 CONFIG REQUIRED)
+  endif()
   qt_standard_project_setup()
   pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
   pkg_check_modules(TAGLIB taglib REQUIRED IMPORTED_TARGET GLOBAL)
@@ -88,15 +91,16 @@ if(NOT BUILD_DOCS_ONLY)
   feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
   # Sane flags from Kate
-  add_definitions(
-    -DQT_NO_CAST_FROM_ASCII
-    -DQT_NO_CAST_FROM_BYTEARRAY
-    -DQT_NO_CAST_TO_ASCII
-    -DQT_NO_SIGNALS_SLOTS_KEYWORDS
-    -DQT_NO_URL_CAST_FROM_STRING
-    -DQT_STRICT_ITERATORS
-    -DQT_USE_FAST_OPERATOR_PLUS
-    -DQT_USE_QSTRINGBUILDER)
+  add_compile_definitions(
+    QT_NO_CAST_FROM_ASCII
+    QT_NO_CAST_FROM_BYTEARRAY
+    QT_NO_CAST_TO_ASCII
+    QT_NO_SIGNALS_SLOTS_KEYWORDS
+    QT_NO_URL_CAST_FROM_STRING
+    QT_STRICT_ITERATORS
+    QT_USE_FAST_OPERATOR_PLUS
+    QT_USE_QSTRINGBUILDER
+    $<$<BOOL:${NO_GUI}>:NO_GUI>)
   add_compile_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
   add_link_options($<$<AND:$<CXX_COMPILER_ID:Clang,GNU>,$<BOOL:${COVERAGE}>>:--coverage>)
 
