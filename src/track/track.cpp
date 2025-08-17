@@ -10,7 +10,6 @@
 
 bpmtype Track::_dMinBpm = 80.;
 bpmtype Track::_dMaxBpm = 185.;
-bool Track::_bLimit = false;
 
 Track::Track() {
 }
@@ -46,10 +45,6 @@ bpmtype Track::minimumBpm() {
 
 bpmtype Track::maximumBpm() {
     return _dMaxBpm;
-}
-
-void Track::setLimit(bool bLimit) {
-    _bLimit = bLimit;
 }
 
 QString Track::formatted() const {
@@ -293,11 +288,6 @@ bpmtype Track::correctBpm(bpmtype dBpm) const {
         dBpm /= 2.;
     while (dBpm < min)
         dBpm *= 2.;
-
-    if (_bLimit && dBpm > max) {
-        qDebug() << "BPM not within the limit: " << dBpm << " (" << min << ", " << max << ")";
-        dBpm = 0.;
-    }
 
     return dBpm;
 }

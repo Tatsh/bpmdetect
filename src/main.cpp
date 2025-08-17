@@ -81,7 +81,6 @@ int main(int argc, char *argv[]) {
     if (parser.isSet(maxOpt)) {
         Track::setMaximumBpm(parser.value(maxOpt).toDouble());
     }
-    Track::setLimit(parser.isSet(limitOpt));
     auto files = parser.positionalArguments();
 
     if (isConsoleMode) {

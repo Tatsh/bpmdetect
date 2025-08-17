@@ -18,6 +18,9 @@ class Track
 #endif
 {
     friend class TrackProxy;
+#ifdef TESTING
+    friend class TrackTest;
+#endif
 
 public:
     virtual ~Track()
@@ -49,8 +52,6 @@ public:
     static bpmtype minimumBpm();
     /** Get the maximum BPM. */
     static bpmtype maximumBpm();
-    /** Set limit flag. */
-    static void setLimit(bool bLimit);
     /** Clear the BPM. */
     virtual void clearBpm();
     /** Detect the BPM. */
