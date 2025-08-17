@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+/** @file */
 #pragma once
 
 #include <wavpack/wavpack.h>

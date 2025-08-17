@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "track/trackproxy.h"
 
 void consoleMain(QCommandLineParser &parser, const QStringList &files) {
