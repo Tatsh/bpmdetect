@@ -380,20 +380,19 @@ void DlgBpmDetect::slotTestBpm() {
     testBpmDialog.exec();
 }
 
+// LCOV_EXCL_START
 void DlgBpmDetect::slotShowAbout() {
-    QString description = tr("Automatic BPM (beats per minute) detection tool.");
-    QString aboutText = tr(" \
-Version:    \t%1 \n \
-Description:\t%2 \n \
-License:    \tGNU General Public License \n \
+    QMessageBox::about(this,
+                       tr("About BPM Detect"),
+                       tr(" Version:\t%1\n \
+Description:\tAutomatic BPM (beats per minute) detection tool.\n \
+License:\tGNU General Public License\n \
 \n \
-Authors:    \tAndrew Udvare, Martin Sakmar \n \
-e-mail:     \taudvare+bpmdetect@gmail.com \n \
-")
-                            .arg(QCoreApplication::applicationVersion())
-                            .arg(description);
-    QMessageBox::about(this, tr("About BPM Detect"), aboutText);
+Authors:\tAndrew Udvare, Martin Sakmar\n \
+Email:\taudvare+bpmdetect@gmail.com")
+                           .arg(QCoreApplication::applicationVersion()));
 }
+// LCOV_EXCL_STOP
 
 void DlgBpmDetect::slotClearTrackList() {
     TrackList->clear();
