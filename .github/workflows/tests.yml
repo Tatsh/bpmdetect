@@ -31,6 +31,9 @@ jobs:
         run: cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
       - name: Run tests
         run: ctest --test-dir ${{github.workspace}}/build/tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_QUICK_BACKEND: software
       - if: ${{ matrix.build-type == 'Debug' }}
         name: Generate coverage information
         run: >-
