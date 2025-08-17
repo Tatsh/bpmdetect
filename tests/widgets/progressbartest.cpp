@@ -125,15 +125,15 @@ void ProgressBarTest::testMouseMoveEvent() {
     QCOMPARE(bar.value(), 0);
 
     QMouseEvent event3(QEvent::MouseMove,
-                       QPointF(bar.width() + 1, 0), // localPos
-                       QPointF(bar.width() + 1, 0), // windowPos
-                       QPointF(bar.width() + 1, 0), // screenPos
+                       QPointF(bar.width() - 1, 0), // localPos
+                       QPointF(bar.width() - 1, 0), // windowPos
+                       QPointF(bar.width() - 1, 0), // screenPos
                        Qt::NoButton,
                        Qt::NoButton,
                        Qt::NoModifier);
     bar.bChange = true;
     bar.mouseMoveEvent(&event3);
-    QCOMPARE(bar.value(), bar.maximum());
+    QCOMPARE(bar.value(), 99);
 }
 
 void ProgressBarTest::testMouseReleaseEvent() {

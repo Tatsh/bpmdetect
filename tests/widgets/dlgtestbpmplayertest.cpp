@@ -21,24 +21,24 @@ DlgTestBpmPlayerTest::~DlgTestBpmPlayerTest() {
 }
 
 void DlgTestBpmPlayerTest::testConstructor() {
-    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, 0, this);
+    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, new QAudioDecoder(this));
     QVERIFY(!player.isRunning());
     QCOMPARE(player.lengthUs(), 0);
 }
 
 void DlgTestBpmPlayerTest::testLengthUs() {
-    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, 0, this);
+    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, new QAudioDecoder(this));
     QCOMPARE(player.lengthUs(), 0);
 }
 
 void DlgTestBpmPlayerTest::testUpdate() {
-    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, 0, this);
+    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, new QAudioDecoder(this));
     player.update(8, 1000000);
     // Verify something here.
 }
 
 void DlgTestBpmPlayerTest::testStop() {
-    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, 0);
+    DlgTestBpmPlayer player(QStringLiteral(NOISE_WAV), 4, 120, new QAudioDecoder(this));
     player.stop();
     // Verify something here.
 }

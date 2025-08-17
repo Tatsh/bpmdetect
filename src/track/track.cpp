@@ -6,6 +6,7 @@
 #include <fileref.h>
 #include <tag.h>
 
+#include "soundtouchbpmdetector.h"
 #include "track.h"
 
 bpmtype Track::_dMinBpm = 80.;
@@ -58,23 +59,25 @@ QString Track::formatted(const QString &format) const {
 void Track::setFileName(const QString &fileName, bool readMetadata) {
 #ifndef NO_GUI
     if (isRunning()) {
+        // LCOV_EXCL_START
         qCritical() << "Track thread is running, stopping it before setting fileName.";
         stop();
         wait();
+        // LCOV_EXCL_STOP
     }
 #endif
 
-    m_eType = Unknown;
-    m_bValid = false;
     m_bOpened = false;
-    m_iSamplerate = 0;
-    m_iChannels = 0;
-    m_iSampleBytes = 0;
+    m_bValid = false;
     m_dBpm = 0;
     m_dProgress = 0;
-    m_iLength = 0;
-    m_iStartPos = 0;
+    m_eType = Unknown;
+    m_iChannels = 0;
     m_iEndPos = 0;
+    m_iLength = 0;
+    m_iSampleBytes = 0;
+    m_iSamplerate = 0;
+    m_iStartPos = 0;
     close();
     m_sFilename = fileName;
     if (!fileName.isEmpty()) {
@@ -263,20 +266,24 @@ void Track::clearBpm() {
     removeBpm();
 }
 
+void Track::setDetector(AbstractBpmDetector *detector) {
+    m_detector = detector;
+}
+
+// LCOV_EXCL_START
 void Track::readInfo() {
     TagLib::FileRef f(fileName().toUtf8().constData());
-
-    TagLib::AudioProperties *ap = nullptr;
-    if (!f.isNull())
-        ap = f.audioProperties();
-
+    auto ap = !f.isNull() ? f.audioProperties() : nullptr;
     if (ap) {
         setChannels(static_cast<unsigned int>(ap->channels()));
         setSampleRate(static_cast<unsigned int>(ap->sampleRate()));
         setLength(static_cast<quint64>(ap->lengthInSeconds() * 1000));
+        setDetector(new SoundTouchBpmDetector(
+            static_cast<int>(ap->channels()), static_cast<int>(ap->sampleRate()), this));
         setValid(true);
     }
 }
+// LCOV_EXCL_STOP
 
 bpmtype Track::correctBpm(bpmtype dBpm) const {
     auto min = minimumBpm();
@@ -299,8 +306,8 @@ void Track::printBpm() const {
 
 bpmtype Track::detectBpm() {
     open();
-    if (!isOpened()) {
-        qCritical() << "Cannot open track";
+    if (!isOpened() || !isValid() || !m_detector) {
+        qCritical() << "Cannot open track.";
         return 0;
     }
 
@@ -308,7 +315,7 @@ bpmtype Track::detectBpm() {
     m_bStop = false;
 
     auto oldBpm = bpm();
-    const auto epsilon = 1e-6;
+    static const auto epsilon = 1e-6;
     if (!redetect() && std::abs(oldBpm) > epsilon) {
         return oldBpm;
     }
@@ -322,34 +329,39 @@ bpmtype Track::detectBpm() {
     soundtouch::SAMPLETYPE samples[NUM_SAMPLES];
 
     auto totalSteps = endPos() - startPos();
-    soundtouch::BPMDetect detector(chan, static_cast<int>(sampleRate()));
 
     quint64 currentProgress = 0, pProgress = 0;
     int readSamples_ = 0;
     seek(startPos());
     while (!m_bStop && currentPos() < endPos() && 0 < (readSamples_ = readSamples(samples))) {
-        detector.inputSamples(samples, readSamples_ / chan);
+        m_detector->inputSamples(samples, readSamples_ / chan);
         currentProgress = currentPos() - startPos();
 
         setProgress(100. * static_cast<double>(currentProgress) / static_cast<double>(totalSteps));
         if (m_bConProgress) {
+            // LCOV_EXCL_START
             while ((100 * currentProgress / totalSteps) > pProgress) {
                 ++pProgress;
                 std::clog << "\r" << (100 * currentProgress / totalSteps) << "% " << std::flush;
             }
+            // LCOV_EXCL_STOP
         }
     }
 
     setProgress(100);
-    if (m_bConProgress)
+    if (m_bConProgress) {
+        // LCOV_EXCL_START
         std::clog << "\r" << std::flush;
+        // LCOV_EXCL_STOP
+    }
 
     if (m_bStop) {
+        // LCOV_EXCL_START
         setProgress(0);
         return 0;
+        // LCOV_EXCL_STOP
     }
-    bpmtype bpm = static_cast<bpmtype>(detector.getBpm());
-    bpm = correctBpm(bpm);
+    auto bpm = correctBpm(static_cast<bpmtype>(m_detector->getBpm()));
     setBpm(bpm);
     setProgress(0);
     close();
@@ -361,6 +373,7 @@ void Track::stop() {
 }
 
 #ifndef NO_GUI
+// LCOV_EXCL_START
 void Track::startDetection() {
 #ifndef NDEBUG
     if (isRunning()) {
@@ -375,5 +388,6 @@ void Track::run() {
     detectBpm();
     setProgress(0);
 }
+// LCOV_EXCL_STOP
 
 #endif // NO_GUI

@@ -9,16 +9,13 @@
 #include "progressbar.h"
 #include "track/track.h"
 
-DlgTestBpm::DlgTestBpm(const QString file, const float bpm, QWidget *parent) : QDialog(parent) {
+DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWidget *parent)
+    : m_player(player), m_bpm(bpm), QDialog(parent) {
     setupUi(this);
 
     if (file.isEmpty()) {
         close();
     }
-
-    player = new DlgTestBpmPlayer(
-        file, cbNBeats->currentText().toUInt(), static_cast<unsigned int>(bpm), 0, this);
-    m_bpm = bpm;
 
     lblBpm->setText(bpmToString(static_cast<bpmtype>(bpm), QStringLiteral("000.00")));
     connect(trackPosition, &ProgressBar::positionChanged, this, &DlgTestBpm::setCustomPos);
@@ -46,13 +43,13 @@ DlgTestBpm::DlgTestBpm(const QString file, const float bpm, QWidget *parent) : Q
 
     slotUpdateBpmList();
 #ifndef TESTING
-    player->start();
+    m_player->start();
 #endif
 }
 
 DlgTestBpm::~DlgTestBpm() {
-    if (player) {
-        player->stop();
+    if (m_player) {
+        m_player->stop();
     }
 }
 
@@ -67,15 +64,15 @@ void DlgTestBpm::setTrackPositionLength(qint64 length) {
 }
 
 void DlgTestBpm::setPosFromButton(int index) {
-    auto msec = (trackPosition->length() * index) / 5;
-    player->update(cbNBeats->currentText().toUInt(),
-                   static_cast<qint64>(static_cast<double>(player->lengthUs()) * (index * 0.2)));
-    trackPosition->setPosition(msec);
+    m_player->update(
+        cbNBeats->currentText().toUInt(),
+        static_cast<qint64>(static_cast<double>(m_player->lengthUs()) * (index * 0.2)));
+    trackPosition->setPosition((trackPosition->length() * index) / 5);
 }
 
 void DlgTestBpm::setCustomPos(int msec) {
     Q_UNUSED(msec)
-    player->update(cbNBeats->currentText().toUInt(), trackPosition->value() * 1000);
+    m_player->update(cbNBeats->currentText().toUInt(), trackPosition->value() * 1000);
 }
 
 void DlgTestBpm::setNumBeats(const QString &s) {
@@ -87,7 +84,7 @@ void DlgTestBpm::setNumBeats(const QString &s) {
     if (num <= 0) {
         return;
     }
-    player->update(cbNBeats->currentText().toUInt(), value * 1000);
+    m_player->update(cbNBeats->currentText().toUInt(), value * 1000);
 }
 
 void DlgTestBpm::slotUpdateBpmList() {

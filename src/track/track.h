@@ -10,7 +10,12 @@
 #include <QtCore/QThread>
 #endif
 
+#include "soundtouchbpmdetector.h"
 #include "utils.h"
+
+namespace TagLib {
+    class FileRef;
+}
 
 /** Represents a file on the system. */
 class Track
@@ -164,11 +169,14 @@ protected:
     void setChannels(unsigned int channels);
     /** Set the track type. */
     void setTrackType(TrackType type);
+    /** Set BPM detector. */
+    void setDetector(AbstractBpmDetector *detector);
 
 private:
     bpmtype correctBpm(bpmtype dBpm) const;
     void setProgress(double progress);
 
+    AbstractBpmDetector *m_detector = nullptr;
     QString m_sArtist;
     QString m_sBpmFormat = QStringLiteral("0.00");
     QString m_sFilename = QStringLiteral("");
@@ -181,12 +189,12 @@ private:
     bool m_bValid = false;
     bpmtype m_dBpm = 0;
     double m_dProgress = 0;
+    quint64 m_iEndPos = 0;
+    quint64 m_iLength = 0;
+    quint64 m_iStartPos = 0;
     unsigned int m_iChannels = 0;
     unsigned int m_iSampleBytes = 0;
     unsigned int m_iSamplerate = 0;
-    quint64 m_iEndPos = 0;
-    quint64 m_iStartPos = 0;
-    quint64 m_iLength = 0;
 
     static bool _bLimit;
     static bpmtype _dMaxBpm;

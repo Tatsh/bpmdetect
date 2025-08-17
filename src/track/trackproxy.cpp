@@ -313,3 +313,7 @@ QString TrackProxy::formatted(const QString &format) const {
         return m_pTrack->formatted(format);
     return Track::formatted(format);
 }
+
+TrackProxy trackProxyFactory(const QString &fileName) {
+    return TrackProxy(fileName);
+}

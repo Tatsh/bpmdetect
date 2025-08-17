@@ -24,8 +24,27 @@ public:
     }
     void readTags() override {
     }
+    void readInfo() override {
+        setChannels(2);
+        setSampleRate(44100);
+        setLength(20000);
+        setValid(true);
+    }
     bool storeBpmCalled = false;
     QString storedBpm;
+};
+
+class DummyBpmDetector : public AbstractBpmDetector {
+    Q_OBJECT
+public:
+    DummyBpmDetector(QObject *parent = nullptr) : AbstractBpmDetector(parent) {
+    }
+    void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) const override {
+        // Dummy implementation, no actual processing needed for this test
+    }
+    bpmtype getBpm() const override {
+        return 120.0; // Dummy value for testing
+    }
 };
 
 class TrackTest : public QObject {
@@ -37,6 +56,7 @@ public:
 private Q_SLOTS:
     void testClearBpm();
     void testCorrectBpm();
+    void testDetectBpm();
     void testFormatted1();
     void testFormatted2();
     void testFormattedLength();
@@ -342,6 +362,17 @@ void TrackTest::testStoreBpm() {
     t.saveBpm();
     QVERIFY(t.storeBpmCalled);
     QCOMPARE(t.storedBpm, QStringLiteral("00123"));
+}
+
+void TrackTest::testDetectBpm() {
+    DummyTrack t;
+    QCOMPARE(t.bpm(), 0.0);
+    t.setDetector(new DummyBpmDetector(this));
+    QCOMPARE(t.detectBpm(), 0.0); // Invalid state.
+
+    t.setFileName(QStringLiteral("dummy.wav"), true);
+    QVERIFY(t.isValid());
+    QCOMPARE(t.detectBpm(), 120.0);
 }
 
 QTEST_MAIN(TrackTest)

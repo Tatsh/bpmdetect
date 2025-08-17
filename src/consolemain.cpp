@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#include "consolemain.h"
 #include "track/trackproxy.h"
 
-void consoleMain(QCommandLineParser &parser, const QStringList &files) {
+void consoleMain(QCommandLineParser &parser,
+                 const QStringList &files,
+                 TrackProxyFactory proxyFactory) {
     auto remove = parser.isSet(QStringLiteral("remove"));
     auto consoleProgress = !parser.isSet(QStringLiteral("no-progress"));
     auto detect = parser.isSet(QStringLiteral("detect"));
@@ -11,7 +14,7 @@ void consoleMain(QCommandLineParser &parser, const QStringList &files) {
         parser.showHelp(1);
     }
     for (const auto &file : files) {
-        TrackProxy track(file);
+        TrackProxy track = proxyFactory(file);
         if (!remove) {
             track.setConsoleProgress(consoleProgress);
             track.setRedetect(detect);

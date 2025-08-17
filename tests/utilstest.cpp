@@ -1,5 +1,6 @@
-#include "utils.h"
 #include <QtTest>
+
+#include "utils.h"
 
 class UtilsTest : public QObject {
     Q_OBJECT
@@ -11,6 +12,7 @@ private Q_SLOTS:
     void testBpmToString_data();
     void testStringToBpm();
     void testStringToBpm_data();
+    void testParseCommandLine();
 };
 
 UtilsTest::UtilsTest(QObject *parent) : QObject(parent) {
@@ -55,6 +57,16 @@ void UtilsTest::testBpmToString() {
     QFETCH(QString, format);
     QFETCH(QString, expected);
     QCOMPARE(bpmToString(input, format), expected);
+}
+
+void UtilsTest::testParseCommandLine() {
+    int argc = 4;
+    const char *argv[] = {"bpmdetect", "-s", "-n", "100"};
+    QCoreApplication app(argc, const_cast<char **>(argv));
+    QCommandLineParser parser;
+    parseCommandLine(parser, app);
+    QVERIFY(parser.isSet(QStringLiteral("save")));
+    QCOMPARE(parser.value(QStringLiteral("min")), QStringLiteral("100"));
 }
 
 QTEST_MAIN(UtilsTest)

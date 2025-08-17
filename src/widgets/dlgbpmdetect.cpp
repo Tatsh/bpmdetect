@@ -78,8 +78,7 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     connect(TrackList, &QDropListView::drop, this, &DlgBpmDetect::slotDropped);
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
 
-    m_pTrack = new TrackProxy(QStringLiteral(""));
-    m_pTrack->setConsoleProgress(false);
+    createTrackProxy(QStringLiteral(""));
 
     connect(&m_qTimer, &QTimer::timeout, this, &DlgBpmDetect::slotTimerDone);
     m_qTimer.start(20);
@@ -91,6 +90,15 @@ DlgBpmDetect::~DlgBpmDetect() {
     saveSettings();
     delete m_pTrack;
     m_pTrack = nullptr;
+}
+
+void DlgBpmDetect::createTrackProxy(const QString &fileName) {
+    if (m_pTrack) {
+        delete m_pTrack;
+        m_pTrack = nullptr;
+    }
+    m_pTrack = new TrackProxy(fileName, true);
+    m_pTrack->setConsoleProgress(false);
 }
 
 void DlgBpmDetect::loadSettings() {
@@ -263,13 +271,12 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
     }
     for (int i = 0; i < files.size(); ++i) {
         TrackProxy track(files[i], true);
-        QStringList columns;
-        columns << track.formatted(QStringLiteral("000.00"));
-        columns << track.artist();
-        columns << track.title();
-        columns << track.formattedLength();
-        columns << QStringLiteral("");
-        columns << files.at(i);
+        QStringList columns{track.formatted(QStringLiteral("000.00")),
+                            track.artist(),
+                            track.title(),
+                            track.formattedLength(),
+                            QStringLiteral(""),
+                            files.at(i)};
         if (!started()) {
             lblCurrentTrack->setText(tr("Adding %1").arg(files.at(i)));
             TotalProgress->setValue(i);
@@ -375,8 +382,10 @@ void DlgBpmDetect::slotTestBpm() {
     float bpm = item->text(0).toFloat();
     if (bpm == 0.0f)
         return;
+    auto file = item->text(TrackList->columnCount() - 1);
 
-    DlgTestBpm testBpmDialog(item->text(TrackList->columnCount() - 1), bpm, this);
+    DlgTestBpm testBpmDialog(
+        file, bpm, new DlgTestBpmPlayer(file, 4, bpm, new QAudioDecoder(this), 0, this));
     testBpmDialog.exec();
 }
 

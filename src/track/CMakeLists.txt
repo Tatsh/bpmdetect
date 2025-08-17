@@ -11,7 +11,17 @@ if(WAVPACK_FOUND)
   set(WAVPACK_SRCS trackwavpack.cpp trackwavpack.h)
 endif()
 
-set(TRACK_SRCS track.cpp track.h trackproxy.cpp trackproxy.h trackwav.cpp trackwav.h)
+set(TRACK_SRCS
+    abstractbpmdetector.cpp
+    abstractbpmdetector.h
+    soundtouchbpmdetector.cpp
+    soundtouchbpmdetector.h
+    track.cpp
+    track.h
+    trackproxy.cpp
+    trackproxy.h
+    trackwav.cpp
+    trackwav.h)
 add_library(bpmdetect-track STATIC ${FLAC_SRCS} ${MP3_SRCS} ${TRACK_SRCS} ${VORBIS_SRCS}
                                    ${WAVPACK_SRCS})
 target_compile_definitions(

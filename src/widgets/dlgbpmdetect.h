@@ -19,9 +19,10 @@ class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
 #endif
 public:
     /** Constructor.
+     * @param proxyFactory Factory function to create TrackProxy instances.
      * @param parent Parent widget.
      */
-    explicit DlgBpmDetect(QWidget *parent = nullptr);
+    DlgBpmDetect(QWidget *parent = nullptr);
     ~DlgBpmDetect() override;
 
 public Q_SLOTS:
@@ -80,11 +81,12 @@ private:
     void saveSettings();
     void setRecentPath(const QString &path);
     void setStarted(bool started);
+    void createTrackProxy(const QString &fileName);
 
     QProgressBar *m_pProgress;
     QMenu *m_pListMenu;
     QTreeWidgetItem *m_pCurItem;
-    TrackProxy *m_pTrack;
+    TrackProxy *m_pTrack = nullptr;
     QTimer m_qTimer;
     QString m_qRecentPath;
     int m_iCurTrackIdx; // for total progress

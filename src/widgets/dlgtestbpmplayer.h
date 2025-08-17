@@ -25,6 +25,7 @@ public:
     DlgTestBpmPlayer(const QString file,
                      unsigned int nBeats_,
                      unsigned int bpm_,
+                     QAudioDecoder *decoder,
                      qint64 posUS_ = 0,
                      QObject *parent = nullptr);
     ~DlgTestBpmPlayer() override;
@@ -47,6 +48,8 @@ public:
 
 protected:
     void run() override;
+    /** Create audio sink. */
+    QAudioSink *audioSinkFactory(const QAudioFormat &format);
 
 protected Q_SLOTS:
     /** Set the error flag. */
@@ -60,9 +63,9 @@ protected Q_SLOTS:
 
 private:
     QAudioBuffer lastBuffer;
-    QAudioFormat format;
+    QAudioFormat format_;
     QByteArray buffer;
-    QAudioDecoder *decoder = nullptr;
+    QAudioDecoder *decoder_ = nullptr;
     QAudioSink *output = nullptr;
     QIODevice *dev = nullptr;
     char *data = nullptr;

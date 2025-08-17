@@ -7,6 +7,7 @@
 
 #include "dlgtestbpmplayer.h"
 #include "ui_dlgtestbpmdlg.h"
+#include "utils.h"
 
 /** Dialog to test the BPM. */
 class DlgTestBpm : public QDialog, public Ui_DlgTestBpmDlg {
@@ -20,7 +21,7 @@ public:
      * @param bpm BPM value.
      * @param parent Parent widget.
      */
-    DlgTestBpm(const QString file, const float bpm, QWidget *parent = nullptr);
+    DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWidget *parent = nullptr);
     ~DlgTestBpm() override;
 
 protected Q_SLOTS:
@@ -35,7 +36,7 @@ protected Q_SLOTS:
 
 private:
     void setPosFromButton(int msec);
-    DlgTestBpmPlayer *player;
-    QList<float> m_bpmList;
-    float m_bpm;
+    DlgTestBpmPlayer *m_player;
+    QList<bpmtype> m_bpmList;
+    bpmtype m_bpm;
 };

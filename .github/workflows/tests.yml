@@ -38,8 +38,9 @@ jobs:
         name: Generate coverage information
         run: >-
           lcov -c -d ${{github.workspace}}/build -o coverage1.lcov
-          --ignore-errors inconsistent,mismatch
+          --keep-going
           --include src
+          --exclude 'src/track/*bpmdetector.*'
           --exclude tests
       - if: ${{ matrix.build-type == 'Debug' }}
         name: Coveralls

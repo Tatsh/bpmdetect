@@ -20,7 +20,15 @@ endfunction()
 set(UTILS_TESTS_SRCS utilstest.cpp ../src/utils.cpp ../src/utils.h)
 create_test(utils-test "${UTILS_TESTS_SRCS}")
 
-set(TRACK_TESTS_SRCS track/tracktest.cpp ../src/track/track.cpp ../src/utils.cpp ../src/utils.h)
+set(TRACK_TESTS_SRCS
+    track/tracktest.cpp
+    ../src/track/abstractbpmdetector.cpp
+    ../src/track/abstractbpmdetector.h
+    ../src/track/soundtouchbpmdetector.cpp
+    ../src/track/soundtouchbpmdetector.h
+    ../src/track/track.cpp
+    ../src/utils.cpp
+    ../src/utils.h)
 create_test(track-test "${TRACK_TESTS_SRCS}")
 target_link_libraries(track-test PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB)
 
@@ -61,20 +69,24 @@ set(DLGBPMDETECT_TESTS_SRCS
     widgets/dlgbpmdetecttest.cpp
     ../src/utils.cpp
     ../src/utils.h
+    ../src/track/abstractbpmdetector.cpp
+    ../src/track/abstractbpmdetector.h
+    ../src/track/soundtouchbpmdetector.cpp
+    ../src/track/soundtouchbpmdetector.h
     ../src/track/track.cpp
     ../src/track/track.h
-    ../src/track/trackwav.cpp
-    ../src/track/trackwav.h
     ../src/track/trackproxy.cpp
     ../src/track/trackproxy.h
+    ../src/track/trackwav.cpp
+    ../src/track/trackwav.h
     ../src/widgets/dlgbpmdetect.cpp
     ../src/widgets/dlgbpmdetect.h
-    ../src/widgets/progressbar.cpp
-    ../src/widgets/progressbar.h
-    ../src/widgets/dlgtestbpmplayer.cpp
-    ../src/widgets/dlgtestbpmplayer.h
     ../src/widgets/dlgtestbpm.cpp
     ../src/widgets/dlgtestbpm.h
+    ../src/widgets/dlgtestbpmplayer.cpp
+    ../src/widgets/dlgtestbpmplayer.h
+    ../src/widgets/progressbar.cpp
+    ../src/widgets/progressbar.h
     ../src/widgets/qdroplistview.cpp
     ../src/widgets/qdroplistview.h)
 create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")

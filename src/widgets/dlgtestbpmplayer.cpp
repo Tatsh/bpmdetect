@@ -8,9 +8,13 @@
 
 #include "dlgtestbpmplayer.h"
 
-DlgTestBpmPlayer::DlgTestBpmPlayer(
-    const QString file, unsigned int nBeats_, unsigned int bpm_, qint64 posUS_, QObject *parent)
-    : buffer(QByteArray()), decoder(new QAudioDecoder(this)) {
+DlgTestBpmPlayer::DlgTestBpmPlayer(const QString file,
+                                   unsigned int nBeats_,
+                                   unsigned int bpm_,
+                                   QAudioDecoder *decoder,
+                                   qint64 posUS_,
+                                   QObject *parent)
+    : QThread(parent), buffer(QByteArray()), decoder_(decoder) {
     nBeats = nBeats_;
     bpm = static_cast<float>(bpm_);
     posUS = posUS_;
@@ -20,10 +24,6 @@ DlgTestBpmPlayer::DlgTestBpmPlayer(
         emit audioError(QAudio::FatalError);
         return;
         // LCOV_EXCL_STOP
-    }
-
-    if (parent) {
-        setParent(parent);
     }
 
     decoder->setSource(QUrl::fromLocalFile(file));
@@ -41,7 +41,7 @@ DlgTestBpmPlayer::~DlgTestBpmPlayer() {
 }
 
 void DlgTestBpmPlayer::readBuffer() {
-    QAudioBuffer buf = lastBuffer = decoder->read();
+    QAudioBuffer buf = lastBuffer = decoder_->read();
     lengthUs_ += buf.duration();
     buffer.append(buf.data<const char>(), buf.byteCount());
 }
@@ -51,9 +51,13 @@ void DlgTestBpmPlayer::decodeError(QAudioDecoder::Error err) {
     error = true;
 }
 
+QAudioSink *DlgTestBpmPlayer::audioSinkFactory(const QAudioFormat &format) {
+    return new QAudioSink(format, this);
+}
+
 void DlgTestBpmPlayer::finishedDecoding() {
-    format = lastBuffer.format();
-    output = new QAudioSink(format, this);
+    format_ = lastBuffer.format();
+    output = audioSinkFactory(format_);
     connect(output, &QAudioSink::stateChanged, this, &DlgTestBpmPlayer::handleStateChange);
     dev = output->start();
     readyToPlay = true;
@@ -113,12 +117,12 @@ void DlgTestBpmPlayer::update(unsigned int nBeats_, qint64 posUS_) {
     data = startptr = buffer.data();
     const auto beatsLength =
         static_cast<qint64>(((60000.0f * static_cast<float>(nBeats)) / bpm) * 1000.0f);
-    const auto bytesForBeats = format.bytesForDuration(beatsLength);
+    const auto bytesForBeats = format_.bytesForDuration(beatsLength);
 
     dataRemaining = static_cast<qint64>(bytesForBeats) * nBeats;
     originalSize = dataRemaining;
     if (posUS > 0) {
-        auto skipBytes = format.bytesForDuration(posUS);
+        auto skipBytes = format_.bytesForDuration(posUS);
         if (skipBytes >= buffer.size()) {
             return;
         }
