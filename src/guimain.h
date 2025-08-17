@@ -2,4 +2,9 @@
 /** @file */
 #pragma once
 
+/**
+ * GUI entry point.
+ * @param app Application instance.
+ * @param files List of files to add to the view.
+ */
 void guiMain(const QApplication &app, const QStringList &files);
