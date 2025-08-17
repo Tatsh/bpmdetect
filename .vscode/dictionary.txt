@@ -27,7 +27,6 @@ datrie
 dbuild
 dcmake
 dcoverage
-decodeded
 defenses
 denable
 destinationlabel

@@ -40,7 +40,7 @@ private:
 
     // It is not possible to make a precise seek in an mp3 file without decoding the whole stream.
     // To have precise seek within a limited range from the current decode position, we keep track
-    // of past decodeded frame, and their exact position. If a seek occurs and it is within the
+    // of past decoded frame, and their exact position. If a seek occurs and it is within the
     // range of frames we keep track of a precise seek occurs, otherwise an imprecise seek is
     // performed.
     QList<MadSeekFrameType *> m_qSeekList;
