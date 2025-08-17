@@ -8,7 +8,7 @@
 #include "ui_dlgtestbpmdlg.h"
 
 /** Dialog to test the BPM. */
-class DlgTestBPM : public QDialog, public Ui_DlgTestBPMDlg {
+class DlgTestBpm : public QDialog, public Ui_DlgTestBpmDlg {
     Q_OBJECT
 public:
     /** Constructor.
@@ -16,8 +16,8 @@ public:
      * @param bpm BPM value.
      * @param parent Parent widget.
      */
-    DlgTestBPM(const QString file, const float bpm, QWidget *parent = nullptr);
-    ~DlgTestBPM() override;
+    DlgTestBpm(const QString file, const float bpm, QWidget *parent = nullptr);
+    ~DlgTestBpm() override;
 
 protected Q_SLOTS:
     /** Set a custom position in milliseconds. */
@@ -31,7 +31,7 @@ protected Q_SLOTS:
 
 private:
     void setPosFromButton(int msec);
-    DlgTestBPMPlayer *player;
+    DlgTestBpmPlayer *player;
     QList<float> m_bpmList;
     float m_bpm;
 };

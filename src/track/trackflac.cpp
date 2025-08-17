@@ -143,21 +143,21 @@ int TrackFlac::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     return static_cast<int>(nread);
 }
 
-void TrackFlac::storeBPM(const QString &format) {
+void TrackFlac::storeBpm(const QString &format) {
     auto fname = fileName();
-    auto sBPM = bpmToString(bpm(), format);
+    auto sBpm = bpmToString(bpm(), format);
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
     auto xiph = f.xiphComment(true);
     if (xiph != nullptr) {
         xiph->addField(
-            "TBPM", sBPM.toUtf8().constData(), true); // add new BPM field (replace existing)
+            "TBPM", sBpm.toUtf8().constData(), true); // add new BPM field (replace existing)
     }
     f.save();
 }
 
 void TrackFlac::readTags() {
     auto fname = fileName();
-    auto sBPM = QStringLiteral("000.00");
+    auto sBpm = QStringLiteral("000.00");
     TagLib::FLAC::File f(fname.toUtf8().constData(), false);
     auto tag = f.tag();
     if (tag != nullptr) {
@@ -170,14 +170,14 @@ void TrackFlac::readTags() {
         auto flMap = xiph->fieldListMap();
         auto strl = flMap["TBPM"];
         if (!strl.isEmpty())
-            sBPM = QString::fromUtf8(strl[0].toCString(true));
+            sBpm = QString::fromUtf8(strl[0].toCString(true));
         else {
             auto id3v2tag = f.ID3v2Tag(true);
             if (id3v2tag != nullptr) {
                 auto lst = id3v2tag->frameList("TBPM");
                 if (lst.size() > 0) {
                     auto frame = lst[0];
-                    sBPM = QString::fromUtf8(frame->toString().toCString(true));
+                    sBpm = QString::fromUtf8(frame->toString().toCString(true));
                 }
             }
         }
@@ -185,7 +185,7 @@ void TrackFlac::readTags() {
     // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBpm(stringToBpm(sBPM));
+    setBpm(stringToBpm(sBpm));
 }
 
 void TrackFlac::removeBpm() {

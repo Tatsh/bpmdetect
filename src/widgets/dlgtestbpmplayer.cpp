@@ -8,7 +8,7 @@
 
 #include "dlgtestbpmplayer.h"
 
-DlgTestBPMPlayer::DlgTestBPMPlayer(
+DlgTestBpmPlayer::DlgTestBpmPlayer(
     const QString file, unsigned int nBeats_, unsigned int bpm_, qint64 posUS_, QObject *parent)
     : buffer(QByteArray()), decoder(new QAudioDecoder(this)) {
     nBeats = nBeats_;
@@ -27,40 +27,40 @@ DlgTestBPMPlayer::DlgTestBPMPlayer(
     decoder->setSource(QUrl::fromLocalFile(file));
     decoder->start();
 
-    connect(decoder, &QAudioDecoder::bufferReady, this, &DlgTestBPMPlayer::readBuffer);
+    connect(decoder, &QAudioDecoder::bufferReady, this, &DlgTestBpmPlayer::readBuffer);
     connect(decoder,
             QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error),
             this,
-            &DlgTestBPMPlayer::decodeError);
-    connect(decoder, &QAudioDecoder::finished, this, &DlgTestBPMPlayer::finishedDecoding);
+            &DlgTestBpmPlayer::decodeError);
+    connect(decoder, &QAudioDecoder::finished, this, &DlgTestBpmPlayer::finishedDecoding);
 }
 
-DlgTestBPMPlayer::~DlgTestBPMPlayer() {
+DlgTestBpmPlayer::~DlgTestBpmPlayer() {
 }
 
-void DlgTestBPMPlayer::readBuffer() {
+void DlgTestBpmPlayer::readBuffer() {
     QAudioBuffer buf = lastBuffer = decoder->read();
-    lengthUS += buf.duration();
+    lengthUs_ += buf.duration();
     buffer.append(buf.data<const char>(), buf.byteCount());
 }
 
-void DlgTestBPMPlayer::decodeError(QAudioDecoder::Error err) {
+void DlgTestBpmPlayer::decodeError(QAudioDecoder::Error err) {
     qDebug() << "Audio decoder error:" << err;
     error = true;
 }
 
-void DlgTestBPMPlayer::finishedDecoding() {
+void DlgTestBpmPlayer::finishedDecoding() {
     format = lastBuffer.format();
     output = new QAudioSink(format, this);
-    connect(output, &QAudioSink::stateChanged, this, &DlgTestBPMPlayer::handleStateChange);
+    connect(output, &QAudioSink::stateChanged, this, &DlgTestBpmPlayer::handleStateChange);
     dev = output->start();
     readyToPlay = true;
-    emit hasLengthUS(lengthUS);
+    emit hasLengthUS(lengthUs_);
 }
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch-default"
-void DlgTestBPMPlayer::handleStateChange(QAudio::State newState) {
+void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
     switch (newState) {
     case QAudio::ActiveState:
         qDebug() << "Audio output is active.";
@@ -98,11 +98,11 @@ void DlgTestBPMPlayer::handleStateChange(QAudio::State newState) {
 }
 #pragma clang diagnostic pop
 
-void DlgTestBPMPlayer::stop() {
+void DlgTestBpmPlayer::stop() {
     output->stop();
 }
 
-void DlgTestBPMPlayer::update(unsigned int nBeats_, qint64 posUS_) {
+void DlgTestBpmPlayer::update(unsigned int nBeats_, qint64 posUS_) {
     nBeats = nBeats_;
     posUS = posUS_;
 
@@ -126,7 +126,7 @@ void DlgTestBPMPlayer::update(unsigned int nBeats_, qint64 posUS_) {
     }
 }
 
-void DlgTestBPMPlayer::run() {
+void DlgTestBpmPlayer::run() {
     while (!readyToPlay) {
         if (error) {
             return;

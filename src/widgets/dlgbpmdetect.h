@@ -11,14 +11,14 @@ class QDropEvent;
 class QMenu;
 
 /** Main dialog of the application. */
-class DlgBPMDetect : public QWidget, public Ui_DlgBPMDetect {
+class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
     Q_OBJECT
 public:
     /** Constructor.
      * @param parent Parent widget.
      */
-    DlgBPMDetect(QWidget *parent = nullptr);
-    ~DlgBPMDetect() override;
+    explicit DlgBpmDetect(QWidget *parent = nullptr);
+    ~DlgBpmDetect() override;
 
 public Q_SLOTS:
     /** Slot to add files. */
@@ -59,11 +59,11 @@ protected Q_SLOTS:
     /** Slot to clear detected BPM values. */
     void slotClearDetected();
     /** Slot to test BPM detection. */
-    void slotTestBPM();
+    void slotTestBpm();
     /** Slot to clear BPM results. */
-    void slotClearBPM();
+    void slotClearBpm();
     /** Slot to save detected BPM values. */
-    void slotSaveBPM();
+    void slotSaveBpm();
     /** * Slot to show the About dialog. */
     void slotShowAbout();
 

@@ -60,7 +60,7 @@ public:
     /** Print the BPM to standard output. */
     virtual void printBpm() const;
     /** Set the BPM. */
-    virtual void setBpm(bpmtype dBPM);
+    virtual void setBpm(bpmtype dBpm);
     /** Get the BPM. */
     virtual bpmtype bpm() const;
     /** Get the BPM as a formatted string. */
@@ -140,8 +140,8 @@ protected:
     virtual quint64 currentPos() = 0;
     /** Read samples from current position into @a buffer. */
     virtual int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) = 0;
-    /** Store @a sBPM into the metadata of the file. */
-    virtual void storeBPM(const QString &sBPM) = 0;
+    /** Store @a sBpm into the metadata of the file. */
+    virtual void storeBpm(const QString &sBpm) = 0;
     /** Remove BPM metadata from the file. */
     virtual void removeBpm() = 0;
     /** Mark the file validity state. */
@@ -164,11 +164,11 @@ protected:
     void setTrackType(TrackType type);
 
 private:
-    bpmtype correctBPM(bpmtype dBPM) const;
+    bpmtype correctBpm(bpmtype dBpm) const;
     void setProgress(double progress);
 
     QString m_sArtist;
-    QString m_sBPMFormat = QStringLiteral("0.00");
+    QString m_sBpmFormat = QStringLiteral("0.00");
     QString m_sFilename = QStringLiteral("");
     QString m_sTitle;
     TrackType m_eType = Unknown;
@@ -177,7 +177,7 @@ private:
     bool m_bRedetect = false;
     bool m_bStop = false;
     bool m_bValid = false;
-    bpmtype m_dBPM = 0;
+    bpmtype m_dBpm = 0;
     double m_dProgress = 0;
     unsigned int m_iChannels = 0;
     unsigned int m_iSampleBytes = 0;
@@ -187,8 +187,8 @@ private:
     quint64 m_iLength = 0;
 
     static bool _bLimit;
-    static bpmtype _dMaxBPM;
-    static bpmtype _dMinBPM;
+    static bpmtype _dMaxBpm;
+    static bpmtype _dMinBpm;
 
 #ifndef NO_GUI
 public:

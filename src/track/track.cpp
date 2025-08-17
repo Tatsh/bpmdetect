@@ -8,8 +8,8 @@
 
 #include "track.h"
 
-bpmtype Track::_dMinBPM = 80.;
-bpmtype Track::_dMaxBPM = 185.;
+bpmtype Track::_dMinBpm = 80.;
+bpmtype Track::_dMaxBpm = 185.;
 bool Track::_bLimit = false;
 
 Track::Track() {
@@ -20,32 +20,32 @@ Track::~Track() {
 
 void Track::setMinimumBpm(bpmtype dMin) {
     if (dMin > 30. && dMin < 300.)
-        _dMinBPM = dMin;
+        _dMinBpm = dMin;
     // swap min and max if min is greater than max
-    if (_dMinBPM > _dMaxBPM) {
-        auto temp = _dMinBPM;
-        _dMinBPM = _dMaxBPM;
-        _dMaxBPM = temp;
+    if (_dMinBpm > _dMaxBpm) {
+        auto temp = _dMinBpm;
+        _dMinBpm = _dMaxBpm;
+        _dMaxBpm = temp;
     }
 }
 
 void Track::setMaximumBpm(bpmtype dMax) {
     if (dMax > 30. && dMax < 300.)
-        _dMaxBPM = dMax;
+        _dMaxBpm = dMax;
     // swap min and max if min is greater than max
-    if (_dMinBPM > _dMaxBPM) {
-        auto temp = _dMinBPM;
-        _dMinBPM = _dMaxBPM;
-        _dMaxBPM = temp;
+    if (_dMinBpm > _dMaxBpm) {
+        auto temp = _dMinBpm;
+        _dMinBpm = _dMaxBpm;
+        _dMaxBpm = temp;
     }
 }
 
 bpmtype Track::minimumBpm() {
-    return _dMinBPM;
+    return _dMinBpm;
 }
 
 bpmtype Track::maximumBpm() {
-    return _dMaxBPM;
+    return _dMaxBpm;
 }
 
 void Track::setLimit(bool bLimit) {
@@ -75,7 +75,7 @@ void Track::setFileName(const QString &fileName, bool readMetadata) {
     m_iSamplerate = 0;
     m_iChannels = 0;
     m_iSampleBytes = 0;
-    m_dBPM = 0;
+    m_dBpm = 0;
     m_dProgress = 0;
     m_iLength = 0;
     m_iStartPos = 0;
@@ -110,19 +110,19 @@ bool Track::isOpened() const {
 }
 
 void Track::setFormat(const QString &format) {
-    m_sBPMFormat = format;
+    m_sBpmFormat = format;
 }
 
 QString Track::format() const {
-    return m_sBPMFormat;
+    return m_sBpmFormat;
 }
 
-void Track::setBpm(bpmtype dBPM) {
-    m_dBPM = dBPM;
+void Track::setBpm(bpmtype dBpm) {
+    m_dBpm = dBpm;
 }
 
 bpmtype Track::bpm() const {
-    return m_dBPM;
+    return m_dBpm;
 }
 
 void Track::setArtist(const QString &artist) {
@@ -260,8 +260,7 @@ QString Track::formattedLength() const {
 }
 
 void Track::saveBpm() {
-    auto sBPM = bpmToString(bpm(), format());
-    storeBPM(sBPM);
+    storeBpm(bpmToString(bpm(), format()));
 }
 
 void Track::clearBpm() {
@@ -284,23 +283,23 @@ void Track::readInfo() {
     }
 }
 
-bpmtype Track::correctBPM(bpmtype dBPM) const {
+bpmtype Track::correctBpm(bpmtype dBpm) const {
     auto min = minimumBpm();
     auto max = maximumBpm();
 
-    if (dBPM < 1)
+    if (dBpm < 1)
         return 0.;
-    while (dBPM > max)
-        dBPM /= 2.;
-    while (dBPM < min)
-        dBPM *= 2.;
+    while (dBpm > max)
+        dBpm /= 2.;
+    while (dBpm < min)
+        dBpm *= 2.;
 
-    if (_bLimit && dBPM > max) {
-        qDebug() << "BPM not within the limit: " << dBPM << " (" << min << ", " << max << ")";
-        dBPM = 0.;
+    if (_bLimit && dBpm > max) {
+        qDebug() << "BPM not within the limit: " << dBpm << " (" << min << ", " << max << ")";
+        dBpm = 0.;
     }
 
-    return dBPM;
+    return dBpm;
 }
 
 void Track::printBpm() const {
@@ -318,17 +317,17 @@ bpmtype Track::detectBpm() {
     setProgress(0);
     m_bStop = false;
 
-    auto oldBPM = bpm();
+    auto oldBpm = bpm();
     const auto epsilon = 1e-6;
-    if (!redetect() && std::abs(oldBPM) > epsilon) {
-        return oldBPM;
+    if (!redetect() && std::abs(oldBpm) > epsilon) {
+        return oldBpm;
     }
 
     static const auto NUM_SAMPLES = 4096;
     auto chan = static_cast<int>(channels());
 
     if (!sampleRate() || !chan) {
-        return oldBPM;
+        return oldBpm;
     }
     soundtouch::SAMPLETYPE samples[NUM_SAMPLES];
 
@@ -359,12 +358,12 @@ bpmtype Track::detectBpm() {
         setProgress(0);
         return 0;
     }
-    bpmtype BPM = static_cast<bpmtype>(detector.getBpm());
-    BPM = correctBPM(BPM);
-    setBpm(BPM);
+    bpmtype bpm = static_cast<bpmtype>(detector.getBpm());
+    bpm = correctBpm(bpm);
+    setBpm(bpm);
     setProgress(0);
     close();
-    return BPM;
+    return bpm;
 }
 
 void Track::stop() {

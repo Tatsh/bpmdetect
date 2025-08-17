@@ -19,7 +19,7 @@ public:
     void printBpm() const override;
     /** Get the progress amount. */
     double progress();
-    void setBpm(bpmtype dBPM) override;
+    void setBpm(bpmtype dBpm) override;
     bpmtype bpm() const override;
     void clearBpm() override;
     void saveBpm() override;
@@ -55,7 +55,7 @@ protected:
     void seek(quint64 ms) override;
     quint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> sp) override;
-    void storeBPM(const QString &sBPM) override;
+    void storeBpm(const QString &sBpm) override;
     void removeBpm() override;
 
 private:

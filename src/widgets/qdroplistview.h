@@ -17,7 +17,7 @@ public:
      * Constructor.
      * @param parent Parent widget.
      */
-    QDropListView(QWidget *parent = nullptr);
+    explicit QDropListView(QWidget *parent = nullptr);
     ~QDropListView() override;
     /** Signal for key press event. */
     Q_SIGNAL void keyPress(QKeyEvent *e);

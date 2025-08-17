@@ -190,9 +190,9 @@ qint64 TrackWav::read(QSpan<float> buffer) {
     return num;
 }
 
-void TrackWav::storeBPM(const QString &format) {
+void TrackWav::storeBpm(const QString &format) {
     auto fname = fileName();
-    auto sBPM = bpmToString(bpm(), format);
+    auto sBpm = bpmToString(bpm(), format);
     close();
     /*
     TagLib::MPEG::File f( fname.c_str(), false );
@@ -203,7 +203,7 @@ void TrackWav::storeBPM(const QString &format) {
 
     TagLib::ID3v2::TextIdentificationFrame* bpmFrame =
         new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-    bpmFrame->setText(sBPM.c_str());
+    bpmFrame->setText(sBpm.c_str());
     tag.addFrame(bpmFrame);                       // add new BPM frame
 
     TagLib::ByteVector tdata = tag.render();      // render tag to binary data
@@ -216,7 +216,7 @@ void TrackWav::storeBPM(const QString &format) {
 
 void TrackWav::readTags() {
     auto fname = fileName();
-    auto sBPM = QStringLiteral("000.00");
+    auto sBpm = QStringLiteral("000.00");
     /*
       TagLib::MPEG::File f(fname.c_str(), false);
       long pos = f.rfind("ID3", TagLib::File::End);
@@ -229,13 +229,13 @@ void TrackWav::readTags() {
       TagLib::List<TagLib::ID3v2::Frame*> lst = tag.frameList("TBPM");
       if(lst.size() > 0) {
         TagLib::ID3v2::Frame* frame = lst[0];
-        sBPM = frame->toString().toCString();
+        sBpm = frame->toString().toCString();
       }
     */
     // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBpm(stringToBpm(sBPM));
+    setBpm(stringToBpm(sBpm));
     open();
 }
 

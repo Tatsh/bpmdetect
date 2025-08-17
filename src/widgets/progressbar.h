@@ -10,7 +10,7 @@ class ProgressBar : public QProgressBar {
     Q_OBJECT
 
 public:
-    ProgressBar(QWidget *parent = nullptr);
+    explicit ProgressBar(QWidget *parent = nullptr);
     ~ProgressBar() override;
     /** Return change status. */
     bool change();

@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 
 #ifndef NO_GUI
     if (!isConsoleMode) {
-        DlgBPMDetect mainWin;
+        DlgBpmDetect mainWin;
         mainWin.show();
         mainWin.slotAddFiles(files);
         app.exec();

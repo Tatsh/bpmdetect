@@ -106,9 +106,9 @@ double TrackProxy::progress() {
     return 0;
 }
 
-void TrackProxy::setBpm(bpmtype dBPM) {
+void TrackProxy::setBpm(bpmtype dBpm) {
     if (m_pTrack)
-        m_pTrack->setBpm(dBPM);
+        m_pTrack->setBpm(dBpm);
 }
 
 void TrackProxy::setRedetect(bool redetect) {
@@ -271,9 +271,9 @@ int TrackProxy::readSamples(QSpan<soundtouch::SAMPLETYPE> sp) {
     return 0;
 }
 
-void TrackProxy::storeBPM(const QString &sBPM) {
+void TrackProxy::storeBpm(const QString &sBpm) {
     if (m_pTrack)
-        m_pTrack->storeBPM(sBPM);
+        m_pTrack->storeBpm(sBpm);
 }
 
 void TrackProxy::removeBpm() {

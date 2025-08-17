@@ -15,7 +15,7 @@ TrackWavpack::~TrackWavpack() {
 
 void TrackWavpack::readTags() {
     auto fname = fileName();
-    auto sBPM = QStringLiteral("000.00");
+    auto sBpm = QStringLiteral("000.00");
     TagLib::WavPack::File f(fname.toUtf8().constData(), false);
     auto ape = f.APETag();
     auto tag = f.tag();
@@ -26,13 +26,13 @@ void TrackWavpack::readTags() {
     if (ape != nullptr) {
         auto bpm = QString::fromUtf8(ape->itemListMap()["BPM"].toString().toCString(true));
         if (bpm.length() > 0) {
-            sBPM = bpm;
+            sBpm = bpm;
         }
     }
     // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBpm(stringToBpm(sBPM));
+    setBpm(stringToBpm(sBpm));
 }
 
 void TrackWavpack::open() {
@@ -111,7 +111,7 @@ int TrackWavpack::readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) {
     return static_cast<int>(samplesRead);
 }
 
-void TrackWavpack::storeBPM(const QString &sBPM) {
+void TrackWavpack::storeBpm(const QString &sBpm) {
     auto wasNull = wpc == nullptr;
     if (wasNull) {
         wpc = WavpackOpenFileInput(fileName().toUtf8().constData(),
@@ -119,7 +119,7 @@ void TrackWavpack::storeBPM(const QString &sBPM) {
                                    OPEN_2CH_MAX | OPEN_NORMALIZE | OPEN_EDIT_TAGS | OPEN_FILE_UTF8,
                                    0);
     }
-    WavpackAppendTagItem(wpc, "bpm", sBPM.toUtf8().constData(), static_cast<int>(sBPM.length()));
+    WavpackAppendTagItem(wpc, "bpm", sBpm.toUtf8().constData(), static_cast<int>(sBpm.length()));
     WavpackWriteTag(wpc);
     if (wasNull) {
         WavpackCloseFile(wpc);

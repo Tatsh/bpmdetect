@@ -28,7 +28,7 @@ protected:
     void seek(quint64 ms) override;
     quint64 currentPos() override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
-    void storeBPM(const QString &sBPM) override;
+    void storeBpm(const QString &sBpm) override;
     void removeBpm() override;
 
 private:

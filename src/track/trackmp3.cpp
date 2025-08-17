@@ -417,9 +417,9 @@ unsigned long TrackMp3::findFrame(unsigned long framePos) {
     return 0;
 }
 
-void TrackMp3::storeBPM(const QString &format) {
+void TrackMp3::storeBpm(const QString &format) {
     auto fname = fileName();
-    auto sBPM = bpmToString(bpm(), format);
+    auto sBpm = bpmToString(bpm(), format);
     TagLib::MPEG::File f(fname.toUtf8().constData(), false);
     auto tag = f.ID3v2Tag(true);
     if (tag == nullptr) {
@@ -428,14 +428,14 @@ void TrackMp3::storeBPM(const QString &format) {
     }
     tag->removeFrames("TBPM"); // remove existing BPM frames
     auto bpmFrame = new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
-    bpmFrame->setText(TagLib::String(sBPM.toStdString()));
+    bpmFrame->setText(TagLib::String(sBpm.toStdString()));
     tag->addFrame(bpmFrame); // add new BPM frame
     f.save();                // save file
 }
 
 void TrackMp3::readTags() {
     auto fname = fileName();
-    auto sBPM = QStringLiteral("000.00");
+    auto sBpm = QStringLiteral("000.00");
     TagLib::MPEG::File f(fname.toUtf8().constData(), false);
 
     TagLib::ID3v2::Tag *tag = f.ID3v2Tag(false);
@@ -446,13 +446,13 @@ void TrackMp3::readTags() {
         auto lst = tag->frameList("TBPM");
         if (lst.size() > 0) {
             TagLib::ID3v2::Frame *frame2 = lst[0];
-            sBPM = QString::fromUtf8(frame2->toString().toCString(true));
+            sBpm = QString::fromUtf8(frame2->toString().toCString(true));
         }
     }
     // set fileName (without path) as title if the title is empty
     if (title().isEmpty())
         setTitle(fname.mid(fname.lastIndexOf(QStringLiteral("/")) + 1));
-    setBpm(stringToBpm(sBPM));
+    setBpm(stringToBpm(sBpm));
 }
 
 void TrackMp3::removeBpm() {

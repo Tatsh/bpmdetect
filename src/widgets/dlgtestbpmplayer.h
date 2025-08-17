@@ -10,7 +10,7 @@ class QAudioSink;
 class QIODevice;
 
 /** The player for the test dialog. */
-class DlgTestBPMPlayer : public QThread {
+class DlgTestBpmPlayer : public QThread {
     Q_OBJECT
 public:
     /**
@@ -21,41 +21,41 @@ public:
      * @param posUS_ Position in microseconds.
      * @param parent Parent object.
      */
-    DlgTestBPMPlayer(const QString file,
+    DlgTestBpmPlayer(const QString file,
                      unsigned int nBeats_,
                      unsigned int bpm_,
                      qint64 posUS_ = 0,
                      QObject *parent = nullptr);
-    ~DlgTestBPMPlayer() override;
+    ~DlgTestBpmPlayer() override;
     /** Get the length in microseconds. */
     auto lengthUs() {
-        return lengthUS;
+        return lengthUs_;
     }
+    /** Stop the player. */
+    void stop();
     /**
      * Update the player with new number of beats and position in microseconds.
      * @param nBeats_ New number of beats.
      * @param posUS_ New position in microseconds.
      */
     void update(unsigned int nBeats_, qint64 posUS_ = 0);
-    /** Stop the player. */
-    void stop();
-    /** Signal for when length is discovered. */
-    Q_SIGNAL void hasLengthUS(qint64 length);
     /** Signal for when the player encounters an error. */
     Q_SIGNAL void audioError(QAudio::Error error);
+    /** Signal for when length is discovered. */
+    Q_SIGNAL void hasLengthUS(qint64 length);
 
 protected:
     void run() override;
 
 protected Q_SLOTS:
-    /** Read buffer. */
-    void readBuffer();
     /** Set the error flag. */
-    void decodeError(QAudioDecoder::Error);
+    void decodeError(QAudioDecoder::Error error);
     /** Call when decoding is finished. */
     void finishedDecoding();
     /** Handle state change of audio output. */
     void handleStateChange(QAudio::State state);
+    /** Read buffer. */
+    void readBuffer();
 
 private:
     QAudioBuffer lastBuffer;
@@ -66,7 +66,7 @@ private:
     QIODevice *dev = nullptr;
     char *data = nullptr;
     char *startptr = nullptr;
-    qint64 lengthUS = 0;
+    qint64 lengthUs_ = 0;
     qint64 posUS = 0;
     qint64 dataRemaining;
     qint64 originalSize;
