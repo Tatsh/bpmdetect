@@ -108,8 +108,10 @@ if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bund
   elseif(WIN32)
     install(FILES ../LICENSE.txt ../README.md ../CHANGELOG.md ../SECURITY.md TYPE DOC)
     install(FILES ../CITATION.cff DESTINATION ${CMAKE_INSTALL_DATADIR}/bpmdetect)
+    install(FILES ../man/bpmdetect.1 TYPE MAN)
   else()
     install(FILES ../README.md TYPE DOC)
+    install(FILES ../man/bpmdetect.1 TYPE MAN)
   endif()
   if(MINGW)
     get_filename_component(_mingw_bin_dir ${CMAKE_C_COMPILER} DIRECTORY)
@@ -180,6 +182,7 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
     endforeach()
   endif()
   install(FILES ../README.md TYPE DOC)
+  install(FILES ../man/bpmdetect.1 TYPE MAN)
 endif()
 
 if(NOT APPLE)
