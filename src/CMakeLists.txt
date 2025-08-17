@@ -34,6 +34,10 @@ qt_add_executable(
   icons/not-padded/512x512.png
   icons/bpmdetect.icns
   icons/bpmdetect.ico
+  consolemain.cpp
+  consolemain.h
+  guimain.cpp
+  guimain.h
   main.cpp
   utils.cpp
   utils.h)

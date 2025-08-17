@@ -2,6 +2,8 @@
 /** @file */
 #pragma once
 
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QSpan>
 #include <QtCore/QString>
 
@@ -32,7 +34,17 @@ bpmtype stringToBpm(const QString &sBpm);
  * Convert BPM to QString using selected format.
  * @param dBpm BPM value.
  * @param format Format (default `"0.00"`, other possible values: `"0.0"`, `"0"`, `"000.00"`,
- * `"000.0"`, `"000"`, `"00000"`).
+ * `"000.0"`, `"000"`, and `"00000"`).
  * @return Formatted BPM string.
  */
 QString bpmToString(bpmtype dBpm, const QString &format = QStringLiteral("0.00"));
+
+/**
+ * Parse command line.
+ *
+ * Adds options to the parser and processes the command line arguments.
+ *
+ * @param parser Command line parser.
+ * @param app Application instance.
+*/
+void parseCommandLine(QCommandLineParser &parser, const QCoreApplication &app);
