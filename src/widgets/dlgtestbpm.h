@@ -10,6 +10,9 @@
 /** Dialog to test the BPM. */
 class DlgTestBpm : public QDialog, public Ui_DlgTestBpmDlg {
     Q_OBJECT
+#ifdef TESTING
+    friend class DlgTestBpmTest;
+#endif
 public:
     /** Constructor.
      * @param file File to test.

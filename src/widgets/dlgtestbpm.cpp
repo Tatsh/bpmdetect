@@ -45,11 +45,15 @@ DlgTestBpm::DlgTestBpm(const QString file, const float bpm, QWidget *parent) : Q
     trackPosition->setEnabled(false);
 
     slotUpdateBpmList();
+#ifndef TESTING
     player->start();
+#endif
 }
 
 DlgTestBpm::~DlgTestBpm() {
-    player->stop();
+    if (player) {
+        player->stop();
+    }
 }
 
 void DlgTestBpm::setTrackPositionLength(qint64 length) {

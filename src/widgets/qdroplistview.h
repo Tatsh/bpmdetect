@@ -12,6 +12,9 @@ class QKeyEvent;
 /** Custom widget to allow for dropping files. */
 class QDropListView : public QTreeWidget {
     Q_OBJECT
+#ifdef TESTING
+    friend class QDropListViewTest;
+#endif
 public:
     /**
      * Constructor.

@@ -13,6 +13,9 @@ class QMenu;
 /** Main dialog of the application. */
 class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
     Q_OBJECT
+#ifdef TESTING
+    friend class DlgBpmDetectTest;
+#endif
 public:
     /** Constructor.
      * @param parent Parent widget.

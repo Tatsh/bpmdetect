@@ -15,9 +15,11 @@ DlgTestBpmPlayer::DlgTestBpmPlayer(
     bpm = static_cast<float>(bpm_);
     posUS = posUS_;
     if (!decoder->isSupported()) {
+        // LCOV_EXCL_START
         qDebug() << "Audio decoder is not supported on this platform.";
         emit audioError(QAudio::FatalError);
         return;
+        // LCOV_EXCL_STOP
     }
 
     if (parent) {
@@ -99,7 +101,9 @@ void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
 #pragma clang diagnostic pop
 
 void DlgTestBpmPlayer::stop() {
-    output->stop();
+    if (output) {
+        output->stop();
+    }
 }
 
 void DlgTestBpmPlayer::update(unsigned int nBeats_, qint64 posUS_) {

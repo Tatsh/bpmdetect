@@ -8,7 +8,9 @@ class QMouseEvent;
 /** Progress bar controlled by mouse. */
 class ProgressBar : public QProgressBar {
     Q_OBJECT
-
+#ifdef TESTING
+    friend class ProgressBarTest;
+#endif
 public:
     explicit ProgressBar(QWidget *parent = nullptr);
     ~ProgressBar() override;
