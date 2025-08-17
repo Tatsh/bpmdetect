@@ -1,0 +1,69 @@
+.TH bpmdetect 1 "17 August 2025" "0.7.2"
+.SH NAME
+bpmdetect \- automatic BPM (beats per minute) detection utility
+.SH SYNOPSIS
+.B bpmdetect
+.RI [ options ] " files..."
+.SH DESCRIPTION
+.BPM Detect
+A utility for automatic detection of BPM (beats per minute) in audio files. It supports various
+formats and can save detected BPMs to file tags.
+.SH OPTIONS
+.TP
+.BR -c , --console
+Run in console mode (does nothing if the app was built without GUI support).
+.TP
+.BR -s , --save
+Save BPMs to tags.
+.TP
+.BR -d , --detect
+Redetect BPMs.
+.TP
+.BR -r , --remove
+Remove BPM tags and do not perform detection.
+.TP
+.BR -p , --no-progress
+Disable progress display.
+.TP
+.BR -n , --min " value"
+Set minimum BPM value.
+.TP
+.BR -x , --max " value"
+Set maximum BPM value.
+.TP
+.BR -l , --limit
+Do not allow a BPM above the range.
+.TP
+.BR -f , --format " format"
+Set BPM format (default: "0.00").
+.TP
+.B --help
+Show help message and exit.
+.TP
+.B --version
+Show version information and exit.
+.TP
+.I files
+List of audio files to process.
+.SH EXAMPLES
+.TP
+Detect BPM for files:
+.RS
+bpmdetect song1.wav song2.mp3
+.RE
+.TP
+Detect BPM and save to tags:
+.RS
+bpmdetect -s song1.wav
+.RE
+.TP
+Redetect BPM with custom range:
+.RS
+bpmdetect -n 60 -x 180 song1.wav
+.RE
+.SH AUTHOR
+Andrew Udvare, Martin Sakmar
+.SH LICENSE
+GNU General Public License
+.SH SEE ALSO
+.BR bpmdetect (1)
