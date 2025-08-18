@@ -296,6 +296,112 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
     }
 }
 
+QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
+    QDir d(path), f(path);
+    QStringList files;
+    if (!d.exists(path))
+        return files;
+    d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
+    f.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    f.setNameFilters({QStringLiteral("*.fla"),
+                      QStringLiteral("*.flac"),
+                      QStringLiteral("*.flc"),
+                      QStringLiteral("*.mp3"),
+                      QStringLiteral("*.ogg"),
+                      QStringLiteral("*.wav"),
+                      QStringLiteral("*.wavpack"),
+                      QStringLiteral("*.wv")});
+
+    QStringList dirs = d.entryList(QDir::NoDotAndDotDot);
+    files = f.entryList();
+
+    for (int i = 0; i < dirs.size(); ++i) {
+        QString cdir = dirs[i];
+        QStringList dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
+        for (int j = 0; j < dfiles.size(); ++j) {
+            files.append(cdir + QStringLiteral("/") + dfiles[j]);
+        }
+    }
+
+    return files;
+}
+
+void DlgBpmDetect::slotRemoveSelected() {
+    TrackList->slotRemoveSelected();
+}
+
+void DlgBpmDetect::slotClearTrackList() {
+    TrackList->clear();
+    delete m_pProgress;
+    m_pProgress = nullptr;
+}
+
+void DlgBpmDetect::slotClearDetected() {
+    for (auto i = 0; i < TrackList->topLevelItemCount(); ++i) {
+        auto item = TrackList->topLevelItem(i);
+        if (!item)
+            break;
+
+        float fBpm = item->text(0).toFloat();
+        if (fBpm > 0) {
+            delete item;
+            i--;
+        }
+    }
+}
+
+void DlgBpmDetect::slotDropped(QDropEvent *e) {
+    // LCOV_EXCL_START
+    if (!e)
+        return;
+    // LCOV_EXCL_STOP
+    const QMimeData *mdata = e->mimeData();
+    // LCOV_EXCL_START
+    if (!mdata->hasUrls())
+        return;
+    // LCOV_EXCL_STOP
+    QList<QUrl> urllist = mdata->urls();
+    e->accept();
+    QStringList files;
+    for (int i = 0; i < urllist.size(); ++i) {
+        files << urllist[i].toLocalFile();
+    }
+    slotAddFiles(files);
+}
+
+void DlgBpmDetect::slotSaveBpm() {
+    auto items = TrackList->selectedItems();
+    // LCOV_EXCL_START
+    if (!items.size())
+        return;
+    // LCOV_EXCL_STOP
+
+    for (int i = 0; i < items.size(); ++i) {
+        auto item = items.at(i);
+        TrackProxy track(item->text(TrackList->columnCount() - 1));
+        track.setBpm(item->text(0).toDouble());
+        track.setFormat(cbFormat->currentText());
+        track.saveBpm();
+    }
+}
+
+void DlgBpmDetect::setStarted(bool started) {
+    m_bStarted = started;
+}
+
+bool DlgBpmDetect::started() const {
+    return m_bStarted;
+}
+
+void DlgBpmDetect::setRecentPath(const QString &path) {
+    m_qRecentPath = path;
+}
+
+QString DlgBpmDetect::recentPath() const {
+    return m_qRecentPath;
+}
+
+// LCOV_EXCL_START
 void DlgBpmDetect::slotAddFiles() {
     QStringList files;
     files = QFileDialog::getOpenFileNames(
@@ -335,123 +441,6 @@ void DlgBpmDetect::slotListMenuPopup(const QPoint &) {
     m_pListMenu->popup(QCursor::pos());
 }
 
-/**
- * @brief Get all wav, ogg, flac and mp3 files
- * from directory path including files from subdirectories
- * @param path path from which the files are added
- * @return QStringList of files with relative paths
- */
-QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
-    QDir d(path), f(path);
-    QStringList files;
-    if (!d.exists(path))
-        return files;
-    d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
-    f.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    f.setNameFilters({QStringLiteral("*.fla"),
-                      QStringLiteral("*.flac"),
-                      QStringLiteral("*.flc"),
-                      QStringLiteral("*.mp3"),
-                      QStringLiteral("*.ogg"),
-                      QStringLiteral("*.wav"),
-                      QStringLiteral("*.wavpack"),
-                      QStringLiteral("*.wv")});
-
-    QStringList dirs = d.entryList(QDir::NoDotAndDotDot);
-    files = f.entryList();
-
-    for (int i = 0; i < dirs.size(); ++i) {
-        QString cdir = dirs[i];
-        QStringList dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
-        for (int j = 0; j < dfiles.size(); ++j) {
-            files.append(cdir + QStringLiteral("/") + dfiles[j]);
-        }
-    }
-
-    return files;
-}
-
-void DlgBpmDetect::slotRemoveSelected() {
-    TrackList->slotRemoveSelected();
-}
-
-void DlgBpmDetect::slotTestBpm() {
-    auto item = TrackList->currentItem();
-    if (!item)
-        return;
-    float bpm = item->text(0).toFloat();
-    if (bpm == 0.0f)
-        return;
-    auto file = item->text(TrackList->columnCount() - 1);
-
-    DlgTestBpm testBpmDialog(
-        file, bpm, new DlgTestBpmPlayer(file, 4, bpm, new QAudioDecoder(this), 0, this));
-    testBpmDialog.exec();
-}
-
-// LCOV_EXCL_START
-void DlgBpmDetect::slotShowAbout() {
-    QMessageBox::about(this,
-                       tr("About BPM Detect"),
-                       tr(" Version:\t%1\n \
-Description:\tAutomatic BPM (beats per minute) detection tool.\n \
-License:\tGNU General Public License\n \
-\n \
-Authors:\tAndrew Udvare, Martin Sakmar\n \
-Email:\taudvare+bpmdetect@gmail.com")
-                           .arg(QCoreApplication::applicationVersion()));
-}
-// LCOV_EXCL_STOP
-
-void DlgBpmDetect::slotClearTrackList() {
-    TrackList->clear();
-    delete m_pProgress;
-    m_pProgress = nullptr;
-}
-
-void DlgBpmDetect::slotClearDetected() {
-    for (auto i = 0; i < TrackList->topLevelItemCount(); ++i) {
-        auto item = TrackList->topLevelItem(i);
-        if (!item)
-            break;
-
-        float fBpm = item->text(0).toFloat();
-        if (fBpm > 0) {
-            delete item;
-            i--;
-        }
-    }
-}
-
-void DlgBpmDetect::slotDropped(QDropEvent *e) {
-    if (!e)
-        return;
-    const QMimeData *mdata = e->mimeData();
-    if (!mdata->hasUrls())
-        return;
-    QList<QUrl> urllist = mdata->urls();
-    e->accept();
-    QStringList files;
-    for (int i = 0; i < urllist.size(); ++i) {
-        files << urllist[i].toLocalFile();
-    }
-    slotAddFiles(files);
-}
-
-void DlgBpmDetect::slotSaveBpm() {
-    auto items = TrackList->selectedItems();
-    if (!items.size())
-        return;
-
-    for (int i = 0; i < items.size(); ++i) {
-        auto item = items.at(i);
-        TrackProxy track(item->text(TrackList->columnCount() - 1));
-        track.setBpm(item->text(0).toDouble());
-        track.setFormat(cbFormat->currentText());
-        track.saveBpm();
-    }
-}
-
 void DlgBpmDetect::slotClearBpm() {
     auto items = TrackList->selectedItems();
     if (!items.size())
@@ -473,18 +462,29 @@ void DlgBpmDetect::slotClearBpm() {
     }
 }
 
-void DlgBpmDetect::setStarted(bool started) {
-    m_bStarted = started;
+void DlgBpmDetect::slotTestBpm() {
+    auto item = TrackList->currentItem();
+    if (!item)
+        return;
+    float bpm = item->text(0).toFloat();
+    if (bpm == 0.0f)
+        return;
+    auto file = item->text(TrackList->columnCount() - 1);
+
+    DlgTestBpm testBpmDialog(
+        file, bpm, new DlgTestBpmPlayer(file, 4, bpm, new QAudioDecoder(this), 0, this));
+    testBpmDialog.exec();
 }
 
-bool DlgBpmDetect::started() const {
-    return m_bStarted;
+void DlgBpmDetect::slotShowAbout() {
+    QMessageBox::about(this,
+                       tr("About BPM Detect"),
+                       tr(" Version:\t%1\n \
+Description:\tAutomatic BPM (beats per minute) detection tool.\n \
+License:\tGNU General Public License\n \
+\n \
+Authors:\tAndrew Udvare, Martin Sakmar\n \
+Email:\taudvare+bpmdetect@gmail.com")
+                           .arg(QCoreApplication::applicationVersion()));
 }
-
-void DlgBpmDetect::setRecentPath(const QString &path) {
-    m_qRecentPath = path;
-}
-
-QString DlgBpmDetect::recentPath() const {
-    return m_qRecentPath;
-}
+// LCOV_EXCL_STOP

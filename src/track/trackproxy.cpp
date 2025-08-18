@@ -84,16 +84,6 @@ void TrackProxy::setFileName(const QString &fileName, bool readMetadata) {
     }
 }
 
-void TrackProxy::readTags() {
-    if (m_pTrack)
-        m_pTrack->readTags();
-}
-
-void TrackProxy::readInfo() {
-    if (m_pTrack)
-        m_pTrack->readInfo();
-}
-
 bpmtype TrackProxy::detectBpm() {
     if (m_pTrack)
         return m_pTrack->detectBpm();
@@ -104,37 +94,6 @@ double TrackProxy::progress() {
     if (m_pTrack)
         return m_pTrack->progress();
     return 0;
-}
-
-void TrackProxy::setBpm(bpmtype dBpm) {
-    if (m_pTrack)
-        m_pTrack->setBpm(dBpm);
-}
-
-void TrackProxy::setRedetect(bool redetect) {
-    if (m_pTrack)
-        m_pTrack->setRedetect(redetect);
-}
-
-void TrackProxy::setFormat(const QString &format) {
-    if (m_pTrack)
-        m_pTrack->setFormat(format);
-}
-
-void TrackProxy::setConsoleProgress(bool enable) {
-    if (m_pTrack)
-        m_pTrack->setConsoleProgress(enable);
-    m_bConsoleProgress = enable;
-}
-
-void TrackProxy::setStartPos(quint64 ms) {
-    if (m_pTrack)
-        m_pTrack->setStartPos(ms);
-}
-
-void TrackProxy::setEndPos(quint64 ms) {
-    if (m_pTrack)
-        m_pTrack->setEndPos(ms);
 }
 
 QString TrackProxy::fileName() const {
@@ -197,11 +156,6 @@ QString TrackProxy::format() const {
     return Track::format();
 }
 
-void TrackProxy::stop() {
-    if (m_pTrack)
-        m_pTrack->stop();
-}
-
 quint64 TrackProxy::startPos() const {
     if (m_pTrack)
         return m_pTrack->startPos();
@@ -244,21 +198,6 @@ Track::TrackType TrackProxy::trackType() const {
     return Unknown;
 }
 
-void TrackProxy::open() {
-    if (m_pTrack)
-        m_pTrack->open();
-}
-
-void TrackProxy::close() {
-    if (m_pTrack)
-        m_pTrack->close();
-}
-
-void TrackProxy::seek(quint64 ms) {
-    if (m_pTrack)
-        m_pTrack->seek(ms);
-}
-
 quint64 TrackProxy::currentPos() const {
     if (m_pTrack)
         return m_pTrack->currentPos();
@@ -271,35 +210,10 @@ int TrackProxy::readSamples(QSpan<soundtouch::SAMPLETYPE> sp) {
     return 0;
 }
 
-void TrackProxy::storeBpm(const QString &sBpm) {
-    if (m_pTrack)
-        m_pTrack->storeBpm(sBpm);
-}
-
-void TrackProxy::removeBpm() {
-    if (m_pTrack)
-        m_pTrack->removeBpm();
-}
-
 bpmtype TrackProxy::bpm() const {
     if (m_pTrack)
         return m_pTrack->bpm();
     return 0;
-}
-
-void TrackProxy::clearBpm() {
-    if (m_pTrack)
-        m_pTrack->clearBpm();
-}
-
-void TrackProxy::saveBpm() {
-    if (m_pTrack)
-        m_pTrack->saveBpm();
-}
-
-void TrackProxy::printBpm() const {
-    if (m_pTrack)
-        m_pTrack->printBpm();
 }
 
 QString TrackProxy::formatted() const {
@@ -317,3 +231,91 @@ QString TrackProxy::formatted(const QString &format) const {
 TrackProxy trackProxyFactory(const QString &fileName) {
     return TrackProxy(fileName);
 }
+
+// LCOV_EXCL_START
+void TrackProxy::readTags() {
+    if (m_pTrack)
+        m_pTrack->readTags();
+}
+
+void TrackProxy::readInfo() {
+    if (m_pTrack)
+        m_pTrack->readInfo();
+}
+
+void TrackProxy::clearBpm() {
+    if (m_pTrack)
+        m_pTrack->clearBpm();
+}
+
+void TrackProxy::saveBpm() {
+    if (m_pTrack)
+        m_pTrack->saveBpm();
+}
+
+void TrackProxy::printBpm() const {
+    if (m_pTrack)
+        m_pTrack->printBpm();
+}
+
+void TrackProxy::stop() {
+    if (m_pTrack)
+        m_pTrack->stop();
+}
+
+void TrackProxy::open() {
+    if (m_pTrack)
+        m_pTrack->open();
+}
+
+void TrackProxy::close() {
+    if (m_pTrack)
+        m_pTrack->close();
+}
+
+void TrackProxy::seek(quint64 ms) {
+    if (m_pTrack)
+        m_pTrack->seek(ms);
+}
+
+void TrackProxy::storeBpm(const QString &sBpm) {
+    if (m_pTrack)
+        m_pTrack->storeBpm(sBpm);
+}
+
+void TrackProxy::removeBpm() {
+    if (m_pTrack)
+        m_pTrack->removeBpm();
+}
+
+void TrackProxy::setBpm(bpmtype dBpm) {
+    if (m_pTrack)
+        m_pTrack->setBpm(dBpm);
+}
+
+void TrackProxy::setRedetect(bool redetect) {
+    if (m_pTrack)
+        m_pTrack->setRedetect(redetect);
+}
+
+void TrackProxy::setFormat(const QString &format) {
+    if (m_pTrack)
+        m_pTrack->setFormat(format);
+}
+
+void TrackProxy::setConsoleProgress(bool enable) {
+    if (m_pTrack)
+        m_pTrack->setConsoleProgress(enable);
+    m_bConsoleProgress = enable;
+}
+
+void TrackProxy::setStartPos(quint64 ms) {
+    if (m_pTrack)
+        m_pTrack->setStartPos(ms);
+}
+
+void TrackProxy::setEndPos(quint64 ms) {
+    if (m_pTrack)
+        m_pTrack->setEndPos(ms);
+}
+// LCOV_EXCL_STOP

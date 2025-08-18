@@ -10,11 +10,12 @@ public:
     }
     void seek(quint64) override {
     }
-    quint64 currentPos() override {
-        return 0;
+    quint64 currentPos() const override {
+        return currentPos_;
     }
     int readSamples(QSpan<soundtouch::SAMPLETYPE>) override {
-        return 0;
+        currentPos_ += 1000;
+        return 4096;
     }
     void storeBpm(const QString &s) override {
         storeBpmCalled = true;
@@ -32,6 +33,7 @@ public:
     }
     bool storeBpmCalled = false;
     QString storedBpm;
+    quint64 currentPos_ = 0;
 };
 
 class DummyBpmDetector : public AbstractBpmDetector {
@@ -371,7 +373,17 @@ void TrackTest::testDetectBpm() {
     QCOMPARE(t.detectBpm(), 0.0); // Invalid state.
 
     t.setFileName(QStringLiteral("dummy.wav"), true);
+    t.setLength(2000);
+    t.setEndPos(1000);
     QVERIFY(t.isValid());
+    QVERIFY(t.m_iEndPos == 1000);
+    QCOMPARE(t.detectBpm(), 120.0);
+
+    t.m_bRedetect = false;
+    QCOMPARE(t.detectBpm(), 120.0);
+
+    t.m_bRedetect = true;
+    t.setSampleRate(0);
     QCOMPARE(t.detectBpm(), 120.0);
 }
 

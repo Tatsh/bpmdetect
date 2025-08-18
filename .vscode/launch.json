@@ -18,6 +18,25 @@
       ],
       "stopAtEntry": false,
       "type": "cppdbg"
+    },
+    {
+      "MIMode": "gdb",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "name": "Debug Test",
+      "program": "${workspaceFolder}/build/tests/dlgtestbpm-test",
+      "request": "launch",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "ignoreFailures": true,
+          "text": "-enable-pretty-printing"
+        }
+      ],
+      "stopAtEntry": false,
+      "type": "cppdbg"
     }
   ],
   "inputs": [],

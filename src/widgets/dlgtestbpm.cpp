@@ -14,18 +14,22 @@ DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWid
     setupUi(this);
 
     if (file.isEmpty()) {
+        // LCOV_EXCL_START
         close();
+        // LCOV_EXCL_STOP
     }
 
     lblBpm->setText(bpmToString(static_cast<bpmtype>(bpm), QStringLiteral("000.00")));
     connect(trackPosition, &ProgressBar::positionChanged, this, &DlgTestBpm::setCustomPos);
     connect(player, &DlgTestBpmPlayer::hasLengthUS, this, &DlgTestBpm::setTrackPositionLength);
     connect(player, &DlgTestBpmPlayer::audioError, [this](QAudio::Error e) {
+        // LCOV_EXCL_START
         if (e == QAudio::FatalError) {
             qCritical() << "Fatal audio error occurred.";
             reject();
         }
     });
+    // LCOV_EXCL_STOP
     connect(this, &QDialog::accepted, player, &DlgTestBpmPlayer::stop);
     connect(this, &QDialog::rejected, player, &DlgTestBpmPlayer::stop);
     connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBpm::setNumBeats);
@@ -80,8 +84,9 @@ void DlgTestBpm::setNumBeats(const QString &s) {
     if (value < 0) {
         value = 0;
     }
-    const auto num = s.toInt();
-    if (num <= 0) {
+    bool ok = false;
+    const auto num = s.toInt(&ok);
+    if (!ok || num < 1 || num > 16) {
         return;
     }
     m_player->update(cbNBeats->currentText().toUInt(), value * 1000);

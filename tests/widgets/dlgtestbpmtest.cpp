@@ -14,6 +14,7 @@ private Q_SLOTS:
     void testSetCustomPos();
     void testSetNumBeats();
     void testSlotUpdateBpmList();
+    void testSetPosFromButton();
 };
 
 class NukedTestBpmPlayer : public DlgTestBpmPlayer {
@@ -64,14 +65,30 @@ void DlgTestBpmTest::testSetNumBeats() {
                    new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
     dlg.setNumBeats(QStringLiteral("4"));
     QCOMPARE(dlg.cbNBeats->currentText(), QStringLiteral("4"));
+
+    dlg.setNumBeats(QStringLiteral("0")); // Invalid, should not change.
+    QCOMPARE(dlg.cbNBeats->currentText(), QStringLiteral("4"));
+
+    dlg.setNumBeats(QStringLiteral("not a number"));
+    QCOMPARE(dlg.cbNBeats->currentText(), QStringLiteral("4"));
 }
 
 void DlgTestBpmTest::testSlotUpdateBpmList() {
     DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
-                   120.0f,
-                   new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
+                   60.25,
+                   new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 60.25, 0, this));
     dlg.slotUpdateBpmList();
     QVERIFY(!dlg.m_bpmList.isEmpty());
+}
+
+void DlgTestBpmTest::testSetPosFromButton() {
+    DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
+                   120.0f,
+                   new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
+    dlg.setPosFromButton(1);
+    QCOMPARE(dlg.trackPosition->value(), 20);
+    dlg.setPosFromButton(2);
+    QCOMPARE(dlg.trackPosition->value(), 40);
 }
 
 QTEST_MAIN(DlgTestBpmTest)
