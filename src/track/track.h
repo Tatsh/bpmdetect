@@ -144,7 +144,7 @@ protected:
     /** Seek to @a ms miliseconds. */
     virtual void seek(quint64 ms) = 0;
     /** Return the current position from which samples will be read (miliseconds). */
-    virtual quint64 currentPos() = 0;
+    virtual quint64 currentPos() const = 0;
     /** Read samples from current position into @a buffer. */
     virtual int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) = 0;
     /** Store @a sBpm into the metadata of the file. */

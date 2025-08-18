@@ -92,7 +92,7 @@ void TrackWav::seek(quint64 ms) {
     }
 }
 
-quint64 TrackWav::currentPos() {
+quint64 TrackWav::currentPos() const {
     if (isValid()) {
         auto pos = 1000 * m_iCurPosBytes / (sampleRate() * channels() * sampleBytes());
         return pos;

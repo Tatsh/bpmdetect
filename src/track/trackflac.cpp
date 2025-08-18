@@ -96,7 +96,7 @@ void TrackFlac::seek(quint64 ms) {
     }
 }
 
-quint64 TrackFlac::currentPos() {
+quint64 TrackFlac::currentPos() const {
     if (isValid()) {
         auto pos = (1000 * m_iCurPosPCM) / sampleRate() /* *channels()*/;
         return pos;

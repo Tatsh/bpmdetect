@@ -83,7 +83,7 @@ void TrackWavpack::seek(quint64 ms) {
     }
 }
 
-quint64 TrackWavpack::currentPos() {
+quint64 TrackWavpack::currentPos() const {
     if (wpc == nullptr)
         return 0;
     return (m_iCurPosPCM * 1000) / sampleRate();

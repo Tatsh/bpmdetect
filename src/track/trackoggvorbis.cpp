@@ -72,7 +72,7 @@ void TrackOggVorbis::seek(quint64 ms) {
     }
 }
 
-quint64 TrackOggVorbis::currentPos() {
+quint64 TrackOggVorbis::currentPos() const {
     if (isValid()) {
         auto pos = 1000 * m_iCurPosPCM / sampleRate() /* *channels()*/;
         return pos;

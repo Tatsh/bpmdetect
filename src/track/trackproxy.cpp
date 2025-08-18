@@ -259,7 +259,7 @@ void TrackProxy::seek(quint64 ms) {
         m_pTrack->seek(ms);
 }
 
-quint64 TrackProxy::currentPos() {
+quint64 TrackProxy::currentPos() const {
     if (m_pTrack)
         return m_pTrack->currentPos();
     return 0;

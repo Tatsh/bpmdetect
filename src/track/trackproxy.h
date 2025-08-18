@@ -53,7 +53,7 @@ public:
 protected:
     Track *createTrack(const QString &fileName, bool readMetadata = true);
     int readSamples(QSpan<soundtouch::SAMPLETYPE> sp) override;
-    quint64 currentPos() override;
+    quint64 currentPos() const override;
     void close() override;
     void open() override;
     void removeBpm() override;

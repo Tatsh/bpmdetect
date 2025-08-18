@@ -53,7 +53,7 @@ protected:
     void open() override;
     void close() override;
     void seek(quint64 ms) override;
-    quint64 currentPos() override;
+    quint64 currentPos() const override;
     int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) override;
     void storeBpm(const QString &sBpm) override;
     void removeBpm() override;

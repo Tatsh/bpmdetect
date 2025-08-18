@@ -247,7 +247,7 @@ void TrackMp3::seek(quint64 ms) {
     m_iCurPosPCM = seek_pos;
 }
 
-quint64 TrackMp3::currentPos() {
+quint64 TrackMp3::currentPos() const {
     if (isValid()) {
         return 1000 * m_iCurPosPCM / sampleRate() /* *channels()*/;
     }
