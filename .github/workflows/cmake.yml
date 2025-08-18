@@ -8,7 +8,7 @@ jobs:
   # build-linux:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v5
   #     - name: install deps
   #       run: |
   #         sudo apt-get update -y -qq
@@ -26,7 +26,7 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install deps
@@ -67,7 +67,7 @@ jobs:
   #       run: |
   #         echo out=$("${{github.workspace}}" -Replace "\\","/") |
   #         Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v5
   #       with:
   #         fetch-depth: 0
   #     - name: Get Latest Tag
@@ -120,7 +120,7 @@ jobs:
             wavpack:p
             zlib:p
           update: true
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Configure
