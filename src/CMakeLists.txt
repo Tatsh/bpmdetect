@@ -177,7 +177,7 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
       512)
       install(
         FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/not-padded/${size}x${size}.png"
-        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/not-padded/hicolor/${size}x${size}/apps"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
         RENAME bpmdetect.png)
     endforeach()
   endif()
