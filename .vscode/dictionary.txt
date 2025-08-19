@@ -53,7 +53,6 @@ fileos
 filesubtype
 fileversion
 fontconfig
-fracbits
 fribidi
 fsafe
 gmock
@@ -71,7 +70,6 @@ htmlcov
 icns
 iconset
 ifndef
-ignorecrc
 interprocedural
 iwyu
 jbig
@@ -166,13 +164,8 @@ tasn
 tatsh
 tbpm
 theora
-trackflac
-trackmp
-trackoggvorbis
-trackproxy
+trackffmpeg
 tracktest
-trackwav
-trackwavpack
 trofimovich
 ucrt
 udvare
@@ -193,6 +186,5 @@ wiswa
 wswitch
 wunsafe
 wyri
-xiph
 xvidcore
 zvbi

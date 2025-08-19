@@ -61,7 +61,7 @@ public:
     /** Clear the BPM. */
     virtual void clearBpm();
     /** Detect the BPM. */
-    virtual bpmtype detectBpm();
+    virtual bpmtype detectBpm() = 0;
     /** Save the BPM to the metadata of the file. */
     virtual void saveBpm();
     /** Print the BPM to standard output. */
@@ -130,6 +130,10 @@ public:
     virtual void readTags() = 0;
     /** Read track information. */
     virtual void readInfo();
+    /** Set BPM detector. */
+    void setDetector(AbstractBpmDetector *detector);
+    /** Get the BPM detector. */
+    AbstractBpmDetector *detector() const;
 
 protected:
     Track();
@@ -141,12 +145,6 @@ protected:
     virtual void close() {
         setOpened(false);
     }
-    /** Seek to @a ms miliseconds. */
-    virtual void seek(quint64 ms) = 0;
-    /** Return the current position from which samples will be read (miliseconds). */
-    virtual quint64 currentPos() const = 0;
-    /** Read samples from current position into @a buffer. */
-    virtual int readSamples(QSpan<soundtouch::SAMPLETYPE> buffer) = 0;
     /** Store @a sBpm into the metadata of the file. */
     virtual void storeBpm(const QString &sBpm) = 0;
     /** Remove BPM metadata from the file. */
@@ -169,11 +167,10 @@ protected:
     void setChannels(unsigned int channels);
     /** Set the track type. */
     void setTrackType(TrackType type);
-    /** Set BPM detector. */
-    void setDetector(AbstractBpmDetector *detector);
+    /** Correct the BPM based on the global minimum and maximum. */
+    bpmtype correctBpm(bpmtype dBpm) const;
 
 private:
-    bpmtype correctBpm(bpmtype dBpm) const;
     void setProgress(double progress);
 
     AbstractBpmDetector *m_detector = nullptr;

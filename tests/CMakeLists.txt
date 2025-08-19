@@ -75,10 +75,8 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/track/soundtouchbpmdetector.h
     ../src/track/track.cpp
     ../src/track/track.h
-    ../src/track/trackproxy.cpp
-    ../src/track/trackproxy.h
-    ../src/track/trackwav.cpp
-    ../src/track/trackwav.h
+    ../src/track/trackffmpeg.cpp
+    ../src/track/trackffmpeg.h
     ../src/widgets/dlgbpmdetect.cpp
     ../src/widgets/dlgbpmdetect.h
     ../src/widgets/dlgtestbpm.cpp

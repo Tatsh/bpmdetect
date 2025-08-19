@@ -82,8 +82,9 @@ void Track::setFileName(const QString &fileName, bool readMetadata) {
     m_sFilename = fileName;
     if (!fileName.isEmpty()) {
         readInfo();
-        if (readMetadata)
+        if (readMetadata) {
             readTags();
+        }
     }
 }
 
@@ -270,18 +271,21 @@ void Track::setDetector(AbstractBpmDetector *detector) {
     m_detector = detector;
 }
 
+AbstractBpmDetector *Track::detector() const {
+    return m_detector;
+}
+
 // LCOV_EXCL_START
 void Track::readInfo() {
-    TagLib::FileRef f(fileName().toUtf8().constData());
-    auto ap = !f.isNull() ? f.audioProperties() : nullptr;
-    if (ap) {
-        setChannels(static_cast<unsigned int>(ap->channels()));
-        setSampleRate(static_cast<unsigned int>(ap->sampleRate()));
-        setLength(static_cast<quint64>(ap->lengthInSeconds() * 1000));
-        setDetector(new SoundTouchBpmDetector(
-            static_cast<int>(ap->channels()), static_cast<int>(ap->sampleRate()), this));
-        setValid(true);
-    }
+    // TagLib::FileRef f(fileName().toUtf8().constData());
+    // auto ap = !f.isNull() ? f.audioProperties() : nullptr;
+    // if (ap) {
+    //     setChannels(static_cast<unsigned int>(ap->channels()));
+    //     setSampleRate(static_cast<unsigned int>(ap->sampleRate()));
+    //     setLength(static_cast<quint64>(ap->lengthInSeconds() * 1000));
+    //     setValid(true);
+    // }
+    setValid(true);
 }
 // LCOV_EXCL_STOP
 
@@ -302,70 +306,6 @@ bpmtype Track::correctBpm(bpmtype dBpm) const {
 void Track::printBpm() const {
     std::cout << fileName().toStdString() << ": " << bpmToString(bpm(), format()).toStdString()
               << " BPM" << std::endl;
-}
-
-bpmtype Track::detectBpm() {
-    open();
-    if (!isOpened() || !isValid() || !m_detector) {
-        qCritical() << "Cannot open track.";
-        return 0;
-    }
-
-    setProgress(0);
-    m_bStop = false;
-
-    auto oldBpm = bpm();
-    static const auto epsilon = 1e-6;
-    if (!redetect() && std::abs(oldBpm) > epsilon) {
-        return oldBpm;
-    }
-
-    static const auto NUM_SAMPLES = 4096;
-    auto chan = static_cast<int>(channels());
-
-    if (!sampleRate() || !chan) {
-        return oldBpm;
-    }
-    soundtouch::SAMPLETYPE samples[NUM_SAMPLES];
-
-    auto totalSteps = endPos() - startPos();
-
-    quint64 currentProgress = 0, pProgress = 0;
-    int readSamples_ = 0;
-    seek(startPos());
-    while (!m_bStop && currentPos() < endPos() && 0 < (readSamples_ = readSamples(samples))) {
-        m_detector->inputSamples(samples, readSamples_ / chan);
-        currentProgress = currentPos() - startPos();
-
-        setProgress(100. * static_cast<double>(currentProgress) / static_cast<double>(totalSteps));
-        if (m_bConProgress) {
-            // LCOV_EXCL_START
-            while ((100 * currentProgress / totalSteps) > pProgress) {
-                ++pProgress;
-                std::clog << "\r" << (100 * currentProgress / totalSteps) << "% " << std::flush;
-            }
-            // LCOV_EXCL_STOP
-        }
-    }
-
-    setProgress(100);
-    if (m_bConProgress) {
-        // LCOV_EXCL_START
-        std::clog << "\r" << std::flush;
-        // LCOV_EXCL_STOP
-    }
-
-    if (m_bStop) {
-        // LCOV_EXCL_START
-        setProgress(0);
-        return 0;
-        // LCOV_EXCL_STOP
-    }
-    auto bpm = correctBpm(static_cast<bpmtype>(m_detector->getBpm()));
-    setBpm(bpm);
-    setProgress(0);
-    close();
-    return bpm;
 }
 
 void Track::stop() {

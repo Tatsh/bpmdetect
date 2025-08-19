@@ -7,7 +7,7 @@
 
 #include "consolemain.h"
 #include "guimain.h"
-#include "track/trackproxy.h"
+#include "track/track.h"
 #include "utils.h"
 #ifndef NO_GUI
 #include "widgets/dlgbpmdetect.h"

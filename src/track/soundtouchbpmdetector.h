@@ -10,11 +10,13 @@ namespace soundtouch {
 class SoundTouchBpmDetector : public AbstractBpmDetector {
     Q_OBJECT
 public:
-    SoundTouchBpmDetector(int channels, int sampleRate, QObject *parent = nullptr);
+    /** Constructs a SoundTouch-based BPM detector. */
+    SoundTouchBpmDetector(QObject *parent = nullptr);
     ~SoundTouchBpmDetector() override;
     void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) const override;
     bpmtype getBpm() const override;
+    void reset(int channels, int sampleRate) override;
 
 private:
-    soundtouch::BPMDetect *m_detector;
+    soundtouch::BPMDetect *stDetector_ = nullptr;
 };

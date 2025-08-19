@@ -16,7 +16,6 @@ private Q_SLOTS:
     void testSetStarted();
     void testSlotClearTrackList();
     void testSlotStartStop();
-    void testSlotTimerDone();
     void testSlotAddFiles();
     void testSlotDropped();
 };
@@ -76,14 +75,6 @@ void DlgBpmDetectTest::testSlotStartStop() {
     QVERIFY(dlg.started());
     dlg.slotStartStop();
     QVERIFY(!dlg.started());
-}
-
-void DlgBpmDetectTest::testSlotTimerDone() {
-    DlgBpmDetect dlg;
-    dlg.m_qTimer.setInterval(100);
-    dlg.m_qTimer.start();
-    dlg.slotTimerDone();
-    QCOMPARE(dlg.TotalProgress->value(), 0);
 }
 
 void DlgBpmDetectTest::testSlotClearTrackList() {

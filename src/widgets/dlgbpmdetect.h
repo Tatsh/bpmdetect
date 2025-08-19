@@ -5,11 +5,12 @@
 #include <BPMDetect.h>
 #include <QtCore/QTimer>
 
-#include "track/trackproxy.h"
 #include "ui_dlgbpmdetect.h"
 
+class AbstractBpmDetector;
 class QDropEvent;
 class QMenu;
+class TrackFfmpeg;
 
 /** Main dialog of the application. */
 class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
@@ -24,6 +25,8 @@ public:
      */
     DlgBpmDetect(QWidget *parent = nullptr);
     ~DlgBpmDetect() override;
+    /** Set the BPM detector. */
+    void setDetector(AbstractBpmDetector *detector);
 
 public Q_SLOTS:
     /** Slot to add files. */
@@ -55,8 +58,6 @@ protected Q_SLOTS:
      * @param skipped Whether the current track was skipped.
     */
     void slotDetectNext(bool skipped = false);
-    /** Slot called when the timer finishes. */
-    void slotTimerDone();
     /** Slot to remove selected tracks from the list. */
     void slotRemoveSelected();
     /** Slot to clear the track list. */
@@ -81,14 +82,13 @@ private:
     void saveSettings();
     void setRecentPath(const QString &path);
     void setStarted(bool started);
-    void createTrackProxy(const QString &fileName);
 
-    QProgressBar *m_pProgress;
+    AbstractBpmDetector *m_pDetector = nullptr;
     QMenu *m_pListMenu;
-    QTreeWidgetItem *m_pCurItem;
-    TrackProxy *m_pTrack = nullptr;
-    QTimer m_qTimer;
+    QProgressBar *m_pProgress;
     QString m_qRecentPath;
-    int m_iCurTrackIdx; // for total progress
+    QTreeWidgetItem *m_pCurItem;
+    TrackFfmpeg *m_pTrack = nullptr;
     bool m_bStarted;
+    int m_iCurTrackIdx;
 };

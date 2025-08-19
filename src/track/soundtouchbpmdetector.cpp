@@ -3,19 +3,25 @@
 
 #include <BPMDetect.h>
 
-SoundTouchBpmDetector::SoundTouchBpmDetector(int channels, int sampleRate, QObject *parent)
-    : AbstractBpmDetector(parent), m_detector(new soundtouch::BPMDetect(channels, sampleRate)) {
+SoundTouchBpmDetector::SoundTouchBpmDetector(QObject *parent) : AbstractBpmDetector(parent) {
 }
 
 SoundTouchBpmDetector::~SoundTouchBpmDetector() {
-    delete m_detector;
+    delete stDetector_;
 }
 
 void SoundTouchBpmDetector::inputSamples(const soundtouch::SAMPLETYPE *samples,
                                          int numSamples) const {
-    m_detector->inputSamples(samples, numSamples);
+    stDetector_->inputSamples(samples, numSamples);
 }
 
 bpmtype SoundTouchBpmDetector::getBpm() const {
-    return m_detector->getBpm();
+    return stDetector_->getBpm();
+}
+
+void SoundTouchBpmDetector::reset(int channels, int sampleRate) {
+    if (stDetector_) {
+        delete stDetector_;
+    }
+    stDetector_ = new soundtouch::BPMDetect(channels, sampleRate);
 }
