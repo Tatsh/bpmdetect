@@ -18,6 +18,12 @@ struct DummyTrack : public Track {
     bpmtype detectBpm() {
         return 0;
     }
+    bool isOpened() const {
+        return opened_;
+    }
+    void setOpened(bool opened) {
+        opened_ = opened;
+    }
     void open() override {
         opened_ = true;
     }
