@@ -4,35 +4,33 @@
 
 #include "track/track.h"
 
-class DummyTrack : public Track {
-public:
+struct DummyTrack : public Track {
     DummyTrack() : Track() {
     }
     void storeBpm(const QString &s) override {
-        storeBpmCalled = true;
-        storedBpm = s;
+        storeBpmCalled_ = true;
+        storedBpm_ = s;
     }
     void removeBpm() override {
     }
     void readTags() override {
     }
-    void readInfo() override {
-        setChannels(2);
-        setSampleRate(44100);
-        setLength(20000);
-        setValid(true);
-    }
     bpmtype detectBpm() {
         return 0;
     }
-    bool storeBpmCalled = false;
-    QString storedBpm;
+    void open() override {
+        opened_ = true;
+    }
+    void stop() override {
+    }
+    bool storeBpmCalled_ = false;
+    QString storedBpm_;
     quint64 currentPos_ = 0;
+    bool opened_ = false;
 };
 
-class DummyBpmDetector : public AbstractBpmDetector {
+struct DummyBpmDetector : public AbstractBpmDetector {
     Q_OBJECT
-public:
     DummyBpmDetector(QObject *parent = nullptr) : AbstractBpmDetector(parent) {
     }
     void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) const override {
@@ -41,8 +39,8 @@ public:
         return 120.0;
     }
     void reset(int channels, int sampleRate) override {
-        Q_UNUSED(channels);
-        Q_UNUSED(sampleRate);
+        Q_UNUSED(channels)
+        Q_UNUSED(sampleRate)
     }
 };
 
@@ -58,33 +56,20 @@ private Q_SLOTS:
     void testFormatted1();
     void testFormatted2();
     void testFormattedLength();
-    void testInitialProgress();
     void testOpen();
     void testPrintBpm();
-    void testProgressAfterLengthSet();
-    void testProgressBounds();
-    void testSampleBits();
     void testSetAndGetArtist();
     void testSetAndGetBpm();
-    void testSetAndGetChannels();
     void testSetAndGetFileName();
     void testSetAndGetFormat();
     void testSetAndGetLength();
     void testSetAndGetOpened();
     void testSetAndGetRedetect();
-    void testSetAndGetSampleBytes();
-    void testSetAndGetSampleRate();
-    void testSetAndGetStartEndPos();
     void testSetAndGetTitle();
-    void testSetAndGetTrackType();
     void testSetAndGetValid();
-    void testSetConsoleProgress();
     void testSetMaximumBpmSwap();
     void testSetMinimumBpmSwap();
-    void testSetProgress();
-    void testSetSampleBytesAbove4();
     void testStaticBpmLimits();
-    void testStop();
     void testStoreBpm();
 };
 
@@ -124,30 +109,6 @@ void TrackTest::testSetAndGetLength() {
     QCOMPARE(t.length(), static_cast<quint64>(123456));
 }
 
-void TrackTest::testSetAndGetChannels() {
-    DummyTrack t;
-    t.setChannels(2);
-    QCOMPARE(t.channels(), 2u);
-}
-
-void TrackTest::testSetAndGetSampleBytes() {
-    DummyTrack t;
-    t.setSampleBytes(2);
-    QCOMPARE(t.sampleBytes(), 2u);
-}
-
-void TrackTest::testSetAndGetSampleRate() {
-    DummyTrack t;
-    t.setSampleRate(44100);
-    QCOMPARE(t.sampleRate(), 44100u);
-}
-
-void TrackTest::testSetAndGetTrackType() {
-    DummyTrack t;
-    t.setTrackType(Track::Mp3);
-    QCOMPARE(t.trackType(), Track::Mp3);
-}
-
 void TrackTest::testSetAndGetFileName() {
     DummyTrack t;
     t.setFileName(QStringLiteral("file.wav"), true);
@@ -178,70 +139,11 @@ void TrackTest::testSetAndGetRedetect() {
     QVERIFY(!t.redetect());
 }
 
-void TrackTest::testSetAndGetStartEndPos() {
-    DummyTrack t;
-    t.setLength(1000);
-    t.setEndPos(900);
-    t.setStartPos(100);
-    QCOMPARE(t.startPos(), static_cast<quint64>(100));
-    QCOMPARE(t.endPos(), static_cast<quint64>(900));
-
-    t.setEndPos(1100); // Should not change startPos
-    QCOMPARE(t.endPos(), static_cast<quint64>(900));
-
-    t.setStartPos(1100); // Should not change endPos
-    QCOMPARE(t.startPos(), static_cast<quint64>(100));
-
-    t.setEndPos(50);
-    QCOMPARE(t.startPos(), static_cast<quint64>(50)); // Should swap start and end
-    QCOMPARE(t.endPos(), static_cast<quint64>(100));
-
-    t.setStartPos(150);
-    QCOMPARE(t.startPos(), static_cast<quint64>(100)); // Should swap back
-    QCOMPARE(t.endPos(), static_cast<quint64>(150));
-}
-
 void TrackTest::testStaticBpmLimits() {
     Track::setMinimumBpm(90.);
     Track::setMaximumBpm(180.);
     QCOMPARE(Track::minimumBpm(), 90.);
     QCOMPARE(Track::maximumBpm(), 180.);
-}
-
-void TrackTest::testInitialProgress() {
-    DummyTrack t;
-    QCOMPARE(t.progress(), 0.0);
-}
-
-void TrackTest::testSetProgress() {
-    DummyTrack t;
-    t.setLength(1000);
-    t.setProgress(0.5);
-    QCOMPARE(t.progress(), 0.5);
-    QCOMPARE(t.startPos(), static_cast<quint64>(0));
-    QCOMPARE(t.endPos(), static_cast<quint64>(0));
-}
-
-void TrackTest::testProgressAfterLengthSet() {
-    DummyTrack t;
-    t.setLength(2000);
-    t.setProgress(0.25);
-    QCOMPARE(t.progress(), 0.25);
-}
-
-void TrackTest::testProgressBounds() {
-    DummyTrack t;
-    t.setLength(1000);
-    t.setProgress(-0.1);
-    QVERIFY(t.progress() >= 0.0);
-    t.setProgress(1.1);
-    QVERIFY(t.progress() == 1.1);
-}
-
-void TrackTest::testSetConsoleProgress() {
-    DummyTrack t;
-    t.setConsoleProgress(true);
-    QVERIFY(t.m_bConProgress);
 }
 
 void TrackTest::testFormattedLength() {
@@ -267,13 +169,6 @@ void TrackTest::testCorrectBpm() {
     QCOMPARE(t.correctBpm(200.0), 100.0);
     QCOMPARE(t.correctBpm(120.0), 120.0);
     QCOMPARE(t.correctBpm(-1), 0.0);
-}
-
-void TrackTest::testStop() {
-    DummyTrack t;
-    t.m_bStop = false;
-    t.stop();
-    QVERIFY(t.m_bStop);
 }
 
 void TrackTest::testSetMinimumBpmSwap() {
@@ -333,33 +228,13 @@ void TrackTest::testFormatted2() {
     QCOMPARE(formatted, QStringLiteral("123.46"));
 }
 
-void TrackTest::testSetSampleBytesAbove4() {
-    DummyTrack t;
-    t.setSampleBytes(5); // Invalid.
-    QCOMPARE(t.sampleBytes(), 0);
-
-    DummyTrack t2;
-    t2.setSampleBytes(16); // Valid.
-    QCOMPARE(t2.sampleBytes(), 2);
-
-    DummyTrack t3;
-    t3.setSampleBytes(128); // Valid but too large.
-    QCOMPARE(t3.sampleBytes(), 0);
-}
-
-void TrackTest::testSampleBits() {
-    DummyTrack t;
-    t.setSampleBytes(4);
-    QCOMPARE(t.sampleBits(), 32);
-}
-
 void TrackTest::testStoreBpm() {
     DummyTrack t;
     t.setBpm(123.45);
     t.setFormat(QStringLiteral("00000"));
     t.saveBpm();
-    QVERIFY(t.storeBpmCalled);
-    QCOMPARE(t.storedBpm, QStringLiteral("00123"));
+    QVERIFY(t.storeBpmCalled_);
+    QCOMPARE(t.storedBpm_, QStringLiteral("00123"));
 }
 
 QTEST_MAIN(TrackTest)

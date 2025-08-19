@@ -3,11 +3,13 @@
 #pragma once
 
 #include <QtCore/QCommandLineParser>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 
 /**
  * Console entry point.
  * @param parser Command line parser.
  * @param files List of files to process.
+ * @return Exit code of the application.
  */
-void consoleMain(QCommandLineParser &parser, const QStringList &files);
+int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QStringList &files);

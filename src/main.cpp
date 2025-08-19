@@ -35,13 +35,11 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef NO_GUI
-    consoleMain(parser, parser.positionalArguments());
+    return consoleMain(parser, parser.positionalArguments());
 #else
     if (parser.isSet(QStringLiteral("console"))) {
-        consoleMain(parser, parser.positionalArguments());
-    } else {
-        guiMain(app, parser.positionalArguments());
+        return consoleMain(app, parser, parser.positionalArguments());
     }
+    return guiMain(app, parser.positionalArguments());
 #endif
-    return 0;
 }

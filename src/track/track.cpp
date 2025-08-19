@@ -12,7 +12,7 @@
 bpmtype Track::_dMinBpm = 80.;
 bpmtype Track::_dMaxBpm = 185.;
 
-Track::Track() {
+Track::Track(QObject *parent) : QObject(parent) {
 }
 
 Track::~Track() {
@@ -21,7 +21,7 @@ Track::~Track() {
 void Track::setMinimumBpm(bpmtype dMin) {
     if (dMin > 30. && dMin < 300.)
         _dMinBpm = dMin;
-    // swap min and max if min is greater than max
+    // Swap min and max if min is greater than max.
     if (_dMinBpm > _dMaxBpm) {
         auto temp = _dMinBpm;
         _dMinBpm = _dMaxBpm;
@@ -32,7 +32,7 @@ void Track::setMinimumBpm(bpmtype dMin) {
 void Track::setMaximumBpm(bpmtype dMax) {
     if (dMax > 30. && dMax < 300.)
         _dMaxBpm = dMax;
-    // swap min and max if min is greater than max
+    // Swap min and max if min is greater than max.
     if (_dMinBpm > _dMaxBpm) {
         auto temp = _dMinBpm;
         _dMinBpm = _dMaxBpm;
@@ -57,34 +57,13 @@ QString Track::formatted(const QString &format) const {
 }
 
 void Track::setFileName(const QString &fileName, bool readMetadata) {
-#ifndef NO_GUI
-    if (isRunning()) {
-        // LCOV_EXCL_START
-        qCritical() << "Track thread is running, stopping it before setting fileName.";
-        stop();
-        wait();
-        // LCOV_EXCL_STOP
-    }
-#endif
-
     m_bOpened = false;
     m_bValid = false;
     m_dBpm = 0;
-    m_dProgress = 0;
-    m_eType = Unknown;
-    m_iChannels = 0;
-    m_iEndPos = 0;
     m_iLength = 0;
-    m_iSampleBytes = 0;
-    m_iSamplerate = 0;
-    m_iStartPos = 0;
-    close();
     m_sFilename = fileName;
-    if (!fileName.isEmpty()) {
-        readInfo();
-        if (readMetadata) {
-            readTags();
-        }
+    if (!m_sFilename.isEmpty() && readMetadata) {
+        readTags();
     }
 }
 
@@ -148,95 +127,6 @@ bool Track::redetect() const {
     return m_bRedetect;
 }
 
-void Track::setStartPos(quint64 ms) {
-    if (ms > length())
-        return;
-    m_iStartPos = ms;
-    if (m_iEndPos < m_iStartPos) {
-        auto tmp = m_iEndPos;
-        m_iEndPos = m_iStartPos;
-        m_iStartPos = tmp;
-    }
-}
-
-quint64 Track::startPos() const {
-    return m_iStartPos;
-}
-
-void Track::setEndPos(quint64 ms) {
-    if (ms > length())
-        return;
-    m_iEndPos = ms;
-    if (m_iEndPos < m_iStartPos) {
-        auto tmp = m_iEndPos;
-        m_iEndPos = m_iStartPos;
-        m_iStartPos = tmp;
-    }
-}
-
-quint64 Track::endPos() const {
-    return m_iEndPos;
-}
-
-double Track::progress() const {
-    return m_dProgress;
-}
-
-void Track::setProgress(double progress) {
-    if (0 <= progress && progress <= 100)
-        m_dProgress = progress;
-}
-
-void Track::setConsoleProgress(bool enable) {
-    m_bConProgress = enable;
-}
-
-void Track::setTrackType(TrackType type) {
-    m_eType = type;
-}
-
-Track::TrackType Track::trackType() const {
-    return m_eType;
-}
-
-void Track::setSampleRate(unsigned int sRate) {
-    m_iSamplerate = sRate;
-}
-
-unsigned int Track::sampleRate() const {
-    return m_iSamplerate;
-}
-
-void Track::setSampleBytes(unsigned int bytes) {
-    if (bytes > 4) {
-        if (!(bytes % 8)) {
-            bytes = bytes / 8;
-        } else {
-            qWarning() << "Not divisible by 8:" << bytes;
-            return;
-        }
-    }
-    if (bytes > 4)
-        return;
-    m_iSampleBytes = bytes;
-}
-
-unsigned int Track::sampleBits() const {
-    return 8 * sampleBytes();
-}
-
-unsigned int Track::sampleBytes() const {
-    return m_iSampleBytes;
-}
-
-void Track::setChannels(unsigned int channels) {
-    m_iChannels = channels;
-}
-
-unsigned int Track::channels() const {
-    return m_iChannels;
-}
-
 quint64 Track::length() const {
     return m_iLength;
 }
@@ -275,20 +165,6 @@ AbstractBpmDetector *Track::detector() const {
     return m_detector;
 }
 
-// LCOV_EXCL_START
-void Track::readInfo() {
-    // TagLib::FileRef f(fileName().toUtf8().constData());
-    // auto ap = !f.isNull() ? f.audioProperties() : nullptr;
-    // if (ap) {
-    //     setChannels(static_cast<unsigned int>(ap->channels()));
-    //     setSampleRate(static_cast<unsigned int>(ap->sampleRate()));
-    //     setLength(static_cast<quint64>(ap->lengthInSeconds() * 1000));
-    //     setValid(true);
-    // }
-    setValid(true);
-}
-// LCOV_EXCL_STOP
-
 bpmtype Track::correctBpm(bpmtype dBpm) const {
     auto min = minimumBpm();
     auto max = maximumBpm();
@@ -307,27 +183,3 @@ void Track::printBpm() const {
     std::cout << fileName().toStdString() << ": " << bpmToString(bpm(), format()).toStdString()
               << " BPM" << std::endl;
 }
-
-void Track::stop() {
-    m_bStop = true;
-}
-
-#ifndef NO_GUI
-// LCOV_EXCL_START
-void Track::startDetection() {
-#ifndef NDEBUG
-    if (isRunning()) {
-        qCritical() << "Thread is running (not starting).";
-        return;
-    }
-#endif // NDEBUG
-    start(QThread::IdlePriority);
-}
-
-void Track::run() {
-    detectBpm();
-    setProgress(0);
-}
-// LCOV_EXCL_STOP
-
-#endif // NO_GUI

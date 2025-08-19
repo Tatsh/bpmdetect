@@ -5,8 +5,8 @@
 
 #include "trackffmpeg.h"
 
-TrackFfmpeg::TrackFfmpeg(const QString &fileName, bool readMetadata)
-    : Track(), decoder_(new QAudioDecoder(this)) {
+TrackFfmpeg::TrackFfmpeg(const QString &fileName, bool readMetadata, QObject *parent)
+    : Track(parent), decoder_(new QAudioDecoder(this)) {
     setFileName(fileName, readMetadata);
 
     QAudioFormat format;
@@ -32,8 +32,6 @@ TrackFfmpeg::TrackFfmpeg(const QString &fileName, bool readMetadata)
         QAudioBuffer buffer;
         if ((buffer = decoder_->read()).isValid()) {
             if (!startedDetection_) {
-                qDebug() << "Starting detection with format:" << buffer.format().sampleRate()
-                         << "Hz," << buffer.format().channelCount() << "channels.";
                 detector_->reset(buffer.format().channelCount(), buffer.format().sampleRate());
                 startedDetection_ = true;
             }
@@ -53,6 +51,7 @@ TrackFfmpeg::TrackFfmpeg(const QString &fileName, bool readMetadata)
         }
     });
     connect(decoder_, &QAudioDecoder::finished, this, [this]() {
+        startedDetection_ = false;
         auto bpm = correctBpm(detector()->getBpm());
         setBpm(bpm);
         emit hasBpm(bpm);
@@ -64,10 +63,11 @@ TrackFfmpeg::~TrackFfmpeg() {
 }
 
 void TrackFfmpeg::readTags() {
+    // TODO
 }
 
 void TrackFfmpeg::open() {
-    close();
+    setValid(false);
     decoder_->setSource(QUrl::fromLocalFile(fileName()));
     if (decoder_->error() == QAudioDecoder::NoError) {
         setValid(true);
@@ -90,7 +90,18 @@ bpmtype TrackFfmpeg::detectBpm() {
 }
 
 void TrackFfmpeg::storeBpm(const QString &sBpm) {
+    // TODO
 }
 
 void TrackFfmpeg::removeBpm() {
+    // TODO
+}
+
+void TrackFfmpeg::stop() {
+    if (decoder_) {
+        decoder_->stop();
+    }
+    startedDetection_ = false;
+    setBpm(0);
+    emit hasBpm(0);
 }

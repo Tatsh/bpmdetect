@@ -35,8 +35,8 @@
   "editor.tabSize": 2,
   "editor.wordWrapColumn": 100,
   "files.associations": {
+    "*.moc": "cpp",
     "*.ui": "xml",
-    "fstream": "cpp",
     "i18n/*.ts": "xml"
   },
   "files.eol": "\n",

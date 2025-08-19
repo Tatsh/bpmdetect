@@ -12,8 +12,9 @@ public:
      * Constructor.
      * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
+     * @param parent Parent object.
      */
-    TrackFfmpeg(const QString &fileName, bool readMetadata = true);
+    TrackFfmpeg(const QString &fileName, bool readMetadata = true, QObject *parent = nullptr);
     ~TrackFfmpeg() override;
     void readTags() override;
     bpmtype detectBpm() override;
@@ -27,6 +28,7 @@ public:
      * @param length Total length in milliseconds.
      */
     Q_SIGNAL void progress(qint64 pos, qint64 length);
+    void stop() override;
 
 protected:
     void open() override;

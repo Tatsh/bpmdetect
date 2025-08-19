@@ -49,7 +49,7 @@ endif()
 
 target_include_directories(bpmdetect PRIVATE .)
 target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Core
-                                        bpmdetect-track)
+                                        Qt6::StateMachine bpmdetect-track)
 if(NOT NO_GUI)
   target_include_directories(bpmdetect PRIVATE widgets)
   target_link_libraries(bpmdetect PRIVATE Qt6::Gui Qt6::Widgets bpmdetect-widgets)

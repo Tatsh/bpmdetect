@@ -23,10 +23,6 @@ option(BUILD_DOCS "Build documentation." OFF)
 option(BUILD_DOCS_ONLY "Build documentation only." OFF)
 option(BUILD_TESTS "Build tests." OFF)
 option(COVERAGE "Enable code coverage." OFF)
-option(ENABLE_FLAC "Enable FLAC support." OFF)
-option(ENABLE_MP3 "Enable MP3 support." OFF)
-option(ENABLE_VORBIS "Enable Vorbis support." OFF)
-option(ENABLE_WAVPACK "Enable WavPack support." OFF)
 option(NON_PORTABLE_MACOS_BUNDLE
        "Create a macOS bundle which will depend on libraries within FHS-compliant directories \
 (Homebrew, MacPorts). Implies FHS=ON." OFF)
@@ -65,6 +61,7 @@ if(NOT BUILD_DOCS_ONLY)
   include(ECMQtDeclareLoggingCategory)
 
   find_package(Qt6Core 6.7 CONFIG REQUIRED)
+  find_package(Qt6StateMachine 6.7 CONFIG REQUIRED)
   if(NOT NO_GUI)
     find_package(Qt6Gui 6.7 CONFIG REQUIRED)
     find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)

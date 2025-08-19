@@ -5,11 +5,6 @@
 #include <QtCore/QSpan>
 #include <STTypes.h>
 
-#ifndef NO_GUI
-#include <QtCore/QMutex>
-#include <QtCore/QThread>
-#endif
-
 #include "soundtouchbpmdetector.h"
 #include "utils.h"
 
@@ -18,32 +13,14 @@ namespace TagLib {
 }
 
 /** Represents a file on the system. */
-class Track
-#ifndef NO_GUI
-    : public QThread
-#endif
-{
-    friend class TrackProxy;
+class Track : public QObject {
+    Q_OBJECT
 #ifdef TESTING
     friend class TrackTest;
 #endif
 
 public:
-    virtual ~Track()
-#ifndef NO_GUI
-        override
-#endif
-        ;
-
-    /** Track type enumeration. */
-    enum TrackType {
-        Unknown = 0, //!< Unknown type.
-        Flac,        //!< FLAC.
-        Mp3,         //!< MP3.
-        Ogg,         //!< Ogg Vorbis.
-        WavPack,     //!< WavPack.
-        Wave,        //!< Wave (RIFF) file.
-    };
+    virtual ~Track() override;
     /**
      * Set minimum BPM.
      * @param dMin Minimum BPM.
@@ -98,53 +75,23 @@ public:
     virtual void setRedetect(bool redetect);
     /** Get the redetection flag. */
     virtual bool redetect() const;
-    /** Get the progress value. */
-    virtual double progress() const;
     /** Set the format of the BPM string. */
     virtual void setFormat(const QString &format = QStringLiteral("0.00"));
     /** Get the BPM format. */
     virtual QString format() const;
-    /** Enable console progress. */
-    virtual void setConsoleProgress(bool enable = true);
     /** Stop detection if it is running. */
-    virtual void stop();
-    /** Set the start position to @a ms. */
-    virtual void setStartPos(quint64 ms);
-    /** Get the start position (milliseconds). */
-    virtual quint64 startPos() const;
-    /** Set the end position to @a ms. */
-    virtual void setEndPos(quint64 ms);
-    /** Get the end position (milliseconds). */
-    virtual quint64 endPos() const;
-    /** Get the sample rate. */
-    virtual unsigned int sampleRate() const;
-    /** Get the number of bytes per sample. */
-    virtual unsigned int sampleBytes() const;
-    /** Get the number of bits per sample. */
-    virtual unsigned int sampleBits() const;
-    /** Get the number of channels. */
-    virtual unsigned int channels() const;
-    /** Get the track type. */
-    virtual TrackType trackType() const;
+    virtual void stop() = 0;
     /** Read tags (artist, title, BPM). */
     virtual void readTags() = 0;
-    /** Read track information. */
-    virtual void readInfo();
     /** Set BPM detector. */
     void setDetector(AbstractBpmDetector *detector);
     /** Get the BPM detector. */
     AbstractBpmDetector *detector() const;
 
 protected:
-    Track();
+    explicit Track(QObject *parent = nullptr);
     /** Open the track. */
-    virtual void open() {
-        setOpened(true);
-    }
-    /** Close the track. */
-    virtual void close() {
-        setOpened(false);
-    }
+    virtual void open() = 0;
     /** Store @a sBpm into the metadata of the file. */
     virtual void storeBpm(const QString &sBpm) = 0;
     /** Remove BPM metadata from the file. */
@@ -159,53 +106,21 @@ protected:
     void setTitle(const QString &title);
     /** Set the length in miliseconds. */
     void setLength(quint64 msec);
-    /** Set the sample rate. */
-    void setSampleRate(unsigned int sRate);
-    /** Set the amount of bytes per sample. This is the bit-depth divided by `8` normally. */
-    void setSampleBytes(unsigned int bytes);
-    /** Set the amount of channels. */
-    void setChannels(unsigned int channels);
-    /** Set the track type. */
-    void setTrackType(TrackType type);
     /** Correct the BPM based on the global minimum and maximum. */
     bpmtype correctBpm(bpmtype dBpm) const;
 
 private:
-    void setProgress(double progress);
-
     AbstractBpmDetector *m_detector = nullptr;
     QString m_sArtist;
     QString m_sBpmFormat = QStringLiteral("0.00");
     QString m_sFilename = QStringLiteral("");
     QString m_sTitle;
-    TrackType m_eType = Unknown;
-    bool m_bConProgress = false;
     bool m_bOpened = false;
     bool m_bRedetect = false;
-    bool m_bStop = false;
     bool m_bValid = false;
     bpmtype m_dBpm = 0;
-    double m_dProgress = 0;
-    quint64 m_iEndPos = 0;
     quint64 m_iLength = 0;
-    quint64 m_iStartPos = 0;
-    unsigned int m_iChannels = 0;
-    unsigned int m_iSampleBytes = 0;
-    unsigned int m_iSamplerate = 0;
 
-    static bool _bLimit;
     static bpmtype _dMaxBpm;
     static bpmtype _dMinBpm;
-
-#ifndef NO_GUI
-public:
-    /** Start the BPM detection process. */
-    void startDetection();
-
-protected:
-    void run() override;
-
-private:
-    QMutex m_qMutex;
-#endif // NO_GUI
 };

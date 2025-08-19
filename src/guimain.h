@@ -6,5 +6,6 @@
  * GUI entry point.
  * @param app Application instance.
  * @param files List of files to add to the view.
+ * @return Exit code of the application.
  */
-void guiMain(const QApplication &app, const QStringList &files);
+int guiMain(const QApplication &app, const QStringList &files);
