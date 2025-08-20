@@ -13,7 +13,6 @@ private Q_SLOTS:
     void testEnableControls();
     void testFilesFromDir();
     void testSetRecentPath();
-    void testSetStarted();
     void testSlotClearTrackList();
     void testSlotStartStop();
     void testSlotAddFiles();
@@ -42,14 +41,6 @@ void DlgBpmDetectTest::testEnableControls() {
     QVERIFY(!dlg.btnAddFiles->isEnabled());
 }
 
-void DlgBpmDetectTest::testSetStarted() {
-    DlgBpmDetect dlg;
-    dlg.setStarted(true);
-    QVERIFY(dlg.started());
-    dlg.setStarted(false);
-    QVERIFY(!dlg.started());
-}
-
 void DlgBpmDetectTest::testSetRecentPath() {
     DlgBpmDetect dlg;
     dlg.setRecentPath(QStringLiteral("/tmp"));
@@ -64,17 +55,17 @@ void DlgBpmDetectTest::testFilesFromDir() {
 
 void DlgBpmDetectTest::testSlotStartStop() {
     DlgBpmDetect dlg;
-    QVERIFY(!dlg.started());
+    QVERIFY(!dlg.m_bStarted);
     dlg.slotStartStop();
-    QVERIFY(!dlg.started()); // no items.
+    QVERIFY(!dlg.m_bStarted); // no items.
 
     auto item = new QTreeWidgetItem();
     item->setText(0, QStringLiteral("test.mp3"));
     dlg.TrackList->addTopLevelItem(item);
     dlg.slotStartStop();
-    QVERIFY(dlg.started());
+    QVERIFY(dlg.m_bStarted);
     dlg.slotStartStop();
-    QVERIFY(!dlg.started());
+    QVERIFY(!dlg.m_bStarted);
 }
 
 void DlgBpmDetectTest::testSlotClearTrackList() {

@@ -84,7 +84,9 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/widgets/progressbar.cpp
     ../src/widgets/progressbar.h
     ../src/widgets/qdroplistview.cpp
-    ../src/widgets/qdroplistview.h)
+    ../src/widgets/qdroplistview.h
+    ../src/widgets/trackitem.cpp
+    ../src/widgets/trackitem.h)
 create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")
 target_compile_definitions(dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768)
 target_link_libraries(dlgbpmdetect-test PRIVATE Qt::Widgets PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB

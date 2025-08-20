@@ -57,6 +57,10 @@ Track::Track(const QString &fileName, bool readMetadata, QObject *parent)
     });
     connect(decoder_, &QAudioDecoder::finished, [this]() {
         auto bpm = correctBpm(detector()->getBpm());
+        if (bpm < 0) {
+            qCInfo(gLogBpmDetect) << "Invalid BPM detected:" << bpm;
+            return;
+        }
         setBpm(bpm);
         emit hasBpm(bpm);
     });

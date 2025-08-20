@@ -6,11 +6,13 @@
 #include <QtCore/QTimer>
 
 #include "ui_dlgbpmdetect.h"
+#include "utils.h"
 
 class AbstractBpmDetector;
 class QDropEvent;
 class QMenu;
 class Track;
+class TrackItem;
 
 /** Main dialog of the application. */
 class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
@@ -70,25 +72,22 @@ protected Q_SLOTS:
     void slotClearBpm();
     /** Slot to save detected BPM values. */
     void slotSaveBpm();
-    /** * Slot to show the About dialog. */
+    /** Slot to show the About dialog. */
     void slotShowAbout();
 
 private:
     QString recentPath() const;
     QStringList filesFromDir(const QString &path) const;
-    bool started() const;
     void enableControls(bool enable);
     void loadSettings();
     void saveSettings();
     void setRecentPath(const QString &path);
-    void setStarted(bool started);
 
     AbstractBpmDetector *m_pDetector = nullptr;
-    QMenu *m_pListMenu;
-    QProgressBar *m_pProgress;
+    QMenu *m_pListMenu = nullptr;
+    QProgressBar *m_pProgress = nullptr;
     QString m_qRecentPath;
-    QTreeWidgetItem *m_pCurItem;
-    Track *m_pTrack = nullptr;
-    bool m_bStarted;
-    int m_iCurTrackIdx;
+    TrackItem *m_pCurItem = nullptr;
+    bool m_bStarted = false;
+    int m_iCurTrackIdx = 0;
 };

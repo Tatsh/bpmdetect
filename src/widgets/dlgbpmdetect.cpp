@@ -16,15 +16,12 @@
 #include "dlgtestbpm.h"
 #include "qdroplistview.h"
 #include "track/track.h"
+#include "trackitem.h"
 
 #define kProgressColumn 4
 
 DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     setupUi(this);
-    setStarted(false);
-    m_pCurItem = nullptr;
-    m_iCurTrackIdx = 0;
-    m_pProgress = nullptr;
 
     loadSettings();
 
@@ -82,34 +79,16 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     connect(TrackList, &QDropListView::drop, this, &DlgBpmDetect::slotDropped);
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
 
-    m_pTrack = new Track(QStringLiteral(""));
-    connect(m_pTrack, &Track::hasBpm, [this](bpmtype bpm) {
-        if (m_pCurItem) {
-            m_pCurItem->setText(0, QString::number(bpm, 'f', 2));
-            slotDetectNext();
-        }
-    });
-    connect(m_pTrack, &Track::hasLength, this, [this](quint64 ms) {
-        if (m_pCurItem) {
-            m_pCurItem->setText(3, m_pTrack->formattedLength());
-        }
-    });
-    connect(m_pTrack, &Track::progress, this, [this](qint64 pos, qint64 length) {
-        if (m_pProgress && length > 0) {
-            auto currentFilePercent =
-                100 * (static_cast<double>(pos) / static_cast<double>(length));
-            m_pProgress->setValue(static_cast<int>(currentFilePercent));
-            TotalProgress->setValue(100 * (m_iCurTrackIdx - 1) + currentFilePercent);
-        }
-    });
+    // This is only here to force initialisation of the multimedia system so that dropping files
+    // into the dialog is not delayed.
+    Track(QStringLiteral(""));
 }
 
 DlgBpmDetect::~DlgBpmDetect() {
-    if (started())
+    if (m_bStarted) {
         slotStop();
+    }
     saveSettings();
-    delete m_pTrack;
-    m_pTrack = nullptr;
 }
 
 void DlgBpmDetect::loadSettings() {
@@ -125,8 +104,9 @@ void DlgBpmDetect::loadSettings() {
     chbSkipScanned->setChecked(skip);
     chbSave->setChecked(save);
     int idx = cbFormat->findText(format);
-    if (idx >= 0)
+    if (idx >= 0) {
         cbFormat->setCurrentIndex(idx);
+    }
     setRecentPath(recentPath);
     spMin->setValue(minBPM);
     spMax->setValue(maxBPM);
@@ -178,7 +158,7 @@ void DlgBpmDetect::enableControls(bool enable) {
 }
 
 void DlgBpmDetect::slotStartStop() {
-    if (started()) {
+    if (m_bStarted) {
         slotStop();
     } else {
         slotStart();
@@ -186,23 +166,28 @@ void DlgBpmDetect::slotStartStop() {
 }
 
 void DlgBpmDetect::slotStart() {
-    if (started() || !TrackList->topLevelItemCount())
+    if (m_bStarted || !TrackList->topLevelItemCount()) {
         return;
+    }
 
-    setStarted(true);
+    m_bStarted = true;
     enableControls(false);
 
     TotalProgress->setMaximum(TrackList->topLevelItemCount() * 100);
     TotalProgress->setValue(0);
-    m_pTrack->setMinimumBpm(spMin->value());
-    m_pTrack->setMaximumBpm(spMax->value());
+    if (m_pCurItem) {
+        m_pCurItem->track()->setMinimumBpm(spMin->value());
+        m_pCurItem->track()->setMaximumBpm(spMax->value());
+    }
 
     slotDetectNext();
 }
 
 void DlgBpmDetect::slotStop() {
-    m_pTrack->stop();
-    setStarted(false);
+    if (m_pCurItem) {
+        m_pCurItem->track()->stop();
+    }
+    m_bStarted = false;
     lblCurrentTrack->setText(QStringLiteral(""));
     enableControls(true);
 }
@@ -210,25 +195,26 @@ void DlgBpmDetect::slotStop() {
 void DlgBpmDetect::slotDetectNext(bool skipped) {
     if (!m_pCurItem) {
         // No previous item, get the first item and start
-        m_pCurItem = TrackList->topLevelItem(0);
+        m_pCurItem = static_cast<TrackItem *>(TrackList->topLevelItem(0));
     } else {
         if (!skipped) {
             // display and save BPM
-            m_pCurItem->setText(0, m_pTrack->formatted(QStringLiteral("000.00")));
+            m_pCurItem->setText(0, m_pCurItem->track()->formatted(QStringLiteral("000.00")));
             if (chbSave->isChecked())
-                m_pTrack->setFormat(cbFormat->currentText());
+                m_pCurItem->track()->setFormat(cbFormat->currentText());
             if (chbSave->isChecked())
-                m_pTrack->saveBpm();
+                m_pCurItem->track()->saveBpm();
         }
         if (m_pCurItem) {
             // next TrackList item
             int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
             TrackList->setItemWidget(m_pCurItem, kProgressColumn, nullptr);
             m_pProgress = nullptr;
-            if (curidx >= 0)
-                m_pCurItem = TrackList->topLevelItem(1 + curidx);
-            else
+            if (curidx >= 0) {
+                m_pCurItem = static_cast<TrackItem *>(TrackList->topLevelItem(1 + curidx));
+            } else {
                 m_pCurItem = nullptr;
+            }
         }
     }
 
@@ -239,10 +225,11 @@ void DlgBpmDetect::slotDetectNext(bool skipped) {
     }
 
     TrackList->clearSelection();
-    if (m_iCurTrackIdx < 10)
+    if (m_iCurTrackIdx < 10) {
         TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
-    else
+    } else {
         TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
+    }
     m_pCurItem->setSelected(true);
 
     auto file = m_pCurItem->text(TrackList->columnCount() - 1);
@@ -261,38 +248,47 @@ void DlgBpmDetect::slotDetectNext(bool skipped) {
     m_pProgress->setMaximum(100);
     m_pProgress->setMaximumHeight(15);
     TrackList->setItemWidget(m_pCurItem, kProgressColumn, m_pProgress);
-    m_pTrack->setFileName(file);
-    m_pTrack->setRedetect(!chbSkipScanned->isChecked());
-    m_pTrack->setDetector(m_pDetector);
-    m_pTrack->detectBpm();
+    m_pCurItem->track()->setRedetect(!chbSkipScanned->isChecked());
+    m_pCurItem->track()->setDetector(m_pDetector);
+    m_pCurItem->track()->detectBpm();
 }
 
 void DlgBpmDetect::slotAddFiles(const QStringList &files) {
-    if (!started() && files.size()) {
+    if (!m_bStarted && files.size()) {
         TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
     for (int i = 0; i < files.size(); ++i) {
-        Track track(files[i], true);
-        if (!started()) {
+        auto track = new Track(files[i], true, this);
+        auto item = new TrackItem(TrackList, track);
+        connect(track, &Track::hasBpm, [item, this](bpmtype bpm) {
+            item->setText(0, QString::number(bpm, 'f', 2));
+            slotDetectNext();
+        });
+        connect(track, &Track::hasLength, this, [track, item](quint64 ms) {
+            item->setText(3, track->formattedLength());
+        });
+        connect(track, &Track::progress, this, [this](qint64 pos, qint64 length) {
+            if (m_pProgress && length > 0) {
+                auto currentFilePercent =
+                    100 * (static_cast<double>(pos) / static_cast<double>(length));
+                m_pProgress->setValue(static_cast<int>(currentFilePercent));
+                TotalProgress->setValue(100 * (m_iCurTrackIdx - 1) + currentFilePercent);
+            }
+        });
+        if (!m_bStarted) {
             lblCurrentTrack->setText(tr("Adding %1").arg(files.at(i)));
             TotalProgress->setValue(i);
         }
-        new QTreeWidgetItem(TrackList,
-                            {track.formatted(QStringLiteral("000.00")),
-                             track.artist(),
-                             track.title(),
-                             track.formattedLength(),
-                             QStringLiteral(""),
-                             files.at(i)});
         qApp->processEvents();
     }
-    if (!started()) {
+    if (!m_bStarted) {
         lblCurrentTrack->setText(QStringLiteral(""));
         int itemcount = TrackList->topLevelItemCount();
-        if (itemcount)
+        if (itemcount) {
             TotalProgress->setMaximum(itemcount * 100);
-        else
+        } else {
             TotalProgress->setMaximum(100);
+        }
         TotalProgress->reset();
         TotalProgress->setValue(0);
     }
@@ -341,8 +337,9 @@ void DlgBpmDetect::slotClearTrackList() {
 void DlgBpmDetect::slotClearDetected() {
     for (auto i = 0; i < TrackList->topLevelItemCount(); ++i) {
         auto item = TrackList->topLevelItem(i);
-        if (!item)
+        if (!item) {
             break;
+        }
 
         float fBpm = item->text(0).toFloat();
         if (fBpm > 0) {
@@ -354,13 +351,15 @@ void DlgBpmDetect::slotClearDetected() {
 
 void DlgBpmDetect::slotDropped(QDropEvent *e) {
     // LCOV_EXCL_START
-    if (!e)
+    if (!e) {
         return;
+    }
     // LCOV_EXCL_STOP
     const QMimeData *mdata = e->mimeData();
     // LCOV_EXCL_START
-    if (!mdata->hasUrls())
+    if (!mdata->hasUrls()) {
         return;
+    }
     // LCOV_EXCL_STOP
     QList<QUrl> urllist = mdata->urls();
     e->accept();
@@ -374,8 +373,9 @@ void DlgBpmDetect::slotDropped(QDropEvent *e) {
 void DlgBpmDetect::slotSaveBpm() {
     auto items = TrackList->selectedItems();
     // LCOV_EXCL_START
-    if (!items.size())
+    if (!items.size()) {
         return;
+    }
     // LCOV_EXCL_STOP
 
     for (int i = 0; i < items.size(); ++i) {
@@ -385,14 +385,6 @@ void DlgBpmDetect::slotSaveBpm() {
         track.setFormat(cbFormat->currentText());
         track.saveBpm();
     }
-}
-
-void DlgBpmDetect::setStarted(bool started) {
-    m_bStarted = started;
-}
-
-bool DlgBpmDetect::started() const {
-    return m_bStarted;
 }
 
 void DlgBpmDetect::setRecentPath(const QString &path) {
@@ -415,8 +407,9 @@ void DlgBpmDetect::slotAddFiles() {
         tr("Add tracks"),
         recentPath(),
         tr("Audio files (*.wav *.mp3 *.ogg *.flac *.wv *.wavpack *.fla *.flc);;All files (*.*)"));
-    if (files.size() > 0)
+    if (files.size() > 0) {
         setRecentPath(files[0].left(files[0].lastIndexOf(QChar::fromLatin1('/'))));
+    }
     slotAddFiles(files);
 }
 
@@ -427,11 +420,13 @@ void DlgBpmDetect::slotAddDir() {
         setRecentPath(path);
         QStringList list;
         list = filesFromDir(path);
-        if (list.size() == 0)
+        if (!list.size()) {
             return;
+        }
 
-        if (!path.endsWith(QStringLiteral("/")))
+        if (!path.endsWith(QStringLiteral("/"))) {
             path.append(QStringLiteral("/"));
+        }
 
         QStringList files;
         for (auto i = 0; i < list.size(); i++) {
@@ -449,16 +444,18 @@ void DlgBpmDetect::slotListMenuPopup(const QPoint &) {
 
 void DlgBpmDetect::slotClearBpm() {
     auto items = TrackList->selectedItems();
-    if (!items.size())
+    if (!items.size()) {
         return;
+    }
 
     int clear = QMessageBox::warning(this,
                                      tr("Clear BPM"),
                                      tr("Clear BPMs of all selected tracks?"),
                                      QMessageBox::Yes | QMessageBox::No,
                                      QMessageBox::No);
-    if (clear == QMessageBox::No)
+    if (clear == QMessageBox::No) {
         return;
+    }
 
     for (int i = 0; i < items.size(); ++i) {
         auto item = items.at(i);
@@ -470,11 +467,14 @@ void DlgBpmDetect::slotClearBpm() {
 
 void DlgBpmDetect::slotTestBpm() {
     auto item = TrackList->currentItem();
-    if (!item)
+    if (!item) {
         return;
+    }
     float bpm = item->text(0).toFloat();
-    if (bpm == 0.0f)
+    static const auto epsilon = 0.0001;
+    if (bpm <= epsilon) {
         return;
+    }
     auto file = item->text(TrackList->columnCount() - 1);
 
     DlgTestBpm testBpmDialog(

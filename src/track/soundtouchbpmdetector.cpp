@@ -22,6 +22,10 @@ void SoundTouchBpmDetector::inputSamples(const soundtouch::SAMPLETYPE *samples, 
 }
 
 bpmtype SoundTouchBpmDetector::getBpm() const {
+    if (!stDetector_) {
+        qCWarning(gLogBpmDetect) << "SoundTouchBpmDetector: No BPM detector initialized.";
+        return -1;
+    }
     return stDetector_->getBpm();
 }
 

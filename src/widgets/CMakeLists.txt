@@ -10,12 +10,10 @@ set(WIDGETS_SRCS
     progressbar.cpp
     progressbar.h
     qdroplistview.cpp
-    qdroplistview.h)
+    qdroplistview.h
+    trackitem.cpp
+    trackitem.h)
 add_library(bpmdetect-widgets STATIC ${WIDGETS_SRCS})
-target_compile_definitions(
-  bpmdetect-widgets
-  PRIVATE $<$<BOOL:${FLAC_FOUND}>:HAVE_FLAC> $<$<BOOL:${MAD_FOUND}>:HAVE_MAD>
-          $<$<BOOL:${VORBIS_FOUND}>:HAVE_VORBISFILE> $<$<BOOL:${WAVPACK_FOUND}>:HAVE_WAVPACK>)
 target_include_directories(bpmdetect-widgets PRIVATE ..)
 target_link_libraries(bpmdetect-widgets PRIVATE Qt6::Core Qt6::Gui Qt6::Multimedia Qt6::Widgets
                                                 PkgConfig::SOUNDTOUCH)
