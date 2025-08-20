@@ -5,23 +5,10 @@
 #include "track/track.h"
 
 struct DummyTrack : public Track {
-    DummyTrack() : Track(QStringLiteral(""), false, this) {
+    DummyTrack() : Track(QStringLiteral("")) {
     }
     ~DummyTrack() override {
     }
-    bpmtype detectBpm() {
-        return 0;
-    }
-    bool isOpened() const {
-        return opened_;
-    }
-    void setOpened(bool opened) {
-        opened_ = opened;
-    }
-    bool storeBpmCalled_ = false;
-    QString storedBpm_;
-    quint64 currentPos_ = 0;
-    bool opened_ = false;
 };
 
 struct DummyBpmDetector : public AbstractBpmDetector {
@@ -50,17 +37,14 @@ private Q_SLOTS:
     void testCorrectBpm();
     void testFormatted1();
     void testFormatted2();
-    void testOpen();
     void testPrintBpm();
     void testSetAndGetBpm();
     void testSetAndGetFileName();
     void testSetAndGetFormat();
-    void testSetAndGetOpened();
     void testSetAndGetRedetect();
     void testSetMaximumBpmSwap();
     void testSetMinimumBpmSwap();
     void testStaticBpmLimits();
-    void testStoreBpm();
 };
 
 TrackTest::TrackTest(QObject *parent) : QObject(parent) {
@@ -85,14 +69,6 @@ void TrackTest::testSetAndGetFileName() {
     DummyTrack t;
     t.setFileName(QStringLiteral("file.wav"), true);
     QCOMPARE(t.fileName(), QStringLiteral("file.wav"));
-}
-
-void TrackTest::testSetAndGetOpened() {
-    DummyTrack t;
-    t.setOpened(true);
-    QVERIFY(t.isOpened());
-    t.setOpened(false);
-    QVERIFY(!t.isOpened());
 }
 
 void TrackTest::testSetAndGetRedetect() {
@@ -156,12 +132,6 @@ void TrackTest::testPrintBpm() {
     QVERIFY(output.contains(QStringLiteral("test.wav: 123.45 BPM")));
 }
 
-void TrackTest::testOpen() {
-    DummyTrack t;
-    t.open();
-    QVERIFY(t.isOpened());
-}
-
 void TrackTest::testFormatted1() {
     DummyTrack t;
     t.setBpm(123.456);
@@ -184,15 +154,6 @@ void TrackTest::testFormatted2() {
     t.setFormat(QStringLiteral("0.0"));
     formatted = t.formatted(QStringLiteral("0.000")); // Defaults to 0.00.
     QCOMPARE(formatted, QStringLiteral("123.46"));
-}
-
-void TrackTest::testStoreBpm() {
-    DummyTrack t;
-    t.setBpm(123.45);
-    t.setFormat(QStringLiteral("00000"));
-    t.saveBpm();
-    QVERIFY(t.storeBpmCalled_);
-    QCOMPARE(t.storedBpm_, QStringLiteral("00123"));
 }
 
 QTEST_MAIN(TrackTest)

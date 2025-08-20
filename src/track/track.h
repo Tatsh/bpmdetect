@@ -74,8 +74,6 @@ public:
     QString formattedLength() const;
     /** Check if the track is valid. */
     bool isValid() const;
-    /** Check if the file is opened. */
-    bool isOpened() const;
     /** Get the track artist. */
     QString artist() const;
     /** Get the track title. */
