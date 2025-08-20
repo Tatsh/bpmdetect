@@ -1,0 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(gLogBpmDetect)

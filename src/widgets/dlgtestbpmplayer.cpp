@@ -6,6 +6,7 @@
 #include <QtMultimedia/QMediaDevices>
 #include <QtWidgets/QMessageBox>
 
+#include "debug.h"
 #include "dlgtestbpmplayer.h"
 
 DlgTestBpmPlayer::DlgTestBpmPlayer(const QString file,
@@ -20,7 +21,7 @@ DlgTestBpmPlayer::DlgTestBpmPlayer(const QString file,
     posUS = posUS_;
     if (!decoder->isSupported()) {
         // LCOV_EXCL_START
-        qDebug() << "Audio decoder is not supported on this platform.";
+        qCCritical(gLogBpmDetect) << "Audio decoder is not supported on this platform.";
         emit audioError(QAudio::FatalError);
         return;
         // LCOV_EXCL_STOP
@@ -47,7 +48,7 @@ void DlgTestBpmPlayer::readBuffer() {
 }
 
 void DlgTestBpmPlayer::decodeError(QAudioDecoder::Error err) {
-    qDebug() << "Audio decoder error:" << err;
+    qCDebug(gLogBpmDetect) << "Audio decoder error:" << err;
     error = true;
 }
 
@@ -69,16 +70,16 @@ void DlgTestBpmPlayer::finishedDecoding() {
 void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
     switch (newState) {
     case QAudio::ActiveState:
-        qDebug() << "Audio output is active.";
+        qCDebug(gLogBpmDetect) << "Audio output is active.";
         break;
     case QAudio::SuspendedState:
-        qDebug() << "Audio output is suspended.";
+        qCDebug(gLogBpmDetect) << "Audio output is suspended.";
         break;
     case QAudio::StoppedState:
-        qDebug() << "Audio output is stopped.";
+        qCDebug(gLogBpmDetect) << "Audio output is stopped.";
         break;
     case QAudio::IdleState:
-        qDebug() << "Audio output is idle.";
+        qCDebug(gLogBpmDetect) << "Audio output is idle.";
         break;
     }
     if (output->error() != QAudio::NoError) {
@@ -87,16 +88,17 @@ void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
         switch (output->error()) {
 #pragma clang diagnostic pop
         case QAudio::OpenError:
-            qCritical() << "Audio output error: The audio device could not be opened.";
+            qCCritical(gLogBpmDetect)
+                << "Audio output error: The audio device could not be opened.";
             break;
         case QAudio::IOError:
-            qCritical() << "Audio output error: An I/O error occurred.";
+            qCCritical(gLogBpmDetect) << "Audio output error: An I/O error occurred.";
             break;
         case QAudio::UnderrunError:
-            qCritical() << "Audio output error: An underrun occurred.";
+            qCCritical(gLogBpmDetect) << "Audio output error: An underrun occurred.";
             break;
         case QAudio::FatalError:
-            qCritical() << "Audio output error: A fatal error occurred.";
+            qCCritical(gLogBpmDetect) << "Audio output error: A fatal error occurred.";
             break;
         }
         emit audioError(output->error());

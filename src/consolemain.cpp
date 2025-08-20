@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QtCore/QDebug>
-#include <QtCore/QObject>
+#include <QtCore/QQueue>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
+#include <QtStateMachine/QFinalState>
 #include <QtStateMachine/QState>
 #include <QtStateMachine/QStateMachine>
 
 #include "consolemain.h"
-#include "track/trackffmpeg.h"
+#include "debug.h"
+#include "track/track.h"
 
 // This solution is adapted from https://stackoverflow.com/a/31389121/374110.
 class Worker : public QObject {
@@ -17,39 +19,54 @@ public:
                     bool redetect,
                     const QString &format,
                     QObject *parent = nullptr)
-        : QObject(parent), machine(this), s1(&machine), s2(&machine), s3(&machine), timer(this),
-          track(QStringLiteral(""), false, this) {
-        // track.setConsoleProgress(consoleProgress);
-        track.setRedetect(redetect);
-        track.setFormat(format);
-        auto detector = new SoundTouchBpmDetector(this);
-        connect(&track, &TrackFfmpeg::hasBpm, [this](bpmtype bpm) { track.printBpm(); });
-        timer.setSingleShot(true);
-        s1.addTransition(&track, &TrackFfmpeg::hasBpm, &s2);
-        s1.addTransition(&timer, &QTimer::timeout, &s2);
-        connect(&s1, &QState::entered, [this, files, detector] {
+        : QObject(parent), machine_(this), state1_(&machine_), state2_(&machine_), timer_(this),
+          detector_(new SoundTouchBpmDetector(this)), printCount_(0),
+          finalState_(new QFinalState(&machine_)) {
+        timer_.setSingleShot(true);
+
+        // QQueue<QState> stateQueue;
+        // for (const auto &file : files) {
+        //     stateQueue.enqueue(QState(&machine_));
+        // }
+
+        state1_.addTransition(this, &Worker::finished, &state2_);
+        state2_.addTransition(&timer_, &QTimer::timeout, finalState_);
+        connect(&state1_, &QState::entered, [this, redetect, format, files] {
             for (const auto &file : files) {
-                track.setFileName(file, false);
-                track.setDetector(detector);
+                Track track(file, false, this);
+                track.setFormat(format);
+                // track.setConsoleProgress(consoleProgress);
+                track.setRedetect(redetect);
+                track.setDetector(detector_);
+                connect(&track, &Track::hasBpm, [this, &track, files](bpmtype bpm) {
+                    qCDebug(gLogBpmDetect) << "BPM detected for" << track.fileName() << ":" << bpm;
+                    track.printBpm();
+                    // if (stateQueue.isEmpty()) {
+                    //     emit finished();
+                    // }
+                });
                 track.detectBpm();
             }
-            timer.start(10000); // 10 seconds per file
+            qCDebug(gLogBpmDetect) << "Waiting for BPM detection to finish...";
+            timer_.start(10000);
         });
-        connect(&s2, &QState::entered, [this] {
-            machine.stop();
-            emit finished();
-        });
-        machine.setInitialState(&s1);
-        machine.start();
+        QObject::connect(&machine_,
+                         &QStateMachine::finished,
+                         QCoreApplication::instance(),
+                         &QCoreApplication::quit);
+        machine_.setInitialState(&state1_);
+        machine_.start();
     }
 
 private:
     Q_SIGNAL void finished();
 
-    QStateMachine machine;
-    QState s1, s2, s3;
-    QTimer timer;
-    TrackFfmpeg track;
+    QStateMachine machine_;
+    QState state1_, state2_, state3_;
+    QTimer timer_;
+    SoundTouchBpmDetector *detector_ = nullptr;
+    QAtomicInt printCount_;
+    QFinalState *finalState_;
 };
 
 void waitForEventDispatcher(QThread *thread) {
@@ -64,7 +81,7 @@ void instantiateInThread(QThread *thread,
                          bool redetect,
                          const QString &format) {
     Q_ASSERT(thread);
-    QObject *dispatcher = thread->eventDispatcher();
+    auto dispatcher = thread->eventDispatcher();
     Q_ASSERT(dispatcher); // The thread must have an event loop.
     QTimer::singleShot(0, dispatcher, [dispatcher, files, redetect, format]() {
         // This happens in the given thread.
@@ -83,7 +100,7 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
     }
     if (remove) {
         for (const auto &file : files) {
-            TrackFfmpeg track(file, false);
+            Track track(file, false);
             track.clearBpm();
         }
         return 0;

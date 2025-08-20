@@ -3,44 +3,44 @@ if(NOT NO_GUI)
   add_subdirectory(widgets)
 endif()
 
-set(SOURCES images.h main.cpp)
+set(SOURCES
+    bpmdetect.qrc
+    icons/not-padded/16x16.png
+    icons/not-padded/16x16@2x.png
+    icons/not-padded/32x32.png
+    icons/not-padded/32x32@2x.png
+    icons/not-padded/48x48.png
+    icons/not-padded/48x48@2x.png
+    icons/not-padded/64x64.png
+    icons/not-padded/64x64@2x.png
+    icons/not-padded/96x96.png
+    icons/not-padded/128x128.png
+    icons/not-padded/128x128@2x.png
+    icons/not-padded/256x256.png
+    icons/not-padded/256x256@2x.png
+    icons/not-padded/512x512.png
+    icons/bpmdetect.icns
+    icons/bpmdetect.ico
+    consolemain.cpp
+    consolemain.h
+    debug.cpp
+    debug.h
+    guimain.cpp
+    guimain.h
+    main.cpp
+    utils.cpp
+    utils.h)
 
 ecm_qt_declare_logging_category(
   SOURCES
   HEADER
-  generated/bpmdetect-debug.h
+  debug.h
   IDENTIFIER
-  "LOG_BPMDETECT"
+  "gLogBpmDetect"
   CATEGORY_NAME
   "sh.tat.${CMAKE_PROJECT_NAME}")
 
-qt_add_executable(
-  bpmdetect
-  WIN32
-  bpmdetect.qrc
-  icons/not-padded/16x16.png
-  icons/not-padded/16x16@2x.png
-  icons/not-padded/32x32.png
-  icons/not-padded/32x32@2x.png
-  icons/not-padded/48x48.png
-  icons/not-padded/48x48@2x.png
-  icons/not-padded/64x64.png
-  icons/not-padded/64x64@2x.png
-  icons/not-padded/96x96.png
-  icons/not-padded/128x128.png
-  icons/not-padded/128x128@2x.png
-  icons/not-padded/256x256.png
-  icons/not-padded/256x256@2x.png
-  icons/not-padded/512x512.png
-  icons/bpmdetect.icns
-  icons/bpmdetect.ico
-  consolemain.cpp
-  consolemain.h
-  guimain.cpp
-  guimain.h
-  main.cpp
-  utils.cpp
-  utils.h)
+qt_add_executable(bpmdetect WIN32 ${SOURCES})
 
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)

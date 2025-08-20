@@ -16,7 +16,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          modules: qtmultimedia
+          modules: qtmultimedia qtscxml
       - name: Configure
         run: >-
           cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build

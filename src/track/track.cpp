@@ -3,16 +3,72 @@
 
 #include <BPMDetect.h>
 #include <QtCore/QDebug>
+#include <QtCore/QUrl>
+#include <QtMultimedia/QAudioDecoder>
 #include <fileref.h>
 #include <tag.h>
 
+#include "debug.h"
 #include "soundtouchbpmdetector.h"
 #include "track.h"
 
 bpmtype Track::_dMinBpm = 80.;
 bpmtype Track::_dMaxBpm = 185.;
 
-Track::Track(QObject *parent) : QObject(parent) {
+Track::Track(const QString &fileName, bool readMetadata, QObject *parent)
+    : QObject(parent), decoder_(new QAudioDecoder(this)) {
+    setFileName(fileName, readMetadata);
+
+    QAudioFormat format;
+#if defined(SOUNDTOUCH_INTEGER_SAMPLES) && SOUNDTOUCH_INTEGER_SAMPLES
+    format.setSampleFormat(QAudioFormat::Int16);
+#else
+    format.setSampleFormat(QAudioFormat::Float);
+#endif
+    format.setChannelCount(2);
+    format.setSampleRate(48000);
+    decoder_->setAudioFormat(format);
+
+    connect(decoder_, &QAudioDecoder::bufferReady, this, [this]() {
+        auto detector_ = detector();
+        if (!isValid() || detector_ == nullptr) {
+            qCDebug(gLogBpmDetect) << "Invalid state for detection.";
+            qCDebug(gLogBpmDetect)
+                << "Detector:" << (detector_ ? "valid" : "nullptr") << ", isValid:" << isValid();
+            decoder_->stop();
+            return;
+        }
+        QAudioBuffer buffer;
+        if ((buffer = decoder_->read()).isValid()) {
+            if (!startedDetection_) {
+                detector_->reset(buffer.format().channelCount(), buffer.format().sampleRate());
+                startedDetection_ = true;
+            }
+            qCDebug(gLogBpmDetect)
+                << "Format:" << buffer.format() << ", frame count:" << buffer.frameCount();
+            detector_->inputSamples(buffer.constData<soundtouch::SAMPLETYPE>(),
+                                    buffer.frameCount());
+        }
+    });
+    connect(decoder_, &QAudioDecoder::sourceChanged, this, [this]() {
+        startedDetection_ = false;
+        length_ = 0;
+    });
+    connect(decoder_, &QAudioDecoder::positionChanged, this, [this](qint64 pos) {
+        emit progress(pos, length_);
+    });
+    connect(decoder_, &QAudioDecoder::durationChanged, this, [this]() {
+        if (decoder_->duration() > 0) {
+            length_ = decoder_->duration();
+            emit hasLength(length_);
+        }
+    });
+    connect(decoder_, &QAudioDecoder::finished, this, [this]() {
+        startedDetection_ = false;
+        auto bpm = correctBpm(detector()->getBpm());
+        setBpm(bpm);
+        emit hasBpm(bpm);
+    });
 }
 
 Track::~Track() {
@@ -57,88 +113,65 @@ QString Track::formatted(const QString &format) const {
 }
 
 void Track::setFileName(const QString &fileName, bool readMetadata) {
-    m_bOpened = false;
-    m_bValid = false;
-    m_dBpm = 0;
-    m_iLength = 0;
-    m_sFilename = fileName;
-    if (!m_sFilename.isEmpty() && readMetadata) {
+    opened_ = false;
+    valid_ = false;
+    dBpm_ = 0;
+    length_ = 0;
+    fileName_ = fileName;
+    if (!fileName_.isEmpty() && readMetadata) {
         readTags();
     }
 }
 
-QString Track::fileName() const {
-    return m_sFilename;
+void Track::readTags() {
+    // TODO
 }
 
-void Track::setValid(bool bValid) {
-    m_bValid = bValid;
+void Track::open() {
+    valid_ = false;
+    decoder_->setSource(QUrl::fromLocalFile(fileName()));
+    if (decoder_->error() == QAudioDecoder::NoError) {
+        valid_ = true;
+        return;
+    }
+    qCCritical(gLogBpmDetect) << "Failed to open file:" << fileName()
+                              << ", error:" << decoder_->errorString();
+}
+
+QString Track::fileName() const {
+    return fileName_;
 }
 
 bool Track::isValid() const {
-    return m_bValid;
-}
-
-void Track::setOpened(bool opened) {
-    m_bOpened = opened;
-}
-
-bool Track::isOpened() const {
-    return m_bOpened;
+    return valid_;
 }
 
 void Track::setFormat(const QString &format) {
-    m_sBpmFormat = format;
+    bpmFormat_ = format;
 }
 
 QString Track::format() const {
-    return m_sBpmFormat;
+    return bpmFormat_;
 }
 
 void Track::setBpm(bpmtype dBpm) {
-    m_dBpm = dBpm;
+    dBpm_ = dBpm;
 }
 
 bpmtype Track::bpm() const {
-    return m_dBpm;
-}
-
-void Track::setArtist(const QString &artist) {
-    m_sArtist = artist;
-}
-
-QString Track::artist() const {
-    return m_sArtist;
-}
-
-void Track::setTitle(const QString &title) {
-    m_sTitle = title;
-}
-
-QString Track::title() const {
-    return m_sTitle;
+    return dBpm_;
 }
 
 void Track::setRedetect(bool redetect) {
-    m_bRedetect = redetect;
+    redetect_ = redetect;
 }
 
 bool Track::redetect() const {
-    return m_bRedetect;
-}
-
-quint64 Track::length() const {
-    return m_iLength;
-}
-
-void Track::setLength(quint64 msec) {
-    m_iLength = msec;
+    return redetect_;
 }
 
 QString Track::formattedLength() const {
-    auto len = length();
-
-    auto csecs = len / 10;
+    auto csecs = length_ / 10;
     auto secs = csecs / 100;
     csecs = csecs % 100;
     auto mins = secs / 60;
@@ -146,6 +179,14 @@ QString Track::formattedLength() const {
     static const auto zero = QChar::fromLatin1('0');
 
     return QStringLiteral("%1:%2").arg(mins, 2, 10, zero).arg(secs, 2, 10, zero);
+}
+
+QString Track::artist() const {
+    return artist_;
+}
+
+QString Track::title() const {
+    return title_;
 }
 
 void Track::saveBpm() {
@@ -158,28 +199,59 @@ void Track::clearBpm() {
 }
 
 void Track::setDetector(AbstractBpmDetector *detector) {
-    m_detector = detector;
+    detector_ = detector;
 }
 
 AbstractBpmDetector *Track::detector() const {
-    return m_detector;
+    return detector_;
 }
 
 bpmtype Track::correctBpm(bpmtype dBpm) const {
     auto min = minimumBpm();
     auto max = maximumBpm();
-
-    if (dBpm < 1)
-        return 0.;
-    while (dBpm > max)
-        dBpm /= 2.;
-    while (dBpm < min)
-        dBpm *= 2.;
-
+    if (dBpm < 1) {
+        return 0;
+    }
+    while (dBpm > max) {
+        dBpm /= 2;
+    }
+    while (dBpm < min) {
+        dBpm *= 2;
+    }
     return dBpm;
 }
 
 void Track::printBpm() const {
     std::cout << fileName().toStdString() << ": " << bpmToString(bpm(), format()).toStdString()
               << " BPM" << std::endl;
+}
+
+bpmtype Track::detectBpm() {
+    open();
+    auto detector_ = detector();
+    if (isValid() && detector_ != nullptr) {
+        decoder_->start();
+    } else {
+        qCCritical(gLogBpmDetect) << "Invalid state for detection.";
+        qCCritical(gLogBpmDetect) << "Detector:" << (detector_ ? "valid" : "nullptr")
+                                  << ", isValid:" << isValid();
+    }
+    return 0;
+}
+
+void Track::storeBpm(const QString &sBpm) {
+    // TODO
+}
+
+void Track::removeBpm() {
+    // TODO
+}
+
+void Track::stop() {
+    if (decoder_) {
+        decoder_->stop();
+    }
+    startedDetection_ = false;
+    setBpm(0);
+    emit hasBpm(0);
 }

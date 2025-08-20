@@ -8,6 +8,8 @@
 #include "soundtouchbpmdetector.h"
 #include "utils.h"
 
+class QAudioDecoder;
+
 namespace TagLib {
     class FileRef;
 }
@@ -20,7 +22,14 @@ class Track : public QObject {
 #endif
 
 public:
-    virtual ~Track() override;
+    /**
+     * Constructor.
+     * @param fileName Filename.
+     * @param readMetadata If `true`, read tags from the file.
+     * @param parent Parent object.
+     */
+    Track(const QString &fileName, bool readMetadata = true, QObject *parent = nullptr);
+    ~Track() override;
     /**
      * Set minimum BPM.
      * @param dMin Minimum BPM.
@@ -36,90 +45,99 @@ public:
     /** Get the maximum BPM. */
     static bpmtype maximumBpm();
     /** Clear the BPM. */
-    virtual void clearBpm();
+    void clearBpm();
     /** Detect the BPM. */
-    virtual bpmtype detectBpm() = 0;
+    bpmtype detectBpm();
     /** Save the BPM to the metadata of the file. */
-    virtual void saveBpm();
+    void saveBpm();
     /** Print the BPM to standard output. */
-    virtual void printBpm() const;
+    void printBpm() const;
     /** Set the BPM. */
-    virtual void setBpm(bpmtype dBpm);
+    void setBpm(bpmtype dBpm);
     /** Get the BPM. */
-    virtual bpmtype bpm() const;
+    bpmtype bpm() const;
     /** Get the BPM as a formatted string. */
-    virtual QString formatted() const;
+    QString formatted() const;
     /** Get the BPM as a string according to the @a format passed in. */
-    virtual QString formatted(const QString &format) const;
+    QString formatted(const QString &format) const;
     /**
-     * Set the fileName of the track.
+     * Set the file name of the track.
      * @param fileName Filename.
      * @param readMetadata If `true`, read tags from the file.
      */
-    virtual void setFileName(const QString &fileName, bool readMetadata = true);
-    /** Get the fileName. */
-    virtual QString fileName() const;
+    void setFileName(const QString &fileName, bool readMetadata = true);
+    /** Get the file name. */
+    QString fileName() const;
     /** Get the track length in miliseconds. */
-    virtual quint64 length() const;
+    quint64 length() const;
     /** Get the track length as a formatted string. */
-    virtual QString formattedLength() const;
+    QString formattedLength() const;
     /** Check if the track is valid. */
-    virtual bool isValid() const;
+    bool isValid() const;
     /** Check if the file is opened. */
-    virtual bool isOpened() const;
-    /** Set the track artist. */
-    virtual QString artist() const;
+    bool isOpened() const;
+    /** Get the track artist. */
+    QString artist() const;
     /** Get the track title. */
-    virtual QString title() const;
+    QString title() const;
     /** Set if detection should recur. */
-    virtual void setRedetect(bool redetect);
+    void setRedetect(bool redetect);
     /** Get the redetection flag. */
-    virtual bool redetect() const;
+    bool redetect() const;
     /** Set the format of the BPM string. */
-    virtual void setFormat(const QString &format = QStringLiteral("0.00"));
+    void setFormat(const QString &format = QStringLiteral("0.00"));
     /** Get the BPM format. */
-    virtual QString format() const;
+    QString format() const;
     /** Stop detection if it is running. */
-    virtual void stop() = 0;
+    void stop();
     /** Read tags (artist, title, BPM). */
-    virtual void readTags() = 0;
+    void readTags();
     /** Set BPM detector. */
     void setDetector(AbstractBpmDetector *detector);
     /** Get the BPM detector. */
     AbstractBpmDetector *detector() const;
 
+Q_SIGNALS:
+    /**
+     * Signal for when BPM has been determined.
+     * @param bpm Detected BPM.
+     */
+    void hasBpm(bpmtype bpm);
+    /**
+     * Signal for when length has been determined.
+     * @param ms Length in milliseconds.
+     */
+    void hasLength(quint64 ms);
+    /**
+     * Signal for progress updates.
+     * @param pos Current position in milliseconds.
+     * @param length Total length in milliseconds.
+     */
+    void progress(qint64 pos, qint64 length);
+
 protected:
-    explicit Track(QObject *parent = nullptr);
-    /** Open the track. */
-    virtual void open() = 0;
-    /** Store @a sBpm into the metadata of the file. */
-    virtual void storeBpm(const QString &sBpm) = 0;
-    /** Remove BPM metadata from the file. */
-    virtual void removeBpm() = 0;
-    /** Mark the file validity state. */
-    void setValid(bool bValid);
-    /** Set if the file is opened. */
-    void setOpened(bool opened);
-    /** Set the artist. */
-    void setArtist(const QString &artist);
-    /** Set the title. */
-    void setTitle(const QString &title);
-    /** Set the length in miliseconds. */
-    void setLength(quint64 msec);
     /** Correct the BPM based on the global minimum and maximum. */
     bpmtype correctBpm(bpmtype dBpm) const;
+    /** Open the track. */
+    void open();
+    /** Store @a sBpm into the metadata of the file. */
+    void storeBpm(const QString &sBpm);
+    /** Remove BPM metadata from the file. */
+    void removeBpm();
 
 private:
-    AbstractBpmDetector *m_detector = nullptr;
-    QString m_sArtist;
-    QString m_sBpmFormat = QStringLiteral("0.00");
-    QString m_sFilename = QStringLiteral("");
-    QString m_sTitle;
-    bool m_bOpened = false;
-    bool m_bRedetect = false;
-    bool m_bValid = false;
-    bpmtype m_dBpm = 0;
-    quint64 m_iLength = 0;
+    AbstractBpmDetector *detector_ = nullptr;
+    QAudioDecoder *decoder_ = nullptr;
+    QString artist_;
+    QString bpmFormat_ = QStringLiteral("0.00");
+    QString fileName_ = QStringLiteral("");
+    QString title_;
+    bool opened_ = false;
+    bool redetect_ = false;
+    bool valid_ = false;
+    bool startedDetection_ = false;
+    bpmtype dBpm_;
+    quint64 length_;
 
     static bpmtype _dMaxBpm;
     static bpmtype _dMinBpm;

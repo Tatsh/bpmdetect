@@ -5,15 +5,9 @@
 #include "track/track.h"
 
 struct DummyTrack : public Track {
-    DummyTrack() : Track() {
+    DummyTrack() : Track(QStringLiteral(""), false, this) {
     }
-    void storeBpm(const QString &s) override {
-        storeBpmCalled_ = true;
-        storedBpm_ = s;
-    }
-    void removeBpm() override {
-    }
-    void readTags() override {
+    ~DummyTrack() override {
     }
     bpmtype detectBpm() {
         return 0;
@@ -23,11 +17,6 @@ struct DummyTrack : public Track {
     }
     void setOpened(bool opened) {
         opened_ = opened;
-    }
-    void open() override {
-        opened_ = true;
-    }
-    void stop() override {
     }
     bool storeBpmCalled_ = false;
     QString storedBpm_;
@@ -61,18 +50,13 @@ private Q_SLOTS:
     void testCorrectBpm();
     void testFormatted1();
     void testFormatted2();
-    void testFormattedLength();
     void testOpen();
     void testPrintBpm();
-    void testSetAndGetArtist();
     void testSetAndGetBpm();
     void testSetAndGetFileName();
     void testSetAndGetFormat();
-    void testSetAndGetLength();
     void testSetAndGetOpened();
     void testSetAndGetRedetect();
-    void testSetAndGetTitle();
-    void testSetAndGetValid();
     void testSetMaximumBpmSwap();
     void testSetMinimumBpmSwap();
     void testStaticBpmLimits();
@@ -97,36 +81,10 @@ void TrackTest::testSetAndGetFormat() {
     QCOMPARE(t.format(), QStringLiteral("0.0"));
 }
 
-void TrackTest::testSetAndGetArtist() {
-    DummyTrack t;
-    t.setArtist(QStringLiteral("Artist"));
-    QCOMPARE(t.artist(), QStringLiteral("Artist"));
-}
-
-void TrackTest::testSetAndGetTitle() {
-    DummyTrack t;
-    t.setTitle(QStringLiteral("Title"));
-    QCOMPARE(t.title(), QStringLiteral("Title"));
-}
-
-void TrackTest::testSetAndGetLength() {
-    DummyTrack t;
-    t.setLength(123456);
-    QCOMPARE(t.length(), static_cast<quint64>(123456));
-}
-
 void TrackTest::testSetAndGetFileName() {
     DummyTrack t;
     t.setFileName(QStringLiteral("file.wav"), true);
     QCOMPARE(t.fileName(), QStringLiteral("file.wav"));
-}
-
-void TrackTest::testSetAndGetValid() {
-    DummyTrack t;
-    t.setValid(true);
-    QVERIFY(t.isValid());
-    t.setValid(false);
-    QVERIFY(!t.isValid());
 }
 
 void TrackTest::testSetAndGetOpened() {
@@ -152,16 +110,10 @@ void TrackTest::testStaticBpmLimits() {
     QCOMPARE(Track::maximumBpm(), 180.);
 }
 
-void TrackTest::testFormattedLength() {
-    DummyTrack t;
-    t.setLength(123456);
-    QCOMPARE(t.formattedLength(), QStringLiteral("02:03"));
-}
-
 void TrackTest::testClearBpm() {
     DummyTrack t;
     t.setBpm(120.0);
-    QVERIFY(t.m_dBpm == 120.0);
+    QVERIFY(t.dBpm_ == 120.0);
     t.clearBpm();
     QCOMPARE(t.bpm(), 0.0);
 }

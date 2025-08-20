@@ -21,7 +21,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          modules: qtmultimedia
+          modules: qtmultimedia qtscxml
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:

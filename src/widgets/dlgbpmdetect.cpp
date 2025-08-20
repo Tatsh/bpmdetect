@@ -15,9 +15,9 @@
 #include "dlgbpmdetect.h"
 #include "dlgtestbpm.h"
 #include "qdroplistview.h"
-#include "track/trackffmpeg.h"
+#include "track/track.h"
 
-#define PROGRESSCOLUMN 4
+#define kProgressColumn 4
 
 DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     setupUi(this);
@@ -82,19 +82,19 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     connect(TrackList, &QDropListView::drop, this, &DlgBpmDetect::slotDropped);
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
 
-    m_pTrack = new TrackFfmpeg(QStringLiteral(""));
-    connect(m_pTrack, &TrackFfmpeg::hasBpm, [this](bpmtype bpm) {
+    m_pTrack = new Track(QStringLiteral(""));
+    connect(m_pTrack, &Track::hasBpm, [this](bpmtype bpm) {
         if (m_pCurItem) {
             m_pCurItem->setText(0, QString::number(bpm, 'f', 2));
             slotDetectNext();
         }
     });
-    connect(m_pTrack, &TrackFfmpeg::hasLength, this, [this](quint64 ms) {
+    connect(m_pTrack, &Track::hasLength, this, [this](quint64 ms) {
         if (m_pCurItem) {
             m_pCurItem->setText(3, m_pTrack->formattedLength());
         }
     });
-    connect(m_pTrack, &TrackFfmpeg::progress, this, [this](qint64 pos, qint64 length) {
+    connect(m_pTrack, &Track::progress, this, [this](qint64 pos, qint64 length) {
         if (m_pProgress && length > 0) {
             auto currentFilePercent =
                 100 * (static_cast<double>(pos) / static_cast<double>(length));
@@ -223,7 +223,7 @@ void DlgBpmDetect::slotDetectNext(bool skipped) {
         if (m_pCurItem) {
             // next TrackList item
             int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
-            TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, nullptr);
+            TrackList->setItemWidget(m_pCurItem, kProgressColumn, nullptr);
             m_pProgress = nullptr;
             if (curidx >= 0)
                 m_pCurItem = TrackList->topLevelItem(1 + curidx);
@@ -260,7 +260,7 @@ void DlgBpmDetect::slotDetectNext(bool skipped) {
     m_pProgress->setTextVisible(false);
     m_pProgress->setMaximum(100);
     m_pProgress->setMaximumHeight(15);
-    TrackList->setItemWidget(m_pCurItem, PROGRESSCOLUMN, m_pProgress);
+    TrackList->setItemWidget(m_pCurItem, kProgressColumn, m_pProgress);
     m_pTrack->setFileName(file);
     m_pTrack->setRedetect(!chbSkipScanned->isChecked());
     m_pTrack->setDetector(m_pDetector);
@@ -272,7 +272,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
     for (int i = 0; i < files.size(); ++i) {
-        TrackFfmpeg track(files[i], true);
+        Track track(files[i], true);
         if (!started()) {
             lblCurrentTrack->setText(tr("Adding %1").arg(files.at(i)));
             TotalProgress->setValue(i);
@@ -380,7 +380,7 @@ void DlgBpmDetect::slotSaveBpm() {
 
     for (int i = 0; i < items.size(); ++i) {
         auto item = items.at(i);
-        TrackFfmpeg track(item->text(TrackList->columnCount() - 1));
+        Track track(item->text(TrackList->columnCount() - 1));
         track.setBpm(item->text(0).toDouble());
         track.setFormat(cbFormat->currentText());
         track.saveBpm();
@@ -462,7 +462,7 @@ void DlgBpmDetect::slotClearBpm() {
 
     for (int i = 0; i < items.size(); ++i) {
         auto item = items.at(i);
-        TrackFfmpeg track(item->text(TrackList->columnCount() - 1));
+        Track track(item->text(TrackList->columnCount() - 1));
         track.clearBpm();
         item->setText(0, QStringLiteral("000.00"));
     }

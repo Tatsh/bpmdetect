@@ -2,6 +2,9 @@
 /** @file */
 #pragma once
 
+#include <QtCore/QStringList>
+#include <QtWidgets/QApplication>
+
 /**
  * GUI entry point.
  * @param app Application instance.

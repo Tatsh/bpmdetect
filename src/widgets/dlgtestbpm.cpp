@@ -4,6 +4,7 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QLabel>
 
+#include "debug.h"
 #include "dlgtestbpm.h"
 #include "dlgtestbpmplayer.h"
 #include "progressbar.h"
@@ -25,7 +26,7 @@ DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWid
     connect(player, &DlgTestBpmPlayer::audioError, [this](QAudio::Error e) {
         // LCOV_EXCL_START
         if (e == QAudio::FatalError) {
-            qCritical() << "Fatal audio error occurred.";
+            qCCritical(gLogBpmDetect) << "Fatal audio error occurred.";
             reject();
         }
     });

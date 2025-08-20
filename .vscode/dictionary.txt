@@ -125,6 +125,7 @@ progressbartest
 pycache
 pyyaml
 qcompare
+qdebug
 qdroplistview
 qdroplistviewtest
 qfetch
@@ -136,6 +137,8 @@ qtcore
 qtest
 qtgui
 qtmultimedia
+qtscxml
+qtstatemachine
 qtwidgets
 qverify
 rect
@@ -143,9 +146,9 @@ reflow
 rsvg
 rtmp
 sakmar
-samplerate
 sampletype
 schemafile
+scxml
 sharpyuv
 sizepolicy
 softprops
@@ -154,6 +157,7 @@ soundtouchbpmdetector
 sourcelabel
 speex
 srcs
+statemachine
 stdset
 strequal
 sturmlechner
@@ -164,7 +168,6 @@ tasn
 tatsh
 tbpm
 theora
-trackffmpeg
 tracktest
 trofimovich
 ucrt

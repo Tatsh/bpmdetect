@@ -10,7 +10,7 @@
 class AbstractBpmDetector;
 class QDropEvent;
 class QMenu;
-class TrackFfmpeg;
+class Track;
 
 /** Main dialog of the application. */
 class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
@@ -88,7 +88,7 @@ private:
     QProgressBar *m_pProgress;
     QString m_qRecentPath;
     QTreeWidgetItem *m_pCurItem;
-    TrackFfmpeg *m_pTrack = nullptr;
+    Track *m_pTrack = nullptr;
     bool m_bStarted;
     int m_iCurTrackIdx;
 };

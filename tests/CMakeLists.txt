@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
 function(create_test test_name test_srcs)
   ecm_qt_declare_logging_category(
-    SOURCES
+    test_srcs
     HEADER
-    generated/bpmdetect-debug.h
+    ../src/debug.h
     IDENTIFIER
-    "LOG_BPMDETECT"
+    "gLogBpmDetect"
     CATEGORY_NAME
     "sh.tat.${CMAKE_PROJECT_NAME}")
   add_executable(${test_name} ${test_srcs})
@@ -30,7 +30,7 @@ set(TRACK_TESTS_SRCS
     ../src/utils.cpp
     ../src/utils.h)
 create_test(track-test "${TRACK_TESTS_SRCS}")
-target_link_libraries(track-test PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB)
+target_link_libraries(track-test PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Multimedia)
 
 set(WIDGETS_TESTS_SRCS widgets/qdroplistviewtest.cpp ../src/widgets/qdroplistview.cpp
                        ../src/widgets/qdroplistview.h)
@@ -75,8 +75,6 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/track/soundtouchbpmdetector.h
     ../src/track/track.cpp
     ../src/track/track.h
-    ../src/track/trackffmpeg.cpp
-    ../src/track/trackffmpeg.h
     ../src/widgets/dlgbpmdetect.cpp
     ../src/widgets/dlgbpmdetect.h
     ../src/widgets/dlgtestbpm.cpp
