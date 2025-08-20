@@ -60,12 +60,7 @@ public:
     QString formatted() const;
     /** Get the BPM as a string according to the @a format passed in. */
     QString formatted(const QString &format) const;
-    /**
-     * Set the file name of the track.
-     * @param fileName Filename.
-     * @param readMetadata If `true`, read tags from the file.
-     */
-    void setFileName(const QString &fileName, bool readMetadata = true);
+
     /** Get the file name. */
     QString fileName() const;
     /** Get the track length in miliseconds. */
@@ -124,6 +119,8 @@ protected:
     void removeBpm();
 
 private:
+    void setFileName(const QString &fileName, bool readMetadata = true);
+
     AbstractBpmDetector *detector_ = nullptr;
     QAudioDecoder *decoder_ = nullptr;
     QString artist_;

@@ -228,9 +228,8 @@ bpmtype Track::detectBpm() {
     if (isValid() && detector_ != nullptr) {
         decoder_->start();
     } else {
-        qCCritical(gLogBpmDetect) << "Invalid state for detection.";
-        qCCritical(gLogBpmDetect) << "Detector:" << (detector_ ? "valid" : "nullptr")
-                                  << ", isValid:" << isValid();
+        qCCritical(gLogBpmDetect) << "Invalid state for detection. Detector:"
+                                  << (detector_ ? "valid" : "nullptr") << ", isValid:" << isValid();
     }
     return 0;
 }
