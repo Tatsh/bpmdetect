@@ -3,7 +3,7 @@
 #include "track/track.h"
 #include "trackitem.h"
 
-TrackItem::TrackItem(QTreeWidget *parent, Track *track)
+TrackItem::TrackItem(QTreeWidget *parent, Track *const track)
     : QTreeWidgetItem(parent,
                       {track->formatted(QStringLiteral("000.00")),
                        track->artist(),

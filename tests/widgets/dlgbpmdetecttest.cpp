@@ -1,6 +1,8 @@
 #include <QtTest>
 
+#include "track/track.h"
 #include "widgets/dlgbpmdetect.h"
+#include "widgets/trackitem.h"
 
 class DlgBpmDetectTest : public QObject {
     Q_OBJECT
@@ -59,7 +61,7 @@ void DlgBpmDetectTest::testSlotStartStop() {
     dlg.slotStartStop();
     QVERIFY(!dlg.m_bStarted); // no items.
 
-    auto item = new QTreeWidgetItem();
+    auto item = new TrackItem(nullptr, new Track(this));
     item->setText(0, QStringLiteral("test.mp3"));
     dlg.TrackList->addTopLevelItem(item);
     dlg.slotStartStop();
@@ -70,7 +72,7 @@ void DlgBpmDetectTest::testSlotStartStop() {
 
 void DlgBpmDetectTest::testSlotClearTrackList() {
     DlgBpmDetect dlg;
-    auto item = new QTreeWidgetItem();
+    auto item = new TrackItem(nullptr, new Track(this));
     item->setText(0, QStringLiteral("test.mp3"));
     dlg.TrackList->addTopLevelItem(item);
     QCOMPARE(dlg.TrackList->topLevelItemCount(), 1);

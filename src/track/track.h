@@ -25,10 +25,26 @@ public:
     /**
      * Constructor.
      * @param fileName Filename.
+     * @param decoder Audio decoder.
      * @param readMetadata If `true`, read tags from the file.
      * @param parent Parent object.
      */
-    Track(const QString &fileName, bool readMetadata = true, QObject *parent = nullptr);
+    Track(const QString &fileName,
+          QAudioDecoder *const decoder,
+          bool readMetadata = true,
+          QObject *parent = nullptr);
+    /**
+     * Constructor.
+     * @param fileName Filename.
+     * @param decoder Audio decoder.
+     * @param parent Parent object.
+     */
+    Track(const QString &filename, QObject *parent = nullptr);
+    /**
+     * Constructor.
+     * @param parent Parent object.
+     */
+    explicit Track(QObject *parent = nullptr);
     ~Track() override;
     /**
      * Set minimum BPM.
@@ -60,7 +76,6 @@ public:
     QString formatted() const;
     /** Get the BPM as a string according to the @a format passed in. */
     QString formatted(const QString &format) const;
-
     /** Get the file name. */
     QString fileName() const;
     /** Get the track length in miliseconds. */
@@ -120,15 +135,17 @@ protected:
 
 private:
     void setFileName(const QString &fileName, bool readMetadata = true);
+    void setupDecoder();
 
     AbstractBpmDetector *detector_ = nullptr;
-    QAudioDecoder *decoder_ = nullptr;
+    QAudioDecoder *const decoder_ = nullptr;
     QString artist_;
     QString bpmFormat_ = QStringLiteral("0.00");
     QString fileName_ = QStringLiteral("");
     QString title_;
     bool opened_ = false;
     bool redetect_ = false;
+    bool stopped_ = false;
     bool valid_ = false;
     bpmtype dBpm_;
     quint64 length_;

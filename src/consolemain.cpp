@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QtCore/QAtomicInt>
 #include <QtCore/QEventLoop>
+#include <QtMultimedia/QAudioDecoder>
 
 #include "consolemain.h"
 #include "debug.h"
@@ -17,15 +18,15 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
     }
     if (remove) {
         for (const auto &file : files) {
-            Track track(file, false);
-            track.clearBpm();
+            Track(file).clearBpm();
         }
         return 0;
     }
     QEventLoop loop;
     QAtomicInt pendingTracks(files.size());
+    QAudioDecoder decoder;
     for (const auto &file : files) {
-        auto track = new Track(file, false, &app);
+        auto track = new Track(file, &decoder, false, &app);
         track->setRedetect(detect);
         track->setFormat(format);
         track->setDetector(new SoundTouchBpmDetector(track));

@@ -78,10 +78,6 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
             SLOT(slotListMenuPopup(const QPoint &)));
     connect(TrackList, &QDropListView::drop, this, &DlgBpmDetect::slotDropped);
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
-
-    // This is only here to force initialisation of the multimedia system so that dropping files
-    // into the dialog is not delayed.
-    Track(QStringLiteral(""));
 }
 
 DlgBpmDetect::~DlgBpmDetect() {
@@ -258,7 +254,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
     for (int i = 0; i < files.size(); ++i) {
-        auto track = new Track(files[i], true, this);
+        auto track = new Track(files[i], &decoder_, true, this);
         auto item = new TrackItem(TrackList, track);
         connect(track, &Track::hasBpm, [item, this](bpmtype bpm) {
             item->setText(0, QString::number(bpm, 'f', 2));
@@ -378,12 +374,12 @@ void DlgBpmDetect::slotSaveBpm() {
     }
     // LCOV_EXCL_STOP
 
-    for (int i = 0; i < items.size(); ++i) {
-        auto item = items.at(i);
-        Track track(item->text(TrackList->columnCount() - 1));
-        track.setBpm(item->text(0).toDouble());
-        track.setFormat(cbFormat->currentText());
-        track.saveBpm();
+    for (const auto qItem : items) {
+        auto item = static_cast<TrackItem *>(qItem);
+        auto track = item->track();
+        track->setBpm(item->text(0).toDouble());
+        track->setFormat(cbFormat->currentText());
+        track->saveBpm();
     }
 }
 
@@ -457,10 +453,9 @@ void DlgBpmDetect::slotClearBpm() {
         return;
     }
 
-    for (int i = 0; i < items.size(); ++i) {
-        auto item = items.at(i);
-        Track track(item->text(TrackList->columnCount() - 1));
-        track.clearBpm();
+    for (const auto qItem : items) {
+        auto item = static_cast<TrackItem *>(qItem);
+        item->track()->clearBpm();
         item->setText(0, QStringLiteral("000.00"));
     }
 }

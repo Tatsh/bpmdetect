@@ -5,7 +5,7 @@
 #include "track/track.h"
 
 struct DummyTrack : public Track {
-    DummyTrack() : Track(QStringLiteral("")) {
+    DummyTrack() : Track() {
     }
     ~DummyTrack() override {
     }
