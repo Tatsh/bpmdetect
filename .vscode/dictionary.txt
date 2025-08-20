@@ -137,8 +137,6 @@ qtcore
 qtest
 qtgui
 qtmultimedia
-qtscxml
-qtstatemachine
 qtwidgets
 qverify
 rect
@@ -148,7 +146,6 @@ rtmp
 sakmar
 sampletype
 schemafile
-scxml
 sharpyuv
 sizepolicy
 softprops
@@ -157,7 +154,6 @@ soundtouchbpmdetector
 sourcelabel
 speex
 srcs
-statemachine
 stdset
 strequal
 sturmlechner

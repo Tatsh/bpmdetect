@@ -113,7 +113,6 @@ jobs:
             ninja:p
             qt6-base:p
             qt6-multimedia:p
-            qt6-scxml:p
             qt6-tools:p
             soundtouch:p
             taglib:p

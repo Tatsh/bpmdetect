@@ -61,7 +61,6 @@ if(NOT BUILD_DOCS_ONLY)
   include(ECMQtDeclareLoggingCategory)
 
   find_package(Qt6Core 6.7 CONFIG REQUIRED)
-  find_package(Qt6StateMachine 6.7 CONFIG REQUIRED)
   if(NOT NO_GUI)
     find_package(Qt6Gui 6.7 CONFIG REQUIRED)
     find_package(Qt6LinguistTools 6.7 CONFIG REQUIRED)
