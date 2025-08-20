@@ -8,6 +8,7 @@
 #include <fileref.h>
 #include <tag.h>
 
+#include "constants.h"
 #include "debug.h"
 #include "soundtouchbpmdetector.h"
 #include "track.h"
@@ -25,11 +26,11 @@ Track::Track(const QString &fileName, bool readMetadata, QObject *parent)
 #else
     format.setSampleFormat(QAudioFormat::Float);
 #endif
-    format.setChannelCount(2);
-    format.setSampleRate(48000);
+    format.setChannelCount(DETECTION_CHANNELS);
+    format.setSampleRate(DETECTION_SAMPLE_RATE);
     decoder_->setAudioFormat(format);
 
-    connect(decoder_, &QAudioDecoder::bufferReady, this, [this]() {
+    connect(decoder_, &QAudioDecoder::bufferReady, [this]() {
         auto detector_ = detector();
         if (!isValid() || detector_ == nullptr) {
             qCDebug(gLogBpmDetect) << "Invalid state for detection.";
@@ -40,31 +41,21 @@ Track::Track(const QString &fileName, bool readMetadata, QObject *parent)
         }
         QAudioBuffer buffer;
         if ((buffer = decoder_->read()).isValid()) {
-            if (!startedDetection_) {
-                detector_->reset(buffer.format().channelCount(), buffer.format().sampleRate());
-                startedDetection_ = true;
-            }
-            qCDebug(gLogBpmDetect)
-                << "Format:" << buffer.format() << ", frame count:" << buffer.frameCount();
             detector_->inputSamples(buffer.constData<soundtouch::SAMPLETYPE>(),
                                     buffer.frameCount());
         }
     });
-    connect(decoder_, &QAudioDecoder::sourceChanged, this, [this]() {
-        startedDetection_ = false;
-        length_ = 0;
-    });
-    connect(decoder_, &QAudioDecoder::positionChanged, this, [this](qint64 pos) {
+    connect(decoder_, &QAudioDecoder::sourceChanged, [this]() { length_ = 0; });
+    connect(decoder_, &QAudioDecoder::positionChanged, [this](qint64 pos) {
         emit progress(pos, length_);
     });
-    connect(decoder_, &QAudioDecoder::durationChanged, this, [this]() {
+    connect(decoder_, &QAudioDecoder::durationChanged, [this]() {
         if (decoder_->duration() > 0) {
             length_ = decoder_->duration();
             emit hasLength(length_);
         }
     });
-    connect(decoder_, &QAudioDecoder::finished, this, [this]() {
-        startedDetection_ = false;
+    connect(decoder_, &QAudioDecoder::finished, [this]() {
         auto bpm = correctBpm(detector()->getBpm());
         setBpm(bpm);
         emit hasBpm(bpm);
@@ -229,6 +220,7 @@ void Track::printBpm() const {
 bpmtype Track::detectBpm() {
     open();
     auto detector_ = detector();
+    detector_->reset();
     if (isValid() && detector_ != nullptr) {
         decoder_->start();
     } else {
@@ -251,7 +243,6 @@ void Track::stop() {
     if (decoder_) {
         decoder_->stop();
     }
-    startedDetection_ = false;
     setBpm(0);
     emit hasBpm(0);
 }

@@ -133,7 +133,6 @@ private:
     bool opened_ = false;
     bool redetect_ = false;
     bool valid_ = false;
-    bool startedDetection_ = false;
     bpmtype dBpm_;
     quint64 length_;
 

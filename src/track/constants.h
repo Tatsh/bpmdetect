@@ -1,0 +1,4 @@
+#pragma once
+
+#define DETECTION_CHANNELS 2
+#define DETECTION_SAMPLE_RATE 48000

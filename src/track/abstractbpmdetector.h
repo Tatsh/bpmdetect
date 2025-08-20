@@ -12,9 +12,9 @@ public:
     explicit AbstractBpmDetector(QObject *parent = nullptr);
     ~AbstractBpmDetector();
     /** Add samples to the BPM detector. */
-    virtual void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) const = 0;
+    virtual void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) = 0;
     /** Get the BPM value. */
     virtual bpmtype getBpm() const = 0;
     /** Reset the class. */
-    virtual void reset(int channels = 2, int sampleRate = 44100) = 0;
+    virtual void reset() = 0;
 };

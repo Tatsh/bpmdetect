@@ -15,14 +15,12 @@ struct DummyBpmDetector : public AbstractBpmDetector {
     Q_OBJECT
     DummyBpmDetector(QObject *parent = nullptr) : AbstractBpmDetector(parent) {
     }
-    void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) const override {
+    void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) override {
     }
     bpmtype getBpm() const override {
         return 120.0;
     }
-    void reset(int channels, int sampleRate) override {
-        Q_UNUSED(channels)
-        Q_UNUSED(sampleRate)
+    void reset() override {
     }
 };
 

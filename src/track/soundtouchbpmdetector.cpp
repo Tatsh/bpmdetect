@@ -2,6 +2,7 @@
 #include <BPMDetect.h>
 #include <QtCore/QDebug>
 
+#include "constants.h"
 #include "debug.h"
 #include "soundtouchbpmdetector.h"
 
@@ -10,10 +11,13 @@ SoundTouchBpmDetector::SoundTouchBpmDetector(QObject *parent) : AbstractBpmDetec
 
 SoundTouchBpmDetector::~SoundTouchBpmDetector() {
     delete stDetector_;
+    stDetector_ = nullptr;
 }
 
-void SoundTouchBpmDetector::inputSamples(const soundtouch::SAMPLETYPE *samples,
-                                         int numSamples) const {
+void SoundTouchBpmDetector::inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) {
+    if (!stDetector_) {
+        stDetector_ = new soundtouch::BPMDetect(DETECTION_CHANNELS, DETECTION_SAMPLE_RATE);
+    }
     stDetector_->inputSamples(samples, numSamples);
 }
 
@@ -21,11 +25,9 @@ bpmtype SoundTouchBpmDetector::getBpm() const {
     return stDetector_->getBpm();
 }
 
-void SoundTouchBpmDetector::reset(int channels, int sampleRate) {
+void SoundTouchBpmDetector::reset() {
     if (stDetector_) {
         delete stDetector_;
+        stDetector_ = nullptr;
     }
-    qCDebug(gLogBpmDetect) << "Resetting SoundTouchBpmDetector with channels:" << channels
-                           << ", sample rate:" << sampleRate;
-    stDetector_ = new soundtouch::BPMDetect(channels, sampleRate);
 }

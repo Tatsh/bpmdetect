@@ -13,9 +13,9 @@ public:
     /** Constructs a SoundTouch-based BPM detector. */
     SoundTouchBpmDetector(QObject *parent = nullptr);
     ~SoundTouchBpmDetector() override;
-    void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) const override;
+    void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) override;
     bpmtype getBpm() const override;
-    void reset(int channels, int sampleRate) override;
+    void reset() override;
 
 private:
     soundtouch::BPMDetect *stDetector_ = nullptr;
