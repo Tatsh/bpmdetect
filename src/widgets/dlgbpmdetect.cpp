@@ -91,15 +91,15 @@ void DlgBpmDetect::loadSettings() {
     QSettings settings;
     QString format =
         settings.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
-    bool skip = settings.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
-    bool save = settings.value(QStringLiteral("/BPMDetect/SaveBPM"), false).toBool();
-    QString recentPath =
+    auto skip = settings.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
+    auto save = settings.value(QStringLiteral("/BPMDetect/SaveBPM"), false).toBool();
+    auto recentPath =
         settings.value(QStringLiteral("/BPMDetect/RecentPath"), QStringLiteral("")).toString();
-    int minBPM = settings.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
-    int maxBPM = settings.value(QStringLiteral("/BPMDetect/MaxBPM"), 190).toInt();
+    auto minBPM = settings.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
+    auto maxBPM = settings.value(QStringLiteral("/BPMDetect/MaxBPM"), 190).toInt();
     chbSkipScanned->setChecked(skip);
     chbSave->setChecked(save);
-    int idx = cbFormat->findText(format);
+    auto idx = cbFormat->findText(format);
     if (idx >= 0) {
         cbFormat->setCurrentIndex(idx);
     }
@@ -203,7 +203,7 @@ void DlgBpmDetect::slotDetectNext(bool skipped) {
         }
         if (m_pCurItem) {
             // next TrackList item
-            int curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
+            auto curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
             TrackList->setItemWidget(m_pCurItem, kProgressColumn, nullptr);
             m_pProgress = nullptr;
             if (curidx >= 0) {
@@ -254,7 +254,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         TotalProgress->setMaximum(static_cast<int>(files.size()));
     }
     for (int i = 0; i < files.size(); ++i) {
-        auto track = new Track(files[i], &decoder_, true, this);
+        auto track = new Track(files[i], new QAudioDecoder(this), true, this);
         auto item = new TrackItem(TrackList, track);
         connect(track, &Track::hasBpm, [item, this](bpmtype bpm) {
             item->setText(0, QString::number(bpm, 'f', 2));
@@ -279,7 +279,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
     }
     if (!m_bStarted) {
         lblCurrentTrack->setText(QStringLiteral(""));
-        int itemcount = TrackList->topLevelItemCount();
+        auto itemcount = TrackList->topLevelItemCount();
         if (itemcount) {
             TotalProgress->setMaximum(itemcount * 100);
         } else {
@@ -293,8 +293,9 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
 QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
     QDir d(path), f(path);
     QStringList files;
-    if (!d.exists(path))
+    if (!d.exists(path)) {
         return files;
+    }
     d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
     f.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
     f.setNameFilters({QStringLiteral("*.fla"),
@@ -306,13 +307,13 @@ QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
                       QStringLiteral("*.wavpack"),
                       QStringLiteral("*.wv")});
 
-    QStringList dirs = d.entryList(QDir::NoDotAndDotDot);
+    auto dirs = d.entryList(QDir::NoDotAndDotDot);
     files = f.entryList();
 
-    for (int i = 0; i < dirs.size(); ++i) {
-        QString cdir = dirs[i];
-        QStringList dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
-        for (int j = 0; j < dfiles.size(); ++j) {
+    for (auto i = 0; i < dirs.size(); ++i) {
+        auto cdir = dirs[i];
+        auto dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
+        for (auto j = 0; j < dfiles.size(); ++j) {
             files.append(cdir + QStringLiteral("/") + dfiles[j]);
         }
     }
@@ -337,7 +338,7 @@ void DlgBpmDetect::slotClearDetected() {
             break;
         }
 
-        float fBpm = item->text(0).toFloat();
+        auto fBpm = item->text(0).toFloat();
         if (fBpm > 0) {
             delete item;
             i--;
@@ -351,17 +352,17 @@ void DlgBpmDetect::slotDropped(QDropEvent *e) {
         return;
     }
     // LCOV_EXCL_STOP
-    const QMimeData *mdata = e->mimeData();
+    const auto mdata = e->mimeData();
     // LCOV_EXCL_START
     if (!mdata->hasUrls()) {
         return;
     }
     // LCOV_EXCL_STOP
-    QList<QUrl> urllist = mdata->urls();
+    auto urllist = mdata->urls();
     e->accept();
     QStringList files;
-    for (int i = 0; i < urllist.size(); ++i) {
-        files << urllist[i].toLocalFile();
+    for (const auto &url : urllist) {
+        files << url.toLocalFile();
     }
     slotAddFiles(files);
 }
@@ -410,7 +411,7 @@ void DlgBpmDetect::slotAddFiles() {
 }
 
 void DlgBpmDetect::slotAddDir() {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Add directory"), recentPath());
+    auto path = QFileDialog::getExistingDirectory(this, tr("Add directory"), recentPath());
 
     if (path != nullptr) {
         setRecentPath(path);
@@ -426,7 +427,7 @@ void DlgBpmDetect::slotAddDir() {
 
         QStringList files;
         for (auto i = 0; i < list.size(); i++) {
-            QString fileName = path + list[i];
+            auto fileName = path + list[i];
             files.append(fileName);
         }
 
@@ -444,11 +445,11 @@ void DlgBpmDetect::slotClearBpm() {
         return;
     }
 
-    int clear = QMessageBox::warning(this,
-                                     tr("Clear BPM"),
-                                     tr("Clear BPMs of all selected tracks?"),
-                                     QMessageBox::Yes | QMessageBox::No,
-                                     QMessageBox::No);
+    auto clear = QMessageBox::warning(this,
+                                      tr("Clear BPM"),
+                                      tr("Clear BPMs of all selected tracks?"),
+                                      QMessageBox::Yes | QMessageBox::No,
+                                      QMessageBox::No);
     if (clear == QMessageBox::No) {
         return;
     }
@@ -465,7 +466,7 @@ void DlgBpmDetect::slotTestBpm() {
     if (!item) {
         return;
     }
-    float bpm = item->text(0).toFloat();
+    auto bpm = item->text(0).toFloat();
     static const auto epsilon = 0.0001;
     if (bpm <= epsilon) {
         return;

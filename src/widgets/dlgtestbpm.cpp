@@ -85,7 +85,7 @@ void DlgTestBpm::setNumBeats(const QString &s) {
     if (value < 0) {
         value = 0;
     }
-    bool ok = false;
+    auto ok = false;
     const auto num = s.toInt(&ok);
     if (!ok || num < 1 || num > 16) {
         return;

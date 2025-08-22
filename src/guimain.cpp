@@ -3,11 +3,8 @@
 
 int guiMain(const QApplication &app, const QStringList &files) {
     DlgBpmDetect mainWin;
-    auto detector = new SoundTouchBpmDetector();
-    mainWin.setDetector(detector);
+    mainWin.setDetector(new SoundTouchBpmDetector(qApp));
     mainWin.slotAddFiles(files);
     mainWin.show();
-    auto ret = app.exec();
-    delete detector;
-    return ret;
+    return app.exec();
 }

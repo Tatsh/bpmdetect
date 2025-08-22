@@ -42,7 +42,7 @@ DlgTestBpmPlayer::~DlgTestBpmPlayer() {
 }
 
 void DlgTestBpmPlayer::readBuffer() {
-    QAudioBuffer buf = lastBuffer = decoder_->read();
+    auto buf = lastBuffer = decoder_->read();
     lengthUs_ += buf.duration();
     buffer.append(buf.data<const char>(), buf.byteCount());
 }

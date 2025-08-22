@@ -65,7 +65,9 @@ void Track::setupDecoder() {
         }
     });
     connect(decoder_, &QAudioDecoder::positionChanged, [this](qint64 pos) {
-        emit progress(pos, length_);
+        if (!stopped_) {
+            emit progress(pos, length_);
+        }
     });
     connect(decoder_, &QAudioDecoder::durationChanged, [this]() {
         if (decoder_->duration() > 0) {

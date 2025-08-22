@@ -3,7 +3,6 @@
 #pragma once
 
 #include <BPMDetect.h>
-#include <QtMultimedia/QAudioDecoder>
 
 #include "ui_dlgbpmdetect.h"
 #include "utils.h"
@@ -83,7 +82,6 @@ private:
     void saveSettings();
     void setRecentPath(const QString &path);
 
-    QAudioDecoder decoder_;
     AbstractBpmDetector *m_pDetector = nullptr;
     QMenu *m_pListMenu = nullptr;
     QProgressBar *m_pProgress = nullptr;

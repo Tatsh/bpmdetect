@@ -23,7 +23,7 @@ QString bpmToString(bpmtype dBpm, const QString &format) {
     } else if (format == QStringLiteral("00000")) {
         return QString::number(dBpm, 'd', 0).rightJustified(5, zero);
     }
-    // all other formats are converted to "0.00"
+    // All other formats are converted to "0.00".
     return QString::number(dBpm, 'f', 2);
 }
 

@@ -14,7 +14,7 @@
 #endif
 
 int main(int argc, char *argv[]) {
-    bool isConsoleMode = true;
+    auto isConsoleMode = true;
 #ifndef NO_GUI
     QApplication app(argc, argv);
 #else
@@ -24,7 +24,6 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationVersion(QStringLiteral("0.7.2"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("tat.sh"));
     QCoreApplication::setOrganizationName(QStringLiteral("Tatsh"));
-
     QCommandLineParser parser;
     parseCommandLine(parser, app);
     if (parser.isSet(QStringLiteral("min"))) {
@@ -33,7 +32,6 @@ int main(int argc, char *argv[]) {
     if (parser.isSet(QStringLiteral("max"))) {
         Track::setMaximumBpm(parser.value(QStringLiteral("max")).toDouble());
     }
-
 #ifdef NO_GUI
     return consoleMain(parser, parser.positionalArguments());
 #else
