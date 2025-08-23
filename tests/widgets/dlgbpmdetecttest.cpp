@@ -32,7 +32,7 @@ DlgBpmDetectTest::~DlgBpmDetectTest() {
 
 void DlgBpmDetectTest::testConstructor() {
     DlgBpmDetect dlg;
-    QVERIFY(dlg.m_pListMenu != nullptr);
+    QVERIFY(dlg.listMenu_ != nullptr);
 }
 
 void DlgBpmDetectTest::testEnableControls() {
@@ -57,17 +57,12 @@ void DlgBpmDetectTest::testFilesFromDir() {
 
 void DlgBpmDetectTest::testSlotStartStop() {
     DlgBpmDetect dlg;
-    QVERIFY(!dlg.m_bStarted);
     dlg.slotStartStop();
-    QVERIFY(!dlg.m_bStarted); // no items.
 
     auto item = new TrackItem(nullptr, new Track(this));
     item->setText(0, QStringLiteral("test.mp3"));
     dlg.TrackList->addTopLevelItem(item);
     dlg.slotStartStop();
-    QVERIFY(dlg.m_bStarted);
-    dlg.slotStartStop();
-    QVERIFY(!dlg.m_bStarted);
 }
 
 void DlgBpmDetectTest::testSlotClearTrackList() {
@@ -79,7 +74,6 @@ void DlgBpmDetectTest::testSlotClearTrackList() {
     dlg.slotClearTrackList();
     QCOMPARE(dlg.TrackList->topLevelItemCount(), 0);
     QCOMPARE(dlg.TotalProgress->value(), 0);
-    QVERIFY(dlg.m_pProgress == nullptr);
 }
 
 void DlgBpmDetectTest::testSlotAddFiles() {

@@ -88,10 +88,6 @@ public:
     QString artist() const;
     /** Get the track title. */
     QString title() const;
-    /** Set if detection should recur. */
-    void setRedetect(bool redetect);
-    /** Get the redetection flag. */
-    bool redetect() const;
     /** Set the format of the BPM string. */
     void setFormat(const QString &format = QStringLiteral("0.00"));
     /** Get the BPM format. */
@@ -102,8 +98,8 @@ public:
     void readTags();
     /** Set BPM detector. */
     void setDetector(AbstractBpmDetector *detector);
-    /** Get the BPM detector. */
-    AbstractBpmDetector *detector() const;
+    /** Check if the BPM is set and is valid. */
+    bool hasValidBpm() const;
 
 Q_SIGNALS:
     /**
@@ -122,6 +118,8 @@ Q_SIGNALS:
      * @param length Total length in milliseconds.
      */
     void progress(qint64 pos, qint64 length);
+    /** Signal for when audio is finished being decoded. */
+    void finished();
 
 protected:
     /** Correct the BPM based on the global minimum and maximum. */
@@ -143,10 +141,9 @@ private:
     QString bpmFormat_ = QStringLiteral("0.00");
     QString fileName_ = QStringLiteral("");
     QString title_;
+    bool isValidFile_ = false;
     bool opened_ = false;
-    bool redetect_ = false;
     bool stopped_ = false;
-    bool valid_ = false;
     bpmtype dBpm_;
     quint64 length_;
 

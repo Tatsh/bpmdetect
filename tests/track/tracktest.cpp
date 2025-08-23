@@ -39,7 +39,6 @@ private Q_SLOTS:
     void testSetAndGetBpm();
     void testSetAndGetFileName();
     void testSetAndGetFormat();
-    void testSetAndGetRedetect();
     void testSetMaximumBpmSwap();
     void testSetMinimumBpmSwap();
     void testStaticBpmLimits();
@@ -67,14 +66,6 @@ void TrackTest::testSetAndGetFileName() {
     DummyTrack t;
     t.setFileName(QStringLiteral("file.wav"), true);
     QCOMPARE(t.fileName(), QStringLiteral("file.wav"));
-}
-
-void TrackTest::testSetAndGetRedetect() {
-    DummyTrack t;
-    t.setRedetect(true);
-    QVERIFY(t.redetect());
-    t.setRedetect(false);
-    QVERIFY(!t.redetect());
 }
 
 void TrackTest::testStaticBpmLimits() {

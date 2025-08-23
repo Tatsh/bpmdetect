@@ -3,12 +3,14 @@
 #pragma once
 
 #include <BPMDetect.h>
+#include <QtCore/QAtomicInt>
 
 #include "ui_dlgbpmdetect.h"
 #include "utils.h"
 
 class AbstractBpmDetector;
 class QDropEvent;
+class QEventLoop;
 class QMenu;
 class Track;
 class TrackItem;
@@ -54,11 +56,6 @@ protected Q_SLOTS:
      * @param e Drop event containing dropped files.
      */
     void slotDropped(QDropEvent *e);
-    /**
-     * Slot to detect BPM for the next track.
-     * @param skipped Whether the current track was skipped.
-    */
-    void slotDetectNext(bool skipped = false);
     /** Slot to remove selected tracks from the list. */
     void slotRemoveSelected();
     /** Slot to clear the track list. */
@@ -82,11 +79,9 @@ private:
     void saveSettings();
     void setRecentPath(const QString &path);
 
-    AbstractBpmDetector *m_pDetector = nullptr;
-    QMenu *m_pListMenu = nullptr;
-    QProgressBar *m_pProgress = nullptr;
+    AbstractBpmDetector *detector_ = nullptr;
+    QAtomicInt pendingTracks_ = 0;
+    QEventLoop *innerEventLoop_ = nullptr;
+    QMenu *listMenu_ = nullptr;
     QString m_qRecentPath;
-    TrackItem *m_pCurItem = nullptr;
-    bool m_bStarted = false;
-    int m_iCurTrackIdx = 0;
 };

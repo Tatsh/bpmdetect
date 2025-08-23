@@ -25,7 +25,7 @@ Track::Track(const QString &fileName,
     setupDecoder();
 }
 
-Track::Track(const QString &fileName, QObject *parent) : QObject(parent), decoder_(nullptr) {
+Track::Track(const QString &fileName, QObject *parent) : QObject(parent) {
 }
 
 Track::Track(QObject *parent) : QObject(parent) {
@@ -50,11 +50,12 @@ void Track::setupDecoder() {
     decoder_->setAudioFormat(format);
 
     connect(decoder_, &QAudioDecoder::bufferReady, [this]() {
-        auto detector_ = detector();
         if (!isValid() || detector_ == nullptr) {
             qCDebug(gLogBpmDetect) << "Invalid state for detection.";
-            qCDebug(gLogBpmDetect)
-                << "Detector:" << (detector_ ? "valid" : "nullptr") << ", isValid:" << isValid();
+            qCDebug(gLogBpmDetect) << "Detector:" << (detector_ ? "valid" : "nullptr")
+                                   << ", isValidFile_:" << isValidFile_;
+            qCDebug(gLogBpmDetect) << "Stopping decoder.";
+            stopped_ = true;
             decoder_->stop();
             return;
         }
@@ -78,15 +79,17 @@ void Track::setupDecoder() {
     connect(decoder_, &QAudioDecoder::finished, [this]() {
         if (stopped_) {
             qCDebug(gLogBpmDetect) << "Detection stopped.";
+            emit finished();
             return;
         }
-        auto bpm = correctBpm(detector()->getBpm());
-        if (bpm < 0) {
-            qCInfo(gLogBpmDetect) << "Invalid BPM detected:" << bpm;
-            return;
-        }
+        auto bpm = correctBpm(detector_->getBpm());
         setBpm(bpm);
-        emit hasBpm(bpm);
+        if (!hasValidBpm()) {
+            qCInfo(gLogBpmDetect) << "Invalid BPM detected:" << bpm;
+        } else {
+            emit hasBpm(bpm);
+        }
+        emit finished();
     });
 }
 
@@ -130,7 +133,7 @@ QString Track::formatted(const QString &format) const {
 
 void Track::setFileName(const QString &fileName, bool readMetadata) {
     opened_ = false;
-    valid_ = false;
+    isValidFile_ = false;
     dBpm_ = 0;
     length_ = 0;
     fileName_ = fileName;
@@ -144,13 +147,13 @@ void Track::readTags() {
 }
 
 void Track::open() {
-    valid_ = false;
+    isValidFile_ = false;
     if (fileName_.isEmpty()) {
         return;
     }
     decoder_->setSource(QUrl::fromLocalFile(fileName_));
     if (decoder_->error() == QAudioDecoder::NoError) {
-        valid_ = true;
+        isValidFile_ = true;
         return;
     }
     qCCritical(gLogBpmDetect) << "Failed to open file:" << fileName_
@@ -162,7 +165,7 @@ QString Track::fileName() const {
 }
 
 bool Track::isValid() const {
-    return valid_;
+    return isValidFile_;
 }
 
 void Track::setFormat(const QString &format) {
@@ -179,14 +182,6 @@ void Track::setBpm(bpmtype dBpm) {
 
 bpmtype Track::bpm() const {
     return dBpm_;
-}
-
-void Track::setRedetect(bool redetect) {
-    redetect_ = redetect;
-}
-
-bool Track::redetect() const {
-    return redetect_;
 }
 
 QString Track::formattedLength() const {
@@ -220,10 +215,6 @@ void Track::setDetector(AbstractBpmDetector *detector) {
     detector_ = detector;
 }
 
-AbstractBpmDetector *Track::detector() const {
-    return detector_;
-}
-
 bpmtype Track::correctBpm(bpmtype dBpm) const {
     auto min = minimumBpm();
     auto max = maximumBpm();
@@ -246,15 +237,14 @@ void Track::printBpm() const {
 
 bpmtype Track::detectBpm() {
     open();
-    auto detector_ = detector();
-    if (isValid() && detector_ != nullptr && decoder_ != nullptr) {
+    if (isValidFile_ && detector_ != nullptr && decoder_ != nullptr) {
         detector_->reset();
         decoder_->start();
     } else {
         qCCritical(gLogBpmDetect) << "Invalid state for detection. Detector:"
                                   << (detector_ ? "valid" : "nullptr")
-                                  << ", decoder:" << (decoder_ ? "valid" : "nullptr")
-                                  << ", isValid:" << isValid();
+                                  << ", decoder_:" << (decoder_ ? "valid" : "nullptr")
+                                  << ", isValidFile_:" << isValidFile_;
     }
     return 0;
 }
@@ -272,6 +262,8 @@ void Track::stop() {
     if (decoder_) {
         decoder_->stop();
     }
-    setBpm(0);
-    emit hasBpm(0);
+}
+
+bool Track::hasValidBpm() const {
+    return dBpm_ >= _dMinBpm && dBpm_ <= _dMaxBpm;
 }

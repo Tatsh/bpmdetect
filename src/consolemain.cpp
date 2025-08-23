@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <QtCore/QAtomicInt>
 #include <QtCore/QEventLoop>
 #include <QtMultimedia/QAudioDecoder>
 
@@ -22,27 +21,28 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         }
         return 0;
     }
-    QEventLoop loop;
-    QAtomicInt pendingTracks(files.size());
-    QAudioDecoder decoder;
+
     for (const auto &file : files) {
-        auto track = new Track(file, &decoder, false, &app);
-        track->setRedetect(detect);
-        track->setFormat(format);
-        track->setDetector(new SoundTouchBpmDetector(track));
+        QEventLoop loop;
+        Track track(file, new QAudioDecoder(&app));
+        if (track.hasValidBpm() && !detect) {
+            track.printBpm();
+            track.deleteLater();
+            continue;
+        }
+        track.setFormat(format);
+        track.setDetector(new SoundTouchBpmDetector());
         // track.setConsoleProgress(consoleProgress);
-        QObject::connect(track, &Track::hasBpm, [track, &pendingTracks, &loop, &save](bpmtype bpm) {
-            track->printBpm();
+        QObject::connect(&track, &Track::hasBpm, [&track, &loop, &save](bpmtype bpm) {
+            track.printBpm();
             if (save) {
-                track->saveBpm();
+                track.saveBpm();
             }
-            if (--pendingTracks == 0) {
-                loop.quit();
-            }
-            track->deleteLater();
+            loop.quit();
+            track.deleteLater();
         });
-        track->detectBpm();
+        track.detectBpm();
+        loop.exec();
     }
-    loop.exec();
     return 0;
 }

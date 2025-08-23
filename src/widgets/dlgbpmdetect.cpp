@@ -12,6 +12,7 @@
 #include <windows.h>
 #endif
 
+#include "debug.h"
 #include "dlgbpmdetect.h"
 #include "dlgtestbpm.h"
 #include "qdroplistview.h"
@@ -26,15 +27,15 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     loadSettings();
 
     // Create TrackList menu
-    m_pListMenu = new QMenu(TrackList);
-    m_pListMenu->addAction(tr("Add files"), [this]() { slotAddFiles(); });
-    m_pListMenu->addAction(tr("Add directory"), this, &DlgBpmDetect::slotAddDir);
-    m_pListMenu->addSeparator();
-    m_pListMenu->addAction(tr("Remove selected tracks"), this, &DlgBpmDetect::slotRemoveSelected);
-    m_pListMenu->addAction(tr("Remove tracks with BPM"), this, &DlgBpmDetect::slotClearDetected);
-    m_pListMenu->addAction(tr("Clear list"), this, &DlgBpmDetect::slotClearTrackList);
-    m_pListMenu->addSeparator();
-    auto testBpmAction = m_pListMenu->addAction(tr("Test BPM"), this, &DlgBpmDetect::slotTestBpm);
+    listMenu_ = new QMenu(TrackList);
+    listMenu_->addAction(tr("Add files"), [this]() { slotAddFiles(); });
+    listMenu_->addAction(tr("Add directory"), this, &DlgBpmDetect::slotAddDir);
+    listMenu_->addSeparator();
+    listMenu_->addAction(tr("Remove selected tracks"), this, &DlgBpmDetect::slotRemoveSelected);
+    listMenu_->addAction(tr("Remove tracks with BPM"), this, &DlgBpmDetect::slotClearDetected);
+    listMenu_->addAction(tr("Clear list"), this, &DlgBpmDetect::slotClearTrackList);
+    listMenu_->addSeparator();
+    auto testBpmAction = listMenu_->addAction(tr("Test BPM"), this, &DlgBpmDetect::slotTestBpm);
 #ifdef Q_OS_WIN
     // Check if Media Feature Pack is installed.
     HKEY hKey;
@@ -57,9 +58,9 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
 #else
     Q_UNUSED(testBpmAction)
 #endif
-    m_pListMenu->addSeparator();
-    m_pListMenu->addAction(tr("Save BPM"), this, &DlgBpmDetect::slotSaveBpm);
-    m_pListMenu->addAction(tr("Clear BPM"), this, &DlgBpmDetect::slotClearBpm);
+    listMenu_->addSeparator();
+    listMenu_->addAction(tr("Save BPM"), this, &DlgBpmDetect::slotSaveBpm);
+    listMenu_->addAction(tr("Clear BPM"), this, &DlgBpmDetect::slotClearBpm);
 
     // Add columns to TrackList
     TrackList->setHeaderLabels(
@@ -81,7 +82,7 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
 }
 
 DlgBpmDetect::~DlgBpmDetect() {
-    if (m_bStarted) {
+    if (innerEventLoop_ && innerEventLoop_->isRunning()) {
         slotStop();
     }
     saveSettings();
@@ -149,12 +150,10 @@ void DlgBpmDetect::enableControls(bool enable) {
     }
 
     TrackList->clearSelection();
-    m_pCurItem = nullptr;
-    m_iCurTrackIdx = 0;
 }
 
 void DlgBpmDetect::slotStartStop() {
-    if (m_bStarted) {
+    if (innerEventLoop_ && innerEventLoop_->isRunning()) {
         slotStop();
     } else {
         slotStart();
@@ -162,132 +161,124 @@ void DlgBpmDetect::slotStartStop() {
 }
 
 void DlgBpmDetect::slotStart() {
-    if (m_bStarted || !TrackList->topLevelItemCount()) {
+    if ((innerEventLoop_ && innerEventLoop_->isRunning()) || !TrackList->topLevelItemCount()) {
         return;
     }
-
-    m_bStarted = true;
     enableControls(false);
-
-    TotalProgress->setMaximum(TrackList->topLevelItemCount() * 100);
-    TotalProgress->setValue(0);
-    if (m_pCurItem) {
-        m_pCurItem->track()->setMinimumBpm(spMin->value());
-        m_pCurItem->track()->setMaximumBpm(spMax->value());
+    pendingTracks_ = TrackList->topLevelItemCount();
+    QList<TrackItem *> items;
+    for (auto i = 0; i < TrackList->topLevelItemCount(); ++i) {
+        auto item = static_cast<TrackItem *>(TrackList->topLevelItem(i));
+        if (chbSkipScanned->isChecked() && item->track()->hasValidBpm()) {
+            --pendingTracks_;
+            continue;
+        }
+        items.append(item);
     }
-
-    slotDetectNext();
+    TotalProgress->setMaximum(pendingTracks_);
+    TotalProgress->setValue(0);
+    for (const auto &item : items) {
+        innerEventLoop_ = new QEventLoop(this);
+        item->progressBar()->setValue(0);
+        item->progressBar()->setTextVisible(true);
+        item->track()->setDetector(detector_);
+        item->track()->detectBpm();
+        qCDebug(gLogBpmDetect) << "Starting inner loop. File:" << item->track()->fileName();
+        if (innerEventLoop_->exec()) {
+            break;
+        }
+        qCDebug(gLogBpmDetect) << "Inner loop exited. File:" << item->track()->fileName();
+    }
 }
 
 void DlgBpmDetect::slotStop() {
-    if (m_pCurItem) {
-        m_pCurItem->track()->stop();
+    if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        qCDebug(gLogBpmDetect) << "Stopping inner loop.";
+        innerEventLoop_->exit(1);
+        delete innerEventLoop_;
+        innerEventLoop_ = nullptr;
     }
-    m_bStarted = false;
+    pendingTracks_ = 0;
     lblCurrentTrack->setText(QStringLiteral(""));
+    for (auto i = 0; i < TrackList->topLevelItemCount(); ++i) {
+        auto item = static_cast<TrackItem *>(TrackList->topLevelItem(i));
+        item->progressBar()->setValue(0);
+        item->progressBar()->setTextVisible(false);
+    }
     enableControls(true);
 }
 
-void DlgBpmDetect::slotDetectNext(bool skipped) {
-    if (!m_pCurItem) {
-        // No previous item, get the first item and start
-        m_pCurItem = static_cast<TrackItem *>(TrackList->topLevelItem(0));
-    } else {
-        if (!skipped) {
-            // display and save BPM
-            m_pCurItem->setText(0, m_pCurItem->track()->formatted(QStringLiteral("000.00")));
-            if (chbSave->isChecked())
-                m_pCurItem->track()->setFormat(cbFormat->currentText());
-            if (chbSave->isChecked())
-                m_pCurItem->track()->saveBpm();
-        }
-        if (m_pCurItem) {
-            // next TrackList item
-            auto curidx = TrackList->indexOfTopLevelItem(m_pCurItem);
-            TrackList->setItemWidget(m_pCurItem, kProgressColumn, nullptr);
-            m_pProgress = nullptr;
-            if (curidx >= 0) {
-                m_pCurItem = static_cast<TrackItem *>(TrackList->topLevelItem(1 + curidx));
-            } else {
-                m_pCurItem = nullptr;
-            }
-        }
-    }
-
-    if (!m_pCurItem) {
-        // no next item, stop
-        slotStop();
-        return;
-    }
-
-    TrackList->clearSelection();
-    if (m_iCurTrackIdx < 10) {
-        TrackList->scrollToItem(m_pCurItem, QAbstractItemView::EnsureVisible);
-    } else {
-        TrackList->scrollToItem(m_pCurItem, QAbstractItemView::PositionAtCenter);
-    }
-    m_pCurItem->setSelected(true);
-
-    auto file = m_pCurItem->text(TrackList->columnCount() - 1);
-    lblCurrentTrack->setText(file.section(QChar::fromLatin1('/'), -1, -1));
-    auto BPM = m_pCurItem->text(0).toDouble();
-    TotalProgress->setValue(100 * m_iCurTrackIdx++);
-    if (chbSkipScanned->isChecked() && BPM > 0) {
-        // BPM is not zero, skip this item
-        slotDetectNext(true);
-        return;
-    }
-
-    // start detection for current item
-    m_pProgress = new QProgressBar(this);
-    m_pProgress->setTextVisible(false);
-    m_pProgress->setMaximum(100);
-    m_pProgress->setMaximumHeight(15);
-    TrackList->setItemWidget(m_pCurItem, kProgressColumn, m_pProgress);
-    m_pCurItem->track()->setRedetect(!chbSkipScanned->isChecked());
-    m_pCurItem->track()->setDetector(m_pDetector);
-    m_pCurItem->track()->detectBpm();
-}
-
 void DlgBpmDetect::slotAddFiles(const QStringList &files) {
-    if (!m_bStarted && files.size()) {
-        TotalProgress->setMaximum(static_cast<int>(files.size()));
+    if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        return;
+    }
+    if (files.size()) {
+        pendingTracks_ += files.size();
+        TotalProgress->setMaximum(pendingTracks_);
     }
     for (int i = 0; i < files.size(); ++i) {
         auto track = new Track(files[i], new QAudioDecoder(this), true, this);
         auto item = new TrackItem(TrackList, track);
-        connect(track, &Track::hasBpm, [item, this](bpmtype bpm) {
+        auto progressBar = new QProgressBar(this);
+        progressBar->setMaximum(100);
+        progressBar->setMaximumHeight(15);
+        item->setProgressBar(progressBar);
+        TrackList->setItemWidget(item, kProgressColumn, progressBar);
+        connect(track, &Track::hasBpm, [item, this, track](bpmtype bpm) {
+            if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
+                qCDebug(gLogBpmDetect) << "Loop is not running. Ignoring BPM for track" << track;
+                return;
+            }
+            qCDebug(gLogBpmDetect) << "Received BPM for track" << track;
             item->setText(0, QString::number(bpm, 'f', 2));
-            slotDetectNext();
-        });
-        connect(track, &Track::hasLength, this, [track, item](quint64 ms) {
-            item->setText(3, track->formattedLength());
-        });
-        connect(track, &Track::progress, this, [this](qint64 pos, qint64 length) {
-            if (m_pProgress && length > 0) {
-                auto currentFilePercent =
-                    100 * (static_cast<double>(pos) / static_cast<double>(length));
-                m_pProgress->setValue(static_cast<int>(currentFilePercent));
-                TotalProgress->setValue(100 * (m_iCurTrackIdx - 1) + currentFilePercent);
+            if (chbSave->isChecked()) {
+                item->track()->setFormat(cbFormat->currentText());
+                item->track()->saveBpm();
             }
         });
-        if (!m_bStarted) {
-            lblCurrentTrack->setText(tr("Adding %1").arg(files.at(i)));
-            TotalProgress->setValue(i);
-        }
-        qApp->processEvents();
+        connect(track, &Track::finished, this, [track, this, progressBar]() {
+            progressBar->setValue(0);
+            if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
+                qCDebug(gLogBpmDetect)
+                    << "Not started, ignoring finished signal for track" << track;
+                return;
+            }
+            qDebug() << "Finished track" << track;
+            innerEventLoop_->quit();
+            if (--pendingTracks_ == 0) {
+                qCDebug(gLogBpmDetect) << "No more pending tracks, stopping.";
+                slotStop();
+            } else {
+                TotalProgress->setValue(TotalProgress->maximum() - pendingTracks_);
+            }
+        });
+        connect(track, &Track::hasLength, this, [track, item, this](quint64 ms) {
+            if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
+                qDebug() << "Not started, ignoring length for track" << track;
+                return;
+            }
+            qDebug() << "Got length for track" << track << ":" << ms;
+            item->setText(3, track->formattedLength());
+        });
+        connect(track, &Track::progress, this, [this, progressBar](qint64 pos, qint64 length) {
+            if (length > 0 && innerEventLoop_ && innerEventLoop_->isRunning()) {
+                auto currentFilePercent =
+                    (static_cast<double>(pos) / static_cast<double>(length)) * 100;
+                progressBar->setValue(static_cast<int>(currentFilePercent));
+            }
+        });
+        lblCurrentTrack->setText(tr("Adding %1").arg(files.at(i)));
+        TotalProgress->setValue(i);
     }
-    if (!m_bStarted) {
-        lblCurrentTrack->setText(QStringLiteral(""));
-        auto itemcount = TrackList->topLevelItemCount();
-        if (itemcount) {
-            TotalProgress->setMaximum(itemcount * 100);
-        } else {
-            TotalProgress->setMaximum(100);
-        }
-        TotalProgress->reset();
-        TotalProgress->setValue(0);
+    lblCurrentTrack->setText(QStringLiteral(""));
+    auto itemCount = TrackList->topLevelItemCount();
+    if (itemCount) {
+        TotalProgress->setMaximum(itemCount * 100);
+    } else {
+        TotalProgress->setMaximum(100);
     }
+    TotalProgress->reset();
+    TotalProgress->setValue(0);
 }
 
 QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
@@ -312,9 +303,9 @@ QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
 
     for (auto i = 0; i < dirs.size(); ++i) {
         auto cdir = dirs[i];
-        auto dfiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
-        for (auto j = 0; j < dfiles.size(); ++j) {
-            files.append(cdir + QStringLiteral("/") + dfiles[j]);
+        auto dirFiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
+        for (auto j = 0; j < dirFiles.size(); ++j) {
+            files.append(cdir + QStringLiteral("/") + dirFiles[j]);
         }
     }
 
@@ -327,8 +318,6 @@ void DlgBpmDetect::slotRemoveSelected() {
 
 void DlgBpmDetect::slotClearTrackList() {
     TrackList->clear();
-    delete m_pProgress;
-    m_pProgress = nullptr;
 }
 
 void DlgBpmDetect::slotClearDetected() {
@@ -393,7 +382,7 @@ QString DlgBpmDetect::recentPath() const {
 }
 
 void DlgBpmDetect::setDetector(AbstractBpmDetector *detector) {
-    m_pDetector = detector;
+    detector_ = detector;
 }
 
 // LCOV_EXCL_START
@@ -436,7 +425,7 @@ void DlgBpmDetect::slotAddDir() {
 }
 
 void DlgBpmDetect::slotListMenuPopup(const QPoint &) {
-    m_pListMenu->popup(QCursor::pos());
+    listMenu_->popup(QCursor::pos());
 }
 
 void DlgBpmDetect::slotClearBpm() {
