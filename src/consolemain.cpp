@@ -4,6 +4,7 @@
 
 #include "consolemain.h"
 #include "debug.h"
+#include "ffmpegutils.h"
 #include "track/track.h"
 
 int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QStringList &files) {
@@ -21,9 +22,13 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         }
         return 0;
     }
-
+    const auto detector = new SoundTouchBpmDetector(&app);
     for (const auto &file : files) {
         QEventLoop loop;
+        if (!isDecodableFile(file)) {
+            qCDebug(gLogBpmDetect) << "File is not decodable, skipping:" << file;
+            continue;
+        }
         Track track(file, new QAudioDecoder(&app));
         if (track.hasValidBpm() && !detect) {
             track.printBpm();
@@ -31,16 +36,31 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
             continue;
         }
         track.setFormat(format);
-        track.setDetector(new SoundTouchBpmDetector());
-        // track.setConsoleProgress(consoleProgress);
-        QObject::connect(&track, &Track::hasBpm, [&track, &loop, &save](bpmtype bpm) {
-            track.printBpm();
-            if (save) {
-                track.saveBpm();
-            }
-            loop.quit();
-            track.deleteLater();
-        });
+        detector->reset();
+        track.setDetector(detector);
+        QObject::connect(
+            &track, &Track::hasBpm, [&track, &loop, &save, &consoleProgress](bpmtype bpm) {
+                if (consoleProgress) {
+                    QTextStream(stdout) << "\r";
+                }
+                track.printBpm();
+                if (save) {
+                    track.saveBpm();
+                }
+                loop.quit();
+                track.deleteLater();
+                QTextStream(stdout).flush();
+            });
+        if (consoleProgress) {
+            QObject::connect(&track, &Track::progress, [&track](quint64 pos, quint64 length) {
+                const auto percent = length ? (pos * 100 / length) : 0;
+                QTextStream(stdout) << "\r" << track.fileName() << ": " << percent << "%";
+                if (pos >= length) {
+                    QTextStream(stdout) << "\n";
+                }
+                QTextStream(stdout).flush();
+            });
+        }
         track.detectBpm();
         loop.exec();
     }

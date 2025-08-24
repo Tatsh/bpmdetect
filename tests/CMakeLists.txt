@@ -27,10 +27,12 @@ set(TRACK_TESTS_SRCS
     ../src/track/soundtouchbpmdetector.cpp
     ../src/track/soundtouchbpmdetector.h
     ../src/track/track.cpp
+    ../src/ffmpegutils.cpp
+    ../src/ffmpegutils.h
     ../src/utils.cpp
     ../src/utils.h)
 create_test(track-test "${TRACK_TESTS_SRCS}")
-target_link_libraries(track-test PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Multimedia)
+target_link_libraries(track-test PRIVATE PkgConfig::SOUNDTOUCH Qt6::Multimedia PkgConfig::FFMPEG)
 
 set(WIDGETS_TESTS_SRCS widgets/qdroplistviewtest.cpp ../src/widgets/qdroplistview.cpp
                        ../src/widgets/qdroplistview.h)
@@ -67,6 +69,8 @@ target_link_libraries(dlgtestbpm-test PRIVATE Qt::Widgets Qt::Multimedia PkgConf
 
 set(DLGBPMDETECT_TESTS_SRCS
     widgets/dlgbpmdetecttest.cpp
+    ../src/ffmpegutils.cpp
+    ../src/ffmpegutils.h
     ../src/utils.cpp
     ../src/utils.h
     ../src/track/abstractbpmdetector.cpp
@@ -89,5 +93,5 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/widgets/trackitem.h)
 create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")
 target_compile_definitions(dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768)
-target_link_libraries(dlgbpmdetect-test PRIVATE Qt::Widgets PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB
+target_link_libraries(dlgbpmdetect-test PRIVATE Qt::Widgets PkgConfig::SOUNDTOUCH PkgConfig::FFMPEG
                                                 Qt::Multimedia)

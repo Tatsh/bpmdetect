@@ -68,8 +68,15 @@ if(NOT BUILD_DOCS_ONLY)
     find_package(Qt6Widgets 6.7 CONFIG REQUIRED)
   endif()
   qt_standard_project_setup()
+  pkg_check_modules(
+    FFMPEG
+    libavformat
+    libavcodec
+    libavutil
+    REQUIRED
+    IMPORTED_TARGET
+    GLOBAL)
   pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
-  pkg_check_modules(TAGLIB taglib REQUIRED IMPORTED_TARGET GLOBAL)
 
   if(ENABLE_FLAC)
     pkg_check_modules(FLAC flac REQUIRED IMPORTED_TARGET GLOBAL)

@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install deps
-        run: brew install extra-cmake-modules flac libvorbis qt sound-touch taglib wavpack
+        run: brew install extra-cmake-modules flac libvorbis qt sound-touch wavpack
       - run: |
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
             --install-prefix ${{github.workspace}}/build/prefix \
@@ -115,7 +115,6 @@ jobs:
             qt6-multimedia:p
             qt6-tools:p
             soundtouch:p
-            taglib:p
             toolchain:p
             wavpack:p
             zlib:p

@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "dlgbpmdetect.h"
 #include "dlgtestbpm.h"
+#include "ffmpegutils.h"
 #include "qdroplistview.h"
 #include "track/track.h"
 #include "trackitem.h"
@@ -138,7 +139,7 @@ void DlgBpmDetect::enableControls(bool enable) {
     spMax->setEnabled(enable);
 
     if (enable) {
-        btnStart->setText(tr("Start"));
+        btnStart->setText(tr("St&art"));
         lblCurrentTrack->setText(QStringLiteral(""));
         TrackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
         TrackList->setSortingEnabled(true);
@@ -154,8 +155,10 @@ void DlgBpmDetect::enableControls(bool enable) {
 
 void DlgBpmDetect::slotStartStop() {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        Q_ASSERT(btnStart->text() == tr("Stop"));
         slotStop();
     } else {
+        Q_ASSERT(btnStart->text() == tr("St&art"));
         slotStart();
     }
 }
@@ -175,6 +178,10 @@ void DlgBpmDetect::slotStart() {
         }
         items.append(item);
     }
+    if (!pendingTracks_) {
+        enableControls(true);
+        return;
+    }
     TotalProgress->setMaximum(pendingTracks_);
     TotalProgress->setValue(0);
     for (const auto &item : items) {
@@ -184,7 +191,9 @@ void DlgBpmDetect::slotStart() {
         item->track()->setDetector(detector_);
         item->track()->detectBpm();
         qCDebug(gLogBpmDetect) << "Starting inner loop. File:" << item->track()->fileName();
-        if (innerEventLoop_->exec()) {
+        if (innerEventLoop_->exec(QEventLoop::ExcludeUserInputEvents |
+                                  QEventLoop::ExcludeSocketNotifiers)) {
+            qCDebug(gLogBpmDetect) << "Inner loop exited with non-zero code. Stopping.";
             break;
         }
         qCDebug(gLogBpmDetect) << "Inner loop exited. File:" << item->track()->fileName();
@@ -195,8 +204,6 @@ void DlgBpmDetect::slotStop() {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
         qCDebug(gLogBpmDetect) << "Stopping inner loop.";
         innerEventLoop_->exit(1);
-        delete innerEventLoop_;
-        innerEventLoop_ = nullptr;
     }
     pendingTracks_ = 0;
     lblCurrentTrack->setText(QStringLiteral(""));
@@ -212,12 +219,21 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
         return;
     }
-    if (files.size()) {
-        pendingTracks_ += files.size();
+    QStringList filteredFiles;
+    for (const auto &file : files) {
+        qCDebug(gLogBpmDetect) << "Checking file" << file;
+        if (!isDecodableFile(file)) {
+            qCDebug(gLogBpmDetect) << "File is not decodable, skipping:" << file;
+            continue;
+        }
+        filteredFiles << file;
+    }
+    if (filteredFiles.size()) {
+        pendingTracks_ += filteredFiles.size();
         TotalProgress->setMaximum(pendingTracks_);
     }
-    for (int i = 0; i < files.size(); ++i) {
-        auto track = new Track(files[i], new QAudioDecoder(this), true, this);
+    for (auto i = 0; i < filteredFiles.size(); ++i) {
+        auto track = new Track(files[i], new QAudioDecoder(this), this);
         auto item = new TrackItem(TrackList, track);
         auto progressBar = new QProgressBar(this);
         progressBar->setMaximum(100);
@@ -226,10 +242,11 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         TrackList->setItemWidget(item, kProgressColumn, progressBar);
         connect(track, &Track::hasBpm, [item, this, track](bpmtype bpm) {
             if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
-                qCDebug(gLogBpmDetect) << "Loop is not running. Ignoring BPM for track" << track;
+                qCDebug(gLogBpmDetect)
+                    << "Loop is not running. Ignoring BPM for track" << track->fileName();
                 return;
             }
-            qCDebug(gLogBpmDetect) << "Received BPM for track" << track;
+            qCDebug(gLogBpmDetect) << "Received BPM for track" << track->fileName();
             item->setText(0, QString::number(bpm, 'f', 2));
             if (chbSave->isChecked()) {
                 item->track()->setFormat(cbFormat->currentText());
@@ -238,12 +255,12 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         });
         connect(track, &Track::finished, this, [track, this, progressBar]() {
             progressBar->setValue(0);
+            progressBar->setTextVisible(false);
             if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
                 qCDebug(gLogBpmDetect)
-                    << "Not started, ignoring finished signal for track" << track;
+                    << "Loop not running. Ignoring finished signal for track" << track;
                 return;
             }
-            qDebug() << "Finished track" << track;
             innerEventLoop_->quit();
             if (--pendingTracks_ == 0) {
                 qCDebug(gLogBpmDetect) << "No more pending tracks, stopping.";
@@ -252,14 +269,6 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
                 TotalProgress->setValue(TotalProgress->maximum() - pendingTracks_);
             }
         });
-        connect(track, &Track::hasLength, this, [track, item, this](quint64 ms) {
-            if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
-                qDebug() << "Not started, ignoring length for track" << track;
-                return;
-            }
-            qDebug() << "Got length for track" << track << ":" << ms;
-            item->setText(3, track->formattedLength());
-        });
         connect(track, &Track::progress, this, [this, progressBar](qint64 pos, qint64 length) {
             if (length > 0 && innerEventLoop_ && innerEventLoop_->isRunning()) {
                 auto currentFilePercent =
@@ -267,7 +276,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
                 progressBar->setValue(static_cast<int>(currentFilePercent));
             }
         });
-        lblCurrentTrack->setText(tr("Adding %1").arg(files.at(i)));
+        lblCurrentTrack->setText(tr("Adding %1").arg(files[i]));
         TotalProgress->setValue(i);
     }
     lblCurrentTrack->setText(QStringLiteral(""));
@@ -289,14 +298,6 @@ QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
     }
     d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
     f.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    f.setNameFilters({QStringLiteral("*.fla"),
-                      QStringLiteral("*.flac"),
-                      QStringLiteral("*.flc"),
-                      QStringLiteral("*.mp3"),
-                      QStringLiteral("*.ogg"),
-                      QStringLiteral("*.wav"),
-                      QStringLiteral("*.wavpack"),
-                      QStringLiteral("*.wv")});
 
     auto dirs = d.entryList(QDir::NoDotAndDotDot);
     files = f.entryList();

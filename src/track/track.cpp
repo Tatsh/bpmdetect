@@ -1,27 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <iostream>
 
+extern "C" {
+#include <libavformat/avformat.h>
+}
 #include <BPMDetect.h>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
 #include <QtMultimedia/QAudioDecoder>
-#include <fileref.h>
-#include <tag.h>
 
 #include "constants.h"
 #include "debug.h"
+#include "ffmpegutils.h"
 #include "soundtouchbpmdetector.h"
 #include "track.h"
 
 bpmtype Track::_dMinBpm = 80.;
 bpmtype Track::_dMaxBpm = 185.;
 
-Track::Track(const QString &fileName,
-             QAudioDecoder *const decoder,
-             bool readMetadata,
-             QObject *parent)
-    : QObject(parent), decoder_(decoder) {
-    setFileName(fileName, readMetadata);
+Track::Track(const QString &fileName, QAudioDecoder *const decoder, QObject *parent)
+    : QObject(parent), decoder_(decoder), fileName_(fileName) {
+    readTags();
     setupDecoder();
 }
 
@@ -29,7 +31,6 @@ Track::Track(const QString &fileName, QObject *parent) : QObject(parent) {
 }
 
 Track::Track(QObject *parent) : QObject(parent) {
-    setFileName(QStringLiteral(""), false);
 }
 
 Track::~Track() {
@@ -70,12 +71,6 @@ void Track::setupDecoder() {
             emit progress(pos, length_);
         }
     });
-    connect(decoder_, &QAudioDecoder::durationChanged, [this]() {
-        if (decoder_->duration() > 0) {
-            length_ = decoder_->duration();
-            emit hasLength(length_);
-        }
-    });
     connect(decoder_, &QAudioDecoder::finished, [this]() {
         if (stopped_) {
             qCDebug(gLogBpmDetect) << "Detection stopped.";
@@ -91,6 +86,11 @@ void Track::setupDecoder() {
         }
         emit finished();
     });
+    connect(decoder_, QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error), [this]() {
+        qCCritical(gLogBpmDetect) << "Audio decoder error:" << decoder_->errorString();
+        stopped_ = true;
+        emit finished();
+    });
 }
 
 void Track::setMinimumBpm(bpmtype dMin) {
@@ -98,9 +98,7 @@ void Track::setMinimumBpm(bpmtype dMin) {
         _dMinBpm = dMin;
     // Swap min and max if min is greater than max.
     if (_dMinBpm > _dMaxBpm) {
-        auto temp = _dMinBpm;
-        _dMinBpm = _dMaxBpm;
-        _dMaxBpm = temp;
+        std::swap(_dMinBpm, _dMaxBpm);
     }
 }
 
@@ -109,9 +107,7 @@ void Track::setMaximumBpm(bpmtype dMax) {
         _dMaxBpm = dMax;
     // Swap min and max if min is greater than max.
     if (_dMinBpm > _dMaxBpm) {
-        auto temp = _dMinBpm;
-        _dMinBpm = _dMaxBpm;
-        _dMaxBpm = temp;
+        std::swap(_dMinBpm, _dMaxBpm);
     }
 }
 
@@ -131,19 +127,12 @@ QString Track::formatted(const QString &format) const {
     return bpmToString(bpm(), format);
 }
 
-void Track::setFileName(const QString &fileName, bool readMetadata) {
-    opened_ = false;
-    isValidFile_ = false;
-    dBpm_ = 0;
-    length_ = 0;
-    fileName_ = fileName;
-    if (!fileName_.isEmpty() && readMetadata) {
-        readTags();
-    }
-}
-
 void Track::readTags() {
-    // TODO
+    auto map = readTagsFromFile(fileName_);
+    title_ = map.value(QStringLiteral("title")).toString();
+    artist_ = map.value(QStringLiteral("artist")).toString();
+    length_ = map.value(QStringLiteral("length")).toLongLong();
+    dBpm_ = map.value(QStringLiteral("bpm")).toDouble();
 }
 
 void Track::open() {
@@ -250,11 +239,11 @@ bpmtype Track::detectBpm() {
 }
 
 void Track::storeBpm(const QString &sBpm) {
-    // TODO
+    storeBpmInFile(fileName_, sBpm);
 }
 
 void Track::removeBpm() {
-    // TODO
+    removeBpmFromFile(fileName_);
 }
 
 void Track::stop() {

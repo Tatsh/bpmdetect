@@ -21,8 +21,7 @@
     },
     "libflac",
     "libmad",
-    "libvorbis",
-    "taglib"
+    "libvorbis"
   ],
   "description": "Automatic BPM (beats per minute) detection utility.",
   "documentation": "https://bpmdetect.readthedocs.org",

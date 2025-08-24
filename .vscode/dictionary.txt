@@ -6,6 +6,11 @@ automoc
 autorcc
 autosort
 autouic
+avcodec
+avfmt
+avformat
+avio
+avmedia
 bindir
 bluray
 bpmdetect
@@ -14,6 +19,7 @@ bpmtype
 bsky
 buildsystems
 bytearray
+codecpar
 codeowners
 consolemain
 coveragerc
@@ -32,6 +38,7 @@ dcmake
 dcoverage
 defenses
 denable
+deque
 destinationlabel
 dfhs
 dialog
@@ -47,6 +54,7 @@ endforeach
 endfunction
 esbenp
 favor
+ffmpegutils
 fileflags
 fileflagsmask
 fileos
@@ -81,6 +89,9 @@ layoutdefault
 lcms
 lerc
 libaom
+libavcodec
+libavformat
+libavutil
 libbrotlienc
 libdeflate
 libflac
@@ -108,6 +119,7 @@ ndebug
 noncommercially
 normaloff
 offscreen
+oformat
 opencore
 openjp
 pacboy
@@ -125,7 +137,6 @@ progressbartest
 pycache
 pyyaml
 qcompare
-qdebug
 qdroplistview
 qdroplistviewtest
 qfetch
@@ -159,7 +170,6 @@ strequal
 sturmlechner
 tagfile
 tagfiles
-taglib
 tasn
 tatsh
 tbpm

@@ -2,7 +2,7 @@
   "configurations": [
     {
       "MIMode": "gdb",
-      "args": ["-c", "/home/tatsh/Downloads/test/Tattoo Trouble.wv"],
+      "args": ["/home/tatsh/Downloads/-template-with-cover-page.pdf"],
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,

@@ -16,6 +16,7 @@ SoundTouchBpmDetector::~SoundTouchBpmDetector() {
 
 void SoundTouchBpmDetector::inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) {
     if (!stDetector_) {
+        qCWarning(gLogBpmDetect) << "Re-initialising SoundTouch BPM detector in inputSamples().";
         stDetector_ = new soundtouch::BPMDetect(DETECTION_CHANNELS, DETECTION_SAMPLE_RATE);
     }
     stDetector_->inputSamples(samples, numSamples);
@@ -23,7 +24,7 @@ void SoundTouchBpmDetector::inputSamples(const soundtouch::SAMPLETYPE *samples, 
 
 bpmtype SoundTouchBpmDetector::getBpm() const {
     if (!stDetector_) {
-        qCWarning(gLogBpmDetect) << "SoundTouchBpmDetector: No BPM detector initialized.";
+        qCCritical(gLogBpmDetect) << "SoundTouchBpmDetector: No BPM detector initialized.";
         return -1;
     }
     return stDetector_->getBpm();
@@ -34,4 +35,5 @@ void SoundTouchBpmDetector::reset() {
         delete stDetector_;
         stDetector_ = nullptr;
     }
+    stDetector_ = new soundtouch::BPMDetect(DETECTION_CHANNELS, DETECTION_SAMPLE_RATE);
 }

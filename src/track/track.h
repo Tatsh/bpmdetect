@@ -10,10 +10,6 @@
 
 class QAudioDecoder;
 
-namespace TagLib {
-    class FileRef;
-}
-
 /** Represents a file on the system. */
 class Track : public QObject {
     Q_OBJECT
@@ -26,13 +22,9 @@ public:
      * Constructor.
      * @param fileName Filename.
      * @param decoder Audio decoder.
-     * @param readMetadata If `true`, read tags from the file.
      * @param parent Parent object.
      */
-    Track(const QString &fileName,
-          QAudioDecoder *const decoder,
-          bool readMetadata = true,
-          QObject *parent = nullptr);
+    Track(const QString &fileName, QAudioDecoder *const decoder, QObject *parent = nullptr);
     /**
      * Constructor.
      * @param fileName Filename.
@@ -108,11 +100,6 @@ Q_SIGNALS:
      */
     void hasBpm(bpmtype bpm);
     /**
-     * Signal for when length has been determined.
-     * @param ms Length in milliseconds.
-     */
-    void hasLength(quint64 ms);
-    /**
      * Signal for progress updates.
      * @param pos Current position in milliseconds.
      * @param length Total length in milliseconds.
@@ -132,20 +119,19 @@ protected:
     void removeBpm();
 
 private:
-    void setFileName(const QString &fileName, bool readMetadata = true);
     void setupDecoder();
 
     AbstractBpmDetector *detector_ = nullptr;
     QAudioDecoder *const decoder_ = nullptr;
     QString artist_;
     QString bpmFormat_ = QStringLiteral("0.00");
-    QString fileName_ = QStringLiteral("");
+    QString fileName_;
     QString title_;
     bool isValidFile_ = false;
     bool opened_ = false;
     bool stopped_ = false;
-    bpmtype dBpm_;
-    quint64 length_;
+    bpmtype dBpm_ = 0;
+    quint64 length_ = 0;
 
     static bpmtype _dMaxBpm;
     static bpmtype _dMinBpm;

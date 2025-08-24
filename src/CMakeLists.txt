@@ -27,6 +27,8 @@ set(SOURCES
     debug.h
     guimain.cpp
     guimain.h
+    ffmpegutils.cpp
+    ffmpegutils.h
     main.cpp
     utils.cpp
     utils.h)
@@ -48,7 +50,7 @@ if(WIN32)
 endif()
 
 target_include_directories(bpmdetect PRIVATE .)
-target_link_libraries(bpmdetect PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Core
+target_link_libraries(bpmdetect PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH Qt6::Core
                                         bpmdetect-track)
 if(NOT NO_GUI)
   target_include_directories(bpmdetect PRIVATE widgets)

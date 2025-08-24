@@ -37,7 +37,16 @@
   "files.associations": {
     "*.moc": "cpp",
     "*.ui": "xml",
-    "i18n/*.ts": "xml"
+    "deque": "cpp",
+    "hash_map": "cpp",
+    "i18n/*.ts": "xml",
+    "list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "string": "cpp",
+    "unordered_map": "cpp",
+    "unordered_set": "cpp",
+    "vector": "cpp"
   },
   "files.eol": "\n",
   "files.insertFinalNewline": true,

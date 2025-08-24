@@ -22,7 +22,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Changed
 
 - Now requires Qt 6.7 or better.
-- TagLib is now a hard requirement.
 - Depends on SoundTouch shared library.
 - Removed dead code.
 - Removed kissfft requirement because only dead code referenced it.
@@ -39,6 +38,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Updated name filter so Wavpack files can be picked with the _Add files_ functionality.
 - Possible crash when clearing the list of files and adding more or adding a directory.
 - Not a great way to handle this: the test BPM dialog will close on fatal error.
+
+### Removed
+
+- TagLib is no longer used.
 
 ## [0.7.2] - 2025-08-08
 

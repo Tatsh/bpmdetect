@@ -2,5 +2,6 @@ set(TRACK_SRCS abstractbpmdetector.cpp abstractbpmdetector.h soundtouchbpmdetect
                soundtouchbpmdetector.h track.cpp track.h)
 add_library(bpmdetect-track STATIC ${TRACK_SRCS})
 target_include_directories(bpmdetect-track PRIVATE ..)
-target_link_libraries(bpmdetect-track PRIVATE PkgConfig::SOUNDTOUCH PkgConfig::TAGLIB Qt6::Core)
+target_link_libraries(bpmdetect-track PRIVATE PkgConfig::SOUNDTOUCH Qt6::Core
+                                              PkgConfig::FFMPEG)
 target_compile_definitions(bpmdetect-track PRIVATE SAMPLE_MAX_VALUE=32768)

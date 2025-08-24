@@ -64,7 +64,6 @@ void TrackTest::testSetAndGetFormat() {
 
 void TrackTest::testSetAndGetFileName() {
     DummyTrack t;
-    t.setFileName(QStringLiteral("file.wav"), true);
     QCOMPARE(t.fileName(), QStringLiteral("file.wav"));
 }
 
@@ -110,7 +109,6 @@ void TrackTest::testSetMaximumBpmSwap() {
 
 void TrackTest::testPrintBpm() {
     DummyTrack t;
-    t.setFileName(QStringLiteral("test.wav"), false);
     t.setBpm(123.45);
     t.setFormat(QStringLiteral("0.00"));
     std::stringstream buffer;
