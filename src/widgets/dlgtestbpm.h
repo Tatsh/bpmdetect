@@ -29,14 +29,11 @@ protected Q_SLOTS:
     void setCustomPos(int msec);
     /** Set number of beats to loop. @a s should contain an integer. */
     void setNumBeats(const QString &s);
-    /** Update BPM list. */
-    void slotUpdateBpmList();
     /** Set track position length. */
     void setTrackPositionLength(qint64);
 
 private:
     void setPosFromButton(int msec);
     DlgTestBpmPlayer *m_player;
-    QList<bpmtype> m_bpmList;
     bpmtype m_bpm;
 };

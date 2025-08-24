@@ -46,7 +46,6 @@ DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWid
     btnPos4->setEnabled(false);
     trackPosition->setEnabled(false);
 
-    slotUpdateBpmList();
 #ifndef TESTING
     m_player->start();
 #endif
@@ -91,25 +90,4 @@ void DlgTestBpm::setNumBeats(const QString &s) {
         return;
     }
     m_player->update(cbNBeats->currentText().toUInt(), value * 1000);
-}
-
-void DlgTestBpm::slotUpdateBpmList() {
-    const auto MIN_BPM = 45;
-    const auto MAX_BPM = 220;
-
-    m_bpmList.clear();
-
-    if (m_bpm > MIN_BPM && m_bpm < MAX_BPM) {
-        auto cBpm = m_bpm;
-        while (cBpm / 2.f > MIN_BPM)
-            cBpm /= 2.f;
-
-        const auto d = 0.25f * cBpm;
-        while (cBpm - d > MIN_BPM)
-            cBpm -= d;
-
-        for (; cBpm < MAX_BPM; cBpm += d) {
-            m_bpmList.append(cBpm);
-        }
-    }
 }
