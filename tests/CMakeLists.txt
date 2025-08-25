@@ -13,7 +13,7 @@ function(create_test test_name test_srcs)
   target_compile_options(${test_name} PRIVATE ${DEBUG_FLAGS})
   target_include_directories(${test_name} PRIVATE ../src ../../src)
   target_link_options(${test_name} PRIVATE ${DEBUG_FLAGS})
-  target_link_libraries(${test_name} PRIVATE Qt::Test Qt::Core)
+  target_link_libraries(${test_name} PRIVATE Qt::Core Qt::Test)
   add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
 
@@ -32,7 +32,7 @@ set(TRACK_TESTS_SRCS
     ../src/utils.cpp
     ../src/utils.h)
 create_test(track-test "${TRACK_TESTS_SRCS}")
-target_link_libraries(track-test PRIVATE PkgConfig::SOUNDTOUCH Qt6::Multimedia PkgConfig::FFMPEG)
+target_link_libraries(track-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH Qt6::Multimedia)
 
 set(WIDGETS_TESTS_SRCS widgets/qdroplistviewtest.cpp ../src/widgets/qdroplistview.cpp
                        ../src/widgets/qdroplistview.h)
@@ -65,7 +65,7 @@ set(DLGTESTBPM_TESTS_SRCS
 create_test(dlgtestbpm-test "${DLGTESTBPM_TESTS_SRCS}")
 target_compile_definitions(dlgtestbpm-test
                            PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
-target_link_libraries(dlgtestbpm-test PRIVATE Qt::Widgets Qt::Multimedia PkgConfig::SOUNDTOUCH)
+target_link_libraries(dlgtestbpm-test PRIVATE PkgConfig::SOUNDTOUCH Qt::Multimedia Qt::Widgets)
 
 set(DLGBPMDETECT_TESTS_SRCS
     widgets/dlgbpmdetecttest.cpp
@@ -93,5 +93,5 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/widgets/trackitem.h)
 create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")
 target_compile_definitions(dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768)
-target_link_libraries(dlgbpmdetect-test PRIVATE Qt::Widgets PkgConfig::SOUNDTOUCH PkgConfig::FFMPEG
-                                                Qt::Multimedia)
+target_link_libraries(dlgbpmdetect-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH
+                                                Qt::Multimedia Qt::Widgets)

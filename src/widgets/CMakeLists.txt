@@ -15,8 +15,8 @@ set(WIDGETS_SRCS
     trackitem.h)
 add_library(bpmdetect-widgets STATIC ${WIDGETS_SRCS})
 target_include_directories(bpmdetect-widgets PRIVATE ..)
-target_link_libraries(bpmdetect-widgets PRIVATE Qt6::Core Qt6::Gui Qt6::Multimedia Qt6::Widgets
-                                                PkgConfig::SOUNDTOUCH)
+target_link_libraries(bpmdetect-widgets PRIVATE PkgConfig::SOUNDTOUCH Qt6::Core Qt6::Gui
+                                                Qt6::Multimedia Qt6::Widgets)
 # https://stackoverflow.com/a/60203765/374110
 get_property(_isMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(_isMultiConfig)
