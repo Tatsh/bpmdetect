@@ -7,6 +7,8 @@
 struct DummyTrack : public Track {
     DummyTrack() : Track() {
     }
+    DummyTrack(const QString &fileName) : Track(fileName) {
+    }
     ~DummyTrack() override {
     }
 };
@@ -63,7 +65,7 @@ void TrackTest::testSetAndGetFormat() {
 }
 
 void TrackTest::testSetAndGetFileName() {
-    DummyTrack t;
+    DummyTrack t(QStringLiteral("file.wav"));
     QCOMPARE(t.fileName(), QStringLiteral("file.wav"));
 }
 
@@ -108,7 +110,7 @@ void TrackTest::testSetMaximumBpmSwap() {
 }
 
 void TrackTest::testPrintBpm() {
-    DummyTrack t;
+    DummyTrack t(QStringLiteral("test.wav"));
     t.setBpm(123.45);
     t.setFormat(QStringLiteral("0.00"));
     std::stringstream buffer;

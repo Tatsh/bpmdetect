@@ -189,7 +189,19 @@ void DlgBpmDetect::slotStart() {
         item->progressBar()->setValue(0);
         item->progressBar()->setTextVisible(true);
         item->track()->setDetector(detector_);
-        item->track()->detectBpm();
+        if (item->track()->detectBpm() != Track::Detecting) {
+            qCDebug(gLogBpmDetect)
+                << "Error starting detection for track" << item->track()->fileName();
+            item->progressBar()->setValue(0);
+            item->progressBar()->setTextVisible(false);
+            if (--pendingTracks_ == 0) {
+                qCDebug(gLogBpmDetect) << "No more pending tracks, stopping.";
+                slotStop();
+                return;
+            }
+            TotalProgress->setValue(TotalProgress->maximum() - pendingTracks_);
+            continue;
+        }
         qCDebug(gLogBpmDetect) << "Starting inner loop. File:" << item->track()->fileName();
         if (innerEventLoop_->exec(QEventLoop::ExcludeUserInputEvents |
                                   QEventLoop::ExcludeSocketNotifiers)) {

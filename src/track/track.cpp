@@ -27,7 +27,8 @@ Track::Track(const QString &fileName, QAudioDecoder *const decoder, QObject *par
     setupDecoder();
 }
 
-Track::Track(const QString &fileName, QObject *parent) : QObject(parent) {
+Track::Track(const QString &fileName, QObject *parent) : QObject(parent), fileName_(fileName) {
+    readTags();
 }
 
 Track::Track(QObject *parent) : QObject(parent) {
@@ -224,7 +225,7 @@ void Track::printBpm() const {
               << " BPM" << std::endl;
 }
 
-bpmtype Track::detectBpm() {
+Track::DetectionState Track::detectBpm() {
     open();
     if (isValidFile_ && detector_ != nullptr && decoder_ != nullptr) {
         detector_->reset();
@@ -234,8 +235,9 @@ bpmtype Track::detectBpm() {
                                   << (detector_ ? "valid" : "nullptr")
                                   << ", decoder_:" << (decoder_ ? "valid" : "nullptr")
                                   << ", isValidFile_:" << isValidFile_;
+        return Error;
     }
-    return 0;
+    return Detecting;
 }
 
 void Track::storeBpm(const QString &sBpm) {

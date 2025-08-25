@@ -18,6 +18,11 @@ class Track : public QObject {
 #endif
 
 public:
+    /** Possible states of BPM detection. */
+    enum DetectionState {
+        Detecting, //!< Currently detecting BPM.
+        Error,     //!< Error occurred.
+    };
     /**
      * Constructor.
      * @param fileName Filename.
@@ -55,7 +60,7 @@ public:
     /** Clear the BPM. */
     void clearBpm();
     /** Detect the BPM. */
-    bpmtype detectBpm();
+    DetectionState detectBpm();
     /** Save the BPM to the metadata of the file. */
     void saveBpm();
     /** Print the BPM to standard output. */
