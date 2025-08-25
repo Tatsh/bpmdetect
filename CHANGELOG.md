@@ -37,6 +37,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Possible crash when clearing the list of files and adding more or adding a directory.
 - Not a great way to handle this: the test BPM dialog will close on fatal error.
+- Fixed getting files recursively when a directory is added.
 
 ### Removed
 
