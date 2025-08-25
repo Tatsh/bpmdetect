@@ -15,8 +15,10 @@ bool isDecodableFile(const QString &file) {
         return false;
     }
     if (avformat_find_stream_info(fmt_ctx, nullptr) < 0) {
+        // LCOV_EXCL_START
         avformat_close_input(&fmt_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     auto hasAudio = false;
     for (unsigned int i = 0; i < fmt_ctx->nb_streams; ++i) {
@@ -45,9 +47,11 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     // Retrieve stream information.
     ret = avformat_find_stream_info(fmt_ctx, nullptr);
     if (ret < 0) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to find stream info for file:" << fileName;
         avformat_close_input(&fmt_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     // Set BPM metadata.
     av_dict_set(&fmt_ctx->metadata, "BPM", sBpm.toUtf8().constData(), 0);
@@ -56,27 +60,33 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     AVFormatContext *out_ctx = nullptr;
     ret = avformat_alloc_output_context2(&out_ctx, nullptr, nullptr, outFile.toUtf8().constData());
     if (ret < 0 || !out_ctx) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to allocate output context for file:"
                                   << outFile;
         avformat_close_input(&fmt_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     // Copy streams from input to output.
     for (auto i = 0; i < fmt_ctx->nb_streams; ++i) {
         auto in_stream = fmt_ctx->streams[i];
         auto *out_stream = avformat_new_stream(out_ctx, nullptr);
         if (!out_stream) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to create output stream.";
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
+            // LCOV_EXCL_STOP
         }
         ret = avcodec_parameters_copy(out_stream->codecpar, in_stream->codecpar);
         if (ret < 0) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to copy codec parameters.";
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
+            // LCOV_EXCL_STOP
         }
         out_stream->time_base = in_stream->time_base;
     }
@@ -86,15 +96,18 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     if (!(out_ctx->oformat->flags & AVFMT_NOFILE)) {
         ret = avio_open(&out_ctx->pb, outFile.toUtf8().constData(), AVIO_FLAG_WRITE);
         if (ret < 0) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to open output file:" << outFile;
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
+            // LCOV_EXCL_STOP
         }
     }
     // Write header.
     ret = avformat_write_header(out_ctx, nullptr);
     if (ret < 0) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to write header to output file:"
                                   << outFile;
         avformat_close_input(&fmt_ctx);
@@ -103,6 +116,7 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         }
         avformat_free_context(out_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     // Write packets (copy mode).
     AVPacket pkt;
@@ -112,8 +126,10 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         ret = av_interleaved_write_frame(out_ctx, &pkt);
         av_packet_unref(&pkt);
         if (ret < 0) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to write frame.";
             break;
+            // LCOV_EXCL_STOP
         }
     }
     // Write trailer.
@@ -127,9 +143,11 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     // Replace original file with new file.
     QFile::remove(fileName);
     if (!QFile::rename(outFile, fileName)) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "Failed to replace original file with updated metadata file:"
                                   << fileName;
         return false;
+        // LCOV_EXCL_STOP
     }
     return true;
 }
@@ -145,9 +163,11 @@ bool removeBpmFromFile(const QString &fileName) {
     // Retrieve stream information.
     ret = avformat_find_stream_info(fmt_ctx, nullptr);
     if (ret < 0) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to find stream info for file:" << fileName;
         avformat_close_input(&fmt_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     // Remove BPM from global metadata.
     av_dict_set(&fmt_ctx->metadata, "BPM", nullptr, 0);
@@ -165,27 +185,33 @@ bool removeBpmFromFile(const QString &fileName) {
     AVFormatContext *out_ctx = nullptr;
     ret = avformat_alloc_output_context2(&out_ctx, nullptr, nullptr, outFile.toUtf8().constData());
     if (ret < 0 || !out_ctx) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to allocate output context for file:"
                                   << outFile;
         avformat_close_input(&fmt_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     // Copy streams from input to output.
     for (auto i = 0; i < fmt_ctx->nb_streams; ++i) {
         auto in_stream = fmt_ctx->streams[i];
         auto out_stream = avformat_new_stream(out_ctx, nullptr);
         if (!out_stream) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to create output stream.";
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
+            // LCOV_EXCL_STOP
         }
         ret = avcodec_parameters_copy(out_stream->codecpar, in_stream->codecpar);
         if (ret < 0) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to copy codec parameters.";
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
+            // LCOV_EXCL_STOP
         }
         out_stream->time_base = in_stream->time_base;
         // Copy stream metadata except TBPM for MP3.
@@ -209,15 +235,18 @@ bool removeBpmFromFile(const QString &fileName) {
     if (!(out_ctx->oformat->flags & AVFMT_NOFILE)) {
         ret = avio_open(&out_ctx->pb, outFile.toUtf8().constData(), AVIO_FLAG_WRITE);
         if (ret < 0) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to open output file:" << outFile;
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
+            // LCOV_EXCL_STOP
         }
     }
     // Write header.
     ret = avformat_write_header(out_ctx, nullptr);
     if (ret < 0) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to write header to output file:"
                                   << outFile;
         avformat_close_input(&fmt_ctx);
@@ -226,6 +255,7 @@ bool removeBpmFromFile(const QString &fileName) {
         }
         avformat_free_context(out_ctx);
         return false;
+        // LCOV_EXCL_STOP
     }
     // Write packets (copy mode).
     AVPacket pkt;
@@ -233,8 +263,10 @@ bool removeBpmFromFile(const QString &fileName) {
         ret = av_interleaved_write_frame(out_ctx, &pkt);
         av_packet_unref(&pkt);
         if (ret < 0) {
+            // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to write frame.";
             break;
+            // LCOV_EXCL_STOP
         }
     }
     // Write trailer.
@@ -248,9 +280,11 @@ bool removeBpmFromFile(const QString &fileName) {
     // Replace original file with new file.
     QFile::remove(fileName);
     if (!QFile::rename(outFile, fileName)) {
+        // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "Failed to replace original file with updated metadata file:"
                                   << fileName;
         return false;
+        // LCOV_EXCL_STOP
     }
     return true;
 }
