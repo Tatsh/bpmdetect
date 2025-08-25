@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install deps
-        run: brew install extra-cmake-modules flac libvorbis qt sound-touch wavpack
+        run: brew install extra-cmake-modules ffmpeg qt sound-touch
       - run: |
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
             --install-prefix ${{github.workspace}}/build/prefix \
@@ -107,16 +107,13 @@ jobs:
           pacboy: >-
             cmake:p
             extra-cmake-modules:p
-            flac:p
-            libmad:p
-            libvorbis:p
+            ffmpeg:p
             ninja:p
             qt6-base:p
             qt6-multimedia:p
             qt6-tools:p
             soundtouch:p
             toolchain:p
-            wavpack:p
             zlib:p
           update: true
       - uses: actions/checkout@v5
