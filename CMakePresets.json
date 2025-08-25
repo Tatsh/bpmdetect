@@ -17,11 +17,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_COMPILER": "/usr/lib/llvm/20/bin/clang++",
         "CMAKE_C_COMPILER": "/usr/lib/llvm/20/bin/clang",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/prefix",
-        "ENABLE_FLAC": "ON",
-        "ENABLE_MP3": "ON",
-        "ENABLE_VORBIS": "ON",
-        "ENABLE_WAVPACK": "ON"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/prefix"
       },
       "generator": "Ninja",
       "name": "Clang with -Weverything"

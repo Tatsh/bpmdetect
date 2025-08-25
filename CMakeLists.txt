@@ -78,19 +78,6 @@ if(NOT BUILD_DOCS_ONLY)
     GLOBAL)
   pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET GLOBAL)
 
-  if(ENABLE_FLAC)
-    pkg_check_modules(FLAC flac REQUIRED IMPORTED_TARGET GLOBAL)
-  endif()
-  if(ENABLE_MP3)
-    pkg_check_modules(MAD mad REQUIRED IMPORTED_TARGET GLOBAL)
-  endif()
-  if(ENABLE_VORBIS)
-    pkg_check_modules(VORBIS vorbisfile REQUIRED IMPORTED_TARGET GLOBAL)
-  endif()
-  if(ENABLE_WAVPACK)
-    pkg_check_modules(WAVPACK wavpack REQUIRED IMPORTED_TARGET GLOBAL)
-  endif()
-
   feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
   # Sane flags from Kate
