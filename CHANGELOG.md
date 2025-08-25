@@ -11,8 +11,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Added
 
-- Options at build time to enable FLAC, MP3, OGG, WavPack. All of these options are off by default.
-  Without setting any of these options to `ON`, the app will only support wave files.
 - CMake: `FHS` option, off by default. Please enable this option if you are packaging for Linux or
   a similar system.
 - Save window size in settings.
@@ -21,21 +19,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Changed
 
-- Now requires Qt 6.7 or better.
+- Now requires Qt 6.7 or later.
 - Depends on SoundTouch shared library.
 - Removed dead code.
 - Removed kissfft requirement because only dead code referenced it.
 - License is now GPL-3 or later.
 - Do not enable _Save_ on first launch.
 - Test BPM dialog is now a fixed size.
-- _Test BPM_ menu option will not be displayed on Windows if Media Feature Pack is not installed.
+- _Test BPM_ menu option will be disabled on Windows if Media Feature Pack is not installed.
 - Allow _Test BPM_ on macOS.
 - New icons.
 - Supports any audio format that FFmpeg supports.
+- Files that are not detected to have an audio track will be ignored when dropped in or selected
+  using the open file/directory dialogues.
 
 ### Fixed
 
-- Updated name filter so Wavpack files can be picked with the _Add files_ functionality.
 - Possible crash when clearing the list of files and adding more or adding a directory.
 - Not a great way to handle this: the test BPM dialog will close on fatal error.
 
