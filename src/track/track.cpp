@@ -146,8 +146,10 @@ void Track::open() {
         isValidFile_ = true;
         return;
     }
+    // LCOV_EXCL_START
     qCCritical(gLogBpmDetect) << "Failed to open file:" << fileName_
                               << ", error:" << decoder_->errorString();
+    // LCOV_EXCL_STOP
 }
 
 QString Track::fileName() const {
@@ -257,4 +259,8 @@ void Track::stop() {
 
 bool Track::hasValidBpm() const {
     return dBpm_ >= _dMinBpm && dBpm_ <= _dMaxBpm;
+}
+
+quint64 Track::length() const {
+    return length_;
 }

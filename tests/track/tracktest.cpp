@@ -1,5 +1,8 @@
 #include <iostream>
 
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtMultimedia/QAudioDecoder>
 #include <QtTest>
 
 #include "track/track.h"
@@ -13,8 +16,9 @@ struct DummyTrack : public Track {
     }
 };
 
-struct DummyBpmDetector : public AbstractBpmDetector {
+class DummyBpmDetector : public AbstractBpmDetector {
     Q_OBJECT
+public:
     DummyBpmDetector(QObject *parent = nullptr) : AbstractBpmDetector(parent) {
     }
     void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) override {
@@ -44,6 +48,8 @@ private Q_SLOTS:
     void testSetMaximumBpmSwap();
     void testSetMinimumBpmSwap();
     void testStaticBpmLimits();
+    void testValidFile();
+    void testSetBpmTag();
 };
 
 TrackTest::TrackTest(QObject *parent) : QObject(parent) {
@@ -143,6 +149,52 @@ void TrackTest::testFormatted2() {
     t.setFormat(QStringLiteral("0.0"));
     formatted = t.formatted(QStringLiteral("0.000")); // Defaults to 0.00.
     QCOMPARE(formatted, QStringLiteral("123.46"));
+}
+
+void TrackTest::testValidFile() {
+    Track t(QString::fromUtf8(TEST_FILE_5S_SILENT), new QAudioDecoder(this));
+    t.setDetector(new DummyBpmDetector(this));
+    QCOMPARE(t.artist(), QStringLiteral("Artist"));
+    QCOMPARE(t.title(), QStringLiteral("Title"));
+    QVERIFY(t.length() >= 5000);
+    QVERIFY(!t.hasValidBpm());
+    QCOMPARE(t.detectBpm(), Track::Detecting);
+    QVERIFY(t.isValid());
+}
+
+void TrackTest::testSetBpmTag() {
+    auto sourceName = QString::fromUtf8(TEST_FILE_5S_SILENT);
+    auto tempFile =
+        QDir::currentPath() + QStringLiteral("/.test-output-") + QFileInfo(sourceName).fileName();
+    QVERIFY(QFile::copy(sourceName, tempFile));
+
+    Track t(tempFile, new QAudioDecoder(this));
+    t.setDetector(new DummyBpmDetector(this));
+    QCOMPARE(t.artist(), QStringLiteral("Artist"));
+    QCOMPARE(t.title(), QStringLiteral("Title"));
+    QVERIFY(t.length() >= 5000);
+    QVERIFY(!t.hasValidBpm());
+    t.dBpm_ = 120.0;
+    t.saveBpm();
+    QVERIFY(t.hasValidBpm());
+
+    Track t2(tempFile, new QAudioDecoder(this));
+    t2.setDetector(new DummyBpmDetector(this));
+    QCOMPARE(t2.artist(), QStringLiteral("Artist"));
+    QCOMPARE(t2.title(), QStringLiteral("Title"));
+    QVERIFY(t2.length() >= 5000);
+    QVERIFY(t2.hasValidBpm());
+    QCOMPARE(t2.bpm(), 120.0);
+    t2.clearBpm();
+
+    Track t3(tempFile, new QAudioDecoder(this));
+    t3.setDetector(new DummyBpmDetector(this));
+    QCOMPARE(t3.artist(), QStringLiteral("Artist"));
+    QCOMPARE(t3.title(), QStringLiteral("Title"));
+    QVERIFY(t3.length() >= 5000);
+    QVERIFY(!t3.hasValidBpm());
+
+    QFile::remove(tempFile);
 }
 
 QTEST_MAIN(TrackTest)

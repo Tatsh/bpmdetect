@@ -14,6 +14,7 @@ class QAudioDecoder;
 class Track : public QObject {
     Q_OBJECT
 #ifdef TESTING
+    friend class DlgBpmDetectTest;
     friend class TrackTest;
 #endif
 

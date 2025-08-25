@@ -21,6 +21,7 @@ set(UTILS_TESTS_SRCS utilstest.cpp ../src/utils.cpp ../src/utils.h)
 create_test(utils-test "${UTILS_TESTS_SRCS}")
 
 set(TRACK_TESTS_SRCS
+    track/5s-silent-artist-title.mp3
     track/tracktest.cpp
     ../src/track/abstractbpmdetector.cpp
     ../src/track/abstractbpmdetector.h
@@ -32,6 +33,9 @@ set(TRACK_TESTS_SRCS
     ../src/utils.cpp
     ../src/utils.h)
 create_test(track-test "${TRACK_TESTS_SRCS}")
+target_compile_definitions(
+  track-test
+  PRIVATE TEST_FILE_5S_SILENT=\"${CMAKE_CURRENT_SOURCE_DIR}/track/5s-silent-artist-title.mp3\")
 target_link_libraries(track-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH Qt6::Multimedia)
 
 set(WIDGETS_TESTS_SRCS widgets/qdroplistviewtest.cpp ../src/widgets/qdroplistview.cpp

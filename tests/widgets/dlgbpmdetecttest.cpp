@@ -1,8 +1,24 @@
+#include <QtCore/QDir>
 #include <QtTest>
 
+#include "track/abstractbpmdetector.h"
 #include "track/track.h"
 #include "widgets/dlgbpmdetect.h"
 #include "widgets/trackitem.h"
+
+class DummyBpmDetector : public AbstractBpmDetector {
+    Q_OBJECT
+public:
+    DummyBpmDetector(QObject *parent = nullptr) : AbstractBpmDetector(parent) {
+    }
+    void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) override {
+    }
+    bpmtype getBpm() const override {
+        return 120.0;
+    }
+    void reset() override {
+    }
+};
 
 class DlgBpmDetectTest : public QObject {
     Q_OBJECT
@@ -19,6 +35,9 @@ private Q_SLOTS:
     void testSlotStartStop();
     void testSlotAddFiles();
     void testSlotDropped();
+    void testSlotStartStopSkipsFilesWithValidBpmIfSkipScannedIsChecked();
+    void testSlotClearDetected();
+    void testSlotSaveBpm();
 };
 
 DlgBpmDetectTest::DlgBpmDetectTest(QObject *parent) : QObject(parent) {
@@ -51,11 +70,27 @@ void DlgBpmDetectTest::testSetRecentPath() {
 
 void DlgBpmDetectTest::testFilesFromDir() {
     DlgBpmDetect dlg;
-    QStringList files = dlg.filesFromDir(QStringLiteral("."));
+    QCOMPARE(dlg.filesFromDir(QStringLiteral("/nonexistent-path")).size(), 0);
+
+    QVERIFY(QDir(QStringLiteral("testdir")).removeRecursively());
+    QVERIFY(QDir().mkdir(QStringLiteral("testdir")));
+    QFileInfo fi(QStringLiteral("testdir"));
+    QVERIFY(fi.exists());
+    QVERIFY(fi.isDir());
+    QVERIFY(QDir(QStringLiteral("testdir")).mkdir(QStringLiteral("subdir")));
+    QFile file1(QStringLiteral("testdir/file1.txt"));
+    QVERIFY(file1.open(QIODevice::WriteOnly));
+    file1.close();
+    QFile file2(QStringLiteral("testdir/subdir/file2.mp3"));
+    QVERIFY(file2.open(QIODevice::WriteOnly));
+    file2.close();
+    auto files = dlg.filesFromDir(fi.absoluteFilePath());
+    QCOMPARE(files.size(), 2);
 }
 
 void DlgBpmDetectTest::testSlotStartStop() {
     DlgBpmDetect dlg;
+    dlg.setDetector(new DummyBpmDetector(&dlg));
     dlg.slotStartStop();
 
     auto item = new TrackItem(nullptr, new Track(this));
@@ -91,6 +126,54 @@ void DlgBpmDetectTest::testSlotDropped() {
     QDropEvent dropEvent(QPoint(10, 10), Qt::CopyAction, mimeData, Qt::LeftButton, Qt::NoModifier);
     dlg.slotDropped(&dropEvent);
     QCOMPARE(dlg.TrackList->topLevelItemCount(), 0);
+}
+
+void DlgBpmDetectTest::testSlotStartStopSkipsFilesWithValidBpmIfSkipScannedIsChecked() {
+    DlgBpmDetect dlg;
+    dlg.setDetector(new DummyBpmDetector(&dlg));
+
+    auto item1 = new TrackItem(dlg.TrackList, new Track(this));
+    item1->setProgressBar(new QProgressBar(&dlg));
+    item1->setText(0, QStringLiteral("test1.mp3"));
+    item1->track()->dBpm_ = 120.0;
+    dlg.TrackList->addTopLevelItem(item1);
+
+    dlg.chbSkipScanned->setChecked(true);
+    dlg.slotStartStop();
+    QCOMPARE(dlg.pendingTracks_, 0);
+    QVERIFY(dlg.btnAddFiles->isEnabled());
+}
+
+void DlgBpmDetectTest::testSlotClearDetected() {
+    DlgBpmDetect dlg;
+
+    auto item1 = new TrackItem(dlg.TrackList, new Track(this));
+    item1->setText(0, QStringLiteral("test1.mp3"));
+    item1->track()->setBpm(120.0);
+    dlg.TrackList->addTopLevelItem(item1);
+
+    auto item2 = new TrackItem(dlg.TrackList, new Track(this));
+    item2->setText(0, QStringLiteral("test2.mp3"));
+    dlg.TrackList->addTopLevelItem(item2);
+
+    QCOMPARE(dlg.TrackList->topLevelItemCount(), 2);
+    dlg.slotClearDetected();
+    QCOMPARE(dlg.TrackList->topLevelItemCount(), 1);
+    QCOMPARE(dlg.TrackList->topLevelItem(0)->text(0), QStringLiteral("test2.mp3"));
+}
+
+void DlgBpmDetectTest::testSlotSaveBpm() {
+    DlgBpmDetect dlg;
+    dlg.slotSaveBpm();
+
+    auto item1 = new TrackItem(dlg.TrackList, new Track(this));
+    item1->setText(0, QStringLiteral("120.0"));
+    item1->track()->dBpm_ = 0.0;
+    dlg.TrackList->addTopLevelItem(item1);
+    dlg.TrackList->setCurrentItem(item1);
+
+    dlg.slotSaveBpm();
+    QCOMPARE(item1->track()->bpm(), 120.0);
 }
 
 QTEST_MAIN(DlgBpmDetectTest)

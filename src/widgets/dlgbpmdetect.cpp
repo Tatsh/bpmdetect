@@ -84,7 +84,9 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
 
 DlgBpmDetect::~DlgBpmDetect() {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        // LCOV_EXCL_START
         slotStop();
+        // LCOV_EXCL_STOP
     }
     saveSettings();
 }
@@ -155,10 +157,11 @@ void DlgBpmDetect::enableControls(bool enable) {
 
 void DlgBpmDetect::slotStartStop() {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
-        Q_ASSERT(btnStart->text() == tr("Stop"));
+        Q_ASSERT_X(btnStart->text() == tr("Stop"), "slotStartStop", "Button text should be 'Stop'");
         slotStop();
     } else {
-        Q_ASSERT(btnStart->text() == tr("St&art"));
+        Q_ASSERT_X(
+            btnStart->text() == tr("St&art"), "slotStartStop", "Button text should be 'Start'");
         slotStart();
     }
 }
@@ -229,7 +232,9 @@ void DlgBpmDetect::slotStop() {
 
 void DlgBpmDetect::slotAddFiles(const QStringList &files) {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        // LCOV_EXCL_START
         return;
+        // LCOV_EXCL_STOP
     }
     QStringList filteredFiles;
     for (const auto &file : files) {
@@ -308,25 +313,20 @@ QStringList DlgBpmDetect::filesFromDir(const QString &path) const {
     if (!d.exists(path)) {
         return files;
     }
-    d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks);
+    d.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     f.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
 
-    auto dirs = d.entryList(QDir::NoDotAndDotDot);
+    auto dirs = d.entryList();
     files = f.entryList();
 
-    for (auto i = 0; i < dirs.size(); ++i) {
-        auto cdir = dirs[i];
-        auto dirFiles = filesFromDir(d.absolutePath() + QStringLiteral("/") + cdir);
-        for (auto j = 0; j < dirFiles.size(); ++j) {
-            files.append(cdir + QStringLiteral("/") + dirFiles[j]);
+    for (const auto &currentDir : dirs) {
+        for (const auto &dirFile :
+             filesFromDir(d.absolutePath() + QStringLiteral("/") + currentDir)) {
+            files.append(currentDir + QStringLiteral("/") + dirFile);
         }
     }
 
     return files;
-}
-
-void DlgBpmDetect::slotRemoveSelected() {
-    TrackList->slotRemoveSelected();
 }
 
 void DlgBpmDetect::slotClearTrackList() {
@@ -335,15 +335,15 @@ void DlgBpmDetect::slotClearTrackList() {
 
 void DlgBpmDetect::slotClearDetected() {
     for (auto i = 0; i < TrackList->topLevelItemCount(); ++i) {
-        auto item = TrackList->topLevelItem(i);
+        auto item = static_cast<TrackItem *>(TrackList->topLevelItem(i));
         if (!item) {
+            // LCOV_EXCL_START
             break;
+            // LCOV_EXCL_STOP
         }
-
-        auto fBpm = item->text(0).toFloat();
-        if (fBpm > 0) {
+        if (item->track()->hasValidBpm()) {
             delete item;
-            i--;
+            --i;
         }
     }
 }
@@ -371,11 +371,9 @@ void DlgBpmDetect::slotDropped(QDropEvent *e) {
 
 void DlgBpmDetect::slotSaveBpm() {
     auto items = TrackList->selectedItems();
-    // LCOV_EXCL_START
     if (!items.size()) {
         return;
     }
-    // LCOV_EXCL_STOP
 
     for (const auto qItem : items) {
         auto item = static_cast<TrackItem *>(qItem);
@@ -399,13 +397,14 @@ void DlgBpmDetect::setDetector(AbstractBpmDetector *detector) {
 }
 
 // LCOV_EXCL_START
+void DlgBpmDetect::slotRemoveSelected() {
+    TrackList->slotRemoveSelected();
+}
+
 void DlgBpmDetect::slotAddFiles() {
     QStringList files;
-    files = QFileDialog::getOpenFileNames(
-        this,
-        tr("Add tracks"),
-        recentPath(),
-        tr("Audio files (*.wav *.mp3 *.ogg *.flac *.wv *.wavpack *.fla *.flc);;All files (*.*)"));
+    files =
+        QFileDialog::getOpenFileNames(this, tr("Add tracks"), recentPath(), tr("All files (*.*)"));
     if (files.size() > 0) {
         setRecentPath(files[0].left(files[0].lastIndexOf(QChar::fromLatin1('/'))));
     }
