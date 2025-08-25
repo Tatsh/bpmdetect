@@ -5,8 +5,6 @@ set(WIDGETS_SRCS
     dlgtestbpm.cpp
     dlgtestbpm.h
     dlgtestbpmdlg.ui
-    dlgtestbpmplayer.cpp
-    dlgtestbpmplayer.h
     progressbar.cpp
     progressbar.h
     qdroplistview.cpp

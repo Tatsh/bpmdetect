@@ -4,6 +4,7 @@
 #include <QtCore/QString>
 #include <QtGui/QCursor>
 #include <QtGui/QDropEvent>
+#include <QtMultimedia/QAudioDecoder>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
@@ -463,8 +464,7 @@ void DlgBpmDetect::slotTestBpm() {
     }
     auto file = item->text(TrackList->columnCount() - 1);
 
-    DlgTestBpm testBpmDialog(
-        file, bpm, new DlgTestBpmPlayer(file, 4, bpm, new QAudioDecoder(this), 0, this));
+    DlgTestBpm testBpmDialog(file, bpm, this);
     testBpmDialog.exec();
 }
 

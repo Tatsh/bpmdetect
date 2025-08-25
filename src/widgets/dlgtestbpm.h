@@ -2,12 +2,26 @@
 /** @file */
 #pragma once
 
-#include <QtCore/QList>
+#include <QtCore/QBuffer>
+#include <QtMultimedia/QAudioBuffer>
 #include <QtWidgets/QDialog>
 
-#include "dlgtestbpmplayer.h"
 #include "ui_dlgtestbpmdlg.h"
 #include "utils.h"
+
+class QAudioDecoder;
+class QAudioFormat;
+class QMediaPlayer;
+
+class LoopingBuffer : public QBuffer {
+    Q_OBJECT
+public:
+    explicit LoopingBuffer(QObject *parent = nullptr);
+    qint64 readData(char *data, qint64 maxlen) override;
+    bool atEnd() const override {
+        return false;
+    }
+};
 
 /** Dialog to test the BPM. */
 class DlgTestBpm : public QDialog, public Ui_DlgTestBpmDlg {
@@ -21,7 +35,7 @@ public:
      * @param bpm BPM value.
      * @param parent Parent widget.
      */
-    DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWidget *parent = nullptr);
+    DlgTestBpm(QString file, bpmtype bpm, QWidget *parent = nullptr);
     ~DlgTestBpm() override;
 
 protected Q_SLOTS:
@@ -34,6 +48,12 @@ protected Q_SLOTS:
 
 private:
     void setPosFromButton(int msec);
-    DlgTestBpmPlayer *m_player;
-    bpmtype m_bpm;
+    LoopingBuffer *loopingBuffer_ = nullptr;
+    QAudioBuffer lastBuffer_;
+    QAudioDecoder *decoder_ = nullptr;
+    QAudioFormat format_;
+    QByteArray completeBuffer_;
+    QMediaPlayer *player_ = nullptr;
+    bpmtype bpm_ = 0;
+    qint64 lengthUs_ = 0;
 };

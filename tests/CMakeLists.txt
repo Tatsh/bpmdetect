@@ -44,13 +44,13 @@ set(PROGRESSBAR_TESTS_SRCS widgets/progressbartest.cpp ../src/widgets/progressba
 create_test(progressbar-test "${PROGRESSBAR_TESTS_SRCS}")
 target_link_libraries(progressbar-test PRIVATE Qt::Widgets)
 
-set(DLGTESTBPMPLAYER_TESTS_SRCS
-    widgets/dlgtestbpmplayertest.cpp ../src/widgets/dlgtestbpmplayer.cpp
-    ../src/widgets/dlgtestbpmplayer.h)
-create_test(dlgtestbpmplayer-test "${DLGTESTBPMPLAYER_TESTS_SRCS}")
-target_compile_definitions(dlgtestbpmplayer-test
-                           PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
-target_link_libraries(dlgtestbpmplayer-test PRIVATE Qt::Widgets Qt::Multimedia)
+# set(DLGTESTBPMPLAYER_TESTS_SRCS
+#     widgets/dlgtestbpmplayertest.cpp ../src/widgets/dlgtestbpmplayer.cpp
+#     ../src/widgets/dlgtestbpmplayer.h)
+# create_test(dlgtestbpmplayer-test "${DLGTESTBPMPLAYER_TESTS_SRCS}")
+# target_compile_definitions(dlgtestbpmplayer-test
+#                            PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
+# target_link_libraries(dlgtestbpmplayer-test PRIVATE Qt::Widgets Qt::Multimedia)
 
 set(DLGTESTBPM_TESTS_SRCS
     widgets/dlgtestbpmtest.cpp
@@ -58,8 +58,6 @@ set(DLGTESTBPM_TESTS_SRCS
     ../src/utils.h
     ../src/widgets/dlgtestbpm.cpp
     ../src/widgets/dlgtestbpm.h
-    ../src/widgets/dlgtestbpmplayer.cpp
-    ../src/widgets/dlgtestbpmplayer.h
     ../src/widgets/progressbar.cpp
     ../src/widgets/progressbar.h)
 create_test(dlgtestbpm-test "${DLGTESTBPM_TESTS_SRCS}")
@@ -83,8 +81,6 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/widgets/dlgbpmdetect.h
     ../src/widgets/dlgtestbpm.cpp
     ../src/widgets/dlgtestbpm.h
-    ../src/widgets/dlgtestbpmplayer.cpp
-    ../src/widgets/dlgtestbpmplayer.h
     ../src/widgets/progressbar.cpp
     ../src/widgets/progressbar.h
     ../src/widgets/qdroplistview.cpp
