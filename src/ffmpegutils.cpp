@@ -54,7 +54,12 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         // LCOV_EXCL_STOP
     }
     // Set BPM metadata.
-    av_dict_set(&fmt_ctx->metadata, "BPM", sBpm.toUtf8().constData(), 0);
+    const auto key =
+        fmt_ctx->iformat &&
+                QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
+            "TBPM" :
+            "bpm";
+    av_dict_set(&fmt_ctx->metadata, key, sBpm.toUtf8().constData(), 0);
     // Prepare output file name.
     auto outFile = makeTempFileName(fileName);
     AVFormatContext *out_ctx = nullptr;
@@ -170,15 +175,12 @@ bool removeBpmFromFile(const QString &fileName) {
         // LCOV_EXCL_STOP
     }
     // Remove BPM from global metadata.
-    av_dict_set(&fmt_ctx->metadata, "BPM", nullptr, 0);
-    // If MP3, remove TBPM from stream metadata
-    if (fmt_ctx->iformat &&
-        QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3"))) {
-        for (auto i = 0; i < fmt_ctx->nb_streams; ++i) {
-            AVStream *stream = fmt_ctx->streams[i];
-            av_dict_set(&stream->metadata, "TBPM", nullptr, 0);
-        }
-    }
+    const auto key =
+        fmt_ctx->iformat &&
+                QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
+            "TBPM" :
+            "bpm";
+    av_dict_set(&fmt_ctx->metadata, key, nullptr, 0);
     // Prepare output file name.
     auto outFile = makeTempFileName(fileName);
     // Open output context.
@@ -298,7 +300,6 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
     returnTags.insert(QStringLiteral("length"), QVariant(0));
     if (avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr) == 0) {
         if (avformat_find_stream_info(fmt_ctx, nullptr) >= 0) {
-            // Read artist and title from metadata
             auto artistEntry = av_dict_get(fmt_ctx->metadata, "artist", nullptr, 0);
             if (artistEntry && !QString::fromUtf8(artistEntry->value).isEmpty()) {
                 returnTags[QStringLiteral("artist")] = QString::fromUtf8(artistEntry->value);
@@ -307,29 +308,17 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
             if (titleEntry && !QString::fromUtf8(titleEntry->value).isEmpty()) {
                 returnTags[QStringLiteral("title")] = QString::fromUtf8(titleEntry->value);
             }
-            // Read BPM from metadata
-            AVDictionaryEntry *bpmEntry = av_dict_get(fmt_ctx->metadata, "BPM", nullptr, 0);
-            if (bpmEntry) {
+            auto key =
+                fmt_ctx->iformat &&
+                        QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
+                    "TBPM" :
+                    "bpm";
+            auto bpmEntry = av_dict_get(fmt_ctx->metadata, key, nullptr, 0);
+            if (bpmEntry && !QString::fromUtf8(bpmEntry->value).isEmpty()) {
                 auto ok = false;
                 auto bpmVal = QString::fromUtf8(bpmEntry->value).toDouble(&ok);
                 if (ok) {
                     returnTags[QStringLiteral("bpm")] = bpmVal;
-                }
-            }
-            // If MP3, try to read TBPM from ID3v2
-            if (fmt_ctx->iformat &&
-                QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3"))) {
-                for (auto i = 0; i < fmt_ctx->nb_streams; ++i) {
-                    auto tags = fmt_ctx->streams[i]->metadata;
-                    auto tbpmEntry = av_dict_get(tags, "TBPM", nullptr, 0);
-                    if (tbpmEntry) {
-                        auto ok = false;
-                        auto bpmVal = QString::fromUtf8(tbpmEntry->value).toDouble(&ok);
-                        if (ok) {
-                            returnTags[QStringLiteral("bpm")] = bpmVal;
-                            break;
-                        }
-                    }
                 }
             }
             if (fmt_ctx->duration != AV_NOPTS_VALUE) {
