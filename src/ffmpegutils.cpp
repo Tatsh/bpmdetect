@@ -217,19 +217,19 @@ bool removeBpmFromFile(const QString &fileName) {
         }
         out_stream->time_base = in_stream->time_base;
         // Copy stream metadata except TBPM for MP3.
-        if (fmt_ctx->iformat &&
-            QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3"))) {
-            AVDictionary *newTags = nullptr;
-            AVDictionaryEntry *entry = nullptr;
-            while ((entry = av_dict_get(in_stream->metadata, "", entry, AV_DICT_IGNORE_SUFFIX))) {
-                if (QString::fromUtf8(entry->key) != QStringLiteral("TBPM")) {
-                    av_dict_set(&newTags, entry->key, entry->value, 0);
-                }
+        auto bpmKey =
+            fmt_ctx->iformat &&
+                    QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
+                QStringLiteral("TBPM") :
+                QStringLiteral("bpm");
+        AVDictionary *newTags = nullptr;
+        AVDictionaryEntry *entry = nullptr;
+        while ((entry = av_dict_get(in_stream->metadata, "", entry, AV_DICT_IGNORE_SUFFIX))) {
+            if (QString::fromUtf8(entry->key) != bpmKey) {
+                av_dict_set(&newTags, entry->key, entry->value, 0);
             }
-            out_stream->metadata = newTags;
-        } else {
-            av_dict_copy(&out_stream->metadata, in_stream->metadata, 0);
         }
+        out_stream->metadata = newTags;
     }
     // Copy global metadata (BPM already removed).
     av_dict_copy(&out_ctx->metadata, fmt_ctx->metadata, 0);
