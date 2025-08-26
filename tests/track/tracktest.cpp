@@ -166,6 +166,7 @@ void TrackTest::testSetBpmTag() {
     auto sourceName = QString::fromUtf8(TEST_FILE_5S_SILENT);
     auto tempFile =
         QDir::currentPath() + QStringLiteral("/.test-output-") + QFileInfo(sourceName).fileName();
+    QFile::remove(tempFile);
     QVERIFY(QFile::copy(sourceName, tempFile));
 
     Track t(tempFile, new QAudioDecoder(this));

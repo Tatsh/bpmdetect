@@ -22,6 +22,7 @@ bytearray
 codecpar
 codeowners
 consolemain
+consolemaintest
 coveragerc
 coverallsapp
 cpack

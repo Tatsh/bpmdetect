@@ -52,7 +52,7 @@ void Track::setupDecoder() {
     decoder_->setAudioFormat(format);
 
     connect(decoder_, &QAudioDecoder::bufferReady, [this]() {
-        if (!isValid() || detector_ == nullptr) {
+        if (!isValid() || !detector_) {
             qCDebug(gLogBpmDetect) << "Invalid state for detection.";
             qCDebug(gLogBpmDetect) << "Detector:" << (detector_ ? "valid" : "nullptr")
                                    << ", isValidFile_:" << isValidFile_;

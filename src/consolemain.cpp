@@ -7,6 +7,12 @@
 #include "ffmpegutils.h"
 #include "track/track.h"
 
+#ifndef TESTING
+#define SHOW_HELP(parser) parser.showHelp(1);
+#else
+#define SHOW_HELP(parser) return -1;
+#endif
+
 int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QStringList &files) {
     auto remove = parser.isSet(QStringLiteral("remove"));
     auto consoleProgress = !parser.isSet(QStringLiteral("no-progress"));
@@ -14,7 +20,7 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
     auto format = parser.value(QStringLiteral("format"));
     auto save = parser.isSet(QStringLiteral("save"));
     if (files.isEmpty()) {
-        parser.showHelp(1);
+        SHOW_HELP(parser)
     }
     if (remove) {
         for (const auto &file : files) {
@@ -32,7 +38,6 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         Track track(file, new QAudioDecoder(&app));
         if (track.hasValidBpm() && !detect) {
             track.printBpm();
-            track.deleteLater();
             continue;
         }
         track.setFormat(format);
@@ -48,7 +53,6 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
                     track.saveBpm();
                 }
                 loop.quit();
-                track.deleteLater();
                 QTextStream(stdout).flush();
             });
         if (consoleProgress) {

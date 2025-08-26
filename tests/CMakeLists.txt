@@ -99,3 +99,21 @@ create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")
 target_compile_definitions(dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768)
 target_link_libraries(dlgbpmdetect-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH
                                                 Qt::Multimedia Qt::Widgets)
+
+set(CONSOLEMAIN_TESTS_SRCS
+    consolemaintest.cpp
+    ../src/consolemain.cpp
+    ../src/consolemain.h
+    ../src/track/track.cpp
+    ../src/track/track.h
+    ../src/track/abstractbpmdetector.cpp
+    ../src/track/abstractbpmdetector.h
+    ../src/track/soundtouchbpmdetector.cpp
+    ../src/track/soundtouchbpmdetector.h
+    ../src/ffmpegutils.cpp
+    ../src/ffmpegutils.h
+    ../src/utils.cpp
+    ../src/utils.h)
+create_test(consolemain-test "${CONSOLEMAIN_TESTS_SRCS}")
+target_link_libraries(consolemain-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH
+                                               Qt::Multimedia)
