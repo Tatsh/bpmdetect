@@ -163,6 +163,9 @@ void TrackTest::testValidFile() {
     QVERIFY(!t.hasValidBpm());
     QCOMPARE(t.detectBpm(), Track::Detecting);
     QVERIFY(t.isValid());
+
+    Track t2(QStringLiteral(""), new QAudioDecoder(this));
+    QCOMPARE(t2.detectBpm(), Track::Error);
 }
 
 void TrackTest::testSetBpmTag() {
