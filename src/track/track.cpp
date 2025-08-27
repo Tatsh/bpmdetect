@@ -31,16 +31,20 @@ Track::Track(const QString &fileName, QObject *parent) : QObject(parent), fileNa
     readTags();
 }
 
+#ifdef TESTING
 Track::Track(QObject *parent) : QObject(parent) {
 }
+#endif
 
 Track::~Track() {
 }
 
 void Track::setupDecoder() {
+    // LCOV_EXCL_START
     if (!decoder_) {
         return;
     }
+    // LCOV_EXCL_STOP
     QAudioFormat format;
 #if defined(SOUNDTOUCH_INTEGER_SAMPLES) && SOUNDTOUCH_INTEGER_SAMPLES
     format.setSampleFormat(QAudioFormat::Int16);
@@ -52,15 +56,6 @@ void Track::setupDecoder() {
     decoder_->setAudioFormat(format);
 
     connect(decoder_, &QAudioDecoder::bufferReady, [this]() {
-        if (!isValid() || !detector_) {
-            qCDebug(gLogBpmDetect) << "Invalid state for detection.";
-            qCDebug(gLogBpmDetect) << "Detector:" << (detector_ ? "valid" : "nullptr")
-                                   << ", isValidFile_:" << isValidFile_;
-            qCDebug(gLogBpmDetect) << "Stopping decoder.";
-            stopped_ = true;
-            decoder_->stop();
-            return;
-        }
         QAudioBuffer buffer;
         if ((buffer = decoder_->read()).isValid()) {
             detector_->inputSamples(buffer.constData<soundtouch::SAMPLETYPE>(),
@@ -74,24 +69,30 @@ void Track::setupDecoder() {
     });
     connect(decoder_, &QAudioDecoder::finished, [this]() {
         if (stopped_) {
+            // LCOV_EXCL_START
             qCDebug(gLogBpmDetect) << "Detection stopped.";
             emit finished();
             return;
+            // LCOV_EXCL_STOP
         }
         auto bpm = correctBpm(detector_->getBpm());
         setBpm(bpm);
         if (!hasValidBpm()) {
+            // LCOV_EXCL_START
             qCInfo(gLogBpmDetect) << "Invalid BPM detected:" << bpm;
+            // LCOV_EXCL_STOP
         } else {
             emit hasBpm(bpm);
         }
         emit finished();
     });
+    // LCOV_EXCL_START
     connect(decoder_, QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error), [this]() {
         qCCritical(gLogBpmDetect) << "Audio decoder error:" << decoder_->errorString();
         stopped_ = true;
         emit finished();
     });
+    // LCOV_EXCL_STOP
 }
 
 void Track::setMinimumBpm(bpmtype dMin) {

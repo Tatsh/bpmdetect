@@ -50,6 +50,7 @@ private Q_SLOTS:
     void testStaticBpmLimits();
     void testValidFile();
     void testSetBpmTag();
+    void testStop();
 };
 
 TrackTest::TrackTest(QObject *parent) : QObject(parent) {
@@ -196,6 +197,13 @@ void TrackTest::testSetBpmTag() {
     QVERIFY(!t3.hasValidBpm());
 
     QFile::remove(tempFile);
+}
+
+void TrackTest::testStop() {
+    Track t(QString::fromUtf8(TEST_FILE_5S_SILENT), new QAudioDecoder(this));
+    t.setDetector(new DummyBpmDetector(this));
+    t.stop();
+    QVERIFY(t.stopped_);
 }
 
 QTEST_MAIN(TrackTest)

@@ -38,11 +38,13 @@ public:
      * @param parent Parent object.
      */
     Track(const QString &filename, QObject *parent = nullptr);
+#ifdef TESTING
     /**
      * Constructor.
      * @param parent Parent object.
      */
     explicit Track(QObject *parent = nullptr);
+#endif
     ~Track() override;
     /**
      * Set minimum BPM.

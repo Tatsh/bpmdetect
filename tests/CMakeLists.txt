@@ -50,13 +50,14 @@ target_link_libraries(progressbar-test PRIVATE Qt::Widgets)
 
 set(DLGTESTBPMPLAYER_TESTS_SRCS
     widgets/dlgtestbpmplayertest.cpp ../src/widgets/dlgtestbpmplayer.cpp
-    ../src/widgets/dlgtestbpmplayer.h)
+    ../src/widgets/dlgtestbpmplayer.h noise.wav)
 create_test(dlgtestbpmplayer-test "${DLGTESTBPMPLAYER_TESTS_SRCS}")
 target_compile_definitions(dlgtestbpmplayer-test
                            PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
 target_link_libraries(dlgtestbpmplayer-test PRIVATE Qt::Widgets Qt::Multimedia)
 
 set(DLGTESTBPM_TESTS_SRCS
+    noise.wav
     widgets/dlgtestbpmtest.cpp
     ../src/utils.cpp
     ../src/utils.h
@@ -102,10 +103,7 @@ target_link_libraries(dlgbpmdetect-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOU
 
 set(CONSOLEMAIN_TESTS_SRCS
     consolemaintest.cpp
-    60bpm.mp3
     140bpm.ogg
-    300bpm.m4a
-    noise.wav
     ../src/consolemain.cpp
     ../src/consolemain.h
     ../src/track/track.cpp
@@ -121,9 +119,5 @@ set(CONSOLEMAIN_TESTS_SRCS
 create_test(consolemain-test "${CONSOLEMAIN_TESTS_SRCS}")
 target_link_libraries(consolemain-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH
                                                Qt::Multimedia)
-target_compile_definitions(
-  consolemain-test
-  PRIVATE TEST_FILE_60BPM=\"${CMAKE_CURRENT_SOURCE_DIR}/60bpm.mp3\"
-          TEST_FILE_140BPM=\"${CMAKE_CURRENT_SOURCE_DIR}/140bpm.ogg\"
-          TEST_FILE_300BPM=\"${CMAKE_CURRENT_SOURCE_DIR}/300bpm.m4a\"
-          NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
+target_compile_definitions(consolemain-test
+                           PRIVATE TEST_FILE_140BPM=\"${CMAKE_CURRENT_SOURCE_DIR}/140bpm.ogg\")
