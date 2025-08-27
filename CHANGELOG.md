@@ -9,6 +9,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.1] - 2025-08-27
+
+### Fixed
+
+- CMake: fix installation of man page (revert 60b50b1).
+
 ## [0.8.0] - 2025-08-27
 
 ## Added
