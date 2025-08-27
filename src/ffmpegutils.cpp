@@ -291,6 +291,29 @@ bool removeBpmFromFile(const QString &fileName) {
     return true;
 }
 
+static void readTag(const AVFormatContext *fmt_ctx,
+                    const AVDictionary *dict,
+                    const QString &sourceKey,
+                    const QString &targetKey,
+                    QMap<QString, QVariant> &tags) {
+    auto sourceKeyData = sourceKey.toUtf8().constData();
+    auto entry = av_dict_get(dict, sourceKeyData, nullptr, 0);
+    auto val = entry ? QString::fromUtf8(entry->value).trimmed() : QString();
+    if (!val.isEmpty()) {
+        tags[targetKey] = val;
+    } else {
+        for (auto i = 0; i < fmt_ctx->nb_streams; ++i) {
+            auto stream = fmt_ctx->streams[i];
+            auto entry = av_dict_get(stream->metadata, sourceKeyData, nullptr, 0);
+            auto val = entry ? QString::fromUtf8(entry->value).trimmed() : QString();
+            if (!val.isEmpty()) {
+                tags[targetKey] = val;
+                break;
+            }
+        }
+    }
+}
+
 QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
     AVFormatContext *fmt_ctx = nullptr;
     QMap<QString, QVariant> returnTags;
@@ -300,33 +323,40 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
     returnTags.insert(QStringLiteral("length"), QVariant(0));
     if (avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr) == 0) {
         if (avformat_find_stream_info(fmt_ctx, nullptr) >= 0) {
-            auto artistEntry = av_dict_get(fmt_ctx->metadata, "artist", nullptr, 0);
-            if (artistEntry && !QString::fromUtf8(artistEntry->value).isEmpty()) {
-                returnTags[QStringLiteral("artist")] = QString::fromUtf8(artistEntry->value);
-            }
-            auto titleEntry = av_dict_get(fmt_ctx->metadata, "title", nullptr, 0);
-            if (titleEntry && !QString::fromUtf8(titleEntry->value).isEmpty()) {
-                returnTags[QStringLiteral("title")] = QString::fromUtf8(titleEntry->value);
-            }
-            auto key =
+            readTag(fmt_ctx,
+                    fmt_ctx->metadata,
+                    QStringLiteral("artist"),
+                    QStringLiteral("artist"),
+                    returnTags);
+            readTag(fmt_ctx,
+                    fmt_ctx->metadata,
+                    QStringLiteral("title"),
+                    QStringLiteral("title"),
+                    returnTags);
+            const auto key =
                 fmt_ctx->iformat &&
                         QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
-                    "TBPM" :
-                    "bpm";
-            auto bpmEntry = av_dict_get(fmt_ctx->metadata, key, nullptr, 0);
-            if (bpmEntry && !QString::fromUtf8(bpmEntry->value).isEmpty()) {
-                auto ok = false;
-                auto bpmVal = QString::fromUtf8(bpmEntry->value).toDouble(&ok);
-                if (ok) {
-                    returnTags[QStringLiteral("bpm")] = bpmVal;
-                }
+                    QStringLiteral("TBPM") :
+                    QStringLiteral("bpm");
+            readTag(fmt_ctx, fmt_ctx->metadata, key, QStringLiteral("bpm2"), returnTags);
+            // Convert BPM to double.
+            auto ok = false;
+            auto bpmVal = returnTags[QStringLiteral("bpm2")].toString().toDouble(&ok);
+            if (ok) {
+                returnTags[QStringLiteral("bpm")] = bpmVal;
+            } else {
+                returnTags[QStringLiteral("bpm")] = 0;
             }
+            returnTags.remove(QStringLiteral("bpm2"));
+            // Read length in milliseconds.
             if (fmt_ctx->duration != AV_NOPTS_VALUE) {
                 returnTags[QStringLiteral("length")] =
                     static_cast<qint64>(fmt_ctx->duration / (AV_TIME_BASE / 1000));
             }
         }
         avformat_close_input(&fmt_ctx);
+    } else {
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName;
     }
     return returnTags;
 }

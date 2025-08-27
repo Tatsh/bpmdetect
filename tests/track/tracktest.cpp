@@ -120,10 +120,10 @@ void TrackTest::testPrintBpm() {
     t.setBpm(123.45);
     t.setFormat(QStringLiteral("0.00"));
     std::stringstream buffer;
-    std::streambuf *old = std::cout.rdbuf(buffer.rdbuf());
+    auto old = std::cout.rdbuf(buffer.rdbuf());
     t.printBpm();
     std::cout.rdbuf(old);
-    QString output = QString::fromStdString(buffer.str());
+    auto output = QString::fromStdString(buffer.str());
     QVERIFY(output.contains(QStringLiteral("test.wav: 123.45 BPM")));
 }
 

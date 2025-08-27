@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#include <iostream>
+
 #include <QtCore/QEventLoop>
 #include <QtMultimedia/QAudioDecoder>
 
@@ -32,7 +34,11 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
     for (const auto &file : files) {
         QEventLoop loop;
         if (!isDecodableFile(file)) {
-            qCDebug(gLogBpmDetect) << "File is not decodable, skipping:" << file;
+#ifndef TESTING
+            qCWarning(gLogBpmDetect) << "File is not decodable, skipping:" << file;
+#else
+            std::cout << "File is not decodable, skipping: " << file.toStdString() << "\n";
+#endif
             continue;
         }
         Track track(file, new QAudioDecoder(&app));
@@ -60,7 +66,9 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
                 const auto percent = length ? (pos * 100 / length) : 0;
                 QTextStream(stdout) << "\r" << track.fileName() << ": " << percent << "%";
                 if (pos >= length) {
+                    // LCOV_EXCL_START
                     QTextStream(stdout) << "\n";
+                    // LCOV_EXCL_STOP
                 }
                 QTextStream(stdout).flush();
             });
