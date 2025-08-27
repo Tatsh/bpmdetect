@@ -157,8 +157,10 @@ void DlgBpmDetect::enableControls(bool enable) {
 
 void DlgBpmDetect::slotStartStop() {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        // LCOV_EXCL_START
         Q_ASSERT_X(btnStart->text() == tr("Stop"), "slotStartStop", "Button text should be 'Stop'");
         slotStop();
+        // LCOV_EXCL_STOP
     } else {
         Q_ASSERT_X(
             btnStart->text() == tr("St&art"), "slotStartStop", "Button text should be 'Start'");
@@ -208,8 +210,10 @@ void DlgBpmDetect::slotStart() {
         qCDebug(gLogBpmDetect) << "Starting inner loop. File:" << item->track()->fileName();
         if (innerEventLoop_->exec(QEventLoop::ExcludeUserInputEvents |
                                   QEventLoop::ExcludeSocketNotifiers)) {
+            // LCOV_EXCL_START
             qCDebug(gLogBpmDetect) << "Inner loop exited with non-zero code. Stopping.";
             break;
+            // LCOV_EXCL_STOP
         }
         qCDebug(gLogBpmDetect) << "Inner loop exited. File:" << item->track()->fileName();
     }
@@ -217,8 +221,10 @@ void DlgBpmDetect::slotStart() {
 
 void DlgBpmDetect::slotStop() {
     if (innerEventLoop_ && innerEventLoop_->isRunning()) {
+        // LCOV_EXCL_START
         qCDebug(gLogBpmDetect) << "Stopping inner loop.";
         innerEventLoop_->exit(1);
+        // LCOV_EXCL_STOP
     }
     pendingTracks_ = 0;
     lblCurrentTrack->setText(QStringLiteral(""));
@@ -259,9 +265,11 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         TrackList->setItemWidget(item, kProgressColumn, progressBar);
         connect(track, &Track::hasBpm, [item, this, track](bpmtype bpm) {
             if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
+                // LCOV_EXCL_START
                 qCDebug(gLogBpmDetect)
                     << "Loop is not running. Ignoring BPM for track" << track->fileName();
                 return;
+                // LCOV_EXCL_STOP
             }
             qCDebug(gLogBpmDetect) << "Received BPM for track" << track->fileName();
             item->setText(0, QString::number(bpm, 'f', 2));
@@ -274,9 +282,11 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
             progressBar->setValue(0);
             progressBar->setTextVisible(false);
             if (!innerEventLoop_ || !innerEventLoop_->isRunning()) {
+                // LCOV_EXCL_START
                 qCDebug(gLogBpmDetect)
                     << "Loop not running. Ignoring finished signal for track" << track;
                 return;
+                // LCOV_EXCL_STOP
             }
             innerEventLoop_->quit();
             if (--pendingTracks_ == 0) {

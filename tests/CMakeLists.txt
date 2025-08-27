@@ -74,6 +74,7 @@ target_compile_definitions(dlgtestbpm-test
 target_link_libraries(dlgtestbpm-test PRIVATE PkgConfig::SOUNDTOUCH Qt::Multimedia Qt::Widgets)
 
 set(DLGBPMDETECT_TESTS_SRCS
+    140bpm.ogg
     widgets/dlgbpmdetecttest.cpp
     ../src/ffmpegutils.cpp
     ../src/ffmpegutils.h
@@ -98,7 +99,9 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/widgets/trackitem.cpp
     ../src/widgets/trackitem.h)
 create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")
-target_compile_definitions(dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768)
+target_compile_definitions(
+  dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768
+                            TEST_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/140bpm.ogg\")
 target_link_libraries(dlgbpmdetect-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH
                                                 Qt::Multimedia Qt::Widgets)
 

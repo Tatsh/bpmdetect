@@ -1,6 +1,9 @@
 #include <QtCore/QDir>
-#include <QtTest>
+#include <QtCore/QTemporaryFile>
+#include <QtMultimedia/QAudioDecoder>
+#include <QtTest/QtTest>
 
+#include "ffmpegutils.h"
 #include "track/abstractbpmdetector.h"
 #include "track/track.h"
 #include "widgets/dlgbpmdetect.h"
@@ -31,13 +34,14 @@ private Q_SLOTS:
     void testEnableControls();
     void testFilesFromDir();
     void testSetRecentPath();
-    void testSlotClearTrackList();
-    void testSlotStartStop();
     void testSlotAddFiles();
-    void testSlotDropped();
-    void testSlotStartStopSkipsFilesWithValidBpmIfSkipScannedIsChecked();
     void testSlotClearDetected();
+    void testSlotClearTrackList();
+    void testSlotDropped();
     void testSlotSaveBpm();
+    void testSlotStartStop();
+    void testSlotStartStopSavesBpmIfSaveIsChecked();
+    void testSlotStartStopSkipsFilesWithValidBpmIfSkipScannedIsChecked();
 };
 
 DlgBpmDetectTest::DlgBpmDetectTest(QObject *parent) : QObject(parent) {
@@ -92,12 +96,13 @@ void DlgBpmDetectTest::testSlotStartStop() {
     DlgBpmDetect dlg;
     dlg.setDetector(new DummyBpmDetector(&dlg));
     dlg.slotStartStop();
+    QCOMPARE(dlg.pendingTracks_, 0);
 
-    auto item = new TrackItem(nullptr, new Track(this));
-    item->setProgressBar(new QProgressBar(&dlg));
-    item->setText(0, QStringLiteral("test.mp3"));
-    dlg.TrackList->addTopLevelItem(item);
+    dlg.chbSkipScanned->setChecked(false);
+    dlg.chbSave->setChecked(false);
+    dlg.slotAddFiles({QString::fromUtf8(TEST_FILE), QString::fromUtf8(TEST_FILE)});
     dlg.slotStartStop();
+    QCOMPARE(dlg.pendingTracks_, 0);
 }
 
 void DlgBpmDetectTest::testSlotClearTrackList() {
@@ -142,6 +147,32 @@ void DlgBpmDetectTest::testSlotStartStopSkipsFilesWithValidBpmIfSkipScannedIsChe
     dlg.slotStartStop();
     QCOMPARE(dlg.pendingTracks_, 0);
     QVERIFY(dlg.btnAddFiles->isEnabled());
+}
+
+void DlgBpmDetectTest::testSlotStartStopSavesBpmIfSaveIsChecked() {
+    DlgBpmDetect dlg;
+    dlg.setDetector(new DummyBpmDetector(&dlg));
+
+    QTemporaryFile tempFile;
+    tempFile.setFileTemplate(QDir::tempPath() + QStringLiteral("/XXXXXX.ogg"));
+    QFile originalFile(QString::fromUtf8(TEST_FILE));
+
+    QVERIFY(tempFile.open());
+    QVERIFY(originalFile.open(QIODevice::ReadOnly));
+    tempFile.write(originalFile.readAll());
+    tempFile.close();
+    originalFile.close();
+
+    dlg.slotAddFiles({tempFile.fileName()});
+    QCOMPARE(dlg.TrackList->topLevelItemCount(), 1);
+
+    dlg.chbSave->setChecked(true);
+    dlg.slotStartStop();
+    QCOMPARE(dlg.pendingTracks_, 0);
+
+    auto map = readTagsFromFile(tempFile.fileName());
+    auto setBpm = map[QStringLiteral("bpm")].toDouble();
+    QVERIFY(setBpm >= 120.0 && setBpm < 120.1);
 }
 
 void DlgBpmDetectTest::testSlotClearDetected() {

@@ -158,9 +158,9 @@ void DlgTestBpmPlayer::run() {
             state != QAudio::SuspendedState) {
             // LCOV_EXCL_START
             break;
-            // LCOV_EXCL_STOP
         }
 
+        // This section is excluded because GitHub Actions CI VMs cannot reach here.
         auto bytesFree = output->bytesFree();
         if (bytesFree > 0) {
             auto chunk = qMin(bytesFree, dataRemaining);
@@ -183,4 +183,5 @@ void DlgTestBpmPlayer::run() {
 
         usleep(200);
     }
+    // LCOV_EXCL_STOP
 }
