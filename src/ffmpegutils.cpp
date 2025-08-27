@@ -1,6 +1,8 @@
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
+#include <QtCore/QTemporaryFile>
 extern "C" {
 #include <libavformat/avformat.h>
 }
@@ -31,9 +33,14 @@ bool isDecodableFile(const QString &file) {
     return hasAudio;
 }
 
-static QString makeTempFileName(const QString &fileName) {
-    QFileInfo info(fileName);
-    return info.absolutePath() + QStringLiteral("/.~") + info.fileName();
+static QString getTemporaryFileName(const QString &fileName) {
+    QTemporaryFile tempFile;
+    QFileInfo fi(fileName);
+    tempFile.setFileTemplate(QDir::tempPath() + QStringLiteral("/XXXXXX.") +
+                             QFileInfo(fileName).suffix());
+    tempFile.open();
+    tempFile.close();
+    return tempFile.fileName();
 }
 
 bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
@@ -61,7 +68,8 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
             "bpm";
     av_dict_set(&fmt_ctx->metadata, key, sBpm.toUtf8().constData(), 0);
     // Prepare output file name.
-    auto outFile = makeTempFileName(fileName);
+    auto outFile = getTemporaryFileName(fileName);
+    qCDebug(gLogBpmDetect) << "Temporary file for updated metadata:" << outFile;
     AVFormatContext *out_ctx = nullptr;
     ret = avformat_alloc_output_context2(&out_ctx, nullptr, nullptr, outFile.toUtf8().constData());
     if (ret < 0 || !out_ctx) {
@@ -182,7 +190,7 @@ bool removeBpmFromFile(const QString &fileName) {
             "bpm";
     av_dict_set(&fmt_ctx->metadata, key, nullptr, 0);
     // Prepare output file name.
-    auto outFile = makeTempFileName(fileName);
+    auto outFile = getTemporaryFileName(fileName);
     // Open output context.
     AVFormatContext *out_ctx = nullptr;
     ret = avformat_alloc_output_context2(&out_ctx, nullptr, nullptr, outFile.toUtf8().constData());

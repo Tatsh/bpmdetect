@@ -1,7 +1,9 @@
 #include <iostream>
 
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTemporaryFile>
 #include <QtMultimedia/QAudioDecoder>
 #include <QtTest>
 
@@ -165,12 +167,17 @@ void TrackTest::testValidFile() {
 
 void TrackTest::testSetBpmTag() {
     auto sourceName = QString::fromUtf8(TEST_FILE_5S_SILENT);
-    auto tempFile =
-        QDir::currentPath() + QStringLiteral("/.test-output-") + QFileInfo(sourceName).fileName();
-    QFile::remove(tempFile);
-    QVERIFY(QFile::copy(sourceName, tempFile));
+    QTemporaryFile tempFile;
+    QFileInfo fi(sourceName);
+    tempFile.setFileTemplate(QDir::tempPath() + QStringLiteral("/XXXXXX.") + fi.suffix());
+    QVERIFY(tempFile.open());
+    QFile source(sourceName);
+    QVERIFY(source.open(QIODevice::ReadOnly));
+    tempFile.write(source.readAll());
+    source.close();
+    tempFile.close();
 
-    Track t(tempFile, new QAudioDecoder(this));
+    Track t(tempFile.fileName(), new QAudioDecoder(this));
     t.setDetector(new DummyBpmDetector(this));
     QCOMPARE(t.artist(), QStringLiteral("Artist"));
     QCOMPARE(t.title(), QStringLiteral("Title"));
@@ -180,7 +187,7 @@ void TrackTest::testSetBpmTag() {
     t.saveBpm();
     QVERIFY(t.hasValidBpm());
 
-    Track t2(tempFile, new QAudioDecoder(this));
+    Track t2(tempFile.fileName(), new QAudioDecoder(this));
     t2.setDetector(new DummyBpmDetector(this));
     QCOMPARE(t2.artist(), QStringLiteral("Artist"));
     QCOMPARE(t2.title(), QStringLiteral("Title"));
@@ -189,14 +196,12 @@ void TrackTest::testSetBpmTag() {
     QCOMPARE(t2.bpm(), 120.0);
     t2.clearBpm();
 
-    Track t3(tempFile, new QAudioDecoder(this));
+    Track t3(tempFile.fileName(), new QAudioDecoder(this));
     t3.setDetector(new DummyBpmDetector(this));
     QCOMPARE(t3.artist(), QStringLiteral("Artist"));
     QCOMPARE(t3.title(), QStringLiteral("Title"));
     QVERIFY(t3.length() >= 5000);
     QVERIFY(!t3.hasValidBpm());
-
-    QFile::remove(tempFile);
 }
 
 void TrackTest::testStop() {
