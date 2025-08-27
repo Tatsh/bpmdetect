@@ -38,10 +38,10 @@ jobs:
         name: Generate coverage information
         run: >-
           lcov -c -d ${{github.workspace}}/build -o coverage1.lcov
-          --keep-going
-          --include src
-          --exclude 'src/track/*bpmdetector.*'
+          --exclude build
           --exclude tests
+          --include src
+          --keep-going
       - if: ${{ matrix.build-type == 'Debug' }}
         name: Coveralls
         uses: coverallsapp/github-action@v2
