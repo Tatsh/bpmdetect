@@ -8,10 +8,6 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
-
 #include "debug.h"
 #include "dlgbpmdetect.h"
 #include "dlgtestbpm.h"
@@ -37,28 +33,6 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     listMenu_->addAction(tr("Clear list"), this, &DlgBpmDetect::slotClearTrackList);
     listMenu_->addSeparator();
     auto testBpmAction = listMenu_->addAction(tr("Test BPM"), this, &DlgBpmDetect::slotTestBpm);
-#ifdef Q_OS_WIN
-    // Check if Media Feature Pack is installed.
-    HKEY hKey;
-    auto result =
-        RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-                      "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\WindowsFeatures",
-                      0,
-                      KEY_READ,
-                      &hKey);
-    auto result2 =
-        RegQueryValueExA(hKey, "WindowsMediaVersion", nullptr, nullptr, nullptr, nullptr);
-    if (result != ERROR_SUCCESS || result2 != ERROR_SUCCESS) {
-        testBpmAction->setEnabled(false);
-        QMessageBox::warning(this,
-                             tr("Media Feature Pack not installed"),
-                             tr("The Media Feature Pack is not installed on this system. "
-                                "The BPM testing feature has been disabled."));
-    }
-    RegCloseKey(hKey);
-#else
-    Q_UNUSED(testBpmAction)
-#endif
     listMenu_->addSeparator();
     listMenu_->addAction(tr("Save BPM"), this, &DlgBpmDetect::slotSaveBpm);
     listMenu_->addAction(tr("Clear BPM"), this, &DlgBpmDetect::slotClearBpm);

@@ -9,6 +9,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Removed invalid check for Media Feature Pack.
+
 ## [0.8.1] - 2025-08-27
 
 ### Fixed
