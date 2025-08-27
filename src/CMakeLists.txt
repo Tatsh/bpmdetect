@@ -184,7 +184,7 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
     endforeach()
   endif()
   install(FILES ../README.md TYPE DOC)
-  install(FILES ../man/bpmdetect.1 TYPE MAN)
+  install(FILES ../man/bpmdetect.1 DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/man/man1)
 endif()
 
 if(NOT APPLE)
