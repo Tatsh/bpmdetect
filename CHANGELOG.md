@@ -77,4 +77,4 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.7.2...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.1...HEAD
