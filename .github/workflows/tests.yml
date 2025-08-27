@@ -39,6 +39,7 @@ jobs:
         run: >-
           lcov -c -d ${{github.workspace}}/build -o coverage1.lcov
           --exclude build
+          --omit-lines '^\}$'
           --exclude tests
           --include src
           --keep-going
