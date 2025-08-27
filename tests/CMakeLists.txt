@@ -50,10 +50,11 @@ target_link_libraries(progressbar-test PRIVATE Qt::Widgets)
 
 set(DLGTESTBPMPLAYER_TESTS_SRCS
     widgets/dlgtestbpmplayertest.cpp ../src/widgets/dlgtestbpmplayer.cpp
-    ../src/widgets/dlgtestbpmplayer.h noise.wav)
+    ../src/widgets/dlgtestbpmplayer.h noise.wav 140bpm.ogg)
 create_test(dlgtestbpmplayer-test "${DLGTESTBPMPLAYER_TESTS_SRCS}")
-target_compile_definitions(dlgtestbpmplayer-test
-                           PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
+target_compile_definitions(
+  dlgtestbpmplayer-test PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\"
+                                TEST_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/140bpm.ogg\")
 target_link_libraries(dlgtestbpmplayer-test PRIVATE Qt::Widgets Qt::Multimedia)
 
 set(DLGTESTBPM_TESTS_SRCS

@@ -13,6 +13,9 @@ class QIODevice;
 /** The player for the test dialog. */
 class DlgTestBpmPlayer : public QThread {
     Q_OBJECT
+#ifdef TESTING
+    friend class DlgTestBpmPlayerTest;
+#endif
 public:
     /**
      * Constructor.

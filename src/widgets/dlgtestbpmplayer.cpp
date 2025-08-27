@@ -65,6 +65,7 @@ void DlgTestBpmPlayer::finishedDecoding() {
     emit hasLengthUS(lengthUs_);
 }
 
+// LCOV_EXCL_START
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch-default"
 void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
@@ -105,6 +106,7 @@ void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
     }
 }
 #pragma clang diagnostic pop
+// LCOV_EXCL_STOP
 
 void DlgTestBpmPlayer::stop() {
     if (output) {
@@ -126,7 +128,9 @@ void DlgTestBpmPlayer::update(unsigned int nBeats_, qint64 posUS_) {
     if (posUS > 0) {
         auto skipBytes = format_.bytesForDuration(posUS);
         if (skipBytes >= buffer.size()) {
+            // LCOV_EXCL_START
             return;
+            // LCOV_EXCL_STOP
         }
 #pragma clang unsafe_buffer_usage begin
         // This should be left using raw pointers to avoid performance problems.
@@ -139,7 +143,9 @@ void DlgTestBpmPlayer::update(unsigned int nBeats_, qint64 posUS_) {
 void DlgTestBpmPlayer::run() {
     while (!readyToPlay) {
         if (error) {
+            // LCOV_EXCL_START
             return;
+            // LCOV_EXCL_STOP
         }
         usleep(100);
     }
@@ -150,7 +156,9 @@ void DlgTestBpmPlayer::run() {
         auto state = output->state();
         if (state != QAudio::ActiveState && state != QAudio::IdleState &&
             state != QAudio::SuspendedState) {
+            // LCOV_EXCL_START
             break;
+            // LCOV_EXCL_STOP
         }
 
         auto bytesFree = output->bytesFree();
