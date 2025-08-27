@@ -19,9 +19,8 @@
       "name": "qtmultimedia",
       "version>=": "6.8.3"
     },
-    "libflac",
-    "libmad",
-    "libvorbis"
+    "ffmpeg",
+    "soundtouch"
   ],
   "description": "Automatic BPM (beats per minute) detection utility.",
   "documentation": "https://bpmdetect.readthedocs.org",
