@@ -11,9 +11,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Removed invalid check for Media Feature Pack.
 - Install path of man page when using FHS.
-- Fixed opening files in Windows (path handling issue).
+- Opening files in Windows (path handling issue).
+- Removed invalid check for Media Feature Pack.
 
 ## [0.8.1] - 2025-08-27
 

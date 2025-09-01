@@ -1,5 +1,11 @@
 # BPM Detect
 
+[![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://www.gentoo.org/)
+[![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=F0F0F0)](https://www.apple.com/macos)
+[![Windows](https://custom-icon-badges.demolab.com/badge/Windows-0078D6?logo=windows11&logoColor=white)](https://www.microsoft.com/en-us/windows)
+[![CMake](https://img.shields.io/badge/cmake-black.svg?logo=cmake&logoColor=064F8C)](https://cmake.org/)
+[![ffmpeg](https://img.shields.io/badge/ffmpeg-black.svg?logo=ffmpeg&logoColor=007808)](https://ffmpeg.org/)
+[![Qt 6.7+ supported](https://img.shields.io/badge/qt-6.7+-black.svg?logo=qt&logoColor=00fa6f)](https://doc.qt.io/)
 [![GitHub tag (with filter)](https://img.shields.io/github/v/tag/Tatsh/bpmdetect)](https://github.com/Tatsh/bpmdetect/tags)
 [![License](https://img.shields.io/github/license/Tatsh/bpmdetect)](https://github.com/Tatsh/bpmdetect/blob/master/LICENSE.txt)
 [![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/Tatsh/bpmdetect/v0.8.1/master)](https://github.com/Tatsh/bpmdetect/compare/v0.8.1...master)
@@ -21,6 +27,10 @@ BPM Detect is an automatic BPM (beats per minute) detection utility.
 It uses SoundTouch's BPM library for detecting BPMs, ffmpeg for reading and writing BPMs to tags
 and Qt for the GUI. It supports detection with any audio format that ffmpeg can read. However, for
 files containing multiple audio tracks, only the first seen will be used for detection.
+
+On Windows, this application requires
+[Media Feature Pack](https://support.microsoft.com/en-us/topic/media-feature-pack-list-for-windows-n-editions-c1c6fffa-d052-8338-7a79-a4bb980a700a)
+to be installed.
 
 [Original project](https://sourceforge.net/projects/bpmdetect/)
 
