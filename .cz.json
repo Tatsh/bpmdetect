@@ -7,6 +7,7 @@
       "CITATION.cff",
       "CMakeLists.txt",
       "README.md",
+      "man/bpmdetect.1",
       "package.json",
       "src/main.cpp",
       "vcpkg.json"

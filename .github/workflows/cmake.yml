@@ -45,7 +45,7 @@ jobs:
         id: latest_tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
-          fallback: v0.8.1
+          fallback: v0.8.2
       - name: Upload package
         uses: softprops/action-gh-release@v2
         with:

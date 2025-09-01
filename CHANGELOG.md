@@ -9,6 +9,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.2]
+
 ### Fixed
 
 - Install path of man page when using FHS.
@@ -83,7 +85,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.1...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/Tatsh/bpmdetect/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Tatsh/bpmdetect/compare/v0.7.2...v0.8.1
 [0.7.2]: https://github.com/Tatsh/bpmdetect/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Tatsh/bpmdetect/compare/v0.6.2...v0.7.1
