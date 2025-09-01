@@ -10,14 +10,20 @@ extern "C" {
 #include "debug.h"
 #include "ffmpegutils.h"
 
-bool isDecodableFile(const QString &file) {
+bool isDecodableFile(const QString &fileName) {
     AVFormatContext *fmt_ctx = nullptr;
-    auto url = QStringLiteral("file://") + file;
-    if (avformat_open_input(&fmt_ctx, url.toUtf8().constData(), nullptr, nullptr) != 0) {
+    int ret;
+    if ((ret = avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr)) !=
+        0) {
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_open_input() returned" << ret << av_err2str(ret);
         return false;
     }
-    if (avformat_find_stream_info(fmt_ctx, nullptr) < 0) {
+    if ((ret = avformat_find_stream_info(fmt_ctx, nullptr)) < 0) {
         // LCOV_EXCL_START
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_find_stream_info() returned" << ret
+                                  << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         return false;
         // LCOV_EXCL_STOP
@@ -30,6 +36,7 @@ bool isDecodableFile(const QString &file) {
         }
     }
     avformat_close_input(&fmt_ctx);
+    qCDebug(gLogBpmDetect) << "File:" << fileName << "has audio:" << hasAudio;
     return hasAudio;
 }
 
@@ -48,14 +55,17 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     AVFormatContext *fmt_ctx = nullptr;
     auto ret = avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr);
     if (ret < 0) {
-        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName;
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_open_input() returned" << ret << av_err2str(ret);
         return false;
     }
     // Retrieve stream information.
     ret = avformat_find_stream_info(fmt_ctx, nullptr);
     if (ret < 0) {
         // LCOV_EXCL_START
-        qCCritical(gLogBpmDetect) << "libavformat failed to find stream info for file:" << fileName;
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_find_stream_info() returned" << ret
+                                  << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         return false;
         // LCOV_EXCL_STOP
@@ -75,7 +85,8 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     if (ret < 0 || !out_ctx) {
         // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to allocate output context for file:"
-                                  << outFile;
+                                  << outFile << ". avformat_alloc_output_context2() returned" << ret
+                                  << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         return false;
         // LCOV_EXCL_STOP
@@ -95,7 +106,9 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         ret = avcodec_parameters_copy(out_stream->codecpar, in_stream->codecpar);
         if (ret < 0) {
             // LCOV_EXCL_START
-            qCCritical(gLogBpmDetect) << "libavformat failed to copy codec parameters.";
+            qCCritical(gLogBpmDetect)
+                << "libavformat failed to copy codec parameters. avcodec_parameters_copy() returned"
+                << ret << av_err2str(ret);
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
@@ -110,7 +123,8 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         ret = avio_open(&out_ctx->pb, outFile.toUtf8().constData(), AVIO_FLAG_WRITE);
         if (ret < 0) {
             // LCOV_EXCL_START
-            qCCritical(gLogBpmDetect) << "libavformat failed to open output file:" << outFile;
+            qCCritical(gLogBpmDetect) << "libavformat failed to open output file:" << outFile
+                                      << ". avio_open() returned" << ret << av_err2str(ret);
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
@@ -121,8 +135,8 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     ret = avformat_write_header(out_ctx, nullptr);
     if (ret < 0) {
         // LCOV_EXCL_START
-        qCCritical(gLogBpmDetect) << "libavformat failed to write header to output file:"
-                                  << outFile;
+        qCCritical(gLogBpmDetect) << "libavformat failed to write header to output file:" << outFile
+                                  << ". avformat_write_header() returned" << ret << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         if (!(out_ctx->oformat->flags & AVFMT_NOFILE)) {
             avio_closep(&out_ctx->pb);
@@ -140,7 +154,9 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         av_packet_unref(&pkt);
         if (ret < 0) {
             // LCOV_EXCL_START
-            qCCritical(gLogBpmDetect) << "libavformat failed to write frame.";
+            qCCritical(gLogBpmDetect)
+                << "libavformat failed to write frame. av_interleaved_write_frame() returned" << ret
+                << av_err2str(ret);
             break;
             // LCOV_EXCL_STOP
         }
@@ -170,14 +186,17 @@ bool removeBpmFromFile(const QString &fileName) {
     AVFormatContext *fmt_ctx = nullptr;
     auto ret = avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr);
     if (ret < 0) {
-        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName;
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_open_input() returned" << ret << av_err2str(ret);
         return false;
     }
     // Retrieve stream information.
     ret = avformat_find_stream_info(fmt_ctx, nullptr);
     if (ret < 0) {
         // LCOV_EXCL_START
-        qCCritical(gLogBpmDetect) << "libavformat failed to find stream info for file:" << fileName;
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_find_stream_info() returned" << ret
+                                  << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         return false;
         // LCOV_EXCL_STOP
@@ -197,7 +216,8 @@ bool removeBpmFromFile(const QString &fileName) {
     if (ret < 0 || !out_ctx) {
         // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "libavformat failed to allocate output context for file:"
-                                  << outFile;
+                                  << outFile << ". avformat_alloc_output_context2() returned" << ret
+                                  << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         return false;
         // LCOV_EXCL_STOP
@@ -246,7 +266,8 @@ bool removeBpmFromFile(const QString &fileName) {
         ret = avio_open(&out_ctx->pb, outFile.toUtf8().constData(), AVIO_FLAG_WRITE);
         if (ret < 0) {
             // LCOV_EXCL_START
-            qCCritical(gLogBpmDetect) << "libavformat failed to open output file:" << outFile;
+            qCCritical(gLogBpmDetect) << "libavformat failed to open output file:" << outFile
+                                      << ". avio_open() returned" << ret << av_err2str(ret);
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
@@ -257,8 +278,8 @@ bool removeBpmFromFile(const QString &fileName) {
     ret = avformat_write_header(out_ctx, nullptr);
     if (ret < 0) {
         // LCOV_EXCL_START
-        qCCritical(gLogBpmDetect) << "libavformat failed to write header to output file:"
-                                  << outFile;
+        qCCritical(gLogBpmDetect) << "libavformat failed to write header to output file:" << outFile
+                                  << ". avformat_write_header() returned" << ret << av_err2str(ret);
         avformat_close_input(&fmt_ctx);
         if (!(out_ctx->oformat->flags & AVFMT_NOFILE)) {
             avio_closep(&out_ctx->pb);
@@ -274,7 +295,9 @@ bool removeBpmFromFile(const QString &fileName) {
         av_packet_unref(&pkt);
         if (ret < 0) {
             // LCOV_EXCL_START
-            qCCritical(gLogBpmDetect) << "libavformat failed to write frame.";
+            qCCritical(gLogBpmDetect)
+                << "libavformat failed to write frame. av_interleaved_write_frame() returned" << ret
+                << av_err2str(ret);
             break;
             // LCOV_EXCL_STOP
         }
@@ -329,7 +352,9 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
     returnTags.insert(QStringLiteral("title"), QVariant(QStringLiteral("")));
     returnTags.insert(QStringLiteral("bpm"), QVariant(0));
     returnTags.insert(QStringLiteral("length"), QVariant(0));
-    if (avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr) == 0) {
+    int ret;
+    if ((ret = avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr)) ==
+        0) {
         if (avformat_find_stream_info(fmt_ctx, nullptr) >= 0) {
             readTag(fmt_ctx,
                     fmt_ctx->metadata,
@@ -364,7 +389,8 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
         }
         avformat_close_input(&fmt_ctx);
     } else {
-        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName;
+        qCCritical(gLogBpmDetect) << "libavformat failed to open file:" << fileName
+                                  << ". avformat_open_input() returned" << ret << av_err2str(ret);
     }
     return returnTags;
 }
