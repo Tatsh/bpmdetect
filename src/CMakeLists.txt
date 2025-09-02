@@ -158,7 +158,7 @@ if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bund
 thai|tiff|bluray|cairo|cairo-gobject|crypto|dav1d|ffi|fontconfig|gdk_pixbuf-2.0|gio-2.0|\
 gmp|gnutls|gobject-2.0|gomp|hogweed|idn2|lc3|lzma|modplug|mp3lame|nettle|opencore-amr[nw]b|\
 openjp2|opus|p11-kit|pango-1.0|pangocairo-1.0|pixman-1|rsvg-2|rtmp|speex|SvtAv1Enc|tasn1|\
-theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi)-.*\.dll")
+theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi|lzo2)-.*\.dll")
   endif()
 else() # Linux, MSYS package, macOS package without creating a bundle.
   install(TARGETS bpmdetect)
