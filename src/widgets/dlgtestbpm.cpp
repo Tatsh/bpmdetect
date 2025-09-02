@@ -11,7 +11,7 @@
 #include "track/track.h"
 
 DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWidget *parent)
-    : m_player(player), m_bpm(bpm), QDialog(parent) {
+    : player_(player), bpm_(bpm), QDialog(parent) {
     setupUi(this);
 
     if (file.isEmpty()) {
@@ -47,13 +47,13 @@ DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWid
     trackPosition->setEnabled(false);
 
 #ifndef TESTING
-    m_player->start();
+    player_->start();
 #endif
 }
 
 DlgTestBpm::~DlgTestBpm() {
-    if (m_player) {
-        m_player->stop();
+    if (player_) {
+        player_->stop();
     }
 }
 
@@ -68,15 +68,14 @@ void DlgTestBpm::setTrackPositionLength(qint64 length) {
 }
 
 void DlgTestBpm::setPosFromButton(int index) {
-    m_player->update(
-        cbNBeats->currentText().toUInt(),
-        static_cast<qint64>(static_cast<double>(m_player->lengthUs()) * (index * 0.2)));
+    player_->update(cbNBeats->currentText().toUInt(),
+                    static_cast<qint64>(static_cast<double>(player_->lengthUs()) * (index * 0.2)));
     trackPosition->setPosition((trackPosition->length() * index) / 5);
 }
 
 void DlgTestBpm::setCustomPos(int msec) {
     Q_UNUSED(msec)
-    m_player->update(cbNBeats->currentText().toUInt(), trackPosition->value() * 1000);
+    player_->update(cbNBeats->currentText().toUInt(), trackPosition->value() * 1000);
 }
 
 void DlgTestBpm::setNumBeats(const QString &s) {
@@ -89,5 +88,5 @@ void DlgTestBpm::setNumBeats(const QString &s) {
     if (!ok || num < 1 || num > 16) {
         return;
     }
-    m_player->update(cbNBeats->currentText().toUInt(), value * 1000);
+    player_->update(cbNBeats->currentText().toUInt(), value * 1000);
 }

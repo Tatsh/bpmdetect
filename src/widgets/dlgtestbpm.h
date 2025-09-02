@@ -34,6 +34,6 @@ protected Q_SLOTS:
 
 private:
     void setPosFromButton(int msec);
-    DlgTestBpmPlayer *m_player;
-    bpmtype m_bpm;
+    DlgTestBpmPlayer *player_;
+    bpmtype bpm_;
 };
