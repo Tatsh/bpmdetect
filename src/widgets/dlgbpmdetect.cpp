@@ -267,7 +267,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
             }
         });
         lblCurrentTrack->setText(tr("Adding %1").arg(fileName));
-        TotalProgress->setValue(i++);
+        TotalProgress->setValue(++i);
     }
     lblCurrentTrack->setText(QStringLiteral(""));
     auto itemCount = TrackList->topLevelItemCount();
