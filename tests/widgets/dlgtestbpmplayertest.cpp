@@ -21,7 +21,7 @@ DlgTestBpmPlayerTest::~DlgTestBpmPlayerTest() {
 void DlgTestBpmPlayerTest::testDecodeError() {
     auto player = new DlgTestBpmPlayer(QStringLiteral("nonexistent-file.wav"), 1, 140, 0, this);
     player->decodeError(QAudioDecoder::ResourceError);
-    QVERIFY(player->error);
+    QVERIFY(player->error_);
 }
 
 void DlgTestBpmPlayerTest::testStart() {
@@ -38,7 +38,7 @@ void DlgTestBpmPlayerTest::testStart() {
     player->start();
     loop.exec();
     player->terminate();
-    QVERIFY(!player->error);
+    QVERIFY(!player->error_);
 }
 
 QTEST_MAIN(DlgTestBpmPlayerTest)

@@ -10,11 +10,11 @@
 #include "dlgtestbpmplayer.h"
 
 DlgTestBpmPlayer::DlgTestBpmPlayer(
-    const QString file, unsigned int nBeats_, unsigned int bpm_, qint64 posUS_, QObject *parent)
-    : QThread(parent), buffer(QByteArray()), decoder_(new QAudioDecoder(this)) {
-    nBeats = nBeats_;
-    bpm = static_cast<float>(bpm_);
-    posUS = posUS_;
+    const QString file, unsigned int nBeats, unsigned int bpm, qint64 posUS, QObject *parent)
+    : QThread(parent), buffer_(QByteArray()), decoder_(new QAudioDecoder(this)) {
+    nBeats_ = nBeats;
+    bpm_ = static_cast<float>(bpm_);
+    posUS_ = posUS;
     if (!decoder_->isSupported()) {
         // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "Audio decoder is not supported on this platform.";
@@ -38,14 +38,14 @@ DlgTestBpmPlayer::~DlgTestBpmPlayer() {
 }
 
 void DlgTestBpmPlayer::readBuffer() {
-    auto buf = lastBuffer = decoder_->read();
+    auto buf = lastBuffer_ = decoder_->read();
     lengthUs_ += buf.duration();
-    buffer.append(buf.data<const char>(), buf.byteCount());
+    buffer_.append(buf.data<const char>(), buf.byteCount());
 }
 
 void DlgTestBpmPlayer::decodeError(QAudioDecoder::Error err) {
     qCDebug(gLogBpmDetect) << "Audio decoder error:" << err;
-    error = true;
+    error_ = true;
 }
 
 QAudioSink *DlgTestBpmPlayer::audioSinkFactory(const QAudioFormat &format) {
@@ -53,11 +53,11 @@ QAudioSink *DlgTestBpmPlayer::audioSinkFactory(const QAudioFormat &format) {
 }
 
 void DlgTestBpmPlayer::finishedDecoding() {
-    format_ = lastBuffer.format();
-    output = audioSinkFactory(format_);
-    connect(output, &QAudioSink::stateChanged, this, &DlgTestBpmPlayer::handleStateChange);
-    dev = output->start();
-    readyToPlay = true;
+    format_ = lastBuffer_.format();
+    output_ = audioSinkFactory(format_);
+    connect(output_, &QAudioSink::stateChanged, this, &DlgTestBpmPlayer::handleStateChange);
+    dev_ = output_->start();
+    readyToPlay_ = true;
     emit hasLengthUS(lengthUs_);
 }
 
@@ -79,10 +79,10 @@ void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
         qCDebug(gLogBpmDetect) << "Audio output is idle.";
         break;
     }
-    if (output->error() != QAudio::NoError) {
+    if (output_->error() != QAudio::NoError) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wswitch"
-        switch (output->error()) {
+        switch (output_->error()) {
 #pragma clang diagnostic pop
         case QAudio::OpenError:
             qCCritical(gLogBpmDetect)
@@ -98,47 +98,47 @@ void DlgTestBpmPlayer::handleStateChange(QAudio::State newState) {
             qCCritical(gLogBpmDetect) << "Audio output error: A fatal error occurred.";
             break;
         }
-        emit audioError(output->error());
+        emit audioError(output_->error());
     }
 }
 #pragma clang diagnostic pop
 // LCOV_EXCL_STOP
 
 void DlgTestBpmPlayer::stop() {
-    if (output) {
-        output->stop();
+    if (output_) {
+        output_->stop();
     }
 }
 
-void DlgTestBpmPlayer::update(unsigned int nBeats_, qint64 posUS_) {
-    nBeats = nBeats_;
-    posUS = posUS_;
+void DlgTestBpmPlayer::update(unsigned int nBeats, qint64 posUS) {
+    nBeats_ = nBeats;
+    posUS_ = posUS;
 
-    data = startptr = buffer.data();
+    data_ = startptr_ = buffer_.data();
     const auto beatsLength =
-        static_cast<qint64>(((60000.0f * static_cast<float>(nBeats)) / bpm) * 1000.0f);
+        static_cast<qint64>(((60000.0f * static_cast<float>(nBeats_)) / bpm_) * 1000.0f);
     const auto bytesForBeats = format_.bytesForDuration(beatsLength);
 
-    dataRemaining = static_cast<qint64>(bytesForBeats) * nBeats;
-    originalSize = dataRemaining;
+    dataRemaining_ = static_cast<qint64>(bytesForBeats) * nBeats_;
+    originalSize_ = dataRemaining_;
     if (posUS > 0) {
         auto skipBytes = format_.bytesForDuration(posUS);
-        if (skipBytes >= buffer.size()) {
+        if (skipBytes >= buffer_.size()) {
             // LCOV_EXCL_START
             return;
             // LCOV_EXCL_STOP
         }
 #pragma clang unsafe_buffer_usage begin
         // This should be left using raw pointers to avoid performance problems.
-        data += skipBytes;
+        data_ += skipBytes;
 #pragma clang unsafe_buffer_usage end
-        startptr = data;
+        startptr_ = data_;
     }
 }
 
 void DlgTestBpmPlayer::run() {
-    while (!readyToPlay) {
-        if (error) {
+    while (!readyToPlay_) {
+        if (error_) {
             // LCOV_EXCL_START
             return;
             // LCOV_EXCL_STOP
@@ -146,10 +146,10 @@ void DlgTestBpmPlayer::run() {
         usleep(100);
     }
 
-    update(nBeats);
+    update(nBeats_);
 
     while (true) {
-        auto state = output->state();
+        auto state = output_->state();
         if (state != QAudio::ActiveState && state != QAudio::IdleState &&
             state != QAudio::SuspendedState) {
             // LCOV_EXCL_START
@@ -157,24 +157,24 @@ void DlgTestBpmPlayer::run() {
         }
 
         // This section is excluded because GitHub Actions CI VMs cannot reach here.
-        auto bytesFree = output->bytesFree();
+        auto bytesFree = output_->bytesFree();
         if (bytesFree > 0) {
-            auto chunk = qMin(bytesFree, dataRemaining);
+            auto chunk = qMin(bytesFree, dataRemaining_);
             if (chunk > 0) {
-                auto bytesWritten = dev->write(data, chunk);
+                auto bytesWritten = dev_->write(data_, chunk);
                 if (bytesWritten > 0) {
-                    dataRemaining -= bytesWritten;
+                    dataRemaining_ -= bytesWritten;
 #pragma clang unsafe_buffer_usage begin
                     // This should be left using raw pointers to avoid performance problems.
-                    data += bytesWritten;
+                    data_ += bytesWritten;
 #pragma clang unsafe_buffer_usage end
                 }
             }
         }
 
-        if (dataRemaining <= 0) {
-            data = startptr;
-            dataRemaining = originalSize;
+        if (dataRemaining_ <= 0) {
+            data_ = startptr_;
+            dataRemaining_ = originalSize_;
         }
 
         usleep(200);

@@ -21,14 +21,14 @@ public:
      * Constructor.
      * @param file File to play.
      * @param nBeats_ Number of beats to loop.
-     * @param bpm_ BPM value.
-     * @param posUS_ Position in microseconds.
+     * @param bpm BPM value.
+     * @param posUS Position in microseconds.
      * @param parent Parent object.
      */
     DlgTestBpmPlayer(const QString file,
-                     unsigned int nBeats_,
-                     unsigned int bpm_,
-                     qint64 posUS_ = 0,
+                     unsigned int nBeats,
+                     unsigned int bpm,
+                     qint64 posUS = 0,
                      QObject *parent = nullptr);
     ~DlgTestBpmPlayer() override;
     /** Get the length in microseconds. */
@@ -39,10 +39,10 @@ public:
     void stop();
     /**
      * Update the player with new number of beats and position in microseconds.
-     * @param nBeats_ New number of beats.
-     * @param posUS_ New position in microseconds.
+     * @param nBeats New number of beats.
+     * @param posUS New position in microseconds.
      */
-    void update(unsigned int nBeats_, qint64 posUS_ = 0);
+    void update(unsigned int nBeats, qint64 posUS = 0);
     /** Signal for when the player encounters an error. */
     Q_SIGNAL void audioError(QAudio::Error error);
     /** Signal for when length is discovered. */
@@ -64,20 +64,20 @@ protected Q_SLOTS:
     void readBuffer();
 
 private:
-    QAudioBuffer lastBuffer;
+    QAudioBuffer lastBuffer_;
     QAudioFormat format_;
-    QByteArray buffer;
+    QByteArray buffer_;
     QAudioDecoder *decoder_ = nullptr;
-    QAudioSink *output = nullptr;
-    QIODevice *dev = nullptr;
-    char *data = nullptr;
-    char *startptr = nullptr;
+    QAudioSink *output_ = nullptr;
+    QIODevice *dev_ = nullptr;
+    char *data_ = nullptr;
+    char *startptr_ = nullptr;
     qint64 lengthUs_ = 0;
-    qint64 posUS = 0;
-    qint64 dataRemaining;
-    qint64 originalSize;
-    unsigned int nBeats = 4;
-    float bpm;
-    bool readyToPlay = false;
-    bool error = false;
+    qint64 posUS_ = 0;
+    qint64 dataRemaining_;
+    qint64 originalSize_;
+    unsigned int nBeats_ = 4;
+    float bpm_;
+    bool readyToPlay_ = false;
+    bool error_ = false;
 };
