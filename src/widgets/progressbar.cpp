@@ -55,19 +55,19 @@ void ProgressBar::setPosition(int pos) {
 }
 
 bool ProgressBar::change() {
-    return bChange;
+    return change_;
 }
 
 void ProgressBar::setChange(bool s) {
-    bChange = s;
+    change_ = s;
 }
 
 bool ProgressBar::enabled() {
-    return enable;
+    return enabled_;
 }
 
-void ProgressBar::setEnabled(bool s) {
-    enable = s;
+void ProgressBar::setEnabled(bool enabled) {
+    enabled_ = enabled;
 }
 
 int ProgressBar::length() {

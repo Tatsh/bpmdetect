@@ -370,11 +370,11 @@ void DlgBpmDetect::slotSaveBpm() {
 }
 
 void DlgBpmDetect::setRecentPath(const QString &path) {
-    m_qRecentPath = path;
+    recentPath_ = path;
 }
 
 QString DlgBpmDetect::recentPath() const {
-    return m_qRecentPath;
+    return recentPath_;
 }
 
 void DlgBpmDetect::setDetector(AbstractBpmDetector *detector) {

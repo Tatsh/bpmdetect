@@ -95,7 +95,7 @@ void ProgressBarTest::testMousePressEvent() {
                        Qt::RightButton,
                        Qt::RightButton,
                        Qt::NoModifier);
-    bar.bChange = true;
+    bar.change_ = true;
     bar.mousePressEvent(&event2);
     QVERIFY(!bar.change());
 }
@@ -120,7 +120,7 @@ void ProgressBarTest::testMouseMoveEvent() {
                        Qt::NoButton,
                        Qt::NoButton,
                        Qt::NoModifier);
-    bar.bChange = true;
+    bar.change_ = true;
     bar.mouseMoveEvent(&event2);
     QCOMPARE(bar.value(), 0);
 
@@ -131,7 +131,7 @@ void ProgressBarTest::testMouseMoveEvent() {
                        Qt::NoButton,
                        Qt::NoButton,
                        Qt::NoModifier);
-    bar.bChange = true;
+    bar.change_ = true;
     bar.mouseMoveEvent(&event3);
     QCOMPARE(bar.value(), 99);
 
@@ -142,7 +142,7 @@ void ProgressBarTest::testMouseMoveEvent() {
                        Qt::NoButton,
                        Qt::NoButton,
                        Qt::NoModifier);
-    bar.bChange = true;
+    bar.change_ = true;
     bar.mouseMoveEvent(&event4);
     QCOMPARE(bar.value(), bar.maximum());
 }
@@ -164,8 +164,8 @@ void ProgressBarTest::testMouseReleaseEvent() {
     QVERIFY(bar.change());
     QCOMPARE(spy.count(), 0);
 
-    bar.bChange = true;
-    bar.enable = true;
+    bar.change_ = true;
+    bar.enabled_ = true;
     QSignalSpy spy2(&bar, &ProgressBar::positionChanged);
     QMouseEvent event2(QEvent::MouseButtonRelease,
                        QPointF(75, 0), // localPos

@@ -83,5 +83,5 @@ private:
     QAtomicInt pendingTracks_ = 0;
     QEventLoop *innerEventLoop_ = nullptr;
     QMenu *listMenu_ = nullptr;
-    QString m_qRecentPath;
+    QString recentPath_;
 };

@@ -36,9 +36,10 @@ protected Q_SLOTS:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
-    void setChange(bool s);
+    /** Set change state. */
+    void setChange(bool change);
 
 private:
-    bool bChange;
-    bool enable;
+    bool change_;
+    bool enabled_;
 };
