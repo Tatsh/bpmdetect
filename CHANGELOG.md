@@ -9,6 +9,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Column indicating save state.
+- Column to display last (`ffmpegutils`) error message.
+
 ### Fixed
 
 - Filtering files.

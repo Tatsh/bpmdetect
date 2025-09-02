@@ -16,7 +16,7 @@
 #include "track/track.h"
 #include "trackitem.h"
 
-#define kProgressColumn 4
+#define kProgressColumn 5
 
 DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     setupUi(this);
@@ -38,15 +38,23 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     listMenu_->addAction(tr("Clear BPM"), this, &DlgBpmDetect::slotClearBpm);
 
     // Add columns to TrackList
-    TrackList->setHeaderLabels(
-        {tr("BPM"), tr("Artist"), tr("Title"), tr("Length"), tr("Progress"), tr("Filename")});
+    TrackList->setHeaderLabels({tr("BPM"),
+                                tr("Saved"),
+                                tr("Artist"),
+                                tr("Title"),
+                                tr("Length"),
+                                tr("Progress"),
+                                tr("Filename"),
+                                tr("Last Error")});
 
     TrackList->setColumnWidth(0, 60);
-    TrackList->setColumnWidth(1, 200);
+    TrackList->setColumnWidth(1, 25);
     TrackList->setColumnWidth(2, 200);
-    TrackList->setColumnWidth(3, 60);
-    TrackList->setColumnWidth(4, 100);
-    TrackList->setColumnWidth(5, 400);
+    TrackList->setColumnWidth(3, 200);
+    TrackList->setColumnWidth(4, 60);
+    TrackList->setColumnWidth(5, 100);
+    TrackList->setColumnWidth(6, 400);
+    TrackList->setColumnWidth(7, 200);
 
     connect(TrackList,
             SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -239,6 +247,8 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
             if (chbSave->isChecked()) {
                 item->track()->setFormat(cbFormat->currentText());
                 item->track()->saveBpm();
+                item->refreshSavedBpmIndicator();
+                item->setLastError(QString::fromUtf8(getLastError()));
             }
         });
         connect(track, &Track::finished, this, [track, this, progressBar]() {
@@ -354,6 +364,8 @@ void DlgBpmDetect::slotSaveBpm() {
         track->setBpm(item->text(0).toDouble());
         track->setFormat(cbFormat->currentText());
         track->saveBpm();
+        item->refreshSavedBpmIndicator();
+        item->setLastError(QString::fromUtf8(getLastError()));
     }
 }
 
@@ -432,6 +444,8 @@ void DlgBpmDetect::slotClearBpm() {
         auto item = static_cast<TrackItem *>(qItem);
         item->track()->clearBpm();
         item->setText(0, QStringLiteral("000.00"));
+        item->refreshSavedBpmIndicator();
+        item->setLastError(QString::fromUtf8(getLastError()));
     }
 }
 
