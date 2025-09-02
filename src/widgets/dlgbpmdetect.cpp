@@ -217,8 +217,9 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         pendingTracks_ += filteredFiles.size();
         TotalProgress->setMaximum(pendingTracks_);
     }
-    for (auto i = 0; i < filteredFiles.size(); ++i) {
-        auto track = new Track(files[i], new QAudioDecoder(this), this);
+    auto i = 0;
+    for (const auto &fileName : filteredFiles) {
+        auto track = new Track(fileName, new QAudioDecoder(this), this);
         auto item = new TrackItem(TrackList, track);
         auto progressBar = new QProgressBar(this);
         progressBar->setMaximum(100);
@@ -265,8 +266,8 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
                 progressBar->setValue(static_cast<int>(currentFilePercent));
             }
         });
-        lblCurrentTrack->setText(tr("Adding %1").arg(files[i]));
-        TotalProgress->setValue(i);
+        lblCurrentTrack->setText(tr("Adding %1").arg(fileName));
+        TotalProgress->setValue(i++);
     }
     lblCurrentTrack->setText(QStringLiteral(""));
     auto itemCount = TrackList->topLevelItemCount();
