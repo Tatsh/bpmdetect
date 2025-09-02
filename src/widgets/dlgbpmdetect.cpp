@@ -447,8 +447,7 @@ void DlgBpmDetect::slotTestBpm() {
     }
     auto file = item->text(TrackList->columnCount() - 1);
 
-    DlgTestBpm testBpmDialog(
-        file, bpm, new DlgTestBpmPlayer(file, 4, bpm, new QAudioDecoder(this), 0, this));
+    DlgTestBpm testBpmDialog(file, bpm, new DlgTestBpmPlayer(file, 4, bpm, 0, this));
     testBpmDialog.exec();
 }
 

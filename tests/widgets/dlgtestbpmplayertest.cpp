@@ -19,17 +19,15 @@ DlgTestBpmPlayerTest::~DlgTestBpmPlayerTest() {
 }
 
 void DlgTestBpmPlayerTest::testDecodeError() {
-    auto player = new DlgTestBpmPlayer(
-        QStringLiteral("nonexistent-file.wav"), 1, 140, new QAudioDecoder(this), 0, this);
+    auto player = new DlgTestBpmPlayer(QStringLiteral("nonexistent-file.wav"), 1, 140, 0, this);
     player->decodeError(QAudioDecoder::ResourceError);
     QVERIFY(player->error);
 }
 
 void DlgTestBpmPlayerTest::testStart() {
     QEventLoop loop;
-    auto decoder = new QAudioDecoder(this);
-    auto player = new DlgTestBpmPlayer(QStringLiteral(TEST_FILE), 1, 140, decoder, 0, this);
-    connect(decoder, &QAudioDecoder::finished, [&loop, player]() {
+    auto player = new DlgTestBpmPlayer(QStringLiteral(TEST_FILE), 1, 140, 0, this);
+    connect(player->decoder_, &QAudioDecoder::finished, [&loop, player]() {
         QThread::sleep(3);
         player->update(1, 2000000);
         QThread::sleep(3);

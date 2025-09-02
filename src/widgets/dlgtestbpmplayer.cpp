@@ -9,17 +9,13 @@
 #include "debug.h"
 #include "dlgtestbpmplayer.h"
 
-DlgTestBpmPlayer::DlgTestBpmPlayer(const QString file,
-                                   unsigned int nBeats_,
-                                   unsigned int bpm_,
-                                   QAudioDecoder *decoder,
-                                   qint64 posUS_,
-                                   QObject *parent)
-    : QThread(parent), buffer(QByteArray()), decoder_(decoder) {
+DlgTestBpmPlayer::DlgTestBpmPlayer(
+    const QString file, unsigned int nBeats_, unsigned int bpm_, qint64 posUS_, QObject *parent)
+    : QThread(parent), buffer(QByteArray()), decoder_(new QAudioDecoder(this)) {
     nBeats = nBeats_;
     bpm = static_cast<float>(bpm_);
     posUS = posUS_;
-    if (!decoder->isSupported()) {
+    if (!decoder_->isSupported()) {
         // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "Audio decoder is not supported on this platform.";
         emit audioError(QAudio::FatalError);
@@ -27,15 +23,15 @@ DlgTestBpmPlayer::DlgTestBpmPlayer(const QString file,
         // LCOV_EXCL_STOP
     }
 
-    decoder->setSource(QUrl::fromLocalFile(file));
-    decoder->start();
+    decoder_->setSource(QUrl::fromLocalFile(file));
+    decoder_->start();
 
-    connect(decoder, &QAudioDecoder::bufferReady, this, &DlgTestBpmPlayer::readBuffer);
-    connect(decoder,
+    connect(decoder_, &QAudioDecoder::bufferReady, this, &DlgTestBpmPlayer::readBuffer);
+    connect(decoder_,
             QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error),
             this,
             &DlgTestBpmPlayer::decodeError);
-    connect(decoder, &QAudioDecoder::finished, this, &DlgTestBpmPlayer::finishedDecoding);
+    connect(decoder_, &QAudioDecoder::finished, this, &DlgTestBpmPlayer::finishedDecoding);
 }
 
 DlgTestBpmPlayer::~DlgTestBpmPlayer() {

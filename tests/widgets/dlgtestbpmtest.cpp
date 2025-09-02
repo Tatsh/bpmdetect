@@ -24,7 +24,7 @@ public:
                        unsigned int bpm_,
                        qint64 posUS_ = 0,
                        QObject *parent = nullptr)
-        : DlgTestBpmPlayer(file, nBeats_, bpm_, new QAudioDecoder(), posUS_, parent) {
+        : DlgTestBpmPlayer(file, nBeats_, bpm_, posUS_, parent) {
     }
     ~NukedTestBpmPlayer() override {
     }

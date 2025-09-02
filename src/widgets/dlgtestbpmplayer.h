@@ -28,7 +28,6 @@ public:
     DlgTestBpmPlayer(const QString file,
                      unsigned int nBeats_,
                      unsigned int bpm_,
-                     QAudioDecoder *decoder,
                      qint64 posUS_ = 0,
                      QObject *parent = nullptr);
     ~DlgTestBpmPlayer() override;
