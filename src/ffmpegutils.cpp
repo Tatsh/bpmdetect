@@ -105,11 +105,11 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         // LCOV_EXCL_STOP
     }
     // Set BPM metadata.
-    const auto key =
-        fmt_ctx->iformat &&
-                QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
-            "TBPM" :
-            "bpm";
+    const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
+    const auto key = name.contains(QStringLiteral("mp3")) ? "TBPM" :
+                     name.contains(QStringLiteral("m4a")) ? "tmpo" :
+                                                            "bpm";
+    qCDebug(gLogBpmDetect) << "Using metadata key:" << key;
     av_dict_set(&fmt_ctx->metadata, key, sBpm.toUtf8().constData(), 0);
     // Prepare output file name.
     bool error = false;
@@ -265,11 +265,11 @@ bool removeBpmFromFile(const QString &fileName) {
         // LCOV_EXCL_STOP
     }
     // Remove BPM from global metadata.
-    const auto key =
-        fmt_ctx->iformat &&
-                QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
-            "TBPM" :
-            "bpm";
+    const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
+    const auto key = name.contains(QStringLiteral("mp3")) ? "TBPM" :
+                     name.contains(QStringLiteral("m4a")) ? "tmpo" :
+                                                            "bpm";
+    qCDebug(gLogBpmDetect) << "Using metadata key:" << key;
     av_dict_set(&fmt_ctx->metadata, key, nullptr, 0);
     // Prepare output file name.
     bool error = false;
@@ -447,6 +447,12 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
     if ((ret = avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr)) ==
         0) {
         if ((ret = avformat_find_stream_info(fmt_ctx, nullptr)) >= 0) {
+            const AVDictionaryEntry *e = NULL;
+            while ((e = av_dict_iterate(fmt_ctx->metadata, e))) {
+                qCDebug(gLogBpmDetect) << QStringLiteral("Metadata key: '%1', value: '%2'")
+                                              .arg(QString::fromUtf8(e->key))
+                                              .arg(QString::fromUtf8(e->value));
+            }
             readTag(fmt_ctx,
                     fmt_ctx->metadata,
                     QStringLiteral("artist"),
@@ -457,12 +463,18 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
                     QStringLiteral("title"),
                     QStringLiteral("title"),
                     returnTags);
-            const auto key =
-                fmt_ctx->iformat &&
-                        QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
-                    QStringLiteral("TBPM") :
-                    QStringLiteral("bpm");
-            readTag(fmt_ctx, fmt_ctx->metadata, key, QStringLiteral("bpm2"), returnTags);
+            const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
+            const auto key = name.contains(QStringLiteral("mp3")) ? "TBPM" :
+                             name.contains(QStringLiteral("m4a")) ? "tmpo" :
+                                                                    "bpm";
+            qCDebug(gLogBpmDetect) << "Using metadata key:" << key;
+            readTag(fmt_ctx,
+                    fmt_ctx->metadata,
+                    QString::fromUtf8(key),
+                    QStringLiteral("bpm2"),
+                    returnTags);
+            qCDebug(gLogBpmDetect)
+                << "Raw BPM value read from file:" << returnTags[QStringLiteral("bpm2")];
             // Convert BPM to double.
             auto ok = false;
             auto bpmVal = returnTags[QStringLiteral("bpm2")].toString().toDouble(&ok);

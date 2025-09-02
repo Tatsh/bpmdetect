@@ -32,6 +32,10 @@ On Windows, this application requires
 [Media Feature Pack](https://support.microsoft.com/en-us/topic/media-feature-pack-list-for-windows-n-editions-c1c6fffa-d052-8338-7a79-a4bb980a700a)
 to be installed.
 
+Some formats cannot save tags. The application will not warn you about these. M4A (AAC, 3GP, etc)
+store tags in the `tmpo` atom which is limited to integers but this will not be seen as saved on
+restart because ffmpeg does not parse the `tmpo` atom when reading the file.
+
 [![Packaging status](https://repology.org/badge/vertical-allrepos/bpmdetect.svg)](https://repology.org/project/bpmdetect/versions)
 
 [Original project](https://sourceforge.net/projects/bpmdetect/)

@@ -172,6 +172,7 @@ tasn
 tatsh
 tbpm
 theora
+tmpo
 trackitem
 tracktest
 trofimovich

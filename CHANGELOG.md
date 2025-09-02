@@ -14,6 +14,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Column indicating save state.
 - Column to display last (`ffmpegutils`) error message.
 
+### Changed
+
+- Save BPM to `tmpo` atom (integer only) in M4A files.
+
 ### Fixed
 
 - Filtering files.
