@@ -9,14 +9,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.3]
+
 ### Added
 
 - Column indicating save state.
-- Column to display last (`ffmpegutils`) error message.
+- Column to display last (`ffmpegutils`) error message (debug builds only).
 
 ### Changed
 
-- Save BPM to `tmpo` atom (integer only) in M4A files.
+- Save BPM to `tmpo` atom (integer only) in M4A files. Unfortunately, the tag is not read back by
+  ffmpeg.
 
 ### Fixed
 
@@ -98,7 +101,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.2...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.3...HEAD
+[0.8.3]: https://github.com/Tatsh/bpmdetect/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Tatsh/bpmdetect/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Tatsh/bpmdetect/compare/v0.7.2...v0.8.1
 [0.7.2]: https://github.com/Tatsh/bpmdetect/compare/v0.7.1...v0.7.2

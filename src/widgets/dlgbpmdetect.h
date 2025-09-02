@@ -23,7 +23,6 @@ class DlgBpmDetect : public QWidget, public Ui_DlgBpmDetect {
 #endif
 public:
     /** Constructor.
-     * @param proxyFactory Factory function to create TrackProxy instances.
      * @param parent Parent widget.
      */
     DlgBpmDetect(QWidget *parent = nullptr);

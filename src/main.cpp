@@ -14,7 +14,6 @@
 #endif
 
 int main(int argc, char *argv[]) {
-    auto isConsoleMode = true;
 #ifndef NO_GUI
     QApplication app(argc, argv);
 #else

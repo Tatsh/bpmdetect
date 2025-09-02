@@ -10,7 +10,7 @@ class AbstractBpmDetector : public QObject {
 public:
     /** Constructs a BPM detector. */
     explicit AbstractBpmDetector(QObject *parent = nullptr);
-    ~AbstractBpmDetector();
+    ~AbstractBpmDetector() override;
     /** Add samples to the BPM detector. */
     virtual void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) = 0;
     /** Get the BPM value. */

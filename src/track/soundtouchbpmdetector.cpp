@@ -31,7 +31,7 @@ bpmtype SoundTouchBpmDetector::getBpm() const {
         return -1;
         // LCOV_EXCL_STOP
     }
-    return stDetector_->getBpm();
+    return static_cast<bpmtype>(stDetector_->getBpm());
 }
 
 void SoundTouchBpmDetector::reset() {

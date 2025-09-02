@@ -1,3 +1,4 @@
+#include "guimain.h"
 #include "track/soundtouchbpmdetector.h"
 #include "widgets/dlgbpmdetect.h"
 

@@ -11,7 +11,7 @@
 #include "track/track.h"
 
 DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWidget *parent)
-    : player_(player), bpm_(bpm), QDialog(parent) {
+    : QDialog(parent), player_(player), bpm_(bpm) {
     setupUi(this);
 
     if (file.isEmpty()) {
@@ -22,8 +22,8 @@ DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWid
 
     lblBpm->setText(bpmToString(static_cast<bpmtype>(bpm), QStringLiteral("000.00")));
     connect(trackPosition, &ProgressBar::positionChanged, this, &DlgTestBpm::setCustomPos);
-    connect(player, &DlgTestBpmPlayer::hasLengthUS, this, &DlgTestBpm::setTrackPositionLength);
-    connect(player, &DlgTestBpmPlayer::audioError, [this](QAudio::Error e) {
+    connect(player_, &DlgTestBpmPlayer::hasLengthUs, this, &DlgTestBpm::setTrackPositionLength);
+    connect(player_, &DlgTestBpmPlayer::audioError, [this](QAudio::Error e) {
         // LCOV_EXCL_START
         if (e == QAudio::FatalError) {
             qCCritical(gLogBpmDetect) << "Fatal audio error occurred.";
@@ -31,8 +31,8 @@ DlgTestBpm::DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWid
         }
     });
     // LCOV_EXCL_STOP
-    connect(this, &QDialog::accepted, player, &DlgTestBpmPlayer::stop);
-    connect(this, &QDialog::rejected, player, &DlgTestBpmPlayer::stop);
+    connect(this, &QDialog::accepted, player_, &DlgTestBpmPlayer::stop);
+    connect(this, &QDialog::rejected, player_, &DlgTestBpmPlayer::stop);
     connect(this->cbNBeats, &QComboBox::currentTextChanged, this, &DlgTestBpm::setNumBeats);
     connect(this->btnPos1, &QPushButton::clicked, [this]() { setPosFromButton(1); });
     connect(this->btnPos2, &QPushButton::clicked, [this]() { setPosFromButton(2); });

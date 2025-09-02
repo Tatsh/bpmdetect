@@ -58,7 +58,7 @@ void Track::setupDecoder() {
         QAudioBuffer buffer;
         if ((buffer = decoder_->read()).isValid()) {
             detector_->inputSamples(buffer.constData<soundtouch::SAMPLETYPE>(),
-                                    buffer.frameCount());
+                                    static_cast<int>(buffer.frameCount()));
         }
     });
     connect(decoder_, &QAudioDecoder::positionChanged, [this](qint64 pos) {
@@ -254,6 +254,6 @@ bool Track::hasValidBpm() const {
     return dBpm_ >= _dMinBpm && dBpm_ <= _dMaxBpm;
 }
 
-quint64 Track::length() const {
+qlonglong Track::length() const {
     return length_;
 }

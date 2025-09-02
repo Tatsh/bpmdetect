@@ -137,6 +137,7 @@ qcompare
 qdroplistview
 qdroplistviewtest
 qfetch
+qlonglong
 qresource
 qsizetype
 qstringbuilder

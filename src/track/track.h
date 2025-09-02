@@ -34,10 +34,9 @@ public:
     /**
      * Constructor.
      * @param fileName Filename.
-     * @param decoder Audio decoder.
      * @param parent Parent object.
      */
-    Track(const QString &filename, QObject *parent = nullptr);
+    Track(const QString &fileName, QObject *parent = nullptr);
 #ifdef TESTING
     /**
      * Constructor.
@@ -79,7 +78,7 @@ public:
     /** Get the file name. */
     QString fileName() const;
     /** Get the track length in miliseconds. */
-    quint64 length() const;
+    qlonglong length() const;
     /** Get the track length as a formatted string. */
     QString formattedLength() const;
     /** Check if the track is valid. */
@@ -140,7 +139,7 @@ private:
     bool opened_ = false;
     bool stopped_ = false;
     bpmtype dBpm_ = 0;
-    quint64 length_ = 0;
+    qlonglong length_ = 0;
 
     static bpmtype _dMaxBpm;
     static bpmtype _dMinBpm;

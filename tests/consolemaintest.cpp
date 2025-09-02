@@ -58,7 +58,10 @@ void ConsoleMainTest::testRemoveBpmTag() {
     auto tags = readTagsFromFile(tempFile.fileName());
     QCOMPARE(tags[QStringLiteral("bpm")].toDouble(), 140.0);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunsafe-buffer-usage-in-libc-call"
     auto tempFileDup = strdup(tempFile.fileName().toUtf8().constData());
+#pragma clang diagnostic pop
     const char *argv[] = {"bpmdetect", "--remove", tempFileDup};
     auto argc = 3;
 
@@ -87,8 +90,11 @@ void ConsoleMainTest::testDetection() {
     auto temp2Bpm = tags[QStringLiteral("bpm")].toDouble();
     QVERIFY(temp2Bpm >= 120.0 && temp2Bpm < 120.1);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunsafe-buffer-usage-in-libc-call"
     auto tempFileDup = strdup(tempFile.fileName().toUtf8().constData());
     auto tempFile2Dup = strdup(tempFile2.fileName().toUtf8().constData());
+#pragma clang diagnostic pop
     const char *argv[] = {"bpmdetect", "--save", tempFileDup, tempFile2Dup};
     auto argc = 4;
 

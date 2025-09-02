@@ -51,6 +51,7 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         track.setDetector(detector);
         QObject::connect(
             &track, &Track::hasBpm, [&track, &loop, &save, &consoleProgress](bpmtype bpm) {
+                Q_UNUSED(bpm)
                 if (consoleProgress) {
                     QTextStream(stdout) << "\r";
                 }

@@ -21,14 +21,15 @@ class NukedTestBpmPlayer : public DlgTestBpmPlayer {
 public:
     NukedTestBpmPlayer(const QString &file,
                        unsigned int nBeats_,
-                       unsigned int bpm_,
+                       bpmtype bpm_,
                        qint64 posUS_ = 0,
                        QObject *parent = nullptr)
         : DlgTestBpmPlayer(file, nBeats_, bpm_, posUS_, parent) {
     }
-    ~NukedTestBpmPlayer() override {
-    }
+    ~NukedTestBpmPlayer() override;
 };
+
+NukedTestBpmPlayer::~NukedTestBpmPlayer() = default;
 
 DlgTestBpmTest::DlgTestBpmTest(QObject *parent) : QObject(parent) {
 }
@@ -38,14 +39,14 @@ DlgTestBpmTest::~DlgTestBpmTest() {
 
 void DlgTestBpmTest::testConstructor() {
     DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
-                   120.0f,
+                   120.0,
                    new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
     QVERIFY(dlg.isVisible() || !dlg.isVisible()); // Just ensure construction does not crash
 }
 
 void DlgTestBpmTest::testSetTrackPositionLength() {
     DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
-                   120.0f,
+                   120.0,
                    new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
     dlg.setTrackPositionLength(5000);
     QVERIFY(dlg.trackPosition->isEnabled());
@@ -53,7 +54,7 @@ void DlgTestBpmTest::testSetTrackPositionLength() {
 
 void DlgTestBpmTest::testSetCustomPos() {
     DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
-                   120.0f,
+                   120.0,
                    new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
     dlg.setCustomPos(1000); // The msec value is not used.
     QCOMPARE(dlg.trackPosition->value(), -1);
@@ -61,7 +62,7 @@ void DlgTestBpmTest::testSetCustomPos() {
 
 void DlgTestBpmTest::testSetNumBeats() {
     DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
-                   120.0f,
+                   120.0,
                    new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
     dlg.setNumBeats(QStringLiteral("4"));
     QCOMPARE(dlg.cbNBeats->currentText(), QStringLiteral("4"));
@@ -81,7 +82,7 @@ void DlgTestBpmTest::testSlotUpdateBpmList() {
 
 void DlgTestBpmTest::testSetPosFromButton() {
     DlgTestBpm dlg(QStringLiteral(NOISE_WAV),
-                   120.0f,
+                   120.0,
                    new NukedTestBpmPlayer(QStringLiteral(NOISE_WAV), 4, 120, 0, this));
     dlg.setPosFromButton(1);
     QCOMPARE(dlg.trackPosition->value(), 20);

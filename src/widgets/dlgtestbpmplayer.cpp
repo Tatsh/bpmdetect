@@ -10,10 +10,10 @@
 #include "dlgtestbpmplayer.h"
 
 DlgTestBpmPlayer::DlgTestBpmPlayer(
-    const QString file, unsigned int nBeats, unsigned int bpm, qint64 posUS, QObject *parent)
+    const QString file, unsigned int nBeats, bpmtype bpm, qint64 posUS, QObject *parent)
     : QThread(parent), buffer_(QByteArray()), decoder_(new QAudioDecoder(this)) {
     nBeats_ = nBeats;
-    bpm_ = static_cast<float>(bpm_);
+    bpm_ = bpm;
     posUS_ = posUS;
     if (!decoder_->isSupported()) {
         // LCOV_EXCL_START
@@ -22,16 +22,14 @@ DlgTestBpmPlayer::DlgTestBpmPlayer(
         return;
         // LCOV_EXCL_STOP
     }
-
-    decoder_->setSource(QUrl::fromLocalFile(file));
-    decoder_->start();
-
     connect(decoder_, &QAudioDecoder::bufferReady, this, &DlgTestBpmPlayer::readBuffer);
     connect(decoder_,
             QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error),
             this,
             &DlgTestBpmPlayer::decodeError);
     connect(decoder_, &QAudioDecoder::finished, this, &DlgTestBpmPlayer::finishedDecoding);
+    decoder_->setSource(QUrl::fromLocalFile(file));
+    decoder_->start();
 }
 
 DlgTestBpmPlayer::~DlgTestBpmPlayer() {
@@ -58,7 +56,7 @@ void DlgTestBpmPlayer::finishedDecoding() {
     connect(output_, &QAudioSink::stateChanged, this, &DlgTestBpmPlayer::handleStateChange);
     dev_ = output_->start();
     readyToPlay_ = true;
-    emit hasLengthUS(lengthUs_);
+    emit hasLengthUs(lengthUs_);
 }
 
 // LCOV_EXCL_START
@@ -110,19 +108,19 @@ void DlgTestBpmPlayer::stop() {
     }
 }
 
-void DlgTestBpmPlayer::update(unsigned int nBeats, qint64 posUS) {
+void DlgTestBpmPlayer::update(unsigned int nBeats, qint64 posUs) {
     nBeats_ = nBeats;
-    posUS_ = posUS;
+    posUS_ = posUs;
 
     data_ = startptr_ = buffer_.data();
     const auto beatsLength =
-        static_cast<qint64>(((60000.0f * static_cast<float>(nBeats_)) / bpm_) * 1000.0f);
+        static_cast<qint64>(((60000.0 * static_cast<bpmtype>(nBeats_)) / bpm_) * 1000.0);
     const auto bytesForBeats = format_.bytesForDuration(beatsLength);
 
     dataRemaining_ = static_cast<qint64>(bytesForBeats) * nBeats_;
     originalSize_ = dataRemaining_;
-    if (posUS > 0) {
-        auto skipBytes = format_.bytesForDuration(posUS);
+    if (posUS_ > 0) {
+        auto skipBytes = format_.bytesForDuration(posUS_);
         if (skipBytes >= buffer_.size()) {
             // LCOV_EXCL_START
             return;
@@ -159,9 +157,9 @@ void DlgTestBpmPlayer::run() {
         // This section is excluded because GitHub Actions CI VMs cannot reach here.
         auto bytesFree = output_->bytesFree();
         if (bytesFree > 0) {
-            auto chunk = qMin(bytesFree, dataRemaining_);
-            if (chunk > 0) {
-                auto bytesWritten = dev_->write(data_, chunk);
+            auto chunkSize = qMin(bytesFree, dataRemaining_);
+            if (chunkSize > 0) {
+                auto bytesWritten = dev_->write(data_, chunkSize);
                 if (bytesWritten > 0) {
                     dataRemaining_ -= bytesWritten;
 #pragma clang unsafe_buffer_usage begin

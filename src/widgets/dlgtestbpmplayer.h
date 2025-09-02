@@ -7,6 +7,8 @@
 #include <QtMultimedia/QAudioDecoder>
 #include <QtMultimedia/QAudioFormat>
 
+#include "utils.h"
+
 class QAudioSink;
 class QIODevice;
 
@@ -20,15 +22,15 @@ public:
     /**
      * Constructor.
      * @param file File to play.
-     * @param nBeats_ Number of beats to loop.
+     * @param nBeats  Number of beats to loop.
      * @param bpm BPM value.
-     * @param posUS Position in microseconds.
+     * @param posUs Position in microseconds.
      * @param parent Parent object.
      */
     DlgTestBpmPlayer(const QString file,
                      unsigned int nBeats,
-                     unsigned int bpm,
-                     qint64 posUS = 0,
+                     bpmtype bpm,
+                     qint64 posUs = 0,
                      QObject *parent = nullptr);
     ~DlgTestBpmPlayer() override;
     /** Get the length in microseconds. */
@@ -40,13 +42,13 @@ public:
     /**
      * Update the player with new number of beats and position in microseconds.
      * @param nBeats New number of beats.
-     * @param posUS New position in microseconds.
+     * @param posUs New position in microseconds.
      */
-    void update(unsigned int nBeats, qint64 posUS = 0);
+    void update(unsigned int nBeats, qint64 posUs = 0);
     /** Signal for when the player encounters an error. */
     Q_SIGNAL void audioError(QAudio::Error error);
     /** Signal for when length is discovered. */
-    Q_SIGNAL void hasLengthUS(qint64 length);
+    Q_SIGNAL void hasLengthUs(qint64 length);
 
 protected:
     void run() override;
@@ -77,7 +79,7 @@ private:
     qint64 dataRemaining_;
     qint64 originalSize_;
     unsigned int nBeats_ = 4;
-    float bpm_;
+    bpmtype bpm_;
     bool readyToPlay_ = false;
     bool error_ = false;
 };

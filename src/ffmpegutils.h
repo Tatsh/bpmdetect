@@ -43,4 +43,4 @@ bool removeBpmFromFile(const QString &fileName);
 QMap<QString, QVariant> readTagsFromFile(const QString &fileName);
 
 /** Get the last error message. */
-const char *getLastError();
+QString getLastError();

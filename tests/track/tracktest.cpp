@@ -14,9 +14,10 @@ struct DummyTrack : public Track {
     }
     DummyTrack(const QString &fileName) : Track(fileName) {
     }
-    ~DummyTrack() override {
-    }
+    ~DummyTrack() override;
 };
+
+DummyTrack::~DummyTrack() = default;
 
 class DummyBpmDetector : public AbstractBpmDetector {
     Q_OBJECT
@@ -24,6 +25,8 @@ public:
     DummyBpmDetector(QObject *parent = nullptr) : AbstractBpmDetector(parent) {
     }
     void inputSamples(const soundtouch::SAMPLETYPE *samples, int numSamples) override {
+        Q_UNUSED(samples)
+        Q_UNUSED(numSamples)
     }
     bpmtype getBpm() const override {
         return 120.0;

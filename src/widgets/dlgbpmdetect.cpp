@@ -32,7 +32,7 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     listMenu_->addAction(tr("Remove tracks with BPM"), this, &DlgBpmDetect::slotClearDetected);
     listMenu_->addAction(tr("Clear list"), this, &DlgBpmDetect::slotClearTrackList);
     listMenu_->addSeparator();
-    auto testBpmAction = listMenu_->addAction(tr("Test BPM"), this, &DlgBpmDetect::slotTestBpm);
+    listMenu_->addAction(tr("Test BPM"), this, &DlgBpmDetect::slotTestBpm);
     listMenu_->addSeparator();
     listMenu_->addAction(tr("Save BPM"), this, &DlgBpmDetect::slotSaveBpm);
     listMenu_->addAction(tr("Clear BPM"), this, &DlgBpmDetect::slotClearBpm);
@@ -55,6 +55,9 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     TrackList->setColumnWidth(5, 100);
     TrackList->setColumnWidth(6, 400);
     TrackList->setColumnWidth(7, 200);
+#ifdef NDEBUG
+    TrackList->setColumnHidden(7, true);
+#endif
 
     connect(TrackList,
             SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -222,7 +225,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
         filteredFiles << file;
     }
     if (filteredFiles.size()) {
-        pendingTracks_ += filteredFiles.size();
+        pendingTracks_ += static_cast<int>(filteredFiles.size());
         TotalProgress->setMaximum(pendingTracks_);
     }
     auto i = 0;
@@ -248,7 +251,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
                 item->track()->setFormat(cbFormat->currentText());
                 item->track()->saveBpm();
                 item->refreshSavedBpmIndicator();
-                item->setLastError(QString::fromUtf8(getLastError()));
+                item->setLastError(getLastError());
             }
         });
         connect(track, &Track::finished, this, [track, this, progressBar]() {
@@ -365,7 +368,7 @@ void DlgBpmDetect::slotSaveBpm() {
         track->setFormat(cbFormat->currentText());
         track->saveBpm();
         item->refreshSavedBpmIndicator();
-        item->setLastError(QString::fromUtf8(getLastError()));
+        item->setLastError(getLastError());
     }
 }
 
@@ -445,23 +448,19 @@ void DlgBpmDetect::slotClearBpm() {
         item->track()->clearBpm();
         item->setText(0, QStringLiteral("000.00"));
         item->refreshSavedBpmIndicator();
-        item->setLastError(QString::fromUtf8(getLastError()));
+        item->setLastError(getLastError());
     }
 }
 
 void DlgBpmDetect::slotTestBpm() {
-    auto item = TrackList->currentItem();
-    if (!item) {
+    auto item = static_cast<TrackItem *>(TrackList->currentItem());
+    if (!item || !item->track()->hasValidBpm()) {
         return;
     }
-    auto bpm = item->text(0).toFloat();
-    static const auto epsilon = 0.0001;
-    if (bpm <= epsilon) {
-        return;
-    }
-    auto file = item->text(TrackList->columnCount() - 1);
-
-    DlgTestBpm testBpmDialog(file, bpm, new DlgTestBpmPlayer(file, 4, bpm, 0, this));
+    DlgTestBpm testBpmDialog(
+        item->track()->fileName(),
+        item->track()->bpm(),
+        new DlgTestBpmPlayer(item->track()->fileName(), 4, item->track()->bpm(), 0, this));
     testBpmDialog.exec();
 }
 
