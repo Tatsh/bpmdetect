@@ -53,7 +53,6 @@ bool isDecodableFile(const QString &fileName) {
 
 static QString getTemporaryFileName(const QString &fileName) {
     QTemporaryFile tempFile;
-    QFileInfo fi(fileName);
     tempFile.setFileTemplate(QDir::tempPath() + QStringLiteral("/XXXXXX.") +
                              QFileInfo(fileName).suffix());
     tempFile.open();
@@ -181,7 +180,12 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     }
     avformat_free_context(out_ctx);
     // Replace original file with new file.
-    QFile::remove(fileName);
+    if (!QFile::remove(fileName)) {
+        // LCOV_EXCL_START
+        qCCritical(gLogBpmDetect) << "Failed to delete original file" << fileName;
+        return false;
+        // LCOV_EXCL_STOP
+    }
     if (!QFile::rename(outFile, fileName)) {
         // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "Failed to replace original file with updated metadata file:"
@@ -322,7 +326,12 @@ bool removeBpmFromFile(const QString &fileName) {
     }
     avformat_free_context(out_ctx);
     // Replace original file with new file.
-    QFile::remove(fileName);
+    if (!QFile::remove(fileName)) {
+        // LCOV_EXCL_START
+        qCCritical(gLogBpmDetect) << "Failed to delete original file" << fileName;
+        return false;
+        // LCOV_EXCL_STOP
+    }
     if (!QFile::rename(outFile, fileName)) {
         // LCOV_EXCL_START
         qCCritical(gLogBpmDetect) << "Failed to replace original file with updated metadata file:"
