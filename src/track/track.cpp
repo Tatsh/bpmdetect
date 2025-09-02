@@ -7,8 +7,6 @@ extern "C" {
 #include <BPMDetect.h>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
 #include <QtCore/QUrl>
 #include <QtMultimedia/QAudioDecoder>
 
