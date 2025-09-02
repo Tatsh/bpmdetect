@@ -30,7 +30,7 @@ public:
      * @param decoder Audio decoder.
      * @param parent Parent object.
      */
-    Track(const QString &fileName, QAudioDecoder *const decoder, QObject *parent = nullptr);
+    Track(const QString &fileName, QAudioDecoder *decoder, QObject *parent = nullptr);
     /**
      * Constructor.
      * @param fileName Filename.
@@ -100,6 +100,8 @@ public:
     void setDetector(AbstractBpmDetector *detector);
     /** Check if the BPM is set and is valid. */
     bool hasValidBpm() const;
+    /** If the BPM is saved in the file metadata. */
+    bool hasSavedBpm() const;
 
 Q_SIGNALS:
     /**
@@ -119,8 +121,6 @@ Q_SIGNALS:
 protected:
     /** Correct the BPM based on the global minimum and maximum. */
     bpmtype correctBpm(bpmtype dBpm) const;
-    /** Open the track. */
-    void open();
     /** Store @a sBpm into the metadata of the file. */
     void storeBpm(const QString &sBpm);
     /** Remove BPM metadata from the file. */
@@ -130,11 +130,12 @@ private:
     void setupDecoder();
 
     AbstractBpmDetector *detector_ = nullptr;
-    QAudioDecoder *const decoder_ = nullptr;
+    QAudioDecoder *decoder_ = nullptr;
     QString artist_;
     QString bpmFormat_ = QStringLiteral("0.00");
     QString fileName_;
     QString title_;
+    bool hasSavedBpm_ = false;
     bool isValidFile_ = false;
     bool opened_ = false;
     bool stopped_ = false;

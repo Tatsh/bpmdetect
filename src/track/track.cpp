@@ -19,8 +19,9 @@ extern "C" {
 bpmtype Track::_dMinBpm = 80.;
 bpmtype Track::_dMaxBpm = 185.;
 
-Track::Track(const QString &fileName, QAudioDecoder *const decoder, QObject *parent)
+Track::Track(const QString &fileName, QAudioDecoder *decoder, QObject *parent)
     : QObject(parent), decoder_(decoder), fileName_(fileName) {
+    isValidFile_ = !fileName_.isEmpty();
     readTags();
     setupDecoder();
 }
@@ -66,6 +67,7 @@ void Track::setupDecoder() {
         }
     });
     connect(decoder_, &QAudioDecoder::finished, [this]() {
+        decoder_->setSource(QUrl()); // Release the file handle (only an issue on Windows).
         if (stopped_) {
             // LCOV_EXCL_START
             qCDebug(gLogBpmDetect) << "Detection stopped.";
@@ -86,6 +88,7 @@ void Track::setupDecoder() {
     });
     // LCOV_EXCL_START
     connect(decoder_, QOverload<QAudioDecoder::Error>::of(&QAudioDecoder::error), [this]() {
+        decoder_->setSource(QUrl()); // Release the file handle (only an issue on Windows).
         qCCritical(gLogBpmDetect) << "Audio decoder error:" << decoder_->errorString();
         stopped_ = true;
         emit finished();
@@ -129,26 +132,13 @@ QString Track::formatted(const QString &format) const {
 
 void Track::readTags() {
     auto map = readTagsFromFile(fileName_);
-    title_ = map.value(QStringLiteral("title")).toString();
-    artist_ = map.value(QStringLiteral("artist")).toString();
-    length_ = map.value(QStringLiteral("length")).toLongLong();
-    dBpm_ = map.value(QStringLiteral("bpm")).toDouble();
-}
-
-void Track::open() {
-    isValidFile_ = false;
-    if (fileName_.isEmpty()) {
-        return;
+    title_ = map[QStringLiteral("title")].toString();
+    artist_ = map[QStringLiteral("artist")].toString();
+    length_ = map[QStringLiteral("length")].toLongLong();
+    dBpm_ = map[QStringLiteral("bpm")].toDouble();
+    if (hasValidBpm()) {
+        hasSavedBpm_ = true;
     }
-    decoder_->setSource(QUrl::fromLocalFile(fileName_));
-    if (decoder_->error() == QAudioDecoder::NoError) {
-        isValidFile_ = true;
-        return;
-    }
-    // LCOV_EXCL_START
-    qCCritical(gLogBpmDetect) << "Failed to open file:" << fileName_
-                              << ", error:" << decoder_->errorString();
-    // LCOV_EXCL_STOP
 }
 
 QString Track::fileName() const {
@@ -227,9 +217,9 @@ void Track::printBpm() const {
 }
 
 Track::DetectionState Track::detectBpm() {
-    open();
     if (isValidFile_ && detector_ != nullptr && decoder_ != nullptr) {
         detector_->reset();
+        decoder_->setSource(QUrl::fromLocalFile(fileName_));
         decoder_->start();
     } else {
         qCCritical(gLogBpmDetect) << "Invalid state for detection. Detector:"
@@ -242,11 +232,15 @@ Track::DetectionState Track::detectBpm() {
 }
 
 void Track::storeBpm(const QString &sBpm) {
-    storeBpmInFile(fileName_, sBpm);
+    hasSavedBpm_ = storeBpmInFile(fileName_, sBpm);
+}
+
+bool Track::hasSavedBpm() const {
+    return hasSavedBpm_;
 }
 
 void Track::removeBpm() {
-    removeBpmFromFile(fileName_);
+    hasSavedBpm_ = !removeBpmFromFile(fileName_);
 }
 
 void Track::stop() {
