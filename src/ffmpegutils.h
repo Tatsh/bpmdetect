@@ -37,7 +37,7 @@ bool removeBpmFromFile(const QString &fileName);
 /**
  * Tag reader using ffmpeg. Gets artist, title, bpm and length (in milliseconds) and puts them in a
  * map.
- * @param fileName_ The path to the audio file.
+ * @param fileName The path to the audio file.
  * @return A map with the tags read. If a tag is not found, the key will have a sane default value.
  */
 QMap<QString, QVariant> readTagsFromFile(const QString &fileName);
