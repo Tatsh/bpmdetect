@@ -140,6 +140,7 @@ qfetch
 qresource
 qsizetype
 qstringbuilder
+qstrncpy
 qtbase
 qtcore
 qtest

@@ -41,3 +41,6 @@ bool removeBpmFromFile(const QString &fileName);
  * @return A map with the tags read. If a tag is not found, the key will have a sane default value.
  */
 QMap<QString, QVariant> readTagsFromFile(const QString &fileName);
+
+/** Get the last error message. */
+const char *getLastError();
