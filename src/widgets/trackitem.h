@@ -19,6 +19,8 @@ public:
     QProgressBar *progressBar() const;
     /** Refresh the saved BPM indicator. */
     void refreshSavedBpmIndicator();
+    /** Reset the last error message column to empty. */
+    void resetLastError();
     /** Set the last error message. */
     void setLastError(const QString &error);
     /** Set the progress bar. */

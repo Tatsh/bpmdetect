@@ -176,6 +176,7 @@ void DlgBpmDetect::slotStart() {
     TotalProgress->setValue(0);
     for (const auto &item : items) {
         innerEventLoop_ = new QEventLoop(this);
+        item->resetLastError();
         item->progressBar()->setValue(0);
         item->progressBar()->setTextVisible(true);
         item->track()->setDetector(detector_);

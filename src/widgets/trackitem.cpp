@@ -37,3 +37,7 @@ void TrackItem::refreshSavedBpmIndicator() {
 void TrackItem::setLastError(const QString &error) {
     setText(7, error);
 }
+
+void TrackItem::resetLastError() {
+    setText(7, QStringLiteral(""));
+}
