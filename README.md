@@ -58,6 +58,9 @@ cmake ..
 make
 ```
 
+On MacPorts, set the `CMAKE_PREFIX_PATH` variable to
+`/opt/local/libexec/ffmpeg7;/opt/local/libexec/qt6`.
+
 To build tests, add `-DBUILD_TESTS=ON`. Add `-DCOVERAGE=ON` to enable coverage (Clang and GCC only).
 
 Translation support has been added but there are currently no translations. This can be enabled with

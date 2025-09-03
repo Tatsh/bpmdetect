@@ -92,6 +92,7 @@ libavformat
 libavutil
 libbrotlienc
 libdeflate
+libexec
 libflac
 libgme
 libgsm
