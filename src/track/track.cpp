@@ -168,7 +168,6 @@ bpmtype Track::bpm() const {
 QString Track::formattedLength() const {
     auto csecs = length_ / 10;
     auto secs = csecs / 100;
-    csecs = csecs % 100;
     auto mins = secs / 60;
     secs = secs % 60;
     static const auto zero = QChar::fromLatin1('0');

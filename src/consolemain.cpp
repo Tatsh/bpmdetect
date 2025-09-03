@@ -30,7 +30,7 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         }
         return 0;
     }
-    const auto detector = new SoundTouchBpmDetector(&app);
+    const auto detector = new SoundTouchBpmDetector();
     for (const auto &file : files) {
         QEventLoop loop;
         if (!isDecodableFile(file)) {
@@ -77,5 +77,6 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         track.detectBpm();
         loop.exec();
     }
+    delete detector;
     return 0;
 }
