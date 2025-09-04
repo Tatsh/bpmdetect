@@ -17,5 +17,6 @@ QWidget *TrackItemDelegate::createEditor(QWidget *parent,
     auto editor = new QLineEdit(parent);
     auto validator = new QDoubleValidator(0, 999.99, 2, editor);
     editor->setValidator(validator);
+    emit editingStarted(index);
     return editor;
 }

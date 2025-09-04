@@ -87,4 +87,6 @@ private:
     QSettings settings_;
     QString recentPath_;
     QStringList displayedColumns_;
+    bool editing_ = false;
+    QModelIndex editingIndex_;
 };

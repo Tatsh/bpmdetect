@@ -11,6 +11,12 @@ extern "C" {
 #include "ffmpegutils.h"
 #include "utils.h"
 
+static const auto kBpmKeyTBpm = QStringLiteral("TBPM");
+static const auto kBpmKeyTmpo = QStringLiteral("tmpo");
+static const auto kBpmKeyBpm = QStringLiteral("bpm");
+static const auto kNameM4a = QStringLiteral("m4a");
+static const auto kNameMp3 = QStringLiteral("mp3");
+
 // https://github.com/joncampbell123/composite-video-simulator/issues/5#issuecomment-611885908
 Q_ALWAYS_INLINE QString av_errToQString(int errnum) {
     char str[AV_ERROR_MAX_STRING_SIZE];
@@ -65,8 +71,8 @@ bool isDecodableFile(const QString &fileName) {
 
 static QString getTemporaryFileName(const QString &fileName, bool *error) {
     QTemporaryFile tempFile;
-    tempFile.setFileTemplate(QDir::tempPath() + QStringLiteral("/XXXXXX.") +
-                             QFileInfo(fileName).suffix());
+    static const auto tempFileTemplate = QStringLiteral("/XXXXXX.");
+    tempFile.setFileTemplate(QDir::tempPath() + tempFileTemplate + QFileInfo(fileName).suffix());
     *error = !tempFile.open();
     if (*error) {
         // LCOV_EXCL_START
@@ -107,9 +113,7 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     }
     // Set BPM metadata.
     const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
-    const auto key = name.contains(QStringLiteral("mp3")) ? "TBPM" :
-                     name.contains(QStringLiteral("m4a")) ? "tmpo" :
-                                                            "bpm";
+    const auto key = name.contains(kNameMp3) ? "TBPM" : name.contains(kNameM4a) ? "tmpo" : "bpm";
     qCDebug(gLogBpmDetect) << "Using metadata key:" << key;
     av_dict_set(&fmt_ctx->metadata, key, sBpm.toUtf8().constData(), 0);
     // Prepare output file name.
@@ -140,7 +144,7 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         if (!out_stream) {
             // LCOV_EXCL_START
             qCDebug(gLogBpmDetect) << "libavformat failed to create output stream.";
-            setLastError(QStringLiteral("libavformat failed to create output stream."));
+            setLastError(QObject::tr("libavformat failed to create output stream."));
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
@@ -267,9 +271,7 @@ bool removeBpmFromFile(const QString &fileName) {
     // LCOV_EXCL_STOP
     // Remove BPM from global metadata.
     const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
-    const auto key = name.contains(QStringLiteral("mp3")) ? "TBPM" :
-                     name.contains(QStringLiteral("m4a")) ? "tmpo" :
-                                                            "bpm";
+    const auto key = name.contains(kNameMp3) ? "TBPM" : name.contains(kNameM4a) ? "tmpo" : "bpm";
     qCDebug(gLogBpmDetect) << "Using metadata key:" << key;
     av_dict_set(&fmt_ctx->metadata, key, nullptr, 0);
     // Prepare output file name.
@@ -302,7 +304,7 @@ bool removeBpmFromFile(const QString &fileName) {
         if (!out_stream) {
             // LCOV_EXCL_START
             qCCritical(gLogBpmDetect) << "libavformat failed to create output stream.";
-            setLastError(QStringLiteral("libavformat failed to create output stream."));
+            setLastError(QObject::tr("libavformat failed to create output stream."));
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
@@ -322,11 +324,10 @@ bool removeBpmFromFile(const QString &fileName) {
         // LCOV_EXCL_STOP
         out_stream->time_base = in_stream->time_base;
         // Copy stream metadata except TBPM for MP3.
-        auto bpmKey =
-            fmt_ctx->iformat &&
-                    QString::fromUtf8(fmt_ctx->iformat->name).contains(QStringLiteral("mp3")) ?
-                QStringLiteral("TBPM") :
-                QStringLiteral("bpm");
+        const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
+        auto bpmKey = fmt_ctx->iformat && name.contains(kNameMp3) ? kBpmKeyTBpm :
+                      name.contains(kNameM4a)                     ? kBpmKeyTmpo :
+                                                                    kBpmKeyBpm;
         AVDictionary *newTags = nullptr;
         AVDictionaryEntry *entry = nullptr;
         while ((entry = av_dict_get(in_stream->metadata, "", entry, AV_DICT_IGNORE_SUFFIX))) {
@@ -418,45 +419,48 @@ bool removeBpmFromFile(const QString &fileName) {
 QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
     AVFormatContext *fmt_ctx = nullptr;
     QMap<QString, QVariant> returnTags;
-    returnTags.insert(QStringLiteral("artist"), QVariant(QStringLiteral("")));
-    returnTags.insert(QStringLiteral("title"), QVariant(QStringLiteral("")));
-    returnTags.insert(QStringLiteral("bpm"), QVariant(0));
-    returnTags.insert(QStringLiteral("length"), QVariant(0));
+    static const auto keyArtist = QStringLiteral("artist");
+    static const auto keyTitle = QStringLiteral("title");
+    static const auto keyLength = QStringLiteral("length");
+    static const auto emptyString = QStringLiteral("");
+    returnTags.insert(keyArtist, QVariant(emptyString));
+    returnTags.insert(keyTitle, QVariant(emptyString));
+    returnTags.insert(kBpmKeyBpm, QVariant(0));
+    returnTags.insert(keyLength, QVariant(0));
     int ret;
     if ((ret = avformat_open_input(&fmt_ctx, fileName.toUtf8().constData(), nullptr, nullptr)) ==
         0) {
         if ((ret = avformat_find_stream_info(fmt_ctx, nullptr)) >= 0) {
             const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
-            const auto bpmKey = name.contains(QStringLiteral("mp3")) ? QStringLiteral("TBPM") :
-                                name.contains(QStringLiteral("m4a")) ? QStringLiteral("tmpo") :
-                                                                       QStringLiteral("bpm");
+            const auto bpmKey = name.contains(kNameMp3) ? kBpmKeyTBpm :
+                                name.contains(kNameM4a) ? kBpmKeyTmpo :
+                                                          kBpmKeyBpm;
             qCDebug(gLogBpmDetect) << "Using metadata key for BPM:" << bpmKey;
             const AVDictionaryEntry *e = nullptr;
-            auto didIterateGlobal = false;
             while ((e = av_dict_iterate(fmt_ctx->metadata, e))) {
                 // LCOV_EXCL_START
-                auto key = QString::fromUtf8(e->key);
+                auto key = QString::fromUtf8(e->key).toLower();
                 qCDebug(gLogBpmDetect) << "Metadata key:" << key;
                 if (key == bpmKey) {
-                    returnTags[QStringLiteral("bpm")] = QString::fromUtf8(e->value).toDouble();
-                } else if (key == QStringLiteral("artist") || key == QStringLiteral("title")) {
+                    returnTags[kBpmKeyBpm] = QString::fromUtf8(e->value).toDouble();
+                } else if (key == keyArtist || key == keyTitle) {
                     returnTags[key] = QString::fromUtf8(e->value);
                 }
-                didIterateGlobal = true;
                 // LCOV_EXCL_STOP
             }
-            if (!didIterateGlobal && fmt_ctx->nb_streams > 0 && fmt_ctx->streams[0] &&
-                fmt_ctx->streams[0]->metadata) {
+            if ((!returnTags[kBpmKeyBpm].toInt() || returnTags[keyArtist].toString().isEmpty() ||
+                 returnTags[keyTitle].toString().isEmpty()) &&
+                fmt_ctx->nb_streams > 0 && fmt_ctx->streams[0] && fmt_ctx->streams[0]->metadata) {
                 // Get the first stream's metadata if there is no global metadata.
                 e = nullptr;
                 while ((e = av_dict_iterate(fmt_ctx->streams[0]->metadata, e))) {
                     // LCOV_EXCL_START
-                    auto key = QString::fromUtf8(e->key);
+                    auto key = QString::fromUtf8(e->key).toLower();
                     qCDebug(gLogBpmDetect) << "Stream Metadata key:" << key;
-                    if (key == bpmKey) {
-                        returnTags[QStringLiteral("bpm")] = QString::fromUtf8(e->value).toDouble();
-                    } else if (key == QStringLiteral("artist") ||
-                               key == QString::fromUtf8("title")) {
+                    if (key == bpmKey && !returnTags[kBpmKeyBpm].toInt()) {
+                        returnTags[kBpmKeyBpm] = QString::fromUtf8(e->value).toDouble();
+                    } else if ((key == keyArtist || key == keyTitle) &&
+                               returnTags[key].toString().isEmpty()) {
                         returnTags[key] = QString::fromUtf8(e->value);
                     }
                     // LCOV_EXCL_STOP
@@ -464,7 +468,7 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
             }
             // Read length in milliseconds.
             if (fmt_ctx->duration != AV_NOPTS_VALUE) {
-                returnTags[QStringLiteral("length")] =
+                returnTags[keyLength] =
                     static_cast<qint64>(fmt_ctx->duration / (AV_TIME_BASE / 1000));
             }
         } else {

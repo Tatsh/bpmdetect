@@ -30,7 +30,6 @@ const auto headerLabels = QStringList{QObject::tr("BPM", "BPM header label"),
 
 DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new QMenu(this)) {
     setupUi(this);
-
     loadSettings();
 
     // Create TrackList menu
@@ -81,20 +80,35 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new Q
     connect(TrackList->header(), &QDropListView::customContextMenuRequested, [this](QPoint pos) {
         columnMenu_->popup(TrackList->header()->mapToGlobal(pos));
     });
-    TrackList->setItemDelegate(new TrackItemDelegate(this));
-    connect(TrackList, &QDropListView::itemChanged, [this](QTreeWidgetItem *item, int column) {
-        if (column != 0) {
+    const auto delegate = new TrackItemDelegate(this);
+    connect(delegate, &TrackItemDelegate::editingStarted, [this](const QModelIndex &index) {
+        qCDebug(gLogBpmDetect) << "Editing started";
+        editing_ = true;
+        editingIndex_ = index;
+    });
+    TrackList->setItemDelegate(delegate);
+    // ::itemChanged() gets triggered on first insertion before user edits anything, so the editing_
+    // flag is used to make sure that only user edits are processed.
+    connect(delegate, &TrackItemDelegate::closeEditor, [this]() {
+        if (editingIndex_.column() != 0 || !editing_) {
+            qCDebug(gLogBpmDetect)
+                << "closeEditor called for column" << editingIndex_.column() << ", ignored.";
             return;
         }
-        auto trackItem = static_cast<TrackItem *>(item);
+        auto trackItem = static_cast<TrackItem *>(TrackList->topLevelItem(editingIndex_.row()));
+        if (!trackItem) {
+            return;
+        }
         trackItem->resetLastError();
         trackItem->setText(1, QStringLiteral(""));
-        trackItem->track()->setBpm(Track::correctBpm(item->text(0).toDouble()));
+        trackItem->track()->setBpm(Track::correctBpm(trackItem->text(0).toDouble()));
         trackItem->setText(0, trackItem->track()->formatted());
         if (chbSave->isChecked() && trackItem->track()->hasValidBpm()) {
             trackItem->track()->saveBpm();
-            trackItem->refreshSavedBpmIndicator();
         }
+        editing_ = false;
+        trackItem->refreshSavedBpmIndicator();
+        qCDebug(gLogBpmDetect) << "Editing finished";
     });
 
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);

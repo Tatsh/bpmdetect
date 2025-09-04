@@ -156,7 +156,6 @@ void DlgBpmDetectTest::testSlotStartStopSavesBpmIfSaveIsChecked() {
     dlg.setDetector(new DummyBpmDetector(&dlg));
 
     QTemporaryFile tempFile;
-    tempFile.setAutoRemove(false);
     tempFile.setFileTemplate(QDir::tempPath() + QStringLiteral("/XXXXXX.ogg"));
     QFile originalFile(QString::fromUtf8(TEST_FILE));
 
