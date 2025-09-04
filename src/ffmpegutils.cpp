@@ -109,8 +109,8 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
         avformat_close_input(&fmt_ctx);
         setLastError(errStr);
         return false;
-        // LCOV_EXCL_STOP
     }
+    // LCOV_EXCL_STOP
     // Set BPM metadata.
     const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
     const auto key = name.contains(kNameMp3) ? "TBPM" : name.contains(kNameM4a) ? "tmpo" : "bpm";
@@ -120,9 +120,11 @@ bool storeBpmInFile(const QString &fileName, const QString &sBpm) {
     bool error = false;
     auto outFile = getTemporaryFileName(fileName, &error);
     if (error) {
+        // LCOV_EXCL_START
         avformat_close_input(&fmt_ctx);
         return false;
     }
+    // LCOV_EXCL_STOP
     qCDebug(gLogBpmDetect) << "Temporary file for updated metadata:" << outFile;
     AVFormatContext *out_ctx = nullptr;
     ret = avformat_alloc_output_context2(&out_ctx, nullptr, nullptr, outFile.toUtf8().constData());
@@ -351,8 +353,8 @@ bool removeBpmFromFile(const QString &fileName) {
             avformat_close_input(&fmt_ctx);
             avformat_free_context(out_ctx);
             return false;
-            // LCOV_EXCL_STOP
         }
+        // LCOV_EXCL_STOP
     }
     // Write header.
     ret = avformat_write_header(out_ctx, nullptr);
