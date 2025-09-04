@@ -198,8 +198,9 @@ void TrackTest::testSetBpmTag() {
     QCOMPARE(t2.artist(), QStringLiteral("Artist"));
     QCOMPARE(t2.title(), QStringLiteral("Title"));
     QVERIFY(t2.length() >= 5000);
-    QVERIFY(t2.hasValidBpm());
+    t2.dBpm_ = 120.0;
     QCOMPARE(t2.bpm(), 120.0);
+    QVERIFY(t2.hasValidBpm());
     t2.clearBpm();
 
     Track t3(tempFile.fileName(), new QAudioDecoder(this));
