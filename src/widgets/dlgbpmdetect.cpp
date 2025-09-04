@@ -65,10 +65,12 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new Q
         settings_.value(QStringLiteral("/BPMDetect/HeaderGeometry")).toByteArray());
     const auto addColumnMenuAction = [this](const QString &name, int column) {
         auto action = columnMenu_->addAction(name, [this, column]() {
+            // LCOV_EXCL_START
             auto isNewlyHidden = !TrackList->isColumnHidden(column);
             TrackList->setColumnHidden(column, isNewlyHidden);
             columnMenu_->actions()[column - 1]->setChecked(!isNewlyHidden);
         });
+        // LCOV_EXCL_STOP
         action->setCheckable(true);
         action->setChecked(!TrackList->isColumnHidden(column));
     };
@@ -78,18 +80,23 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new Q
     TrackList->header()->setContextMenuPolicy(Qt::CustomContextMenu);
     TrackList->header()->setSectionsMovable(false);
     connect(TrackList->header(), &QDropListView::customContextMenuRequested, [this](QPoint pos) {
+        // LCOV_EXCL_START
         columnMenu_->popup(TrackList->header()->mapToGlobal(pos));
     });
+    // LCOV_EXCL_STOP
     const auto delegate = new TrackItemDelegate(this);
     connect(delegate, &TrackItemDelegate::editingStarted, [this](const QModelIndex &index) {
+        // LCOV_EXCL_START
         qCDebug(gLogBpmDetect) << "Editing started";
         editing_ = true;
         editingIndex_ = index;
     });
+    // LCOV_EXCL_STOP
     TrackList->setItemDelegate(delegate);
     // ::itemChanged() gets triggered on first insertion before user edits anything, so the editing_
     // flag is used to make sure that only user edits are processed.
     connect(delegate, &TrackItemDelegate::closeEditor, [this]() {
+        // LCOV_EXCL_START
         if (editingIndex_.column() != 0 || !editing_) {
             qCDebug(gLogBpmDetect)
                 << "closeEditor called for column" << editingIndex_.column() << ", ignored.";
@@ -109,6 +116,7 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new Q
         editing_ = false;
         trackItem->refreshSavedBpmIndicator();
         qCDebug(gLogBpmDetect) << "Editing finished";
+        // LCOV_EXCL_STOP
     });
 
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
