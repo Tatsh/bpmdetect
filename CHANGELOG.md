@@ -9,6 +9,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.4]
+
 ### Added
 
 - Allow editing the BPM in the test player dialogue.
@@ -118,7 +120,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.3...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.4...HEAD
+[0.8.4]: https://github.com/Tatsh/bpmdetect/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/Tatsh/bpmdetect/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Tatsh/bpmdetect/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Tatsh/bpmdetect/compare/v0.7.2...v0.8.1
