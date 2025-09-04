@@ -4,6 +4,7 @@
 
 #include <BPMDetect.h>
 #include <QtCore/QAtomicInt>
+#include <QtCore/QSettings>
 
 #include "ui_dlgbpmdetect.h"
 #include "utils.h"
@@ -81,6 +82,9 @@ private:
     AbstractBpmDetector *detector_ = nullptr;
     QAtomicInt pendingTracks_ = 0;
     QEventLoop *innerEventLoop_ = nullptr;
+    QMenu *columnMenu_ = nullptr;
     QMenu *listMenu_ = nullptr;
+    QSettings settings_;
     QString recentPath_;
+    QStringList displayedColumns_;
 };

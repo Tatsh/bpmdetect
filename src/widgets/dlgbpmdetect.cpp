@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <QtCore/QMimeData>
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <QtGui/QCursor>
 #include <QtGui/QDropEvent>
@@ -18,7 +17,16 @@
 
 #define kProgressColumn 5
 
-DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
+const auto headerLabels = QStringList{QObject::tr("BPM", "BPM header label"),
+                                      QObject::tr("Saved", "Saved header label"),
+                                      QObject::tr("Artist", "Artist header label"),
+                                      QObject::tr("Title", "Title header label"),
+                                      QObject::tr("Length", "Length header label"),
+                                      QObject::tr("Progress", "Progress header label"),
+                                      QObject::tr("Filename", "Filename header label"),
+                                      QObject::tr("Last Error", "Last Error header label")};
+
+DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new QMenu(this)) {
     setupUi(this);
 
     loadSettings();
@@ -36,17 +44,7 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     listMenu_->addSeparator();
     listMenu_->addAction(tr("Save BPM"), this, &DlgBpmDetect::slotSaveBpm);
     listMenu_->addAction(tr("Clear BPM"), this, &DlgBpmDetect::slotClearBpm);
-
-    // Add columns to TrackList
-    TrackList->setHeaderLabels({tr("BPM"),
-                                tr("Saved"),
-                                tr("Artist"),
-                                tr("Title"),
-                                tr("Length"),
-                                tr("Progress"),
-                                tr("Filename"),
-                                tr("Last Error")});
-
+    TrackList->setHeaderLabels(headerLabels);
     TrackList->setColumnWidth(0, 60);
     TrackList->setColumnWidth(1, 25);
     TrackList->setColumnWidth(2, 200);
@@ -55,15 +53,33 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent) {
     TrackList->setColumnWidth(5, 100);
     TrackList->setColumnWidth(6, 400);
     TrackList->setColumnWidth(7, 200);
-#ifdef NDEBUG
-    TrackList->setColumnHidden(7, true);
-#endif
-
     connect(TrackList,
             SIGNAL(customContextMenuRequested(const QPoint &)),
             this,
             SLOT(slotListMenuPopup(const QPoint &)));
     connect(TrackList, &QDropListView::drop, this, &DlgBpmDetect::slotDropped);
+    TrackList->header()->restoreState(
+        settings_.value(QStringLiteral("/BPMDetect/HeaderState")).toByteArray());
+    TrackList->header()->restoreGeometry(
+        settings_.value(QStringLiteral("/BPMDetect/HeaderGeometry")).toByteArray());
+    const auto addColumnMenuAction = [this](const QString &name, int column) {
+        auto action = columnMenu_->addAction(name, [this, column]() {
+            auto isNewlyHidden = !TrackList->isColumnHidden(column);
+            TrackList->setColumnHidden(column, isNewlyHidden);
+            columnMenu_->actions()[column - 1]->setChecked(!isNewlyHidden);
+        });
+        action->setCheckable(true);
+        action->setChecked(!TrackList->isColumnHidden(column));
+    };
+    for (auto i = 1; i < headerLabels.size(); ++i) { // Skip BPM.
+        addColumnMenuAction(headerLabels[i], i);
+    }
+    TrackList->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    TrackList->header()->setSectionsMovable(false);
+    connect(TrackList->header(), &QDropListView::customContextMenuRequested, [this](QPoint pos) {
+        columnMenu_->popup(TrackList->header()->mapToGlobal(pos));
+    });
+
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
 }
 
@@ -77,15 +93,14 @@ DlgBpmDetect::~DlgBpmDetect() {
 }
 
 void DlgBpmDetect::loadSettings() {
-    QSettings settings;
     QString format =
-        settings.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
-    auto skip = settings.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
-    auto save = settings.value(QStringLiteral("/BPMDetect/SaveBPM"), false).toBool();
+        settings_.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
+    auto skip = settings_.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
+    auto save = settings_.value(QStringLiteral("/BPMDetect/SaveBPM"), false).toBool();
     auto recentPath =
-        settings.value(QStringLiteral("/BPMDetect/RecentPath"), QStringLiteral("")).toString();
-    auto minBPM = settings.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
-    auto maxBPM = settings.value(QStringLiteral("/BPMDetect/MaxBPM"), 190).toInt();
+        settings_.value(QStringLiteral("/BPMDetect/RecentPath"), QStringLiteral("")).toString();
+    auto minBPM = settings_.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
+    auto maxBPM = settings_.value(QStringLiteral("/BPMDetect/MaxBPM"), 190).toInt();
     chbSkipScanned->setChecked(skip);
     chbSave->setChecked(save);
     auto idx = cbFormat->findText(format);
@@ -96,9 +111,9 @@ void DlgBpmDetect::loadSettings() {
     spMin->setValue(minBPM);
     spMax->setValue(maxBPM);
     restoreGeometry(
-        settings.value(QStringLiteral("/BPMDetect/Geometry"), saveGeometry()).toByteArray());
-    move(settings.value(QStringLiteral("/BPMDetect/Position"), pos()).toPoint());
-    resize(settings.value(QStringLiteral("/BPMDetect/Size"), size()).toSize());
+        settings_.value(QStringLiteral("/BPMDetect/Geometry"), saveGeometry()).toByteArray());
+    move(settings_.value(QStringLiteral("/BPMDetect/Position"), pos()).toPoint());
+    resize(settings_.value(QStringLiteral("/BPMDetect/Size"), size()).toSize());
 }
 
 void DlgBpmDetect::saveSettings() {
@@ -112,6 +127,9 @@ void DlgBpmDetect::saveSettings() {
     settings.setValue(QStringLiteral("/BPMDetect/Geometry"), saveGeometry());
     settings.setValue(QStringLiteral("/BPMDetect/Position"), pos());
     settings.setValue(QStringLiteral("/BPMDetect/Size"), size());
+    settings.setValue(QStringLiteral("/BPMDetect/HeaderState"), TrackList->header()->saveState());
+    settings.setValue(QStringLiteral("/BPMDetect/HeaderGeometry"),
+                      TrackList->header()->saveGeometry());
     settings.sync();
 }
 

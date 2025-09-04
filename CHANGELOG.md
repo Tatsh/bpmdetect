@@ -9,6 +9,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Context menu on list header to hide or show columns.
+- Save list header state (sort state, items shown, etc) on quit.
+
+### Changed
+
+- Do not allow header order to be changed.
+
 ### Fixed
 
 - Fixed reading tags in macOS (MacPorts build of ffmpeg was not reading any tags after calling
