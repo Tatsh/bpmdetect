@@ -24,6 +24,13 @@ public:
     DlgTestBpm(QString file, bpmtype bpm, DlgTestBpmPlayer *player, QWidget *parent = nullptr);
     ~DlgTestBpm() override;
 
+Q_SIGNALS:
+    /** Signal emitted when the dialog is closed with a new BPM value. */
+    void newBpmOnClose(bpmtype bpm);
+
+public Q_SLOTS:
+    void accept() override;
+
 protected Q_SLOTS:
     /** Set a custom position in milliseconds. */
     void setCustomPos(int msec);
@@ -35,5 +42,6 @@ protected Q_SLOTS:
 private:
     void setPosFromButton(int msec);
     DlgTestBpmPlayer *player_;
+    bool modifiedBpm_ = false;
     bpmtype bpm_;
 };

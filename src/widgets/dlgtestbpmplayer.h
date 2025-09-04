@@ -45,6 +45,8 @@ public:
      * @param posUs New position in microseconds.
      */
     void update(unsigned int nBeats, qint64 posUs = 0);
+    /** Set the BPM and update the player. */
+    void setBpm(bpmtype bpm);
     /** Signal for when the player encounters an error. */
     Q_SIGNAL void audioError(QAudio::Error error);
     /** Signal for when length is discovered. */

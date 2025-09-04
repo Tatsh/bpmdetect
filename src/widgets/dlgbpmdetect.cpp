@@ -520,6 +520,19 @@ void DlgBpmDetect::slotTestBpm() {
         item->track()->fileName(),
         item->track()->bpm(),
         new DlgTestBpmPlayer(item->track()->fileName(), 4, item->track()->bpm(), 0, this));
+    connect(&testBpmDialog, &DlgTestBpm::newBpmOnClose, [this, item](bpmtype newBpm) {
+        const auto oldBpm = item->track()->bpm();
+        item->track()->setBpm(Track::correctBpm(newBpm));
+        if (item->track()->hasValidBpm()) {
+            item->setText(0, item->track()->formatted());
+            if (chbSave->isChecked()) {
+                item->track()->saveBpm();
+            }
+            item->refreshSavedBpmIndicator();
+        } else {
+            item->track()->setBpm(oldBpm);
+        }
+    });
     testBpmDialog.exec();
 }
 

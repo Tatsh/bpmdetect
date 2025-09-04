@@ -31,6 +31,8 @@ void DlgTestBpmPlayerTest::testStart() {
         QThread::sleep(3);
         player->update(1, 2000000);
         QThread::sleep(3);
+        player->setBpm(120);
+        QThread::sleep(3);
         player->stop();
         QThread::sleep(1);
         loop.quit();

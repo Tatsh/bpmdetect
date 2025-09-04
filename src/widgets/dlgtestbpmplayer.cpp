@@ -134,6 +134,11 @@ void DlgTestBpmPlayer::update(unsigned int nBeats, qint64 posUs) {
     }
 }
 
+void DlgTestBpmPlayer::setBpm(bpmtype bpm) {
+    bpm_ = bpm;
+    update(nBeats_, posUS_);
+}
+
 void DlgTestBpmPlayer::run() {
     while (!readyToPlay_) {
         if (error_) {

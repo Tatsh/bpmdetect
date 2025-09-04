@@ -60,8 +60,12 @@ target_link_libraries(dlgtestbpmplayer-test PRIVATE Qt::Widgets Qt::Multimedia)
 set(DLGTESTBPM_TESTS_SRCS
     noise.wav
     widgets/dlgtestbpmtest.cpp
+    ../src/ffmpegutils.cpp
+    ../src/ffmpegutils.h
     ../src/utils.cpp
     ../src/utils.h
+    ../src/track/track.cpp
+    ../src/track/track.h
     ../src/widgets/dlgtestbpm.cpp
     ../src/widgets/dlgtestbpm.h
     ../src/widgets/dlgtestbpmplayer.cpp
@@ -71,7 +75,8 @@ set(DLGTESTBPM_TESTS_SRCS
 create_test(dlgtestbpm-test "${DLGTESTBPM_TESTS_SRCS}")
 target_compile_definitions(dlgtestbpm-test
                            PRIVATE NOISE_WAV=\"${CMAKE_CURRENT_SOURCE_DIR}/noise.wav\")
-target_link_libraries(dlgtestbpm-test PRIVATE PkgConfig::SOUNDTOUCH Qt::Multimedia Qt::Widgets)
+target_link_libraries(dlgtestbpm-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH
+                                              Qt::Multimedia Qt::Widgets)
 
 set(DLGBPMDETECT_TESTS_SRCS
     140bpm.ogg
