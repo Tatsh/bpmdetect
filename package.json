@@ -71,7 +71,7 @@
     }
   },
   "name": "bpmdetect",
-  "packageManager": "yarn@4.9.2",
+  "packageManager": "yarn@4.9.4",
   "prettier": {
     "endOfLine": "lf",
     "iniSpaceAroundEquals": true,
