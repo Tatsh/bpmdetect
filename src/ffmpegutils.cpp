@@ -428,20 +428,39 @@ QMap<QString, QVariant> readTagsFromFile(const QString &fileName) {
         if ((ret = avformat_find_stream_info(fmt_ctx, nullptr)) >= 0) {
             const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
             const auto bpmKey = name.contains(QStringLiteral("mp3")) ? QStringLiteral("TBPM") :
-            name.contains(QStringLiteral("m4a")) ? QStringLiteral("tmpo") :
-            QStringLiteral("bpm");
+                                name.contains(QStringLiteral("m4a")) ? QStringLiteral("tmpo") :
+                                                                       QStringLiteral("bpm");
             qCDebug(gLogBpmDetect) << "Using metadata key for BPM:" << bpmKey;
             const AVDictionaryEntry *e = nullptr;
+            auto didIterateGlobal = false;
             while ((e = av_dict_iterate(fmt_ctx->metadata, e))) {
                 // LCOV_EXCL_START
                 auto key = QString::fromUtf8(e->key);
                 qCDebug(gLogBpmDetect) << "Metadata key:" << key;
                 if (key == bpmKey) {
                     returnTags[QStringLiteral("bpm")] = QString::fromUtf8(e->value).toDouble();
-                } else if (key ==  QStringLiteral("artist") || key == QStringLiteral("title")) {
+                } else if (key == QStringLiteral("artist") || key == QStringLiteral("title")) {
                     returnTags[key] = QString::fromUtf8(e->value);
                 }
+                didIterateGlobal = true;
                 // LCOV_EXCL_STOP
+            }
+            if (!didIterateGlobal && fmt_ctx->nb_streams > 0 && fmt_ctx->streams[0] &&
+                fmt_ctx->streams[0]->metadata) {
+                // Get the first stream's metadata if there is no global metadata.
+                e = nullptr;
+                while ((e = av_dict_iterate(fmt_ctx->streams[0]->metadata, e))) {
+                    // LCOV_EXCL_START
+                    auto key = QString::fromUtf8(e->key);
+                    qCDebug(gLogBpmDetect) << "Stream Metadata key:" << key;
+                    if (key == bpmKey) {
+                        returnTags[QStringLiteral("bpm")] = QString::fromUtf8(e->value).toDouble();
+                    } else if (key == QStringLiteral("artist") ||
+                               key == QString::fromUtf8("title")) {
+                        returnTags[key] = QString::fromUtf8(e->value);
+                    }
+                    // LCOV_EXCL_STOP
+                }
             }
             // Read length in milliseconds.
             if (fmt_ctx->duration != AV_NOPTS_VALUE) {
