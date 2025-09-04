@@ -177,6 +177,7 @@ theora
 tmpo
 trackitem
 trackitemdelegate
+trackitemdelegatetest
 tracktest
 trofimovich
 ucrt

@@ -127,3 +127,9 @@ target_link_libraries(consolemain-test PRIVATE PkgConfig::FFMPEG PkgConfig::SOUN
                                                Qt::Multimedia)
 target_compile_definitions(consolemain-test
                            PRIVATE TEST_FILE_140BPM=\"${CMAKE_CURRENT_SOURCE_DIR}/140bpm.ogg\")
+
+set(TRACKITEMDELEGATE_TESTS_SRCS
+    widgets/trackitemdelegatetest.cpp ../src/widgets/trackitemdelegate.cpp
+    ../src/widgets/trackitemdelegate.h)
+create_test(trackitemdelegate-test "${TRACKITEMDELEGATE_TESTS_SRCS}")
+target_link_libraries(trackitemdelegate-test PRIVATE Qt::Widgets Qt::Gui Qt::Test)

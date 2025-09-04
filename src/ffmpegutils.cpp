@@ -326,10 +326,10 @@ bool removeBpmFromFile(const QString &fileName) {
         // LCOV_EXCL_STOP
         out_stream->time_base = in_stream->time_base;
         // Copy stream metadata except TBPM for MP3.
-        const auto name = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
-        auto bpmKey = fmt_ctx->iformat && name.contains(kNameMp3) ? kBpmKeyTBpm :
-                      name.contains(kNameM4a)                     ? kBpmKeyTmpo :
-                                                                    kBpmKeyBpm;
+        const auto formatName = QString::fromUtf8(fmt_ctx->iformat ? fmt_ctx->iformat->name : "");
+        auto bpmKey = fmt_ctx->iformat && formatName.contains(kNameMp3) ? kBpmKeyTBpm :
+                      formatName.contains(kNameM4a)                     ? kBpmKeyTmpo :
+                                                                          kBpmKeyBpm;
         AVDictionary *newTags = nullptr;
         AVDictionaryEntry *entry = nullptr;
         while ((entry = av_dict_get(in_stream->metadata, "", entry, AV_DICT_IGNORE_SUFFIX))) {
