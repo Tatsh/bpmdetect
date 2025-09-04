@@ -6,6 +6,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QStyledItemDelegate>
 
 #include "debug.h"
 #include "dlgbpmdetect.h"
@@ -14,6 +15,7 @@
 #include "qdroplistview.h"
 #include "track/track.h"
 #include "trackitem.h"
+#include "trackitemdelegate.h"
 
 #define kProgressColumn 5
 
@@ -78,6 +80,21 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new Q
     TrackList->header()->setSectionsMovable(false);
     connect(TrackList->header(), &QDropListView::customContextMenuRequested, [this](QPoint pos) {
         columnMenu_->popup(TrackList->header()->mapToGlobal(pos));
+    });
+    TrackList->setItemDelegate(new TrackItemDelegate(this));
+    connect(TrackList, &QDropListView::itemChanged, [this](QTreeWidgetItem *item, int column) {
+        if (column != 0) {
+            return;
+        }
+        auto trackItem = static_cast<TrackItem *>(item);
+        trackItem->resetLastError();
+        trackItem->setText(1, QStringLiteral(""));
+        trackItem->track()->setBpm(Track::correctBpm(item->text(0).toDouble()));
+        trackItem->setText(0, trackItem->track()->formatted());
+        if (chbSave->isChecked() && trackItem->track()->hasValidBpm()) {
+            trackItem->track()->saveBpm();
+            trackItem->refreshSavedBpmIndicator();
+        }
     });
 
     connect(btnStart, &QPushButton::clicked, this, &DlgBpmDetect::slotStartStop);
@@ -251,6 +268,7 @@ void DlgBpmDetect::slotAddFiles(const QStringList &files) {
     for (const auto &fileName : filteredFiles) {
         auto track = new Track(fileName, new QAudioDecoder(this), this);
         auto item = new TrackItem(TrackList, track);
+        item->setFlags(item->flags() | Qt::ItemIsEnabled | Qt::ItemIsEditable);
         auto progressBar = new QProgressBar(this);
         progressBar->setMaximum(100);
         progressBar->setMaximumHeight(15);

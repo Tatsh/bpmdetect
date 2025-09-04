@@ -45,6 +45,8 @@ public:
     explicit Track(QObject *parent = nullptr);
 #endif
     ~Track() override;
+    /** Correct the BPM based on the global minimum and maximum. */
+    static bpmtype correctBpm(bpmtype dBpm);
     /**
      * Set minimum BPM.
      * @param dMin Minimum BPM.
@@ -118,8 +120,6 @@ Q_SIGNALS:
     void finished();
 
 protected:
-    /** Correct the BPM based on the global minimum and maximum. */
-    bpmtype correctBpm(bpmtype dBpm) const;
     /** Store @a sBpm into the metadata of the file. */
     void storeBpm(const QString &sBpm);
     /** Remove BPM metadata from the file. */

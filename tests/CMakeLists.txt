@@ -97,7 +97,9 @@ set(DLGBPMDETECT_TESTS_SRCS
     ../src/widgets/qdroplistview.cpp
     ../src/widgets/qdroplistview.h
     ../src/widgets/trackitem.cpp
-    ../src/widgets/trackitem.h)
+    ../src/widgets/trackitem.h
+    ../src/widgets/trackitemdelegate.cpp
+    ../src/widgets/trackitemdelegate.h)
 create_test(dlgbpmdetect-test "${DLGBPMDETECT_TESTS_SRCS}")
 target_compile_definitions(
   dlgbpmdetect-test PRIVATE SAMPLE_MAX_VALUE=32768

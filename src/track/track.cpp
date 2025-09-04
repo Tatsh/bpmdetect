@@ -195,7 +195,7 @@ void Track::setDetector(AbstractBpmDetector *detector) {
     detector_ = detector;
 }
 
-bpmtype Track::correctBpm(bpmtype dBpm) const {
+bpmtype Track::correctBpm(bpmtype dBpm) {
     auto min = minimumBpm();
     auto max = maximumBpm();
     if (dBpm < 1) {

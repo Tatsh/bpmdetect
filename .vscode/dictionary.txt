@@ -176,6 +176,7 @@ tbpm
 theora
 tmpo
 trackitem
+trackitemdelegate
 tracktest
 trofimovich
 ucrt

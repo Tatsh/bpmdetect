@@ -12,7 +12,9 @@ set(WIDGETS_SRCS
     qdroplistview.cpp
     qdroplistview.h
     trackitem.cpp
-    trackitem.h)
+    trackitem.h
+    trackitemdelegate.cpp
+    trackitemdelegate.h)
 add_library(bpmdetect-widgets STATIC ${WIDGETS_SRCS})
 target_include_directories(bpmdetect-widgets PRIVATE ..)
 target_link_libraries(bpmdetect-widgets PRIVATE PkgConfig::SOUNDTOUCH Qt6::Core Qt6::Gui
