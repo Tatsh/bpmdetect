@@ -58,6 +58,7 @@ fileflagsmask
 fileos
 filesubtype
 fileversion
+flathub
 fontconfig
 fribidi
 fsafe
@@ -132,6 +133,7 @@ pointsize
 productversion
 progressbar
 progressbartest
+pulseaudio
 pycache
 pyyaml
 qcompare

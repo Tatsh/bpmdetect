@@ -114,6 +114,11 @@
     "build": "cmake --preset=default -DBUILD_DOCS=ON && cmake --build build",
     "check-formatting": "cmake-format --check CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
     "check-spelling": "cspell --no-progress .",
+    "flatpak-build-install": "flatpak run --command=flathub-build org.flatpak.Builder --install sh.tat.bpmdetect.yml",
+    "flatpak-install": "flatpak uninstall -y bpmdetect || true && flatpak install -y --user --reinstall flathub sh.tat.bpmdetect",
+    "flatpak-lint": "flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest sh.tat.bpmdetect.yml",
+    "flatpak-run": "flatpak run sh.tat.bpmdetect",
+    "flatpak-uninstall": "flatpak uninstall -y sh.tat.bpmdetect",
     "format": "cmake-format -i CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -i src/*.cpp src/*.h && yarn prettier -w .",
     "qa": "yarn check-spelling && yarn check-formatting"
   },
