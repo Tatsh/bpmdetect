@@ -47,6 +47,8 @@ qt_add_executable(bpmdetect WIN32 ${SOURCES})
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)
+  set_source_files_properties(version.rc PROPERTIES COMPILE_DEFINITIONS
+                                                    $<<CONFIG:Release>:NDEBUG=1>)
 endif()
 
 target_include_directories(bpmdetect PRIVATE .)
