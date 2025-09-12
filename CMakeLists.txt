@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.31)
-# set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 project(
   bpmdetect
+  LANGUAGES C CXX
   VERSION 0.8.4
-  DESCRIPTION "Automatic BPM detection tool.")
+  DESCRIPTION "Automatic BPM detection tool"
+  HOMEPAGE_URL "https://github.com/Tatsh/bpmdetect")
 
 include(FeatureSummary)
 include(FindPkgConfig)

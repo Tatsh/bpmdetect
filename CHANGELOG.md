@@ -9,7 +9,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.8.4]
+## [0.8.5] - 2025-09-12
+
+### Added
+
+- MetaInfo file for Flatpak.
+
+## [0.8.4] - 2025-09-04
 
 ### Added
 
@@ -44,7 +50,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Filtering files.
 
-## [0.8.2]
+## [0.8.2] - 2025-09-01
 
 ### Fixed
 
@@ -120,7 +126,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.4...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.5...HEAD
+[0.8.5]: https://github.com/Tatsh/bpmdetect/compare/v0.8.4...v0.8.5
 [0.8.4]: https://github.com/Tatsh/bpmdetect/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/Tatsh/bpmdetect/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Tatsh/bpmdetect/compare/v0.8.1...v0.8.2

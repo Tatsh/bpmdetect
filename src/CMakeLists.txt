@@ -44,6 +44,10 @@ ecm_qt_declare_logging_category(
 
 qt_add_executable(bpmdetect WIN32 ${SOURCES})
 
+string(TIMESTAMP YEAR "%Y")
+configure_file(sh.tat.${CMAKE_PROJECT_NAME}.metainfo.xml.in
+               sh.tat.${CMAKE_PROJECT_NAME}.metainfo.xml @ONLY)
+
 if(WIN32)
   configure_file("version.rc.in" version.rc @ONLY)
   target_sources(bpmdetect PRIVATE version.rc)
@@ -187,6 +191,8 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
   endif()
   install(FILES ../README.md TYPE DOC)
   install(FILES ../man/bpmdetect.1 DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/man/man1)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sh.tat.${CMAKE_PROJECT_NAME}.metainfo.xml
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
 endif()
 
 if(NOT APPLE)
