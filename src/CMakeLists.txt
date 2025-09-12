@@ -169,9 +169,9 @@ theora(dec|enc)|unistring|vorbisenc|vpl|vpx|webp|webpmux|x26[45]|xml2|zvbi|lzo2)
 else() # Linux, MSYS package, macOS package without creating a bundle.
   install(TARGETS bpmdetect)
   if(NOT NO_GUI)
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bpmdetect.desktop.in"
-                   "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop" @ONLY)
-    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/bpmdetect.desktop"
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}.desktop.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/sh.tat.${CMAKE_PROJECT_NAME}.desktop" @ONLY)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sh.tat.${CMAKE_PROJECT_NAME}.desktop"
             DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
     foreach(
       size
@@ -186,7 +186,7 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
       install(
         FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/not-padded/${size}x${size}.png"
         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
-        RENAME bpmdetect.png)
+        RENAME sh.tat.${CMAKE_PROJECT_NAME}.png)
     endforeach()
   endif()
   install(FILES ../README.md TYPE DOC)

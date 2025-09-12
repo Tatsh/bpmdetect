@@ -16,7 +16,7 @@
     <p>Supports detection with any audio format that ffmpeg can read.</p>
   </description>
 
-  <launchable type="desktop-id">@CMAKE_PROJECT_NAME@.desktop</launchable>
+  <launchable type="desktop-id">sh.tat.@CMAKE_PROJECT_NAME@.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/Tatsh/bpmdetect/master/screenshot1.png</image>
