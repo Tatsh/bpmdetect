@@ -20,6 +20,7 @@ bsky
 bugtracker
 buildsystems
 bytearray
+cleanup
 codecpar
 codeowners
 color
