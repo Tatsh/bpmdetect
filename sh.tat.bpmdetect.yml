@@ -34,7 +34,7 @@ modules:
       - -DCMAKE_BUILD_TYPE=Release
       - -DFHS=ON
     sources:
-      - tag: v0.8.4
+      - tag: v0.8.5
         type: git
         url: https://github.com/Tatsh/bpmdetect.git
         x-checker-data:
