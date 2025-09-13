@@ -125,6 +125,7 @@ msystem
 ndebug
 noncommercially
 normaloff
+nsis
 offscreen
 oformat
 opencore

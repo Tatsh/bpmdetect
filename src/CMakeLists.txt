@@ -196,7 +196,7 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
 endif()
 
 if(NOT APPLE)
-  set(CPACK_GENERATOR ZIP)
+  set(CPACK_GENERATOR NSIS ZIP)
 elseif(APPLE)
   set(CPACK_GENERATOR DragNDrop ZIP)
 endif()

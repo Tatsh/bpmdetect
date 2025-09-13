@@ -55,6 +55,7 @@ jobs:
             extra-cmake-modules:p
             ffmpeg:p
             ninja:p
+            nsis:p
             qt6-base:p
             qt6-multimedia:p
             qt6-tools:p
@@ -91,6 +92,7 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
+            ${{github.workspace}}/bpmdetect-*.exe
             ${{github.workspace}}/bpmdetect-*.zip
     strategy:
       fail-fast: false
