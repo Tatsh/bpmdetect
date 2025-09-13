@@ -11,7 +11,7 @@ TrackItem::TrackItem(QTreeWidget *parent, Track *track)
                        track->title(),
                        track->formattedLength(),
                        QStringLiteral(""),
-                       track->fileName()}),
+                       track->hostFileName()}),
       track_(track) {
 }
 

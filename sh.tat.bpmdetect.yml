@@ -6,7 +6,6 @@ sdk: org.kde.Sdk
 command: bpmdetect
 finish-args:
   - --device=dri
-  - --filesystem=home
   - --share=ipc
   - --socket=fallback-x11
   - --socket=pulseaudio
@@ -24,20 +23,19 @@ modules:
   - name: soundtouch
     buildsystem: cmake-ninja
     sources:
-      - tag: 2.4.0
-        type: git
+      - type: git
         url: https://codeberg.org/soundtouch/soundtouch.git
+        tag: 2.4.0
   - name: bpmdetect
     builddir: true
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DENABLE_DESKTOP_PORTAL=ON
       - -DFHS=ON
     sources:
-      - tag: v0.8.5
-        type: git
+      - type: git
         url: https://github.com/Tatsh/bpmdetect.git
         x-checker-data:
           type: git
-          url: https://github.com/Tatsh/bpmdetect.git
           tag-pattern: '^v([\d.]+)$'

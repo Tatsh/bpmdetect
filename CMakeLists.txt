@@ -33,6 +33,7 @@ set(BUNDLE_INSTALL_PREFIX
     CACHE FILEPATH "Install the bundle to a custom directory. This can be an absolute path or \
 relative to CMAKE_INSTALL_PREFIX.")
 option(I18N "Enable i18n support." OFF)
+option(ENABLE_DESKTOP_PORTAL "Build with support for desktop portal (Flatpak)." OFF)
 
 if(NOT APPLE)
   set(NON_PORTABLE_MACOS_BUNDLE

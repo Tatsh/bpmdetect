@@ -65,7 +65,7 @@ int consoleMain(QCoreApplication &app, QCommandLineParser &parser, const QString
         if (consoleProgress) {
             QObject::connect(&track, &Track::progress, [&track](quint64 pos, quint64 length) {
                 const auto percent = length ? (pos * 100 / length) : 0;
-                QTextStream(stdout) << "\r" << track.fileName() << ": " << percent << "%";
+                QTextStream(stdout) << "\r" << track.hostFileName() << ": " << percent << "%";
                 if (pos >= length) {
                     // LCOV_EXCL_START
                     QTextStream(stdout) << "\n";

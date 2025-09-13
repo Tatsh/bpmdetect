@@ -3,4 +3,5 @@ set(TRACK_SRCS abstractbpmdetector.cpp abstractbpmdetector.h soundtouchbpmdetect
 add_library(bpmdetect-track STATIC ${TRACK_SRCS})
 target_include_directories(bpmdetect-track PRIVATE ..)
 target_link_libraries(bpmdetect-track PRIVATE PkgConfig::FFMPEG PkgConfig::SOUNDTOUCH Qt6::Core)
-target_compile_definitions(bpmdetect-track PRIVATE SAMPLE_MAX_VALUE=32768)
+target_compile_definitions(
+  bpmdetect-track PRIVATE SAMPLE_MAX_VALUE=32768 $<$<BOOL:${ENABLE_DESKTOP_PORTAL}>:DESKTOP_PORTAL>)

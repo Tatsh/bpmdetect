@@ -103,6 +103,8 @@ public:
     bool hasValidBpm() const;
     /** If the BPM is saved in the file metadata. */
     bool hasSavedBpm() const;
+    /** Get the host filename when sandboxed. */
+    QString hostFileName() const;
 
 Q_SIGNALS:
     /**

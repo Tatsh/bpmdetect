@@ -41,6 +41,7 @@ dbuild
 dcmake
 dcoverage
 defenses
+denable
 destinationlabel
 dfhs
 dialog

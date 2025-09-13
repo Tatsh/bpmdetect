@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <iostream>
+#ifdef DESKTOP_PORTAL
+#include <sys/xattr.h>
+#endif
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -145,6 +148,28 @@ QString Track::fileName() const {
     return fileName_;
 }
 
+QString Track::hostFileName() const {
+#ifdef DESKTOP_PORTAL
+    auto attr_size =
+        getxattr(fileName_.toUtf8().constData(), "user.document-portal.host-path", nullptr, 0);
+    if (attr_size < 0) {
+        qCDebug(gLogBpmDetect) << "Checking for host filename failed. Using original filename.";
+        return fileName_;
+    }
+    QList<char> buf(attr_size);
+    if (getxattr(fileName_.toUtf8().constData(),
+                 "user.document-portal.host-path",
+                 buf.data(),
+                 static_cast<size_t>(attr_size)) == attr_size) {
+        return QString::fromUtf8(buf.data(), attr_size);
+    }
+    qCDebug(gLogBpmDetect) << "getxattr() did not return expected size. Using original filename.";
+    return fileName_;
+#else
+    return fileName_;
+#endif
+}
+
 bool Track::isValid() const {
     return isValidFile_;
 }
@@ -211,7 +236,7 @@ bpmtype Track::correctBpm(bpmtype dBpm) {
 }
 
 void Track::printBpm() const {
-    std::cout << fileName().toStdString() << ": " << bpmToString(bpm(), format()).toStdString()
+    std::cout << hostFileName().toStdString() << ": " << bpmToString(bpm(), format()).toStdString()
               << " BPM" << std::endl;
 }
 
