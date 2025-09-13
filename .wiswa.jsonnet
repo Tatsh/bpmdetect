@@ -40,7 +40,7 @@ local utils = import 'utils.libjsonnet';
     }
   ],
   project_name: 'bpmdetect',
-  version: '0.8.7',
+  version: '0.8.8',
   description: 'Automatic BPM (beats per minute) detection utility.',
   keywords: ['bpm', 'dj', 'music', 'tempo'],
   want_main: false,

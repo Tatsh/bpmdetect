@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.31)
 project(
   bpmdetect
   LANGUAGES C CXX
-  VERSION 0.8.7
+  VERSION 0.8.8
   DESCRIPTION "Automatic BPM detection tool"
   HOMEPAGE_URL "https://github.com/Tatsh/bpmdetect")
 

@@ -9,6 +9,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.8]
+
+### Fixed
+
+- License in MetaInfo.
+
 ## [0.8.7]
 
 ### Added
@@ -139,7 +145,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.7...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.8...HEAD
+[0.8.8]: https://github.com/Tatsh/bpmdetect/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/Tatsh/bpmdetect/compare/v0.8.6...v0.8.7
 [0.8.6]: https://github.com/Tatsh/bpmdetect/compare/v0.8.5...v0.8.6
 [0.8.5]: https://github.com/Tatsh/bpmdetect/compare/v0.8.4...v0.8.5
