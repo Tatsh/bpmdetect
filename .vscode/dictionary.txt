@@ -1,4 +1,5 @@
 abstractbpmdetector
+aclocal
 apos
 autobuild
 autogen
@@ -169,6 +170,7 @@ schemafile
 sharpyuv
 sizepolicy
 softprops
+soundstretch
 soundtouch
 soundtouchbpmdetector
 sourcelabel
