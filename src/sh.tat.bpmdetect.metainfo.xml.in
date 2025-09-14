@@ -3,7 +3,7 @@
 <component type="desktop-application">
   <id>sh.tat.@CMAKE_PROJECT_NAME@</id>
 
-  <name>BPM Detect</name>
+  <name>@DISPLAY_NAME@</name>
   <summary>@CMAKE_PROJECT_DESCRIPTION@</summary>
 
   <metadata_license>MIT</metadata_license>

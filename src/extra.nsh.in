@@ -1,0 +1,6 @@
+!include "FileFunc.nsh"
+; From https://github.com/openscad/openscad/blob/master/cmake/nsis/extra-install-commands.nsh.in
+!define ARP "Software\Microsoft\Windows\CurrentVersion\Uninstall\@DISPLAY_NAME@"
+${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+IntFmt $0 "0x%08X" $0
+WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"

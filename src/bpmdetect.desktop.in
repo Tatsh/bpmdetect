@@ -4,5 +4,5 @@ Comment=@CMAKE_PROJECT_DESCRIPTION@
 Encoding=UTF-8
 Exec=@CMAKE_PROJECT_NAME@
 Icon=sh.tat.@CMAKE_PROJECT_NAME@
-Name=BPM Detect
+Name=@DISPLAY_NAME@
 Type=Application

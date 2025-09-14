@@ -2,6 +2,7 @@ add_subdirectory(track)
 if(NOT NO_GUI)
   add_subdirectory(widgets)
 endif()
+set(DISPLAY_NAME "BPM Detect")
 
 set(SOURCES
     bpmdetect.qrc
@@ -68,13 +69,13 @@ if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bund
   if(APPLE)
     set_target_properties(
       bpmdetect
-      PROPERTIES OUTPUT_NAME "BPM Detect"
+      PROPERTIES OUTPUT_NAME ${DISPLAY_NAME}
                  MACOSX_BUNDLE TRUE
-                 MACOSX_BUNDLE_BUNDLE_NAME "BPM Detect"
+                 MACOSX_BUNDLE_BUNDLE_NAME ${DISPLAY_NAME}
                  MACOSX_BUNDLE_ICON_FILE "bpmdetect.icns"
                  MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
                  MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
-                 MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 BPM Detect authors."
+                 MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 ${DISPLAY_NAME} authors."
                  MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
     set(deploy_tool_options_arg -hardened-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>.app")
@@ -196,14 +197,24 @@ else() # Linux, MSYS package, macOS package without creating a bundle.
 endif()
 
 if(WIN32)
+
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/extra.nsh.in ${CMAKE_BINARY_DIR}/extra.nsh @ONLY)
+  string(REPLACE "/" "\\\\" CMAKE_BINARY_DIR_ESCAPED ${CMAKE_BINARY_DIR})
+  set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+      "  !include \\\"${CMAKE_BINARY_DIR_ESCAPED}\\\\extra.nsh\\\"")
+  set(CPACK_NSIS_CONTACT "https://bsky.app/profile/tatsh.bsky.social")
+  # set(CPACK_NSIS_HELP_LINK ${PROJECT_HOMEPAGE_URL}/issues) # Redundant.
   set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\${CMAKE_PROJECT_NAME}.exe")
-  set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-  set(CPACK_NSIS_DISPLAY_NAME "BPM Detect")
-  set(CPACK_NSIS_PACKAGE_NAME "BPM Detect")
-  set(CPACK_NSIS_URL_INFO_ABOUT ${PROJECT_HOMEPAGE_URL})
-  set(CPACK_NSIS_HELP_LINK ${PROJECT_HOMEPAGE_URL}/issues)
-  set(CPACK_NSIS_CONTACT "https:\\\\\\\\bsky.app\\\\profile\\\\tatsh.bsky.social")
+  set(CPACK_PACKAGE_EXECUTABLES "${CMAKE_PROJECT_NAME};${DISPLAY_NAME}")
+  set(CPACK_CREATE_DESKTOP_LINKS "${CMAKE_PROJECT_NAME};${DISPLAY_NAME}")
   set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
+  set(CPACK_NSIS_DISPLAY_NAME ${DISPLAY_NAME})
+  set(CPACK_NSIS_PACKAGE_NAME ${DISPLAY_NAME})
+  set(CPACK_NSIS_MODIFY_PATH ON) # Necessary to show the 'Create desktop icon' option,
+                                 # unfortunately.
+  set(CPACK_NSIS_URL_INFO_ABOUT ${PROJECT_HOMEPAGE_URL}/issues) # Support link in 'Programs and
+                                                                # Features'.
+  set(CPACK_PACKAGE_INSTALL_DIRECTORY ${DISPLAY_NAME})
   set(CPACK_GENERATOR NSIS ZIP)
 elseif(APPLE)
   set(CPACK_GENERATOR DragNDrop ZIP)
@@ -226,6 +237,7 @@ elseif(APPLE)
     set(__cpack_system_name Darwin-x86_64)
   endif()
 endif()
+set(CPACK_THREADS 0)
 set(CPACK_PACKAGE_FILE_NAME
     ${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}-${__cpack_system_name}-${CMAKE_BUILD_TYPE})
 include(CPack)
