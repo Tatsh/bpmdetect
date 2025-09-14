@@ -77,12 +77,14 @@ graphviz
 gtest
 guimain
 haximus
+hklm
 horstretch
 hsizetype
 htmlcov
 icns
 iconset
 ifndef
+instdir
 interprocedural
 iwyu
 jbig
