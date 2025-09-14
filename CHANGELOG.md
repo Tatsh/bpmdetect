@@ -9,19 +9,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.8.8]
+## [0.8.8] - 2025-09-13
 
 ### Fixed
 
 - License in MetaInfo.
 
-## [0.8.7]
+## [0.8.7] - 2025-09-12
 
 ### Added
 
 - Windows: Now distributing NSIS-based installer.
 
-## [0.8.6]
+## [0.8.6] - 2025-09-12
 
 ### Added
 
