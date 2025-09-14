@@ -56,6 +56,30 @@
   <url type="vcs-browser">@CMAKE_PROJECT_HOMEPAGE_URL@</url>
 
   <releases>
+    <release version="0.8.9" date="2025-09-12">
+      <url type="details">@CMAKE_PROJECT_HOMEPAGE_URL@/blob/master/CHANGELOG.md#089</url>
+      <description>
+        <p>Minor maintenance release.</p>
+      </description>
+    </release>
+    <release version="0.8.8" date="2025-09-13">
+      <url type="details">@CMAKE_PROJECT_HOMEPAGE_URL@/blob/master/CHANGELOG.md#089</url>
+      <description>
+        <p>Minor maintenance release.</p>
+        <ul>
+          <li>Fixed project license in MetaInfo.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.8.6" date="2025-09-12">
+      <url type="details">@CMAKE_PROJECT_HOMEPAGE_URL@/blob/master/CHANGELOG.md#086</url>
+      <description>
+        <p>Minor changes release.</p>
+        <ul>
+          <li>Display correct file paths in the table and CLI (desktop portal support).</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.8.5" date="2025-09-12">
       <url type="details">@CMAKE_PROJECT_HOMEPAGE_URL@/blob/master/CHANGELOG.md#085</url>
       <description>
