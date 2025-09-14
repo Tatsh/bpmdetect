@@ -9,6 +9,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Removed BPMDetect prefix in settings keys. Old settings will be migrated.
+
 ## [0.8.8] - 2025-09-13
 
 ### Fixed

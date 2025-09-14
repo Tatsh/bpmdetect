@@ -59,10 +59,9 @@ DlgBpmDetect::DlgBpmDetect(QWidget *parent) : QWidget(parent), columnMenu_(new Q
             this,
             SLOT(slotListMenuPopup(const QPoint &)));
     connect(TrackList, &QDropListView::drop, this, &DlgBpmDetect::slotDropped);
-    TrackList->header()->restoreState(
-        settings_.value(QStringLiteral("/BPMDetect/HeaderState")).toByteArray());
+    TrackList->header()->restoreState(settings_.value(QStringLiteral("HeaderState")).toByteArray());
     TrackList->header()->restoreGeometry(
-        settings_.value(QStringLiteral("/BPMDetect/HeaderGeometry")).toByteArray());
+        settings_.value(QStringLiteral("HeaderGeometry")).toByteArray());
     const auto addColumnMenuAction = [this](const QString &name, int column) {
         auto action = columnMenu_->addAction(name, [this, column]() {
             // LCOV_EXCL_START
@@ -132,14 +131,24 @@ DlgBpmDetect::~DlgBpmDetect() {
 }
 
 void DlgBpmDetect::loadSettings() {
+#ifdef MIGRATE_OLD_SETTINGS
+    const auto prefix = QStringLiteral("/BPMDetect/");
+    for (const auto &key : settings_.allKeys()) {
+        if (key.startsWith(prefix)) {
+            const auto newKey = key.mid(prefix.length());
+            settings_.setValue(newKey, settings_.value(key));
+        }
+    }
+    settings_.remove(prefix);
+    settings_.sync();
+#endif
     QString format =
-        settings_.value(QStringLiteral("/BPMDetect/TBPMFormat"), QStringLiteral("0.00")).toString();
-    auto skip = settings_.value(QStringLiteral("/BPMDetect/SkipScanned"), true).toBool();
-    auto save = settings_.value(QStringLiteral("/BPMDetect/SaveBPM"), false).toBool();
-    auto recentPath =
-        settings_.value(QStringLiteral("/BPMDetect/RecentPath"), QStringLiteral("")).toString();
-    auto minBPM = settings_.value(QStringLiteral("/BPMDetect/MinBPM"), 80).toInt();
-    auto maxBPM = settings_.value(QStringLiteral("/BPMDetect/MaxBPM"), 190).toInt();
+        settings_.value(QStringLiteral("TBPMFormat"), QStringLiteral("0.00")).toString();
+    auto skip = settings_.value(QStringLiteral("SkipScanned"), true).toBool();
+    auto save = settings_.value(QStringLiteral("SaveBPM"), false).toBool();
+    auto recentPath = settings_.value(QStringLiteral("RecentPath"), QStringLiteral("")).toString();
+    auto minBPM = settings_.value(QStringLiteral("MinBPM"), 80).toInt();
+    auto maxBPM = settings_.value(QStringLiteral("MaxBPM"), 190).toInt();
     chbSkipScanned->setChecked(skip);
     chbSave->setChecked(save);
     auto idx = cbFormat->findText(format);
@@ -149,26 +158,24 @@ void DlgBpmDetect::loadSettings() {
     setRecentPath(recentPath);
     spMin->setValue(minBPM);
     spMax->setValue(maxBPM);
-    restoreGeometry(
-        settings_.value(QStringLiteral("/BPMDetect/Geometry"), saveGeometry()).toByteArray());
-    move(settings_.value(QStringLiteral("/BPMDetect/Position"), pos()).toPoint());
-    resize(settings_.value(QStringLiteral("/BPMDetect/Size"), size()).toSize());
+    restoreGeometry(settings_.value(QStringLiteral("Geometry"), saveGeometry()).toByteArray());
+    move(settings_.value(QStringLiteral("Position"), pos()).toPoint());
+    resize(settings_.value(QStringLiteral("Size"), size()).toSize());
 }
 
 void DlgBpmDetect::saveSettings() {
     QSettings settings;
-    settings.setValue(QStringLiteral("/BPMDetect/TBPMFormat"), cbFormat->currentText());
-    settings.setValue(QStringLiteral("/BPMDetect/SkipScanned"), chbSkipScanned->isChecked());
-    settings.setValue(QStringLiteral("/BPMDetect/SaveBPM"), chbSave->isChecked());
-    settings.setValue(QStringLiteral("/BPMDetect/RecentPath"), recentPath());
-    settings.setValue(QStringLiteral("/BPMDetect/MinBPM"), spMin->value());
-    settings.setValue(QStringLiteral("/BPMDetect/MaxBPM"), spMax->value());
-    settings.setValue(QStringLiteral("/BPMDetect/Geometry"), saveGeometry());
-    settings.setValue(QStringLiteral("/BPMDetect/Position"), pos());
-    settings.setValue(QStringLiteral("/BPMDetect/Size"), size());
-    settings.setValue(QStringLiteral("/BPMDetect/HeaderState"), TrackList->header()->saveState());
-    settings.setValue(QStringLiteral("/BPMDetect/HeaderGeometry"),
-                      TrackList->header()->saveGeometry());
+    settings.setValue(QStringLiteral("TBPMFormat"), cbFormat->currentText());
+    settings.setValue(QStringLiteral("SkipScanned"), chbSkipScanned->isChecked());
+    settings.setValue(QStringLiteral("SaveBPM"), chbSave->isChecked());
+    settings.setValue(QStringLiteral("RecentPath"), recentPath());
+    settings.setValue(QStringLiteral("MinBPM"), spMin->value());
+    settings.setValue(QStringLiteral("MaxBPM"), spMax->value());
+    settings.setValue(QStringLiteral("Geometry"), saveGeometry());
+    settings.setValue(QStringLiteral("Position"), pos());
+    settings.setValue(QStringLiteral("Size"), size());
+    settings.setValue(QStringLiteral("HeaderState"), TrackList->header()->saveState());
+    settings.setValue(QStringLiteral("HeaderGeometry"), TrackList->header()->saveGeometry());
     settings.sync();
 }
 
