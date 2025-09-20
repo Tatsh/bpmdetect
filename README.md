@@ -18,6 +18,7 @@
 [![Stargazers](https://img.shields.io/github/stars/Tatsh/bpmdetect?logo=github&style=flat)](https://github.com/Tatsh/bpmdetect/stargazers)
 [![Flathub Version](https://img.shields.io/flathub/v/sh.tat.bpmdetect)](https://flathub.org/apps/sh.tat.bpmdetect)
 [![Flathub Downloads](https://img.shields.io/flathub/downloads/sh.tat.bpmdetect)](https://flathub.org/apps/sh.tat.bpmdetect)
+[![WinGet Package Version](https://img.shields.io/winget/v/Tatsh.BPMDetect)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/t/Tatsh/BPMDetect)
 
 [![@Tatsh](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fpublic.api.bsky.app%2Fxrpc%2Fapp.bsky.actor.getProfile%2F%3Factor%3Ddid%3Aplc%3Auq42idtvuccnmtl57nsucz72%26query%3D%24.followersCount%26style%3Dsocial%26logo%3Dbluesky%26label%3DFollow%2520%40Tatsh&query=%24.followersCount&style=social&logo=bluesky&label=Follow%20%40Tatsh)](https://bsky.app/profile/Tatsh.bsky.social)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109370961877277568?domain=hostux.social&style=social)](https://hostux.social/@Tatsh)
