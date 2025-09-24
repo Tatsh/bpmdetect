@@ -25,6 +25,7 @@ cleanup
 codecpar
 codeowners
 color
+commitizen
 consolemain
 consolemaintest
 coveragerc
@@ -76,7 +77,6 @@ gomp
 graphviz
 gtest
 guimain
-haximus
 hklm
 horstretch
 hsizetype
@@ -103,20 +103,17 @@ libavutil
 libbrotlienc
 libdeflate
 libexec
-libflac
 libgme
 libgsm
 libhwy
 libjsonnet
 libjxl
-libmad
 librav
 libsoundtouch
 libsoxr
 libsrt
 libssh
 libva
-libvorbis
 lzma
 mainpage
 mdfile
@@ -128,6 +125,7 @@ ndebug
 noncommercially
 normaloff
 nsis
+nullptr
 offscreen
 oformat
 opencore
@@ -140,7 +138,6 @@ pangowin
 parlant
 pixbuf
 pixman
-pointsize
 productversion
 progressbar
 progressbartest
@@ -155,7 +152,6 @@ qlonglong
 qresource
 qsizetype
 qstringbuilder
-qstrncpy
 qtbase
 qtcore
 qtest
@@ -206,10 +202,8 @@ vsizetype
 webp
 webpmux
 weverything
-winpbcopy
 wiswa
 wswitch
 wunsafe
-wyri
 xvidcore
 zvbi

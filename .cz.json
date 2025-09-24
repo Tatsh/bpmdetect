@@ -1,16 +1,18 @@
 {
   "commitizen": {
+    "name": "cz_path",
+    "remove_path_prefixes": ["include", "src"],
     "tag_format": "v$version",
     "version_files": [
       ".wiswa.jsonnet",
       "CITATION.cff",
       "CMakeLists.txt",
       "README.md",
-      "man/bpmdetect.1",
       "package.json",
+      "vcpkg.json",
+      "man/bpmdetect.1",
       "sh.tat.bpmdetect.yml",
-      "src/main.cpp",
-      "vcpkg.json"
+      "src/main.cpp"
     ],
     "version_provider": "npm",
     "version_scheme": "semver"

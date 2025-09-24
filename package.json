@@ -25,13 +25,13 @@
       "*.1",
       "*.har",
       "*.lock",
-      ".docs/*.tags",
-      ".docs/*.tag.xml",
       ".git/**",
       ".yarn/**/*.cjs",
       ".vscode/extensions.json",
       "dist/**",
-      "man/**"
+      "man/**",
+      ".docs/*.tags",
+      ".docs/*.tag.xml"
     ],
     "language": "en-GB",
     "languageSettings": [
@@ -71,7 +71,7 @@
     }
   },
   "name": "bpmdetect",
-  "packageManager": "yarn@4.9.4",
+  "packageManager": "yarn@4.10.2",
   "prettier": {
     "endOfLine": "lf",
     "iniSpaceAroundEquals": true,

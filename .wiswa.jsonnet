@@ -1,19 +1,8 @@
 local utils = import 'utils.libjsonnet';
 
-(import 'defaults.libjsonnet') + {
-  local top = self,
-  // General settings
-
-  // Shared
-  github_username: 'Tatsh',
+{
   security_policy_supported_versions: { '0.8.x': ':white_check_mark:' },
-  authors: [
-    {
-      'family-names': 'Udvare',
-      'given-names': 'Andrew',
-      email: 'audvare@gmail.com',
-      name: '%s %s' % [self['given-names'], self['family-names']],
-    },
+  authors+: [
     {
       'family-names': 'Trofimovich',
       'given-names': 'Sergei',
@@ -33,34 +22,121 @@ local utils = import 'utils.libjsonnet';
       name: '%s %s' % [self['given-names'], self['family-names']],
     },
     {
-        'family-names': 'Sakmar',
-        'given-names': 'Martin',
-        email: 'martin.sakmar@gmail.com',
-        name: '%s %s' % [self['given-names'], self['family-names']],
-    }
+      'family-names': 'Sakmar',
+      'given-names': 'Martin',
+      email: 'martin.sakmar@gmail.com',
+      name: '%s %s' % [self['given-names'], self['family-names']],
+    },
   ],
   project_name: 'bpmdetect',
   version: '0.8.9',
   description: 'Automatic BPM (beats per minute) detection utility.',
   keywords: ['bpm', 'dj', 'music', 'tempo'],
   want_main: false,
-  copilot: {
+  want_codeql: false,
+  want_tests: false,
+  copilot+: {
     intro: 'BPM Detect is an automatic BPM (beats per minute) detection utility.',
   },
-  social+: {
-    mastodon+: { id: '109370961877277568' },
-  },
-  prettierignore+: ['src/icon.rc'],
-
-  // GitHub
-  github+: {
-    funding+: {
-      ko_fi: 'tatsh2',
-      liberapay: 'tatsh2',
-      patreon: 'tatsh2',
+  package_json+: {
+    cspell+: {
+      ignorePaths+: [
+        '.docs/*.tags',
+        '.docs/*.tag.xml',
+      ],
+    },
+    scripts+: {
+      'check-formatting': "cmake-format --check CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
+      'flatpak-build-install': 'flatpak run --command=flathub-build org.flatpak.Builder --install sh.tat.bpmdetect.yml',
+      'flatpak-install': 'flatpak uninstall -y bpmdetect || true && flatpak install -y --user --reinstall flathub sh.tat.bpmdetect',
+      'flatpak-lint': 'flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest sh.tat.bpmdetect.yml',
+      'flatpak-run': 'flatpak run sh.tat.bpmdetect',
+      'flatpak-uninstall': 'flatpak uninstall -y sh.tat.bpmdetect',
+      format: 'cmake-format -i CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -i src/*.cpp src/*.h && yarn prettier -w .',
     },
   },
-
+  prettierignore+: ['*.desktop', '*.tags', 'src/icon.rc'],
+  cz+: {
+    commitizen+: {
+      version_files+: [
+        'man/bpmdetect.1',
+        'sh.tat.bpmdetect.yml',
+        'src/main.cpp',
+      ],
+    },
+  },
+  shared_ignore+: [
+    '/.flatpak-builder/',
+    '/build_fp/',
+    '/repo/',
+  ],
+  vscode+: {
+    c_cpp+: {
+      configurations: [
+        {
+          cStandard: 'gnu23',
+          compilerPath: '/usr/bin/gcc',
+          cppStandard: 'gnu++23',
+          includePath: [
+            '${workspaceFolder}/src/**',
+            '${workspaceFolder}/build/src/generated',
+            '${workspaceFolder}/build/src/widgets/bpmdetect-widgets_autogen/include',
+          ],
+          name: 'Linux',
+        },
+      ],
+    },
+    launch+: {
+      configurations: [
+        {
+          MIMode: 'gdb',
+          args: ['/home/tatsh/Downloads/-template-with-cover-page.pdf'],
+          cwd: '${workspaceFolder}',
+          environment: [],
+          externalConsole: false,
+          name: 'Debug',
+          program: '${workspaceFolder}/build/src/bpmdetect',
+          request: 'launch',
+          setupCommands: [
+            {
+              description: 'Enable pretty-printing for gdb',
+              ignoreFailures: true,
+              text: '-enable-pretty-printing',
+            },
+          ],
+          stopAtEntry: false,
+          type: 'cppdbg',
+        },
+        {
+          MIMode: 'gdb',
+          args: [],
+          cwd: '${workspaceFolder}',
+          environment: [],
+          externalConsole: false,
+          name: 'Debug Test',
+          program: '${workspaceFolder}/build/tests/dlgtestbpm-test',
+          request: 'launch',
+          setupCommands: [
+            {
+              description: 'Enable pretty-printing for gdb',
+              ignoreFailures: true,
+              text: '-enable-pretty-printing',
+            },
+          ],
+          stopAtEntry: false,
+          type: 'cppdbg',
+        },
+      ],
+    },
+    settings+: {
+      'cmake.configureArgs': ['-DBUILD_TESTS=ON', '-DCOVERAGE=ON'],
+      'files.associations': {
+        '*.moc': 'cpp',
+        '*.ui': 'xml',
+        'i18n/*.ts': 'xml',
+      },
+    },
+  },
   // C++ only
   cmake+: {
     uses_qt: true,
@@ -82,9 +158,8 @@ local utils = import 'utils.libjsonnet';
         name: 'qtmultimedia',
         'version>=': '6.8.3',
       },
-      'libflac',
-      'libmad',
-      'libvorbis',
+      'ffmpeg',
+      'soundtouch',
     ],
   },
 }
