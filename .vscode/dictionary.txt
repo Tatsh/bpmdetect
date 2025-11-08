@@ -195,6 +195,7 @@ udvare
 unistring
 utilstest
 vcpkg
+vedantmgoyal
 versioninfo
 verstretch
 vorbisenc
@@ -202,6 +203,8 @@ vsizetype
 webp
 webpmux
 weverything
+winget
+winget
 wiswa
 wswitch
 wunsafe
