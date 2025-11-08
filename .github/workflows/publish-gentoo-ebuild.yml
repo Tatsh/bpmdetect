@@ -1,0 +1,55 @@
+---
+jobs:
+  create-ebuild-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Checkout Tatsh/gentoo repository
+        uses: actions/checkout@v5
+        with:
+          path: gentoo
+          repository: Tatsh/gentoo
+          token: ${{ secrets.GENTOO_TOKEN }}
+      - name: Configure git
+        run: |
+          cd gentoo
+          git config user.name "Andrew Udvare"
+          git config user.email "audvare@gmail.com"
+      - name: Create new ebuild
+        run: |
+          cd gentoo
+          git remote add upstream https://github.com/gentoo/gentoo.git
+          git fetch upstream
+          git checkout -b bpmdetect-${{ steps.version.outputs.version }} upstream/master
+          EBUILD_DIR=media-sound/bpmdetect
+          VERSION="${{ steps.version.outputs.version }}"
+          LATEST=$(find "$EBUILD_DIR" -name 'bpmdetect-*.ebuild' 2>/dev/null | sort -V | tail -1)
+          cp "$LATEST" "${EBUILD_DIR}/bpmdetect-${VERSION}.ebuild"
+          ebuild "${EBUILD_DIR}/bpmdetect-${VERSION}.ebuild" manifest
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: bpmdetect-${{ steps.version.outputs.version }}
+          commit-message: 'media-sound/bpmdetect: add ${{ steps.version.outputs.version }}'
+          committer: 'Andrew Udvare <audvare@gmail.com>'
+          path: gentoo
+          signoff: true
+          title: 'media-sound/bpmdetect: add ${{ steps.version.outputs.version }}'
+          token: ${{ secrets.GENTOO_TOKEN }}
+          body: |
+            This PR was automatically created by the BPMDetect release workflow.
+
+            Signed-off-by: Andrew Udvare <audvare@gmail.com>
+
+            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
+          push-to-fork: Tatsh/gentoo
+name: Add new ebuild to Portage
+'on':
+  push:
+    tags:
+      - 'v*'
