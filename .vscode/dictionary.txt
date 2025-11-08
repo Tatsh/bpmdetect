@@ -138,6 +138,9 @@ pangowin
 parlant
 pixbuf
 pixman
+pkgbuild
+pkgrel
+pkgver
 productversion
 progressbar
 progressbartest

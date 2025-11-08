@@ -1,0 +1,50 @@
+---
+jobs:
+  update-pkgbuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Checkout MINGW-packages repository
+        uses: actions/checkout@v5
+        with:
+          repository: msys2/MINGW-packages
+          token: ${{ secrets.MSYS2_TOKEN }}
+      - name: Configure git
+        run: |
+          git config user.name "Andrew Udvare"
+          git config user.email "audvare@gmail.com"
+      - name: Update PKGBUILD
+        run: |
+          git remote add upstream https://github.com/msys2/MINGW-packages.git
+          git fetch upstream
+          git checkout -b bpmdetect-${{ steps.version.outputs.version }} upstream/master
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          cd mingw-w64-bpmdetect
+          sed -i "s/^pkgver=.*/pkgver=${VERSION}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+          # Update the sha256sums line
+          NEW_SUM=$(curl -L "https://github.com/Tatsh/bpmdetect/archive/refs/tags/v${VERSION}.tar.gz" | sha256sum | awk '{print $1}')
+          sed -i "s/^sha256sums=.*/sha256sums=('${NEW_SUM}')/" PKGBUILD
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: bpmdetect-${{ steps.version.outputs.version }}
+          commit-message: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
+          title: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
+          token: ${{ secrets.MSYS2_TOKEN }}
+          body: |
+            This PR was automatically created by the BPMDetect release workflow.
+
+            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
+          push-to-fork: Tatsh/MINGW-packages
+name: Update MSYS2 PKGBUILD
+'on':
+  push:
+    tags:
+      - 'v*'
