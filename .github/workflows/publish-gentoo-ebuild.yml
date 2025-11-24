@@ -10,7 +10,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Checkout Tatsh/gentoo repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: gentoo
           repository: Tatsh/gentoo
