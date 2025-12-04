@@ -19,6 +19,13 @@ jobs:
           cpack -C ${{matrix.build-type}}
           --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
       - if: ${{ github.ref_type == 'tag' }}
+        name: Attest
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            ${{github.workspace}}/bpmdetect-*.zip
+            ${{github.workspace}}/bpmdetect-*.dmg
+      - if: ${{ github.ref_type == 'tag' }}
         name: Upload package
         uses: softprops/action-gh-release@v2
         with:
@@ -80,6 +87,13 @@ jobs:
           --config ${{steps.fixed_workspace.outputs.out}}/build/CPackConfig.cmake --verbose
         shell: msys2 {0}
       - if: ${{ github.ref_type == 'tag' && matrix.sys.name == 'ucrt64' }}
+        name: Attest
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            ${{github.workspace}}/bpmdetect-*.exe
+            ${{github.workspace}}/bpmdetect-*.zip
+      - if: ${{ github.ref_type == 'tag' && matrix.sys.name == 'ucrt64' }}
         name: Upload package
         uses: softprops/action-gh-release@v2
         with:
@@ -104,3 +118,7 @@ name: C/C++ CI
       - 'v*.*.*'
   pull_request:
     branches: [master]
+permissions:
+  attestations: write
+  contents: write
+  id-token: write
