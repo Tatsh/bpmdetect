@@ -1,7 +1,7 @@
 ---
 jobs:
   build-macos:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -10,16 +10,22 @@ jobs:
         run: brew install extra-cmake-modules ffmpeg qt sound-touch
       - run: |
           cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
-            --install-prefix ${{github.workspace}}/build/prefix \
-            -DCMAKE_APPLE_SILICON_PROCESSOR=arm64
+            --install-prefix ${{github.workspace}}/build/prefix
           cmake --build build --config ${{matrix.build-type}} --verbose
           cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
       - name: Package
         run: >-
           cpack -C ${{matrix.build-type}}
           --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
-      - if: ${{ github.ref_type == 'tag' }}
-        name: Attest
+      - name: 'Upload Artifacts'
+        uses: 'actions/upload-artifact@v5'
+        with:
+          if-no-files-found: error
+          name: bpmdetect-${{ matrix.build-type }}-${{ matrix.os }}
+          path: |
+            ${{github.workspace}}/bpmdetect-*.zip
+            ${{github.workspace}}/bpmdetect-*.dmg
+      - name: Attest
         uses: actions/attest-build-provenance@v3
         with:
           subject-path: |
@@ -37,6 +43,7 @@ jobs:
       fail-fast: false
       matrix:
         build-type: [Debug, Release]
+        os: [macos-latest, macos-15-intel]
   build-msys:
     runs-on: windows-latest
     steps:
@@ -86,8 +93,15 @@ jobs:
           cpack -C ${{matrix.build-type}}
           --config ${{steps.fixed_workspace.outputs.out}}/build/CPackConfig.cmake --verbose
         shell: msys2 {0}
-      - if: ${{ github.ref_type == 'tag' && matrix.sys.name == 'ucrt64' }}
-        name: Attest
+      - name: 'Upload Artifacts'
+        uses: 'actions/upload-artifact@v5'
+        with:
+          if-no-files-found: error
+          name: bpmdetect-${{ matrix.build-type }}-${{ matrix.sys.name }}
+          path: |
+            ${{github.workspace}}/bpmdetect-*.exe
+            ${{github.workspace}}/bpmdetect-*.zip
+      - name: Attest
         uses: actions/attest-build-provenance@v3
         with:
           subject-path: |
