@@ -1,14 +1,14 @@
----
 jobs:
   update-winget:
-    runs-on: windows-latest
+    runs-on: 'windows-latest'
     steps:
-      - uses: vedantmgoyal9/winget-releaser@main
+      - uses: 'vedantmgoyal9/winget-releaser@main'
         with:
-          identifier: Tatsh.BPMDetect
-          max-versions-to-keep: 3
-          token: ${{ secrets.WINGET_TOKEN }}
-name: Publish to WinGet
+          identifier: 'Tatsh.BPMDetect'
+          max-versions-to-keep: 1
+          token: '${{ secrets.WINGET_TOKEN }}'
+name: 'Publish to WinGet'
 'on':
   release:
-    types: [released]
+    types:
+      - 'released'

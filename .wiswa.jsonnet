@@ -162,4 +162,10 @@ local utils = import 'utils.libjsonnet';
       'soundtouch',
     ],
   },
+  github+: {
+    publish_winget: {
+      identifier: 'Tatsh.BPMDetect',
+      max_versions_to_keep: 1,
+    },
+  },
 }

@@ -4,6 +4,7 @@
 *~
 .*.swp
 .*_cache/
+.DS_Store*
 .coverage
 .cspellcache
 .directory
@@ -14,10 +15,6 @@
 /build/
 /build_fp/
 /dist/
-/docs/_build/
-/man/_static/
 /repo/
 /vcpkg_installed/
-__pycache__/
-htmlcov/
 node_modules/

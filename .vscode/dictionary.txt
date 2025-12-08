@@ -2,7 +2,6 @@ abstractbpmdetector
 aclocal
 apos
 autobuild
-autogen
 autoinstall
 automoc
 autorcc
@@ -21,7 +20,6 @@ bsky
 bugtracker
 buildsystems
 bytearray
-cleanup
 codecpar
 codeowners
 color
@@ -42,7 +40,6 @@ datrie
 dbuild
 dcmake
 dcoverage
-defenses
 denable
 destinationlabel
 dfhs
@@ -58,7 +55,6 @@ docstrings
 endforeach
 endfunction
 esbenp
-favor
 ffmpegutils
 fileflags
 fileflagsmask
@@ -67,6 +63,7 @@ filesubtype
 fileversion
 flathub
 fontconfig
+foxundermoon
 fribidi
 fsafe
 gmock
@@ -75,13 +72,10 @@ gnutls
 gobject
 gomp
 graphviz
-gtest
 guimain
 hklm
 horstretch
 hsizetype
-htmlcov
-icns
 iconset
 ifndef
 instdir
@@ -102,6 +96,7 @@ libavformat
 libavutil
 libbrotlienc
 libdeflate
+libera
 libexec
 libgme
 libgsm
@@ -122,7 +117,6 @@ modplug
 msys
 msystem
 ndebug
-noncommercially
 normaloff
 nsis
 nullptr
@@ -145,7 +139,6 @@ productversion
 progressbar
 progressbartest
 pulseaudio
-pycache
 pyyaml
 qcompare
 qdroplistview
@@ -170,6 +163,7 @@ sakmar
 sampletype
 schemafile
 sharpyuv
+shellformat
 sizepolicy
 softprops
 soundstretch
@@ -197,7 +191,6 @@ ucrt
 udvare
 unistring
 utilstest
-vcpkg
 vedantmgoyal
 versioninfo
 verstretch
@@ -206,7 +199,6 @@ vsizetype
 webp
 webpmux
 weverything
-winget
 winget
 wiswa
 wswitch
