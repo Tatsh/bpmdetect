@@ -40,6 +40,7 @@ datrie
 dbuild
 dcmake
 dcoverage
+defenses
 denable
 destinationlabel
 dfhs
@@ -55,6 +56,7 @@ docstrings
 endforeach
 endfunction
 esbenp
+favor
 ffmpegutils
 fileflags
 fileflagsmask
@@ -117,6 +119,7 @@ modplug
 msys
 msystem
 ndebug
+noncommercially
 normaloff
 nsis
 nullptr
