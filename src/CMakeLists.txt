@@ -202,6 +202,8 @@ if(WIN32)
   string(REPLACE "/" "\\\\" CMAKE_BINARY_DIR_ESCAPED ${CMAKE_BINARY_DIR})
   set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
       "  !include \\\"${CMAKE_BINARY_DIR_ESCAPED}\\\\extra.nsh\\\"")
+  set(CPACK_NSIS_DEFINES "RequestExecutionLevel user")
+  set(CPACK_NSIS_INSTALL_ROOT "$LOCALAPPDATA")
   set(CPACK_NSIS_CONTACT "https://bsky.app/profile/tatsh.bsky.social")
   # set(CPACK_NSIS_HELP_LINK ${PROJECT_HOMEPAGE_URL}/issues) # Redundant.
   set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\${CMAKE_PROJECT_NAME}.exe")
