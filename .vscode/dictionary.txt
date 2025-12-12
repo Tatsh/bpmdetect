@@ -111,6 +111,7 @@ libsoxr
 libsrt
 libssh
 libva
+localappdata
 lzma
 mainpage
 mdfile
@@ -166,6 +167,7 @@ sakmar
 sampletype
 schemafile
 sharpyuv
+shctx
 shellformat
 sizepolicy
 softprops
