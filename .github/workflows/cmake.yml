@@ -18,7 +18,7 @@ jobs:
           cpack -C ${{matrix.build-type}}
           --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v5'
+        uses: 'actions/upload-artifact@v6'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-${{ matrix.os }}
@@ -94,7 +94,7 @@ jobs:
           --config ${{steps.fixed_workspace.outputs.out}}/build/CPackConfig.cmake --verbose
         shell: msys2 {0}
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v5'
+        uses: 'actions/upload-artifact@v6'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-${{ matrix.sys.name }}
