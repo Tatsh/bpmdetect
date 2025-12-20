@@ -208,7 +208,7 @@ VIAddVersionKey \\\"ProductName\\\" \\\"${DISPLAY_NAME}\\\"
 VIAddVersionKey \\\"CompanyName\\\" \\\"Tatsh\\\"
 VIAddVersionKey \\\"FileDescription\\\" \\\"${DISPLAY_NAME} Installer\\\"
 VIAddVersionKey \\\"FileVersion\\\" \\\"${CMAKE_PROJECT_VERSION}\\\"
-VIAddVersionKey \\\"LegalCopyright\\\" \\\"Copyright (c) ${CURRENT_YEAR} Tatsh.\\\"")
+VIAddVersionKey \\\"LegalCopyright\\\" \\\"Copyright © ${CURRENT_YEAR} Tatsh.\\\"")
   set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
   set(CPACK_NSIS_CONTACT "https://bsky.app/profile/tatsh.bsky.social")
   set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\${CMAKE_PROJECT_NAME}.exe")

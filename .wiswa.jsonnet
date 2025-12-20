@@ -46,7 +46,7 @@ local utils = import 'utils.libjsonnet';
       ],
     },
     scripts+: {
-      'check-formatting': "cmake-format --check CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
+      'check-formatting': "clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
       'flatpak-build-install': 'flatpak run --command=flathub-build org.flatpak.Builder --install sh.tat.bpmdetect.yml',
       'flatpak-install': 'flatpak uninstall -y bpmdetect || true && flatpak install -y --user --reinstall flathub sh.tat.bpmdetect',
       'flatpak-lint': 'flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest sh.tat.bpmdetect.yml',
