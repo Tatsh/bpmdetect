@@ -73,10 +73,10 @@ if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bund
                  MACOSX_BUNDLE TRUE
                  MACOSX_BUNDLE_BUNDLE_NAME ${DISPLAY_NAME}
                  MACOSX_BUNDLE_ICON_FILE "bpmdetect.icns"
-                 MACOSX_BUNDLE_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}"
+                 MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
                  MACOSX_BUNDLE_GUI_IDENTIFIER "sh.tat.${CMAKE_PROJECT_NAME}"
                  MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2025 ${DISPLAY_NAME} authors."
-                 MACOSX_BUNDLE_SHORT_VERSION_STRING "${CMAKE_PROJECT_VERSION}")
+                 MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
     set(deploy_tool_options_arg -hardened-runtime)
     set(executable_path "$<TARGET_FILE_NAME:bpmdetect>.app")
     set(executable_dir ${BUNDLE_INSTALL_PREFIX})
@@ -201,14 +201,16 @@ if(WIN32)
   string(REPLACE "/" "\\\\" CMAKE_BINARY_DIR_ESCAPED ${CMAKE_BINARY_DIR})
   set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
       "  !include \\\"${CMAKE_BINARY_DIR_ESCAPED}\\\\extra.nsh\\\"")
-  set(TIMESTAMP CURRENT_YEAR "%Y")
   set(CPACK_NSIS_DEFINES "RequestExecutionLevel user
-VIProductVersion \\\"${CMAKE_PROJECT_VERSION}.0\\\"
+!define /date CURRENT_YEAR \\\"%Y\\\"
+VIProductVersion \\\"${PROJECT_VERSION}.0\\\"
 VIAddVersionKey \\\"ProductName\\\" \\\"${DISPLAY_NAME}\\\"
 VIAddVersionKey \\\"CompanyName\\\" \\\"Tatsh\\\"
-VIAddVersionKey \\\"FileDescription\\\" \\\"${DISPLAY_NAME} Installer\\\"
-VIAddVersionKey \\\"FileVersion\\\" \\\"${CMAKE_PROJECT_VERSION}\\\"
-VIAddVersionKey \\\"LegalCopyright\\\" \\\"Copyright © ${CURRENT_YEAR} Tatsh.\\\"")
+VIAddVersionKey \\\"FileDescription\\\" \\\"${DISPLAY_NAME} installer.\\\"
+VIAddVersionKey \\\"FileVersion\\\" \\\"${PROJECT_VERSION}\\\"
+VIAddVersionKey \\\"ProductVersion\\\" \\\"${PROJECT_VERSION}.0\\\"
+VIAddVersionKey \\\"LegalCopyright\\\" \\\"Copyright © \\\${CURRENT_YEAR} Tatsh.\\\"
+VIAddVersionKey \\\"Comments\\\" \\\"${PROJECT_HOMEPAGE_URL}\\\"")
   set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
   set(CPACK_NSIS_CONTACT "https://bsky.app/profile/tatsh.bsky.social")
   set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\${CMAKE_PROJECT_NAME}.exe")
