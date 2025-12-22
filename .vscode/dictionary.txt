@@ -1,6 +1,8 @@
 abstractbpmdetector
 aclocal
 apos
+appdir
+appimage
 autobuild
 autoinstall
 automoc
@@ -111,6 +113,7 @@ libsoxr
 libsrt
 libssh
 libva
+linuxdeploy
 localappdata
 lzma
 mainpage

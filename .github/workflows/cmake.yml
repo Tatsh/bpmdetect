@@ -124,6 +124,69 @@ jobs:
             name: mingw64
           - env: ucrt-x86_64
             name: ucrt64
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y extra-cmake-modules lcov libavcodec-dev libavformat-dev libavutil-dev libsoundtouch-dev tree
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          modules: qtmultimedia
+      - name: Configure
+        run: >-
+          cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build
+          --install-prefix ${{github.workspace}}/build/AppDir/usr
+          -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
+          -DFHS=ON
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
+      - name: Install
+        run: cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
+      - name: Package
+        run: >-
+          cpack -C ${{matrix.build-type}}
+          --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
+      - name: Create AppImage
+        run: |
+          wget 'https://github.com/TheAssassin/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
+          chmod +x linuxdeploy-x86_64.AppImage
+          ./linuxdeploy-x86_64.AppImage --appdir ${{github.workspace}}/build/AppDir --output appimage
+          rm ./linuxdeploy-x86_64.AppImage
+          mv ${{github.workspace}}/*.AppImage ${{github.workspace}}/bpmdetect-${{matrix.build-type}}-x86_64.AppImage
+      - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
+        name: Rename with tag
+        run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref}}-x86_64.AppImage
+      - name: 'Upload Artifacts'
+        uses: 'actions/upload-artifact@v6'
+        with:
+          if-no-files-found: error
+          name: bpmdetect-${{ matrix.build-type }}-Linux
+          path: |
+            ${{github.workspace}}/bpmdetect-*.AppImage
+            ${{github.workspace}}/bpmdetect-*.zip
+      - name: Attest
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            ${{github.workspace}}/bpmdetect-*.AppImage
+            ${{github.workspace}}/bpmdetect-*.zip
+      - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
+        name: Upload package
+        uses: softprops/action-gh-release@v2
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            ${{github.workspace}}/build/bpmdetect-*.AppImage
+    strategy:
+      fail-fast: false
+      matrix:
+        build-type: [Debug, Release]
 name: C/C++ CI
 'on':
   push:
