@@ -158,7 +158,7 @@ jobs:
           chmod +x linuxdeploy-x86_64.AppImage
           ./linuxdeploy-x86_64.AppImage --appdir ${{github.workspace}}/build/AppDir --output appimage
           rm ./linuxdeploy-x86_64.AppImage
-          mv ${{github.workspace}}/*.AppImage ${{github.workspace}}/bpmdetect-${{matrix.build-type}}-x86_64.AppImage
+          mv -v ${{github.workspace}}/*.AppImage ${{github.workspace}}/bpmdetect-${{matrix.build-type}}-x86_64.AppImage
       - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Rename with tag
         run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref}}-x86_64.AppImage
