@@ -161,7 +161,7 @@ jobs:
           mv -v ${{github.workspace}}/*.AppImage ${{github.workspace}}/bpmdetect-${{matrix.build-type}}-x86_64.AppImage
       - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Rename with tag
-        run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref}}-x86_64.AppImage
+        run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref_name}}-x86_64.AppImage
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@v6'
         with:
