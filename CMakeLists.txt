@@ -41,6 +41,7 @@ if(NOT APPLE)
       CACHE BOOL "Non-portable macOS bundle mode." FORCE)
 endif()
 if(APPLE)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
   if(NON_PORTABLE_MACOS_BUNDLE)
     set(FHS
         ON
