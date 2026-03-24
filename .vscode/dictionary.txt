@@ -23,7 +23,6 @@ bugtracker
 buildsystems
 bytearray
 codecpar
-codeowners
 color
 commitizen
 consolemain
@@ -33,10 +32,10 @@ coverallsapp
 cpack
 cppdbg
 cppreference
-cpptools
 ctest
 customwidget
 customwidgets
+dashcam
 datarootdir
 datrie
 dbuild
@@ -55,6 +54,7 @@ dlgtestbpmplayer
 dlgtestbpmplayertest
 dlgtestbpmtest
 docstrings
+dorny
 endforeach
 endfunction
 esbenp
@@ -77,7 +77,6 @@ gobject
 gomp
 graphviz
 guimain
-hklm
 horstretch
 hsizetype
 iconset
@@ -108,20 +107,22 @@ libhwy
 libjsonnet
 libjxl
 librav
+libsonnet
 libsoundtouch
 libsoxr
 libsrt
 libssh
 libva
 linuxdeploy
-localappdata
 lzma
 mainpage
 mdfile
 metainfo
+mktemp
 modplug
 msys
 msystem
+mypy
 ndebug
 noncommercially
 normaloff
@@ -129,6 +130,7 @@ nsis
 nullptr
 offscreen
 oformat
+oneline
 opencore
 openjp
 pacboy
@@ -146,7 +148,6 @@ productversion
 progressbar
 progressbartest
 pulseaudio
-pyyaml
 qcompare
 qdroplistview
 qdroplistviewtest
@@ -164,6 +165,7 @@ qtwidgets
 qverify
 rect
 reflow
+regen
 rsvg
 rtmp
 sakmar
@@ -171,8 +173,10 @@ sampletype
 schemafile
 sharpyuv
 shctx
+shellcheck
 shellformat
 sizepolicy
+snapcraft
 softprops
 soundstretch
 soundtouch
@@ -200,6 +204,8 @@ udvare
 unistring
 utilstest
 vedantmgoyal
+vendored
+venv
 versioninfo
 verstretch
 vorbisenc
@@ -212,4 +218,6 @@ wiswa
 wswitch
 wunsafe
 xvidcore
+yarnrc
 zvbi
+ångström

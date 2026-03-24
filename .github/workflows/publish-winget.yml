@@ -4,8 +4,8 @@ jobs:
     steps:
       - uses: 'vedantmgoyal9/winget-releaser@main'
         with:
-          identifier: 'Tatsh.BPMDetect'
-          max-versions-to-keep: 1
+          identifier: 'Tatsh.bpmdetect'
+          max-versions-to-keep: 3
           token: '${{ secrets.WINGET_TOKEN }}'
 name: 'Publish to WinGet'
 'on':

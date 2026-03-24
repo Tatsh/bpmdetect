@@ -38,6 +38,7 @@ local utils = import 'utils.libjsonnet';
   copilot+: {
     intro: 'BPM Detect is an automatic BPM (beats per minute) detection utility.',
   },
+  cmake_format_args: 'src/*.cpp src/*.h',
   package_json+: {
     cspell+: {
       ignorePaths+: [
@@ -46,13 +47,11 @@ local utils = import 'utils.libjsonnet';
       ],
     },
     scripts+: {
-      'check-formatting': "clang-format -n src/*.cpp src/*.h && prettier -c . && markdownlint-cli2 '**/*.md' '#node_modules' '#vcpkg_installed'",
       'flatpak-build-install': 'flatpak run --command=flathub-build org.flatpak.Builder --install sh.tat.bpmdetect.yml',
       'flatpak-install': 'flatpak uninstall -y bpmdetect || true && flatpak install -y --user --reinstall flathub sh.tat.bpmdetect',
       'flatpak-lint': 'flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest sh.tat.bpmdetect.yml',
       'flatpak-run': 'flatpak run sh.tat.bpmdetect',
       'flatpak-uninstall': 'flatpak uninstall -y sh.tat.bpmdetect',
-      format: 'cmake-format -i CMakeLists.txt src/CMakeLists.txt src/track/CMakeLists.txt src/widgets/CMakeLists.txt tests/CMakeLists.txt && clang-format -i src/*.cpp src/*.h && yarn prettier -w .',
     },
   },
   prettierignore+: ['*.desktop', '*.tags', 'src/icon.rc'],
