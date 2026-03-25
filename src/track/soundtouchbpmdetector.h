@@ -4,7 +4,7 @@
 #include "abstractbpmdetector.h"
 
 namespace soundtouch {
-    class BPMDetect;
+class BPMDetect;
 }
 
 class SoundTouchBpmDetector : public AbstractBpmDetector {
