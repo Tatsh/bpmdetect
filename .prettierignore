@@ -9,6 +9,7 @@
 *.jsonnet
 *.kate-swp
 *.libjsonnet
+*.libsonnet
 *.lock
 *.log
 *.tags
