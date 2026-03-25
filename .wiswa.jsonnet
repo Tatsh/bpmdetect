@@ -1,6 +1,7 @@
-local utils = import 'utils.libjsonnet';
+local utils = import 'utils.libsonnet';
 
 {
+  license: 'GPL-3.0-or-later',
   security_policy_supported_versions: { '0.8.x': ':white_check_mark:' },
   authors+: [
     {

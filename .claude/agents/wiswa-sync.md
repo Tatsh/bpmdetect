@@ -11,7 +11,7 @@ again would produce the same result.
 ## Context
 
 - **Wiswa source**: `~/dev/wiswa`
-- **Defaults**: `~/dev/wiswa/wiswa-jsonnet/defaults.libjsonnet` — merged with `.wiswa.jsonnet`
+- **Defaults**: `~/dev/wiswa/wiswa-jsonnet/defaults.libsonnet` — merged with `.wiswa.jsonnet`
 - **Config**: `.wiswa.jsonnet` — only contains overrides on top of defaults
 
 The jsonnet evaluation is: `defaults + .wiswa.jsonnet` (deep merge with `+:`). Only what differs
@@ -98,7 +98,7 @@ For example, if a dependency is added to `vcpkg.json`, the override in `.wiswa.j
 2. **Read the changed managed files** (e.g. `CMakeLists.txt`, `vcpkg.json`,
    `package.json`) to identify what changed.
 
-3. **Read the relevant defaults** (`defaults.libjsonnet`, etc.)
+3. **Read the relevant defaults** (`defaults.libsonnet`, etc.)
    to determine what is already provided by Wiswa.
 
 4. **Determine the minimal change** to `.wiswa.jsonnet`:

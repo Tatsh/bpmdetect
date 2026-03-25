@@ -51,8 +51,9 @@ file in a commit:
 - `CHANGELOG.md`
 - `.vscode/dictionary.txt`
 
-For example, if a commit contains `bpmdetect/src/main.cpp`, and `CHANGELOG.md`, the component is
-determined by the source files only. `CHANGELOG.md` is simply staged alongside them.
+For example, if a commit contains `bpmdetect/src/main.cpp`, and `CHANGELOG.md`,
+the component is determined by the source files only. `CHANGELOG.md` is simply
+staged alongside them.
 
 If `CHANGELOG.md` is the only file being committed, use the `changelog:` prefix. If
 `.vscode/dictionary.txt` is the only file, use `dictionary:` prefix.
