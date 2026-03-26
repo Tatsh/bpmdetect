@@ -41,6 +41,7 @@ datrie
 dbuild
 dcmake
 dcoverage
+defenses
 denable
 destinationlabel
 dfhs
@@ -57,6 +58,7 @@ dorny
 endforeach
 endfunction
 esbenp
+favor
 ffmpegutils
 fileflags
 fileflagsmask
@@ -122,6 +124,7 @@ msys
 msystem
 mypy
 ndebug
+noncommercially
 normaloff
 nsis
 nullptr
