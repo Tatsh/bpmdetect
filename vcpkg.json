@@ -25,7 +25,7 @@
   "description": "Automatic BPM (beats per minute) detection utility.",
   "documentation": "https://bpmdetect.readthedocs.org",
   "homepage": "https://tatsh.github.io/bpmdetect/",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "maintainers": [
     "Andrew Udvare <audvare@gmail.com>",
     "Sergei Trofimovich <slyich@gmail.com>",

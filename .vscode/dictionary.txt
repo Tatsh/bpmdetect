@@ -1,5 +1,6 @@
 abstractbpmdetector
 aclocal
+Ångström
 apos
 appdir
 appimage
@@ -27,6 +28,7 @@ color
 commitizen
 consolemain
 consolemaintest
+cooldown
 coveragerc
 coverallsapp
 cpack
@@ -54,9 +56,9 @@ dlgtestbpmplayer
 dlgtestbpmplayertest
 dlgtestbpmtest
 docstrings
-dorny
 endforeach
 endfunction
+esac
 esbenp
 favor
 ffmpegutils
@@ -85,6 +87,7 @@ instdir
 interprocedural
 iwyu
 jbig
+jinja
 jsonnet
 jsonschema
 jurplel
@@ -104,7 +107,6 @@ libexec
 libgme
 libgsm
 libhwy
-libjsonnet
 libjxl
 librav
 libsonnet
@@ -126,6 +128,7 @@ mypy
 ndebug
 noncommercially
 normaloff
+npmjs
 nsis
 nullptr
 offscreen
@@ -148,6 +151,7 @@ productversion
 progressbar
 progressbartest
 pulseaudio
+pylock
 qcompare
 qdroplistview
 qdroplistviewtest
@@ -166,6 +170,7 @@ qverify
 rect
 reflow
 regen
+ripgreprc
 rsvg
 rtmp
 sakmar
@@ -215,9 +220,9 @@ webpmux
 weverything
 winget
 wiswa
+wiswa's
 wswitch
 wunsafe
 xvidcore
 yarnrc
 zvbi
-ångström

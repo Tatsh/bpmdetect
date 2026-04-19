@@ -1,6 +1,7 @@
 local utils = import 'utils.libsonnet';
 
 {
+  uses_user_defaults: true,
   license: 'GPL-3.0-or-later',
   security_policy_supported_versions: { '0.8.x': ':white_check_mark:' },
   authors+: [
@@ -36,9 +37,6 @@ local utils = import 'utils.libsonnet';
   want_main: false,
   want_codeql: false,
   want_tests: false,
-  copilot+: {
-    intro: 'BPM Detect is an automatic BPM (beats per minute) detection utility.',
-  },
   cmake_format_args: 'src/*.cpp src/*.h',
   package_json+: {
     cspell+: {
