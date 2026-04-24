@@ -45,7 +45,7 @@
   "description": "Automatic BPM (beats per minute) detection utility.",
   "devDependencies": {
     "@prettier/plugin-xml": "^3.4.2",
-    "cspell": "^10.0.0",
+    "cspell": "^9.8.0",
     "markdownlint-cli2": "^0.22.0",
     "prettier": "^3.8.3",
     "prettier-plugin-ini": "^1.3.0",
@@ -126,7 +126,7 @@
     "flatpak-lint": "flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest sh.tat.bpmdetect.yml",
     "flatpak-run": "flatpak run sh.tat.bpmdetect",
     "flatpak-uninstall": "flatpak uninstall -y sh.tat.bpmdetect",
-    "format": "clang-format --in-place src/*.cpp src/*.h && prettier --write . && markdownlint-cli2 --config package.json --configPointer /markdownlint-cli2 --fix",
+    "format": "clang-format -i src/*.cpp src/*.h && prettier --write . && markdownlint-cli2 --config package.json --configPointer /markdownlint-cli2 --fix",
     "qa": "yarn check-spelling && yarn check-formatting"
   },
   "version": "0.8.9"

@@ -6,7 +6,6 @@
 [![GitHub tag (with filter)](https://img.shields.io/github/v/tag/Tatsh/bpmdetect)](https://github.com/Tatsh/bpmdetect/tags)
 [![License](https://img.shields.io/github/license/Tatsh/bpmdetect)](https://github.com/Tatsh/bpmdetect/blob/master/LICENSE.txt)
 [![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/Tatsh/bpmdetect/v0.8.9/master)](https://github.com/Tatsh/bpmdetect/compare/v0.8.9...master)
-[![QA](https://github.com/Tatsh/bpmdetect/actions/workflows/qa.yml/badge.svg)](https://github.com/Tatsh/bpmdetect/actions/workflows/qa.yml)
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue?logo=dependabot)](https://github.com/dependabot)
 [![GitHub Pages](https://github.com/Tatsh/bpmdetect/actions/workflows/pages.yml/badge.svg)](https://tatsh.github.io/bpmdetect/)
 [![Stargazers](https://img.shields.io/github/stars/Tatsh/bpmdetect?logo=github&style=flat)](https://github.com/Tatsh/bpmdetect/stargazers)
