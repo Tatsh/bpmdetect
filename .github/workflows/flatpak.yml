@@ -56,7 +56,6 @@ name: 'Flatpak'
       - 'vcpkg.json'
     tags:
       - 'v*.*.*'
-  workflow_dispatch: null
 permissions:
   attestations: 'write'
   contents: 'write'

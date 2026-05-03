@@ -47,7 +47,6 @@ name: 'Snap'
       - 'vcpkg.json'
     tags:
       - 'v*.*.*'
-  workflow_dispatch: null
 permissions:
   attestations: 'write'
   contents: 'write'
