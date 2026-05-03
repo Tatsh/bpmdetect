@@ -218,7 +218,7 @@ jobs:
           - deploy_arch: x86_64
             runner: ubuntu-latest
         build-type: [Debug, Release]
-name: C/C++ CI
+name: Build
 'on':
   push:
     branches: [master]
