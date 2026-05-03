@@ -12,7 +12,8 @@
       "vcpkg.json",
       "man/bpmdetect.1",
       "sh.tat.bpmdetect.yml",
-      "src/main.cpp"
+      "src/main.cpp",
+      "snapcraft.yaml"
     ],
     "version_provider": "npm",
     "version_scheme": "semver"

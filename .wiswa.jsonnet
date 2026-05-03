@@ -60,6 +60,7 @@ local utils = import 'utils.libsonnet';
         'man/bpmdetect.1',
         'sh.tat.bpmdetect.yml',
         'src/main.cpp',
+        'snapcraft.yaml',
       ],
     },
   },
