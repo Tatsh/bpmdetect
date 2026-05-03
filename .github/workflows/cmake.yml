@@ -52,6 +52,11 @@ jobs:
         run: >-
           echo out=$("${{github.workspace}}" -Replace "\\","/") | Out-File
           -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - if: matrix.sys.name == 'clangarm64'
+        name: Install NSIS via Chocolatey
+        run: |
+          choco install nsis -y --no-progress
+          'C:\Program Files (x86)\NSIS' | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_PATH
       - uses: msys2/setup-msys2@v2
         with:
           install: >-
@@ -62,7 +67,7 @@ jobs:
             extra-cmake-modules:p
             ffmpeg:p
             ninja:p
-            nsis:p
+            ${{ matrix.sys.name == 'clangarm64' && ' ' || 'nsis:p' }}
             qt6-base:p
             qt6-multimedia:p
             qt6-tools:p
