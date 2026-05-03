@@ -9,11 +9,11 @@ jobs:
           VERSION="${GITHUB_REF#refs/tags/v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      - name: Checkout Tatsh/gentoo repository
+      - name: Checkout gentoo/gentoo repository
         uses: actions/checkout@v6
         with:
           path: gentoo
-          repository: Tatsh/gentoo
+          repository: gentoo/gentoo
           token: ${{ secrets.GENTOO_TOKEN }}
       - name: Configure git
         run: |
@@ -23,10 +23,6 @@ jobs:
       - name: Create new ebuild
         run: |
           cd gentoo
-          git remote add upstream https://github.com/gentoo/gentoo.git
-          git fetch upstream
-          git checkout master
-          git reset --hard upstream/master
           EBUILD_DIR=media-sound/bpmdetect
           VERSION="${{ steps.version.outputs.version }}"
           LATEST=$(find "$EBUILD_DIR" -name 'bpmdetect-*.ebuild' 2>/dev/null | sort -V | tail -1)
