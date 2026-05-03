@@ -216,6 +216,7 @@ tatsh
 tbpm
 theora
 tmpo
+tostring
 trackitem
 trackitemdelegate
 trackitemdelegatetest
