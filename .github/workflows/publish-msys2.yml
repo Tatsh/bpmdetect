@@ -1,14 +1,21 @@
 ---
 jobs:
   update-pkgbuild:
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'v') }}
     runs-on: ubuntu-latest
     steps:
       - name: Extract version
         id: version
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          VERSION="${GITHUB_REF#refs/tags/v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          TAG="$HEAD_BRANCH"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
       - name: Checkout MINGW-packages repository
         uses: actions/checkout@v6
         with:
@@ -45,6 +52,8 @@ jobs:
           push-to-fork: Tatsh/MINGW-packages
 name: Update MSYS2 PKGBUILD
 'on':
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows:
+      - 'Release'
+    types:
+      - 'completed'

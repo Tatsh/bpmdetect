@@ -1,10 +1,13 @@
 jobs:
   check:
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      startsWith(github.event.workflow_run.head_branch, 'v') }}
     outputs:
       has_winget_token: '${{ steps.check_secret.outputs.has_winget_token }}'
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v6.0.2'
       - env:
           WINGET_TOKEN: '${{ secrets.WINGET_TOKEN }}'
         id: 'check_secret'
@@ -16,70 +19,6 @@ jobs:
             echo 'has_winget_token=false' >> "$GITHUB_OUTPUT"
             echo '::warning::WINGET_TOKEN secret is empty; the update-winget job will be skipped.'
           fi
-      - env:
-          COMMIT_SHA: '${{ github.sha }}'
-          GH_TOKEN: '${{ github.token }}'
-        id: 'check'
-        name: 'Wait for workflows'
-        run: |
-          sha="$COMMIT_SHA"
-          required_workflows=()
-          optional_workflows=('Prettier' 'QA' 'Spelling' 'markdownlint')
-          process_workflow() {
-            local workflow="$1" treat_missing="$2"
-            local run status conclusion
-            run=$(gh run list --workflow "$workflow" --commit "$sha" --json status,conclusion --jq '.[0]') || run=''
-            if [[ -z "$run" || "$run" == 'null' ]]; then
-              if [[ "$treat_missing" == 'pending' ]]; then
-                echo "Required workflow '$workflow' has not registered a run yet; waiting."
-                return 2
-              fi
-              echo "Optional workflow '$workflow' did not run for this commit; skipping."
-              return 0
-            fi
-            status=$(echo "$run" | jq -r '.status') || status=''
-            conclusion=$(echo "$run" | jq -r '.conclusion') || conclusion=''
-            case "$conclusion" in
-              failure|cancelled|timed_out|startup_failure|action_required)
-                echo "::error::Workflow '$workflow' ${conclusion}."
-                return 1
-                ;;
-              success|skipped|neutral)
-                return 0
-                ;;
-              *)
-                if [[ "$status" == 'completed' ]]; then
-                  echo "::error::Workflow '$workflow' completed with unexpected conclusion '${conclusion}'."
-                  return 1
-                fi
-                echo "Workflow '$workflow' still pending (status=${status})."
-                return 2
-                ;;
-            esac
-          }
-          for i in $(seq 1 30); do
-            all_done=true
-            for workflow in "${required_workflows[@]}"; do
-              rc=0
-              process_workflow "$workflow" pending || rc=$?
-              [[ $rc -eq 1 ]] && exit 1
-              [[ $rc -eq 2 ]] && all_done=false
-            done
-            for workflow in "${optional_workflows[@]}"; do
-              rc=0
-              process_workflow "$workflow" skip || rc=$?
-              [[ $rc -eq 1 ]] && exit 1
-              [[ $rc -eq 2 ]] && all_done=false
-            done
-            if [[ "$all_done" == 'true' ]]; then
-              echo 'All required workflows succeeded.'
-              exit 0
-            fi
-            echo "Waiting 60s for workflows to complete (attempt ${i}/30)..."
-            sleep 60
-          done
-          echo '::error::Timed out waiting for workflows.'
-          exit 1
   update-winget:
     if: "needs.check.outputs.has_winget_token == 'true'"
     needs:
@@ -90,11 +29,14 @@ jobs:
         with:
           identifier: 'Tatsh.bpmdetect'
           max-versions-to-keep: 3
+          release-tag: '${{ github.event.workflow_run.head_branch }}'
           token: '${{ secrets.WINGET_TOKEN }}'
 name: 'Publish to WinGet'
 'on':
-  release:
+  workflow_run:
+    workflows:
+      - 'Release'
     types:
-      - 'released'
+      - 'completed'
 permissions:
   contents: 'read'
