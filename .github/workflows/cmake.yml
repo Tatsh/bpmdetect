@@ -125,7 +125,7 @@ jobs:
           - env: ucrt-x86_64
             name: ucrt64
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.arch.runner }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -153,22 +153,27 @@ jobs:
           cpack -C ${{matrix.build-type}}
           --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
       - name: Create AppImage
+        env:
+          DEPLOY_ARCH: ${{ matrix.arch.deploy_arch }}
+          EXTRA_PLATFORM_PLUGINS: 'libqwayland-generic.so;libqwayland-egl.so'
+          EXTRA_QT_PLUGINS: 'wayland-decoration-client;wayland-graphics-integration-client;wayland-shell-integration'
         run: |
-          wget 'https://github.com/TheAssassin/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
-          wget 'https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage'
-          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+          sudo apt-get install -y libwayland-client0 libwayland-cursor0 libwayland-egl1
+          wget "https://github.com/TheAssassin/linuxdeploy/releases/download/continuous/linuxdeploy-${DEPLOY_ARCH}.AppImage"
+          wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
+          chmod +x "linuxdeploy-${DEPLOY_ARCH}.AppImage" "linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
           export QMAKE="$(command -v qmake6)"
-          ./linuxdeploy-x86_64.AppImage --appdir ${{github.workspace}}/build/AppDir --plugin qt --output appimage
-          rm ./linuxdeploy-x86_64.AppImage ./linuxdeploy-plugin-qt-x86_64.AppImage
-          mv -v ${{github.workspace}}/*.AppImage ${{github.workspace}}/bpmdetect-${{matrix.build-type}}-x86_64.AppImage
+          "./linuxdeploy-${DEPLOY_ARCH}.AppImage" --appdir ${{github.workspace}}/build/AppDir --plugin qt --output appimage
+          rm "./linuxdeploy-${DEPLOY_ARCH}.AppImage" "./linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
+          mv -v ${{github.workspace}}/*.AppImage "${{github.workspace}}/bpmdetect-${{matrix.build-type}}-${DEPLOY_ARCH}.AppImage"
       - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Rename with tag
-        run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref_name}}-x86_64.AppImage
+        run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref_name}}-${{matrix.arch.deploy_arch}}.AppImage
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@v7'
         with:
           if-no-files-found: error
-          name: bpmdetect-${{ matrix.build-type }}-Linux
+          name: bpmdetect-${{ matrix.build-type }}-Linux-${{ matrix.arch.deploy_arch }}
           path: |
             ${{github.workspace}}/bpmdetect-*.AppImage
             ${{github.workspace}}/bpmdetect-*.zip
@@ -188,6 +193,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        arch:
+          - deploy_arch: aarch64
+            runner: ubuntu-24.04-arm
+          - deploy_arch: x86_64
+            runner: ubuntu-latest
         build-type: [Debug, Release]
 name: C/C++ CI
 'on':
