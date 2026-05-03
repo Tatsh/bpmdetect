@@ -105,6 +105,7 @@ libera
 libexec
 libgme
 libgsm
+libgstreamer
 libhwy
 libjxl
 libqwayland
