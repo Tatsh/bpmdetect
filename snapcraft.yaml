@@ -42,6 +42,15 @@ parts:
       - '-DCMAKE_INSTALL_PREFIX=/usr'
       - '-DFHS=ON'
     plugin: 'cmake'
+    prime:
+      - '-usr/lib/*/libSoundTouchDll.so*'
+      - '-usr/lib/*/libcjson_utils.so*'
+      - '-usr/lib/*/libhwy_contrib.so*'
+      - '-usr/lib/*/libhwy_test.so*'
+      - '-usr/lib/*/libicuio.so*'
+      - '-usr/lib/*/libicutest.so*'
+      - '-usr/lib/*/libtheora.so*'
+      - '-usr/lib/*/libzvbi-chains.so*'
     source: '.'
     stage-packages:
       - 'libavcodec60'
