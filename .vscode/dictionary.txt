@@ -95,6 +95,7 @@ kissfft
 launchable
 layoutdefault
 lcms
+ldflags
 lerc
 libaom
 libav
@@ -185,6 +186,7 @@ sharpyuv
 shctx
 shellcheck
 shellformat
+shlib
 sizepolicy
 snapcore
 snapcraft
