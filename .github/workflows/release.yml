@@ -1,3 +1,4 @@
+---
 jobs:
   publish-release:
     runs-on: 'ubuntu-latest'
