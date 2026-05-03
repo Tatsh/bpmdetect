@@ -108,6 +108,7 @@ libgme
 libgsm
 libhwy
 libjxl
+libqwayland
 librav
 libsonnet
 libsoundtouch
@@ -115,6 +116,7 @@ libsoxr
 libsrt
 libssh
 libva
+libwayland
 linuxdeploy
 lzma
 mainpage
