@@ -9,6 +9,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.10] - 2026-05-02
+
+### Added
+
+- NSIS installer: support both per-user and per-machine (administrator) installations with the
+  appropriate install paths.
+- NSIS installer: embed product version information in the installer executable.
+- Linux: produce an AppImage build artifact for releases.
+
+### Changed
+
+- CMake: set an explicit macOS deployment target so released builds run on the supported minimum
+  macOS version.
+
 ## [0.8.9] - 2025-09-14
 
 ### Changed
@@ -156,7 +170,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Test dialogue: stop audio immediately on close.
 
-[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.9...HEAD
+[unreleased]: https://github.com/Tatsh/bpmdetect/compare/v0.8.10...HEAD
+[0.8.10]: https://github.com/Tatsh/bpmdetect/compare/v0.8.9...v0.8.10
 [0.8.9]: https://github.com/Tatsh/bpmdetect/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/Tatsh/bpmdetect/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/Tatsh/bpmdetect/compare/v0.8.6...v0.8.7
