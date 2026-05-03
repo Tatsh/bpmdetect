@@ -1,5 +1,6 @@
 abstractbpmdetector
 aclocal
+Ångström
 apos
 appdir
 appimage
@@ -127,7 +128,6 @@ libsrt
 libssh
 libtheora
 libva
-libwayland
 libzvbi
 linuxdeploy
 lzma
@@ -245,4 +245,3 @@ wunsafe
 xvidcore
 yarnrc
 zvbi
-Ångström
