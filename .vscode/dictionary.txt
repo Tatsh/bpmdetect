@@ -145,6 +145,7 @@ parlant
 pixbuf
 pixman
 pkgbuild
+pkgcheck
 pkgrel
 pkgver
 productversion
