@@ -22,18 +22,18 @@ jobs:
         run: |
           git remote add upstream https://github.com/msys2/MINGW-packages.git
           git fetch upstream
-          git checkout -b bpmdetect-${{ steps.version.outputs.version }} upstream/master
+          git checkout master
+          git reset --hard upstream/master
           VERSION="${{ steps.version.outputs.version }}"
-          TAG="${{ steps.version.outputs.tag }}"
           cd mingw-w64-bpmdetect
           sed -i "s/^pkgver=.*/pkgver=${VERSION}/" PKGBUILD
           sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
-          # Update the sha256sums line
           NEW_SUM=$(curl -L "https://github.com/Tatsh/bpmdetect/archive/refs/tags/v${VERSION}.tar.gz" | sha256sum | awk '{print $1}')
           sed -i "s/^sha256sums=.*/sha256sums=('${NEW_SUM}')/" PKGBUILD
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
+          base: master
           branch: bpmdetect-${{ steps.version.outputs.version }}
           commit-message: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
           title: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'

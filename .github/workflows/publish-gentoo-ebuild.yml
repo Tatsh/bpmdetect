@@ -25,15 +25,33 @@ jobs:
           cd gentoo
           git remote add upstream https://github.com/gentoo/gentoo.git
           git fetch upstream
-          git checkout -b bpmdetect-${{ steps.version.outputs.version }} upstream/master
+          git checkout master
+          git reset --hard upstream/master
           EBUILD_DIR=media-sound/bpmdetect
           VERSION="${{ steps.version.outputs.version }}"
           LATEST=$(find "$EBUILD_DIR" -name 'bpmdetect-*.ebuild' 2>/dev/null | sort -V | tail -1)
           cp "$LATEST" "${EBUILD_DIR}/bpmdetect-${VERSION}.ebuild"
-          ebuild "${EBUILD_DIR}/bpmdetect-${VERSION}.ebuild" manifest
+          TARBALL_NAME="bpmdetect-${VERSION}.tar.gz"
+          TARBALL_PATH="$RUNNER_TEMP/${TARBALL_NAME}"
+          curl -fSL -o "$TARBALL_PATH" \
+            "https://github.com/Tatsh/bpmdetect/archive/refs/tags/v${VERSION}.tar.gz"
+          SIZE=$(stat -c%s "$TARBALL_PATH")
+          BLAKE2B=$(b2sum "$TARBALL_PATH" | awk '{print $1}')
+          SHA512=$(sha512sum "$TARBALL_PATH" | awk '{print $1}')
+          MANIFEST="${EBUILD_DIR}/Manifest"
+          NEW_LINE="DIST ${TARBALL_NAME} ${SIZE} BLAKE2B ${BLAKE2B} SHA512 ${SHA512}"
+          if [[ -f "$MANIFEST" ]]; then
+            grep -v "^DIST ${TARBALL_NAME} " "$MANIFEST" > "${MANIFEST}.tmp" || true
+          else
+            : > "${MANIFEST}.tmp"
+          fi
+          echo "$NEW_LINE" >> "${MANIFEST}.tmp"
+          LC_ALL=C sort -o "$MANIFEST" "${MANIFEST}.tmp"
+          rm "${MANIFEST}.tmp"
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
+          base: master
           branch: bpmdetect-${{ steps.version.outputs.version }}
           commit-message: 'media-sound/bpmdetect: add ${{ steps.version.outputs.version }}'
           committer: 'Andrew Udvare <audvare@gmail.com>'
@@ -47,6 +65,11 @@ jobs:
             Signed-off-by: Andrew Udvare <audvare@gmail.com>
 
             Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
+
+            * [x] I can submit this contribution in agreement with the [Copyright Policy](https://www.gentoo.org/glep/glep-0076.html#certificate-of-origin).
+            * [x] I have certified the above via adding a `Signed-off-by` line to _every_ commit in the pull request.
+            * [x] This contribution has not been created with the assistance of Natural Language Processing artificial intelligence tools, in accordance with the [AI policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy).
+            * [x] I have run `pkgcheck scan --commits --net` to check for issues with my commits.
           push-to-fork: Tatsh/gentoo
 name: Add new ebuild to Portage
 'on':
