@@ -1,6 +1,5 @@
 abstractbpmdetector
 aclocal
-Ångström
 apos
 appdir
 appimage
@@ -184,6 +183,7 @@ shctx
 shellcheck
 shellformat
 sizepolicy
+snapcore
 snapcraft
 softprops
 soundstretch
@@ -229,3 +229,4 @@ wunsafe
 xvidcore
 yarnrc
 zvbi
+Ångström
