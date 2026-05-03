@@ -29,6 +29,8 @@ license: 'GPL-3.0-or-later'
 name: 'bpmdetect'
 parts:
   bpmdetect:
+    build-environment:
+      - LDFLAGS: '-Wl,--allow-shlib-undefined'
     build-packages:
       - 'extra-cmake-modules'
       - 'libavcodec-dev'
