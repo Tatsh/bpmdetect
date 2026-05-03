@@ -22,6 +22,7 @@ bsky
 bugtracker
 buildsystems
 bytearray
+clangarm
 codecpar
 color
 commitizen
@@ -43,6 +44,7 @@ datrie
 dbuild
 dcmake
 dcoverage
+dcpack
 defenses
 denable
 destinationlabel
@@ -232,6 +234,7 @@ vsizetype
 webp
 webpmux
 weverything
+winarm
 winget
 wiswa
 wiswa's
