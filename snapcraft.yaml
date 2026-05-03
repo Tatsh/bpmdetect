@@ -1,0 +1,58 @@
+apps:
+  bpmdetect:
+    command: 'usr/bin/bpmdetect'
+    common-id: 'sh.tat.bpmdetect'
+    desktop: 'usr/share/applications/sh.tat.bpmdetect.desktop'
+    extensions:
+      - 'kde-neon-6'
+    plugs:
+      - 'audio-playback'
+      - 'desktop'
+      - 'desktop-legacy'
+      - 'home'
+      - 'opengl'
+      - 'removable-media'
+      - 'wayland'
+      - 'x11'
+base: 'core24'
+confinement: 'strict'
+contact: 'https://github.com/Tatsh/bpmdetect/issues'
+description: |
+  BPM Detect is an automatic BPM (beats per minute) detection utility. It uses
+  SoundTouch's BPM library for detecting BPMs, ffmpeg for reading and writing
+  BPMs to tags, and Qt for the GUI. It supports detection with any audio
+  format that ffmpeg can read.
+donation: 'https://buymeacoffee.com/Tatsh'
+grade: 'stable'
+issues: 'https://github.com/Tatsh/bpmdetect/issues'
+license: 'GPL-3.0-or-later'
+name: 'bpmdetect'
+parts:
+  bpmdetect:
+    build-packages:
+      - 'extra-cmake-modules'
+      - 'libavcodec-dev'
+      - 'libavformat-dev'
+      - 'libavutil-dev'
+      - 'libsoundtouch-dev'
+    cmake-parameters:
+      - '-DCMAKE_BUILD_TYPE=Release'
+      - '-DCMAKE_INSTALL_PREFIX=/usr'
+      - '-DFHS=ON'
+    plugin: 'cmake'
+    source: '.'
+    stage-packages:
+      - 'libavcodec60'
+      - 'libavformat60'
+      - 'libavutil58'
+      - 'libsoundtouch1'
+platforms:
+  amd64:
+    build-on: 'amd64'
+  arm64:
+    build-on: 'arm64'
+source-code: 'https://github.com/Tatsh/bpmdetect'
+summary: 'Automatic BPM detection tool'
+title: 'BPM Detect'
+version: '0.8.11'
+website: 'https://github.com/Tatsh/bpmdetect'
