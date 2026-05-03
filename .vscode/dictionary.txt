@@ -22,6 +22,7 @@ bsky
 bugtracker
 buildsystems
 bytearray
+choco
 clangarm
 codecpar
 color
