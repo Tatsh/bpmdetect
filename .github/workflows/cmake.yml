@@ -133,7 +133,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y extra-cmake-modules lcov libavcodec-dev libavformat-dev libavutil-dev libsoundtouch-dev tree
+          sudo apt-get install -y extra-cmake-modules lcov libavcodec-dev libavformat-dev libavutil-dev libgstreamer-plugins-bad1.0-0 libsoundtouch-dev tree
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
