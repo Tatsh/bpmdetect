@@ -182,7 +182,7 @@ jobs:
         with:
           fail_on_unmatched_files: true
           files: |
-            ${{github.workspace}}/build/bpmdetect-*.AppImage
+            ${{github.workspace}}/bpmdetect-*.AppImage
     strategy:
       fail-fast: false
       matrix:
