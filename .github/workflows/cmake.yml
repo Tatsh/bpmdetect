@@ -45,7 +45,7 @@ jobs:
         build-type: [Debug, Release]
         os: [macos-latest, macos-15-intel]
   build-msys:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.sys.runner }}
     steps:
       - id: fixed_workspace
         name: Fix path
@@ -78,6 +78,7 @@ jobs:
           cmake -G Ninja -B ${{steps.fixed_workspace.outputs.out}}/build
           --install-prefix ${{steps.fixed_workspace.outputs.out}}/build/prefix
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DCPACK_SYSTEM_NAME=${{matrix.sys.cpack_system}}
           -DFHS=OFF
         shell: msys2 {0}
       - name: Build
@@ -107,7 +108,7 @@ jobs:
           subject-path: |
             ${{github.workspace}}/bpmdetect-*.exe
             ${{github.workspace}}/bpmdetect-*.zip
-      - if: ${{ github.ref_type == 'tag' && matrix.sys.name == 'ucrt64' }}
+      - if: ${{ github.ref_type == 'tag' && matrix.sys.release }}
         name: Upload package
         uses: softprops/action-gh-release@v3
         with:
@@ -120,10 +121,21 @@ jobs:
       matrix:
         build-type: [Debug, Release]
         sys:
-          - env: x86_64
+          - cpack_system: win64
+            env: x86_64
             name: mingw64
-          - env: ucrt-x86_64
+            release: false
+            runner: windows-latest
+          - cpack_system: win64
+            env: ucrt-x86_64
             name: ucrt64
+            release: true
+            runner: windows-latest
+          - cpack_system: winarm64
+            env: clang-aarch64
+            name: clangarm64
+            release: true
+            runner: windows-11-arm
   build-linux:
     runs-on: ${{ matrix.arch.runner }}
     steps:
