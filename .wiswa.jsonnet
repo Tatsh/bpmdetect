@@ -33,6 +33,12 @@ local utils = import 'utils.libsonnet';
   project_name: 'bpmdetect',
   version: '0.8.11',
   description: 'Automatic BPM (beats per minute) detection utility.',
+  social+: {
+    custom_badges: [
+      '[![Tests](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml/badge.svg)](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml)',
+      '[![Coverage Status](https://coveralls.io/repos/github/Tatsh/bpmdetect/badge.svg?branch=master)](https://coveralls.io/github/Tatsh/bpmdetect?branch=master)',
+    ],
+  },
   keywords: ['bpm', 'dj', 'music', 'tempo'],
   want_main: false,
   want_codeql: false,
