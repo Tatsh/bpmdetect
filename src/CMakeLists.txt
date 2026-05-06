@@ -122,8 +122,8 @@ if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bund
     install(FILES ../README.md TYPE DOC)
     install(FILES ../man/bpmdetect.1 TYPE MAN)
   endif()
-  if(MINGW)
-    get_filename_component(_mingw_bin_dir ${CMAKE_C_COMPILER} DIRECTORY)
+  if(WIN32)
+    get_filename_component(_compiler_bin_dir ${CMAKE_C_COMPILER} DIRECTORY)
     install(
       RUNTIME_DEPENDENCY_SET
       bpmdetect-deps
@@ -134,30 +134,30 @@ if(NOT FHS OR NON_PORTABLE_MACOS_BUNDLE) # macOS bundle, non-portable macOS bund
       POST_EXCLUDE_REGEXES
       [=[.*system32\/.*\.dll]=]
       DIRECTORIES
-      ${_mingw_bin_dir}
+      ${_compiler_bin_dir}
       $<TARGET_FILE_DIR:bpmdetect>)
     install(
-      FILES ${_mingw_bin_dir}/libaom.dll
-            ${_mingw_bin_dir}/libLerc.dll
-            ${_mingw_bin_dir}/libbrotlienc.dll
-            ${_mingw_bin_dir}/libdeflate.dll
-            ${_mingw_bin_dir}/libgme.dll
-            ${_mingw_bin_dir}/libgsm.dll
-            ${_mingw_bin_dir}/libhwy.dll
-            ${_mingw_bin_dir}/libjxl.dll
-            ${_mingw_bin_dir}/libjxl_cms.dll
-            ${_mingw_bin_dir}/libjxl_threads.dll
-            ${_mingw_bin_dir}/librav1e.dll
-            ${_mingw_bin_dir}/libsoxr.dll
-            ${_mingw_bin_dir}/libsrt.dll
-            ${_mingw_bin_dir}/libssh.dll
-            ${_mingw_bin_dir}/libva.dll
-            ${_mingw_bin_dir}/libva_win32.dll
-            ${_mingw_bin_dir}/xvidcore.dll
+      FILES ${_compiler_bin_dir}/libaom.dll
+            ${_compiler_bin_dir}/libLerc.dll
+            ${_compiler_bin_dir}/libbrotlienc.dll
+            ${_compiler_bin_dir}/libdeflate.dll
+            ${_compiler_bin_dir}/libgme.dll
+            ${_compiler_bin_dir}/libgsm.dll
+            ${_compiler_bin_dir}/libhwy.dll
+            ${_compiler_bin_dir}/libjxl.dll
+            ${_compiler_bin_dir}/libjxl_cms.dll
+            ${_compiler_bin_dir}/libjxl_threads.dll
+            ${_compiler_bin_dir}/librav1e.dll
+            ${_compiler_bin_dir}/libsoxr.dll
+            ${_compiler_bin_dir}/libsrt.dll
+            ${_compiler_bin_dir}/libssh.dll
+            ${_compiler_bin_dir}/libva.dll
+            ${_compiler_bin_dir}/libva_win32.dll
+            ${_compiler_bin_dir}/xvidcore.dll
       DESTINATION ${CMAKE_INSTALL_BINDIR}
       OPTIONAL)
     install(
-      DIRECTORY ${_mingw_bin_dir}
+      DIRECTORY ${_compiler_bin_dir}
       DESTINATION .
       FILES_MATCHING
       REGEX
