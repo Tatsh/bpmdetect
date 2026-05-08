@@ -1,8 +1,8 @@
 {
   "_wiswa": {
     "commandLine": "wiswa",
-    "lastRun": "2026-05-03T01:33:01Z",
-    "version": "96ccc73"
+    "lastRun": "2026-05-08T00:08:16Z",
+    "version": "3d1ef61"
   },
   "contributors": [
     "Andrew Udvare <audvare@gmail.com>",
@@ -119,7 +119,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Tatsh/bpmdetect.git"
+    "url": "git+https://github.com/Tatsh/bpmdetect.git"
   },
   "scripts": {
     "build": "cmake --preset=default -DBUILD_DOCS=ON && cmake --build build",

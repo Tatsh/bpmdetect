@@ -162,6 +162,7 @@ pkgbuild
 pkgcheck
 pkgrel
 pkgver
+preapproved
 productversion
 progressbar
 progressbartest
