@@ -2,10 +2,13 @@
   "dependencies": [
     {
       "name": "ecm",
-      "version>=": "6.7.0"
+      "version>=": "6.25.0"
     },
     {
-      "features": ["network", "widgets"],
+      "features": [
+        "network",
+        "widgets"
+      ],
       "name": "qtbase",
       "version>=": "6.8.3"
     },
