@@ -10,7 +10,7 @@ authors:
   - family-names: 'Sakmar'
     given-names: 'Martin'
 cff-version: '1.2.0'
-date-released: '2026-05-08'
+date-released: '2026-05-11'
 message: 'If you use this software, please cite it as below.'
 title: 'bpmdetect'
 version: '0.8.11'

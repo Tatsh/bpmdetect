@@ -8,7 +8,6 @@ autobuild
 autoinstall
 automoc
 autorcc
-autosort
 autouic
 avcodec
 avfmt
@@ -142,7 +141,6 @@ mypy
 ndebug
 noncommercially
 normaloff
-npmjs
 nsis
 nullptr
 offscreen
@@ -168,6 +166,7 @@ progressbar
 progressbartest
 pulseaudio
 pylock
+pyproject
 qcompare
 qdroplistview
 qdroplistviewtest
@@ -225,6 +224,8 @@ tracktest
 trofimovich
 ucrt
 udvare
+undraft
+undrafted
 unistring
 utilstest
 vedantmgoyal
@@ -241,6 +242,7 @@ winarm
 winget
 wiswa
 wiswa's
+worktree
 wswitch
 wunsafe
 xvidcore

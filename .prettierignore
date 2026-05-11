@@ -1,4 +1,6 @@
 *.1
+*.3
+*.7
 *.c
 *.cpp
 *.desktop
@@ -47,3 +49,4 @@
 node_modules/
 pylock*.toml
 src/icon.rc
+vcpkg*.json

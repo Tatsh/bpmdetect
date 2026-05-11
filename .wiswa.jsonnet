@@ -33,12 +33,16 @@ local utils = import 'utils.libsonnet';
   project_name: 'bpmdetect',
   version: '0.8.11',
   description: 'Automatic BPM (beats per minute) detection utility.',
-  social+: {
-    custom_badges: [
-      '[![Tests](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml/badge.svg)](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml)',
-      '[![Coverage Status](https://coveralls.io/repos/github/Tatsh/bpmdetect/badge.svg?branch=master)](https://coveralls.io/github/Tatsh/bpmdetect?branch=master)',
-    ],
-  },
+  custom_project_badges: [
+    {
+      anchor: '[![Tests](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml/badge.svg)]',
+      href: 'https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml',
+    },
+    {
+      anchor: '[![Coverage Status](https://coveralls.io/repos/github/Tatsh/bpmdetect/badge.svg?branch=master)]',
+      href: 'https://coveralls.io/github/Tatsh/bpmdetect?branch=master',
+    },
+  ],
   keywords: ['bpm', 'dj', 'music', 'tempo'],
   want_main: false,
   want_codeql: false,
@@ -151,17 +155,17 @@ local utils = import 'utils.libsonnet';
     dependencies: [
       {
         name: 'ecm',
-        'version>=': '6.7.0',
+        'version>=': '6.25.0',
       },
       {
         features: ['network', 'widgets'],
         name: 'qtbase',
-        'version>=': '6.8.3',
+        'version>=': '6.10.2',
       },
       {
         features: [{ name: 'ffmpeg', platform: 'linux' }],
         name: 'qtmultimedia',
-        'version>=': '6.8.3',
+        'version>=': '6.10.2',
       },
       'ffmpeg',
       'soundtouch',
