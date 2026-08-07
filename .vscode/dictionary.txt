@@ -16,7 +16,9 @@ avio
 avmedia
 bindir
 bluray
+bpmd
 bpmdetect
+bpmdetectplugin
 bpmtype
 bsky
 bugtracker
@@ -51,6 +53,7 @@ denable
 destinationlabel
 dfhs
 dialog
+distrho
 dlgbpmdetect
 dlgbpmdetecttest
 dlgtestbpm
@@ -59,6 +62,7 @@ dlgtestbpmplayer
 dlgtestbpmplayertest
 dlgtestbpmtest
 docstrings
+dplugin
 endforeach
 endfunction
 esac
@@ -83,6 +87,7 @@ gomp
 graphviz
 gstreamer
 guimain
+handoff
 horstretch
 hsizetype
 iconset
@@ -189,6 +194,7 @@ ripgreprc
 rsvg
 rtmp
 sakmar
+sampleringbuffer
 sampletype
 schemafile
 sharpyuv
@@ -206,6 +212,7 @@ soundtouchbpmdetector
 sourcelabel
 speex
 srcs
+statusline
 stdset
 strequal
 sturmlechner
@@ -222,6 +229,7 @@ trackitemdelegate
 trackitemdelegatetest
 tracktest
 trofimovich
+ttsh
 ucrt
 udvare
 undraft
