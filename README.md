@@ -66,3 +66,42 @@ To build tests, add `-DBUILD_TESTS=ON`. Add `-DCOVERAGE=ON` to enable coverage (
 
 Translation support has been added but there are currently no translations. This can be enabled with
 `-DI18N=ON`.
+
+## DAW plugin
+
+A tempo analyser plugin is available in CLAP, LV2, and VST3 formats. Drop it on a track and it
+reports the detected tempo through a read-only _Detected BPM_ parameter, which most hosts display
+in their generic plugin UI (Ardour and Qtractor show LV2 output ports directly; Bitwig, REAPER,
+and FL Studio display read-only CLAP parameters). Audio passes through unmodified. The _Minimum
+BPM_ and _Maximum BPM_ parameters control the octave folding of the raw estimate, and the _Reset_
+trigger discards the analysis so far. The estimate updates about once per second and needs a few
+seconds of audio to settle.
+
+### Installing the plugin
+
+Download the archive for your platform from the
+[latest release](https://github.com/Tatsh/bpmdetect/releases) (`bpmdetect-plugin-*.zip`; Linux
+x86_64 and aarch64, Windows x64 and ARM64, and macOS universal builds are provided; SoundTouch is
+statically linked) and extract the bundles to the appropriate directory:
+
+| Format | Linux                        | macOS                           | Windows                              |
+| ------ | ---------------------------- | ------------------------------- | ------------------------------------ |
+| CLAP   | `~/.clap` or `/usr/lib/clap` | `~/Library/Audio/Plug-Ins/CLAP` | `C:\Program Files\Common Files\CLAP` |
+| LV2    | `~/.lv2` or `/usr/lib/lv2`   | `~/Library/Audio/Plug-Ins/LV2`  | `C:\Program Files\Common Files\LV2`  |
+| VST3   | `~/.vst3` or `/usr/lib/vst3` | `~/Library/Audio/Plug-Ins/VST3` | `C:\Program Files\Common Files\VST3` |
+
+### Building the plugin
+
+The plugin needs only SoundTouch and [DPF](https://github.com/DISTRHO/DPF), which is downloaded at
+configure time at a pinned revision. Build it together with the application by adding
+`-DBUILD_PLUGIN=ON`, or on its own:
+
+```shell
+cmake -S plugin -B build-plugin -DCMAKE_BUILD_TYPE=Release
+cmake --build build-plugin
+```
+
+The bundles are written to `build-plugin/bin`. Add `-DUSE_SYSTEM_DPF=ON` to use a DPF tree already
+on the system instead of downloading one (set `DPF_ROOT` if it is not in a standard location; there
+is no download fallback). Add `-DPLUGIN_STATIC_SOUNDTOUCH=ON` to build SoundTouch from source and
+link it statically so the bundles do not depend on a system SoundTouch.
