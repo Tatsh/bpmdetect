@@ -134,5 +134,5 @@ if(BUILD_DOCS OR BUILD_DOCS_ONLY)
       ./.docs/qtwidgets.tags=http://doc.qt.io/qt-6/
       ./.docs/soundtouch.tags=https://codeberg.org/soundtouch/soundtouch/)
   find_package(Doxygen REQUIRED COMPONENTS dot)
-  doxygen_add_docs(docs README.md src ALL)
+  doxygen_add_docs(docs README.md plugin src ALL)
 endif()
