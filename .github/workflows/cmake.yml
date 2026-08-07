@@ -178,7 +178,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good lcov libavcodec-dev libavformat-dev libavutil-dev libgstreamer-plugins-bad1.0-0 libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 libsoundtouch-dev tree
       - name: Install Qt
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730
+        uses: Tatsh/install-qt-action@17a12b0f62fdd13c07a77d602b49c24744785e23
         with:
           modules: qtmultimedia
       - name: Configure
