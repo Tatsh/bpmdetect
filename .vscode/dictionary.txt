@@ -38,6 +38,7 @@ coverallsapp
 cpack
 cppdbg
 cppreference
+crosscompiling
 ctest
 customwidget
 customwidgets
