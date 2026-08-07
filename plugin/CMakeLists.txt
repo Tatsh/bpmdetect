@@ -51,6 +51,9 @@ if(PLUGIN_STATIC_SOUNDTOUCH)
   # do not depend on a system SoundTouch. The pinned commit is the 2.4.1 tag.
   set(BUILD_SHARED_LIBS OFF)
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  set(SOUNDSTRETCH
+      OFF
+      CACHE BOOL "Build soundstretch command line utility." FORCE)
   FetchContent_Declare(
     soundtouch
     GIT_REPOSITORY https://codeberg.org/soundtouch/soundtouch.git
