@@ -3,7 +3,9 @@ jobs:
   publish-release:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v7'
+      - uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+        with:
+          persist-credentials: false
       - env:
           GH_TOKEN: '${{ github.token }}'
           HEAD_SHA: '${{ github.event.workflow_run.head_sha }}'
@@ -81,13 +83,14 @@ jobs:
             exit 0
           fi
           echo "All required workflows succeeded for ${tag}."
-          echo "tag=${tag}" >> "$GITHUB_ENV"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "ready=true" >> "$GITHUB_OUTPUT"
       - env:
           GH_TOKEN: '${{ github.token }}'
+          TAG: '${{ steps.check.outputs.tag }}'
         if: "steps.check.outputs.ready == 'true'"
         name: 'Publish release'
-        run: 'gh release edit "$tag" --draft=false'
+        run: 'gh release edit "$TAG" --draft=false'
       - env:
           GH_TOKEN: '${{ github.token }}'
           REPO: '${{ github.repository }}'

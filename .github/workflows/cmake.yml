@@ -1,11 +1,16 @@
 ---
 jobs:
   build-macos:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Install deps
         run: brew install extra-cmake-modules ffmpeg qt sound-touch
       - run: |
@@ -18,7 +23,7 @@ jobs:
           cpack -C ${{matrix.build-type}}
           --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v7'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-${{ matrix.os }}
@@ -26,26 +31,30 @@ jobs:
             ${{github.workspace}}/bpmdetect-*.zip
             ${{github.workspace}}/bpmdetect-*.dmg
       - name: Attest
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: |
             ${{github.workspace}}/bpmdetect-*.zip
             ${{github.workspace}}/bpmdetect-*.dmg
-      - if: ${{ github.ref_type == 'tag' }}
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' }}
         name: Upload package
-        uses: softprops/action-gh-release@v3.0.2
-        with:
-          draft: true
-          fail_on_unmatched_files: true
-          files: |
-            ${{github.workspace}}/bpmdetect-*.zip
-            ${{github.workspace}}/bpmdetect-*.dmg
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
+          gh release upload "$TAG" --clobber bpmdetect-*.zip bpmdetect-*.dmg
     strategy:
       fail-fast: false
       matrix:
         build-type: [Debug, Release]
         os: [macos-latest, macos-15-intel]
   build-msys:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     runs-on: ${{ matrix.sys.runner }}
     steps:
       - id: fixed_workspace
@@ -58,7 +67,7 @@ jobs:
         run: |
           choco install nsis -y --no-progress
           'C:\Program Files (x86)\NSIS' | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_PATH
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884
         with:
           install: >-
             make
@@ -76,32 +85,41 @@ jobs:
             toolchain:p
             zlib:p
           update: true
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-      - name: Configure
+          persist-credentials: false
+      - env:
+          OUT: ${{ steps.fixed_workspace.outputs.out }}
+        name: Configure
         run: >-
-          cmake -G Ninja -B ${{steps.fixed_workspace.outputs.out}}/build
-          --install-prefix ${{steps.fixed_workspace.outputs.out}}/build/prefix
+          cmake -G Ninja -B ${OUT}/build
+          --install-prefix ${OUT}/build/prefix
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
           -DCPACK_SYSTEM_NAME=${{matrix.sys.cpack_system}}
           -DFHS=OFF
         shell: msys2 {0}
-      - name: Build
-        run: cmake --build ${{steps.fixed_workspace.outputs.out}}/build --verbose
+      - env:
+          OUT: ${{ steps.fixed_workspace.outputs.out }}
+        name: Build
+        run: cmake --build ${OUT}/build --verbose
         shell: msys2 {0}
-      - name: Install
+      - env:
+          OUT: ${{ steps.fixed_workspace.outputs.out }}
+        name: Install
         run: >-
-          cmake --install ${{steps.fixed_workspace.outputs.out}}/build
+          cmake --install ${OUT}/build
           --config ${{matrix.build-type}} --verbose
         shell: msys2 {0}
-      - name: Package
+      - env:
+          OUT: ${{ steps.fixed_workspace.outputs.out }}
+        name: Package
         run: >-
           cpack -C ${{matrix.build-type}}
-          --config ${{steps.fixed_workspace.outputs.out}}/build/CPackConfig.cmake --verbose
+          --config ${OUT}/build/CPackConfig.cmake --verbose
         shell: msys2 {0}
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v7'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-${{ matrix.sys.name }}
@@ -109,20 +127,21 @@ jobs:
             ${{github.workspace}}/bpmdetect-*.exe
             ${{github.workspace}}/bpmdetect-*.zip
       - name: Attest
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: |
             ${{github.workspace}}/bpmdetect-*.exe
             ${{github.workspace}}/bpmdetect-*.zip
-      - if: ${{ github.ref_type == 'tag' && matrix.sys.release }}
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' && matrix.sys.release }}
         name: Upload package
-        uses: softprops/action-gh-release@v3.0.2
-        with:
-          draft: true
-          fail_on_unmatched_files: true
-          files: |
-            ${{github.workspace}}/bpmdetect-*.exe
-            ${{github.workspace}}/bpmdetect-*.zip
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
+          gh release upload "$TAG" --clobber bpmdetect-*.exe bpmdetect-*.zip
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -144,17 +163,22 @@ jobs:
             release: true
             runner: windows-11-arm
   build-linux:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     runs-on: ${{ matrix.arch.runner }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good lcov libavcodec-dev libavformat-dev libavutil-dev libgstreamer-plugins-bad1.0-0 libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 libsoundtouch-dev tree
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730
         with:
           modules: qtmultimedia
       - name: Configure
@@ -193,13 +217,15 @@ jobs:
           "./linuxdeploy-${DEPLOY_ARCH}.AppImage" --appdir ${{github.workspace}}/build/AppDir --plugin qt --output appimage
           rm "./linuxdeploy-${DEPLOY_ARCH}.AppImage" "./linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
           mv -v ${{github.workspace}}/*.AppImage "${{github.workspace}}/bpmdetect-${{matrix.build-type}}-${DEPLOY_ARCH}.AppImage"
-      - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
+      - env:
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Rename with tag
         run: |
-          mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref_name}}-${{matrix.arch.deploy_arch}}.AppImage
-          mv -v ${{github.workspace}}/bpmdetect-plugin-*.zip ${{github.workspace}}/bpmdetect-plugin-${{github.ref_name}}-${{matrix.arch.deploy_arch}}.zip
+          mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${TAG}-${{matrix.arch.deploy_arch}}.AppImage
+          mv -v ${{github.workspace}}/bpmdetect-plugin-*.zip ${{github.workspace}}/bpmdetect-plugin-${TAG}-${{matrix.arch.deploy_arch}}.zip
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v7'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-Linux-${{ matrix.arch.deploy_arch }}
@@ -207,20 +233,20 @@ jobs:
             ${{github.workspace}}/bpmdetect-*.AppImage
             ${{github.workspace}}/bpmdetect-*.zip
       - name: Attest
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: |
             ${{github.workspace}}/bpmdetect-*.AppImage
             ${{github.workspace}}/bpmdetect-*.zip
-      - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Upload package
-        uses: softprops/action-gh-release@v3.0.2
-        with:
-          draft: true
-          fail_on_unmatched_files: true
-          files: |
-            ${{github.workspace}}/bpmdetect-*.AppImage
-            ${{github.workspace}}/bpmdetect-plugin-*.zip
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
+          gh release upload "$TAG" --clobber bpmdetect-*.AppImage bpmdetect-plugin-*.zip
     strategy:
       fail-fast: false
       matrix:
@@ -231,11 +257,16 @@ jobs:
             runner: ubuntu-latest
         build-type: [Debug, Release]
   build-plugin-macos:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up PawPaw
         run: |
           git clone https://github.com/DISTRHO/PawPaw.git
@@ -252,33 +283,40 @@ jobs:
           cd build-plugin/bin &&
           zip -r ${{github.workspace}}/bpmdetect-plugin-Release-macos-universal.zip
           bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
-      - if: ${{ github.ref_type == 'tag' }}
+      - env:
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' }}
         name: Rename with tag
         run: >-
           mv -v ${{github.workspace}}/bpmdetect-plugin-Release-macos-universal.zip
-          ${{github.workspace}}/bpmdetect-plugin-${{github.ref_name}}-macos-universal.zip
+          ${{github.workspace}}/bpmdetect-plugin-${TAG}-macos-universal.zip
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v7'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-Release-macos-universal
           path: ${{github.workspace}}/bpmdetect-plugin-*.zip
       - name: Attest
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: ${{github.workspace}}/bpmdetect-plugin-*.zip
-      - if: ${{ github.ref_type == 'tag' }}
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' }}
         name: Upload package
-        uses: softprops/action-gh-release@v3.0.2
-        with:
-          draft: true
-          fail_on_unmatched_files: true
-          files: |
-            ${{github.workspace}}/bpmdetect-plugin-*.zip
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
+          gh release upload "$TAG" --clobber bpmdetect-plugin-*.zip
   build-plugin-msys:
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     runs-on: ${{ matrix.sys.runner }}
     steps:
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884
         with:
           install: >-
             git
@@ -290,9 +328,10 @@ jobs:
             ninja:p
             toolchain:p
           update: true
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Build
         run: |
           cmake -G Ninja -S plugin -B build-plugin -DCMAKE_BUILD_TYPE=Release \
@@ -305,30 +344,34 @@ jobs:
           zip -r ../../bpmdetect-plugin-Release-${{matrix.sys.suffix}}.zip
           bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
         shell: msys2 {0}
-      - if: ${{ github.ref_type == 'tag' }}
+      - env:
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' }}
         name: Rename with tag
         run: >-
           mv -v bpmdetect-plugin-Release-${{matrix.sys.suffix}}.zip
-          bpmdetect-plugin-${{github.ref_name}}-${{matrix.sys.suffix}}.zip
+          bpmdetect-plugin-${TAG}-${{matrix.sys.suffix}}.zip
         shell: msys2 {0}
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@v7'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-Release-${{ matrix.sys.suffix }}
           path: ${{github.workspace}}/bpmdetect-plugin-*.zip
       - name: Attest
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
           subject-path: ${{github.workspace}}/bpmdetect-plugin-*.zip
-      - if: ${{ github.ref_type == 'tag' }}
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' }}
         name: Upload package
-        uses: softprops/action-gh-release@v3.0.2
-        with:
-          draft: true
-          fail_on_unmatched_files: true
-          files: |
-            ${{github.workspace}}/bpmdetect-plugin-*.zip
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
+          gh release upload "$TAG" --clobber bpmdetect-plugin-*.zip
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -347,7 +390,4 @@ name: Build
       - 'v*.*.*'
   pull_request:
     branches: [master]
-permissions:
-  attestations: write
-  contents: write
-  id-token: write
+permissions: {}
