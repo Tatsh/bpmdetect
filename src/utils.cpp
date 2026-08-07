@@ -3,8 +3,9 @@
 
 double stringToBpm(const QString &sBpm) {
     auto bpm = sBpm.toDouble();
-    while (bpm > 300)
+    while (bpm > 300) {
         bpm = bpm / 10;
+    }
     return bpm;
 }
 
