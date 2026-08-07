@@ -155,17 +155,17 @@ local utils = import 'utils.libsonnet';
     dependencies: [
       {
         name: 'ecm',
-        'version>=': '6.25.0',
+        'version>=': '6.28.0',
       },
       {
         features: ['network', 'widgets'],
         name: 'qtbase',
-        'version>=': '6.10.2',
+        'version>=': '6.11.1#1',
       },
       {
         features: [{ name: 'ffmpeg', platform: 'linux' }],
         name: 'qtmultimedia',
-        'version>=': '6.10.2',
+        'version>=': '6.11.1',
       },
       'ffmpeg',
       'soundtouch',
