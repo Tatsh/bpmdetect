@@ -123,7 +123,7 @@
   },
   "scripts": {
     "build": "cmake --preset=default -DBUILD_DOCS=ON && cmake --build build",
-    "check-formatting": "clang-format --dry-run src/*.cpp src/*.h && prettier --check . && markdownlint-cli2 --config package.json --configPointer /markdownlint-cli2",
+    "check-formatting": "clang-format --dry-run plugin/*.cpp plugin/*.h src/*.cpp src/*.h && prettier --check . && markdownlint-cli2 --config package.json --configPointer /markdownlint-cli2",
     "check-spelling": "cspell --no-progress .",
     "dict:update": "rm -f .vscode/dictionary.txt && cspell lint --no-progress --no-summary --unique --words-only | tr '[:upper:]' '[:lower:]' | sort -u > .vscode/dictionary.txt",
     "flatpak-build-install": "flatpak run --command=flathub-build org.flatpak.Builder --install sh.tat.bpmdetect.yml",
@@ -131,7 +131,7 @@
     "flatpak-lint": "flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest sh.tat.bpmdetect.yml",
     "flatpak-run": "flatpak run sh.tat.bpmdetect",
     "flatpak-uninstall": "flatpak uninstall -y sh.tat.bpmdetect",
-    "format": "clang-format -i src/*.cpp src/*.h && prettier --write . && markdownlint-cli2 --config package.json --configPointer /markdownlint-cli2 --fix",
+    "format": "clang-format -i plugin/*.cpp plugin/*.h src/*.cpp src/*.h && prettier --write . && markdownlint-cli2 --config package.json --configPointer /markdownlint-cli2 --fix",
     "qa": "yarn check-spelling && yarn check-formatting"
   },
   "version": "0.8.11"

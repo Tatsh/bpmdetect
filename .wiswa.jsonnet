@@ -47,7 +47,7 @@ local utils = import 'utils.libsonnet';
   want_main: false,
   want_codeql: false,
   want_tests: false,
-  cmake_format_args: 'src/*.cpp src/*.h',
+  cmake_format_args: 'plugin/*.cpp plugin/*.h src/*.cpp src/*.h',
   package_json+: {
     cspell+: {
       ignorePaths+: [
