@@ -1,8 +1,8 @@
 {
   "_wiswa": {
-    "commandLine": "wiswa",
-    "lastRun": "2026-05-11T19:57:27Z",
-    "version": "eb1f7cf"
+    "commandLine": "wiswa -d",
+    "lastRun": "2026-08-07T22:21:24Z",
+    "version": "9d47b47"
   },
   "contributors": [
     "Andrew Udvare <audvare@gmail.com>",
@@ -82,7 +82,7 @@
     "showFound": true
   },
   "name": "bpmdetect",
-  "packageManager": "yarn@4.14.1",
+  "packageManager": "yarn@4.18.0",
   "prettier": {
     "endOfLine": "lf",
     "iniSpaceAroundEquals": true,

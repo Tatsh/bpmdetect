@@ -9,7 +9,7 @@
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue?logo=dependabot)](https://github.com/dependabot)
 [![GitHub Pages](https://github.com/Tatsh/bpmdetect/actions/workflows/pages.yml/badge.svg)](https://tatsh.github.io/bpmdetect/)
 [![Stargazers](https://img.shields.io/github/stars/Tatsh/bpmdetect?logo=github&style=flat)](https://github.com/Tatsh/bpmdetect/stargazers)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Tatsh/bpmdetect/master.svg)](https://results.pre-commit.ci/latest/github/Tatsh/bpmdetect/master)
 [![CMake](https://img.shields.io/badge/CMake-6E6E6E?logo=cmake)](https://cmake.org/)
 [![Prettier](https://img.shields.io/badge/Prettier-black?logo=prettier)](https://prettier.io/)
 [![Tests](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml/badge.svg)](https://github.com/Tatsh/bpmdetect/actions/workflows/tests.yml)

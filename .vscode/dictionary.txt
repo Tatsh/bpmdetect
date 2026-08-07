@@ -38,7 +38,6 @@ coverallsapp
 cpack
 cppdbg
 cppreference
-crosscompiling
 ctest
 customwidget
 customwidgets
@@ -171,6 +170,7 @@ productversion
 progressbar
 progressbartest
 pulseaudio
+pyinstaller
 pylock
 pyproject
 qcompare
@@ -256,4 +256,5 @@ wswitch
 wunsafe
 xvidcore
 yarnrc
+zizmor
 zvbi

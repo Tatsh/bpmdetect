@@ -44,8 +44,6 @@ concrete repository change, do not edit project files.
   different directory.
 - Spell-check uses cspell with British English (`en-GB`). Exception: code identifiers must use
   American English (`ColorCode` not `ColourCode`).
-- Add new words to `.vscode/dictionary.txt` in lowercase and keep the file sorted. Prefer to commit
-  dictionary changes separately with the message `dictionary: update`.
 
 ## Avoiding Permission Prompts
 
