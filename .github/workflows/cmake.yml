@@ -161,8 +161,10 @@ jobs:
         run: >-
           cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build
           --install-prefix ${{github.workspace}}/build/AppDir/usr
+          -DBUILD_PLUGIN=ON
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
           -DFHS=ON
+          -DPLUGIN_STATIC_SOUNDTOUCH=ON
       - name: Build
         run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
       - name: Install
@@ -171,6 +173,12 @@ jobs:
         run: >-
           cpack -C ${{matrix.build-type}}
           --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
+      - name: Package plugin
+        run: >-
+          cd ${{github.workspace}}/build/bin &&
+          zip -r
+          ${{github.workspace}}/bpmdetect-plugin-${{matrix.build-type}}-${{matrix.arch.deploy_arch}}.zip
+          bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
       - name: Create AppImage
         env:
           DEPLOY_ARCH: ${{ matrix.arch.deploy_arch }}
@@ -187,7 +195,9 @@ jobs:
           mv -v ${{github.workspace}}/*.AppImage "${{github.workspace}}/bpmdetect-${{matrix.build-type}}-${DEPLOY_ARCH}.AppImage"
       - if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Rename with tag
-        run: mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref_name}}-${{matrix.arch.deploy_arch}}.AppImage
+        run: |
+          mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${{github.ref_name}}-${{matrix.arch.deploy_arch}}.AppImage
+          mv -v ${{github.workspace}}/bpmdetect-plugin-*.zip ${{github.workspace}}/bpmdetect-plugin-${{github.ref_name}}-${{matrix.arch.deploy_arch}}.zip
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@v7'
         with:
@@ -210,6 +220,7 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             ${{github.workspace}}/bpmdetect-*.AppImage
+            ${{github.workspace}}/bpmdetect-plugin-*.zip
     strategy:
       fail-fast: false
       matrix:
