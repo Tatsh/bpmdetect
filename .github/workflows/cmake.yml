@@ -230,6 +230,115 @@ jobs:
           - deploy_arch: x86_64
             runner: ubuntu-latest
         build-type: [Debug, Release]
+  build-plugin-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up PawPaw
+        run: |
+          git clone https://github.com/DISTRHO/PawPaw.git
+          git -C PawPaw checkout 6ff87c77cf680ab1b18ca36b79e9e09732d34fc3
+          ./PawPaw/.github/workflows/bootstrap-deps.sh macos-universal
+      - name: Build
+        run: |
+          source PawPaw/local.env macos-universal
+          cmake -S plugin -B build-plugin -DCMAKE_BUILD_TYPE=Release \
+            -DPLUGIN_STATIC_SOUNDTOUCH=ON
+          cmake --build build-plugin --verbose
+      - name: Package plugin
+        run: >-
+          cd build-plugin/bin &&
+          zip -r ${{github.workspace}}/bpmdetect-plugin-Release-macos-universal.zip
+          bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
+      - if: ${{ github.ref_type == 'tag' }}
+        name: Rename with tag
+        run: >-
+          mv -v ${{github.workspace}}/bpmdetect-plugin-Release-macos-universal.zip
+          ${{github.workspace}}/bpmdetect-plugin-${{github.ref_name}}-macos-universal.zip
+      - name: 'Upload Artifacts'
+        uses: 'actions/upload-artifact@v7'
+        with:
+          if-no-files-found: error
+          name: bpmdetect-plugin-Release-macos-universal
+          path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+      - name: Attest
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+      - if: ${{ github.ref_type == 'tag' }}
+        name: Upload package
+        uses: softprops/action-gh-release@v3.0.2
+        with:
+          draft: true
+          fail_on_unmatched_files: true
+          files: |
+            ${{github.workspace}}/bpmdetect-plugin-*.zip
+  build-plugin-msys:
+    runs-on: ${{ matrix.sys.runner }}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: >-
+            git
+            make
+            zip
+          msystem: ${{matrix.sys.name}}
+          pacboy: >-
+            cmake:p
+            ninja:p
+            toolchain:p
+          update: true
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Build
+        run: |
+          cmake -G Ninja -S plugin -B build-plugin -DCMAKE_BUILD_TYPE=Release \
+            -DPLUGIN_STATIC_SOUNDTOUCH=ON
+          cmake --build build-plugin --verbose
+        shell: msys2 {0}
+      - name: Package plugin
+        run: >-
+          cd build-plugin/bin &&
+          zip -r ../../bpmdetect-plugin-Release-${{matrix.sys.suffix}}.zip
+          bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
+        shell: msys2 {0}
+      - if: ${{ github.ref_type == 'tag' }}
+        name: Rename with tag
+        run: >-
+          mv -v bpmdetect-plugin-Release-${{matrix.sys.suffix}}.zip
+          bpmdetect-plugin-${{github.ref_name}}-${{matrix.sys.suffix}}.zip
+        shell: msys2 {0}
+      - name: 'Upload Artifacts'
+        uses: 'actions/upload-artifact@v7'
+        with:
+          if-no-files-found: error
+          name: bpmdetect-plugin-Release-${{ matrix.sys.suffix }}
+          path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+      - name: Attest
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+      - if: ${{ github.ref_type == 'tag' }}
+        name: Upload package
+        uses: softprops/action-gh-release@v3.0.2
+        with:
+          draft: true
+          fail_on_unmatched_files: true
+          files: |
+            ${{github.workspace}}/bpmdetect-plugin-*.zip
+    strategy:
+      fail-fast: false
+      matrix:
+        sys:
+          - name: ucrt64
+            runner: windows-latest
+            suffix: win64
+          - name: clangarm64
+            runner: windows-11-arm
+            suffix: winarm64
 name: Build
 'on':
   push:
