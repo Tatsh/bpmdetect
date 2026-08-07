@@ -14,7 +14,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules lcov libavcodec-dev libavformat-dev libavutil-dev libsoundtouch-dev
       - name: Install Qt
-        uses: Tatsh/install-qt-action@17a12b0f62fdd13c07a77d602b49c24744785e23
+        uses: Tatsh/install-qt-action@c06aab43ae9bf6a28175c9cf45dd5936d44e21e9
         with:
           modules: qtmultimedia
       - name: Configure
