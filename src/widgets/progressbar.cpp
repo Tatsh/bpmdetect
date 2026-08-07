@@ -25,20 +25,21 @@ void ProgressBar::mousePressEvent(QMouseEvent *e) {
 
 void ProgressBar::mouseMoveEvent(QMouseEvent *e) {
     if (enabled() && change()) {
-        if (e->pos().x() <= 0)
+        if (e->pos().x() <= 0) {
             setValue(0);
-        else if (e->pos().x() >= width())
+        } else if (e->pos().x() >= width()) {
             setValue(maximum());
-        else
+        } else {
             setValue((e->pos().x() * maximum()) / (width()));
+        }
     }
 }
 
 void ProgressBar::mouseReleaseEvent(QMouseEvent *e) {
     if (enabled()) {
-        if (e->buttons() & (Qt::RightButton | Qt::LeftButton))
+        if (e->buttons() & (Qt::RightButton | Qt::LeftButton)) {
             setChange(true);
-        else if (change() && e->button() == Qt::LeftButton) {
+        } else if (change() && e->button() == Qt::LeftButton) {
             setChange(false);
             emit(positionChanged(value()));
         }
@@ -50,8 +51,9 @@ void ProgressBar::setLength(int len) {
 }
 
 void ProgressBar::setPosition(int pos) {
-    if (!change())
+    if (!change()) {
         setValue(pos);
+    }
 }
 
 bool ProgressBar::change() {

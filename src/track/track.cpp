@@ -100,8 +100,9 @@ void Track::setupDecoder() {
 }
 
 void Track::setMinimumBpm(bpmtype dMin) {
-    if (dMin > 30. && dMin < 300.)
+    if (dMin > 30. && dMin < 300.) {
         _dMinBpm = dMin;
+    }
     // Swap min and max if min is greater than max.
     if (_dMinBpm > _dMaxBpm) {
         std::swap(_dMinBpm, _dMaxBpm);
@@ -109,8 +110,9 @@ void Track::setMinimumBpm(bpmtype dMin) {
 }
 
 void Track::setMaximumBpm(bpmtype dMax) {
-    if (dMax > 30. && dMax < 300.)
+    if (dMax > 30. && dMax < 300.) {
         _dMaxBpm = dMax;
+    }
     // Swap min and max if min is greater than max.
     if (_dMinBpm > _dMaxBpm) {
         std::swap(_dMinBpm, _dMaxBpm);

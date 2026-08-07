@@ -23,10 +23,11 @@ void QDropListView::slotRemoveSelected() {
 }
 
 void QDropListView::keyPressEvent(QKeyEvent *e) {
-    if (e->key() == Qt::Key_Delete)
+    if (e->key() == Qt::Key_Delete) {
         slotRemoveSelected();
-    else
+    } else {
         QTreeWidget::keyPressEvent(e);
+    }
     emit keyPress(e);
 }
 
