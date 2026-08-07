@@ -180,7 +180,8 @@ jobs:
           wget "https://github.com/TheAssassin/linuxdeploy/releases/download/continuous/linuxdeploy-${DEPLOY_ARCH}.AppImage"
           wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
           chmod +x "linuxdeploy-${DEPLOY_ARCH}.AppImage" "linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
-          export QMAKE="$(command -v qmake6)"
+          QMAKE="$(command -v qmake6)"
+          export QMAKE
           "./linuxdeploy-${DEPLOY_ARCH}.AppImage" --appdir ${{github.workspace}}/build/AppDir --plugin qt --output appimage
           rm "./linuxdeploy-${DEPLOY_ARCH}.AppImage" "./linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
           mv -v ${{github.workspace}}/*.AppImage "${{github.workspace}}/bpmdetect-${{matrix.build-type}}-${DEPLOY_ARCH}.AppImage"
