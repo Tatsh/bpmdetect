@@ -34,6 +34,7 @@ set(BUNDLE_INSTALL_PREFIX
 relative to CMAKE_INSTALL_PREFIX.")
 option(I18N "Enable i18n support." OFF)
 option(ENABLE_DESKTOP_PORTAL "Build with support for desktop portal (Flatpak)." OFF)
+option(BUILD_PLUGIN "Build the DAW plugin (CLAP, LV2, and VST3)." OFF)
 
 if(NOT APPLE)
   set(NON_PORTABLE_MACOS_BUNDLE
@@ -111,6 +112,9 @@ if(NOT BUILD_DOCS_ONLY)
   endif()
 
   add_subdirectory(src)
+  if(BUILD_PLUGIN)
+    add_subdirectory(plugin)
+  endif()
   if(BUILD_TESTS)
     find_package(Qt6Test CONFIG REQUIRED)
     enable_testing()
