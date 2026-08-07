@@ -15,6 +15,7 @@ avformat
 avio
 avmedia
 bindir
+bitwig
 bluray
 bpmd
 bpmdetect
@@ -186,6 +187,7 @@ qtcore
 qtest
 qtgui
 qtmultimedia
+qtractor
 qtwidgets
 qverify
 rect
