@@ -48,7 +48,8 @@ endif()
 
 if(PLUGIN_STATIC_SOUNDTOUCH)
   # Build SoundTouch from source as a position-independent static library so the plugin bundles
-  # do not depend on a system SoundTouch. The pinned commit is the 2.4.1 tag.
+  # do not depend on a system SoundTouch. The archive of the 2.4.1 tag is pinned by content hash;
+  # a tarball download is far less prone to transient failures than a git clone.
   set(BUILD_SHARED_LIBS OFF)
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   set(SOUNDSTRETCH
@@ -56,8 +57,8 @@ if(PLUGIN_STATIC_SOUNDTOUCH)
       CACHE BOOL "Build soundstretch command line utility." FORCE)
   FetchContent_Declare(
     soundtouch
-    GIT_REPOSITORY https://codeberg.org/soundtouch/soundtouch.git
-    GIT_TAG b5d0e9ba61871ef135e67bebe3228136da4e8833)
+    URL https://codeberg.org/soundtouch/soundtouch/archive/2.4.1.tar.gz
+    URL_HASH SHA256=35d404e6e8c2ebd12fb4000da6fadd75c99e37eed2126a04721828c11c0377ec)
   FetchContent_MakeAvailable(soundtouch)
 elseif(NOT TARGET PkgConfig::SOUNDTOUCH)
   pkg_check_modules(SOUNDTOUCH soundtouch REQUIRED IMPORTED_TARGET)
