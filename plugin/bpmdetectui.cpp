@@ -44,7 +44,14 @@ void openProjectPage() {
 }
 } // namespace
 
-BpmDetectUi::BpmDetectUi() : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true) {
+BpmDetectUi::BpmDetectUi() : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT) {
+    const auto scaleFactor = getScaleFactor();
+    if (scaleFactor != 1.0) {
+        setSize(static_cast<uint>(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor),
+                static_cast<uint>(DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor));
+    }
+    setGeometryConstraints(static_cast<uint>(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor / 2),
+                           static_cast<uint>(DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor / 2));
     loadSharedResources();
 }
 
