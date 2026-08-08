@@ -176,7 +176,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y extra-cmake-modules gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good lcov libavcodec-dev libavformat-dev libavutil-dev libgstreamer-plugins-bad1.0-0 libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 libsoundtouch-dev tree
+          sudo apt-get install -y extra-cmake-modules gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good lcov libavcodec-dev libavformat-dev libavutil-dev libgl1-mesa-dev libgstreamer-plugins-bad1.0-0 libgstreamer-plugins-base1.0-0 libgstreamer1.0-0 libsoundtouch-dev libx11-dev libxcursor-dev libxext-dev libxrandr-dev tree
       - name: Install Qt
         uses: Tatsh/install-qt-action@c06aab43ae9bf6a28175c9cf45dd5936d44e21e9
         with:
