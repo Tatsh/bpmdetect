@@ -152,6 +152,7 @@ msystem
 mypy
 nanovg
 ndebug
+nogdi
 noncommercially
 normaloff
 nsis
