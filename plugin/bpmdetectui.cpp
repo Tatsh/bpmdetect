@@ -19,14 +19,7 @@ const Color kColorControl(0.20f, 0.22f, 0.26f);
 const Color kColorSliderFill(0.35f, 0.55f, 0.85f);
 } // namespace
 
-BpmDetectUi::BpmDetectUi() : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT) {
-    const auto scaleFactor = getScaleFactor();
-    if (scaleFactor != 1.0) {
-        setSize(static_cast<uint>(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor),
-                static_cast<uint>(DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor));
-    }
-    setGeometryConstraints(static_cast<uint>(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor / 2),
-                           static_cast<uint>(DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor / 2));
+BpmDetectUi::BpmDetectUi() : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true) {
     loadSharedResources();
 }
 
