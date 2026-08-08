@@ -4,6 +4,9 @@
 #include <cstdlib>
 
 #ifdef _WIN32
+// GDI declares a global Rectangle function that would make DGL's Rectangle template ambiguous.
+#define NOGDI
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include <shellapi.h>
