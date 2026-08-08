@@ -25,7 +25,7 @@ protected:
     void parameterChanged(uint32_t index, float value) override;
     /** Draws the readout, the tempo range sliders, and the reset button. */
     void onNanoDisplay() override;
-    /** Starts slider drags and fires the 'Reset' trigger. */
+    /** Starts slider drags, fires the 'Reset' trigger, and opens the project page. */
     bool onMouse(const MouseEvent &event) override;
     /** Updates the dragged slider. */
     bool onMotion(const MotionEvent &event) override;
@@ -33,6 +33,8 @@ protected:
 private:
     // Bounds of the reset button for the current window size.
     Rectangle<float> resetButtonBounds() const;
+    // Bounds of the project page link for the current window size.
+    Rectangle<float> linkBounds() const;
     // Bounds of a slider track. The index must be kParameterMinimumBpm or kParameterMaximumBpm.
     Rectangle<float> sliderTrackBounds(uint32_t index) const;
     // Applies a horizontal position within a slider track as the parameter value.

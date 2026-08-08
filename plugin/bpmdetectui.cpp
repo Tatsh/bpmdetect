@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
+
+#ifdef _WIN32
+#include <windows.h>
+
+#include <shellapi.h>
+#endif
 
 #include "bpmdetectui.h"
 
@@ -17,6 +24,21 @@ const Color kColorSecondary(0.55f, 0.60f, 0.66f);
 const Color kColorControl(0.20f, 0.22f, 0.26f);
 /** Fill colour of the active part of a slider. */
 const Color kColorSliderFill(0.35f, 0.55f, 0.85f);
+/** Colour of the project page link. */
+const Color kColorLink(0.45f, 0.62f, 0.85f);
+/** Address of the project page, shown at the bottom left. */
+constexpr const char *kProjectUrl = "https://github.com/Tatsh/bpmdetect";
+
+/** Opens the project page in the default browser. */
+void openProjectPage() {
+#if defined(_WIN32)
+    ShellExecuteA(nullptr, "open", kProjectUrl, nullptr, nullptr, SW_SHOWNORMAL);
+#elif defined(__APPLE__)
+    std::system("open https://github.com/Tatsh/bpmdetect");
+#else
+    std::system("xdg-open https://github.com/Tatsh/bpmdetect &");
+#endif
+}
 } // namespace
 
 BpmDetectUi::BpmDetectUi() : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true) {
@@ -44,6 +66,12 @@ Rectangle<float> BpmDetectUi::resetButtonBounds() const {
     const auto width = static_cast<float>(getWidth());
     const auto height = static_cast<float>(getHeight());
     return {width * 0.76f, height * 0.83f, width * 0.19f, height * 0.11f};
+}
+
+Rectangle<float> BpmDetectUi::linkBounds() const {
+    const auto width = static_cast<float>(getWidth());
+    const auto height = static_cast<float>(getHeight());
+    return {width * 0.03f, height * 0.83f, width * 0.70f, height * 0.11f};
 }
 
 Rectangle<float> BpmDetectUi::sliderTrackBounds(uint32_t index) const {
@@ -128,6 +156,12 @@ void BpmDetectUi::onNanoDisplay() {
     drawSlider(kParameterMinimumBpm, "Min", minimumBpm_);
     drawSlider(kParameterMaximumBpm, "Max", maximumBpm_);
 
+    const auto link = linkBounds();
+    fontSize(height * 0.06f);
+    fillColor(kColorLink);
+    textAlign(ALIGN_LEFT | ALIGN_MIDDLE);
+    text(link.getX() + width * 0.01f, link.getY() + link.getHeight() / 2, kProjectUrl, nullptr);
+
     const auto button = resetButtonBounds();
     beginPath();
     roundedRect(button.getX(), button.getY(), button.getWidth(), button.getHeight(), 3.f);
@@ -150,6 +184,10 @@ bool BpmDetectUi::onMouse(const MouseEvent &event) {
             editParameter(kParameterReset, true);
             setParameterValue(kParameterReset, 1.f);
             editParameter(kParameterReset, false);
+            return true;
+        }
+        if (linkBounds().contains(x, y)) {
+            openProjectPage();
             return true;
         }
         for (const auto index : {kParameterMinimumBpm, kParameterMaximumBpm}) {
