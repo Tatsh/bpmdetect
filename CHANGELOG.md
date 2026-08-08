@@ -16,10 +16,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - The result is exposed as a read-only 'Detected BPM' parameter, folded into the range set by the
     'Minimum BPM' and 'Maximum BPM' parameters. A 'Reset' trigger discards the analysis so far and
     starts again.
+  - The plugin has its own UI showing the current estimate as a large readout with a reset button,
+    for hosts whose generic plugin UIs do not display output parameters.
   - Build it with the CMake option `BUILD_PLUGIN=ON`, or on its own from the `plugin/` directory.
     `USE_SYSTEM_DPF=ON` uses a DPF tree already present on the system instead of downloading one,
     and `PLUGIN_STATIC_SOUNDTOUCH=ON` links SoundTouch statically.
-  - Releases now include plugin bundles for Linux x86_64 and aarch64.
+  - Releases include plugin bundles for Linux x86_64 and aarch64, Windows x64 and ARM64, and macOS
+    universal.
 
 ## [0.8.11] - 2026-05-02
 

@@ -66,7 +66,18 @@ endif()
 dpf_add_plugin(
   bpmdetect-plugin
   TARGETS clap lv2 vst3
-  FILES_DSP bpmdetectplugin.cpp sampleringbuffer.cpp)
+  FILES_DSP bpmdetectplugin.cpp sampleringbuffer.cpp
+  FILES_UI bpmdetectui.cpp)
+
+# DPF's CMake glue force-enables its web view support, whose implementation does not compile
+# without GNU extensions. The UI does not use a web view, so strip the definition.
+foreach(property COMPILE_DEFINITIONS INTERFACE_COMPILE_DEFINITIONS)
+  get_target_property(dglDefinitions dgl-opengl "${property}")
+  if(dglDefinitions)
+    list(REMOVE_ITEM dglDefinitions DGL_USE_WEB_VIEW)
+    set_target_properties(dgl-opengl PROPERTIES "${property}" "${dglDefinitions}")
+  endif()
+endforeach()
 target_include_directories(bpmdetect-plugin PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 if(PLUGIN_STATIC_SOUNDTOUCH)
   target_include_directories(bpmdetect-plugin PUBLIC "${soundtouch_SOURCE_DIR}/include")
