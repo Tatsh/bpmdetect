@@ -70,7 +70,9 @@ jobs:
       - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884
         with:
           install: >-
+            git
             make
+            zip
           msystem: ${{matrix.sys.name}}
           pacboy: >-
             cmake:p
@@ -95,9 +97,11 @@ jobs:
         run: >-
           cmake -G Ninja -B ${OUT}/build
           --install-prefix ${OUT}/build/prefix
+          -DBUILD_PLUGIN=${{ matrix.sys.release && 'ON' || 'OFF' }}
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
           -DCPACK_SYSTEM_NAME=${{matrix.sys.cpack_system}}
           -DFHS=OFF
+          -DPLUGIN_STATIC_SOUNDTOUCH=ON
         shell: msys2 {0}
       - env:
           OUT: ${{ steps.fixed_workspace.outputs.out }}
@@ -118,6 +122,21 @@ jobs:
           cpack -C ${{matrix.build-type}}
           --config ${OUT}/build/CPackConfig.cmake --verbose
         shell: msys2 {0}
+      - if: ${{ matrix.sys.release && matrix.build-type == 'Release' }}
+        name: Package plugin
+        run: >-
+          cd build/bin &&
+          zip -r ../../bpmdetect-plugin-Release-${{matrix.sys.cpack_system}}.zip
+          bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
+        shell: msys2 {0}
+      - env:
+          TAG: ${{ github.ref_name }}
+        if: ${{ github.ref_type == 'tag' && matrix.sys.release && matrix.build-type == 'Release' }}
+        name: Rename plugin with tag
+        run: >-
+          mv -v bpmdetect-plugin-Release-${{matrix.sys.cpack_system}}.zip
+          bpmdetect-plugin-${TAG}-${{matrix.sys.cpack_system}}.zip
+        shell: msys2 {0}
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
@@ -126,6 +145,17 @@ jobs:
           path: |
             ${{github.workspace}}/bpmdetect-*.exe
             ${{github.workspace}}/bpmdetect-*.zip
+            !${{github.workspace}}/bpmdetect-plugin-*.zip
+      - if: ${{ matrix.sys.release }}
+        name: 'Upload plugin artifacts'
+        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        with:
+          if-no-files-found: error
+          name: bpmdetect-plugin-${{ matrix.build-type }}-${{ matrix.sys.cpack_system }}
+          path: |
+            ${{github.workspace}}/build/bin/bpmdetect-plugin.clap
+            ${{github.workspace}}/build/bin/bpmdetect-plugin.lv2
+            ${{github.workspace}}/build/bin/bpmdetect-plugin.vst3
       - name: Attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
@@ -322,82 +352,6 @@ jobs:
         run: |
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
           gh release upload "$TAG" --clobber bpmdetect-plugin-*.zip
-  build-plugin-msys:
-    permissions:
-      attestations: write
-      contents: write
-      id-token: write
-    runs-on: ${{ matrix.sys.runner }}
-    steps:
-      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884
-        with:
-          install: >-
-            git
-            make
-            zip
-          msystem: ${{matrix.sys.name}}
-          pacboy: >-
-            cmake:p
-            ninja:p
-            toolchain:p
-          update: true
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Build
-        run: |
-          cmake -G Ninja -S plugin -B build-plugin -DCMAKE_BUILD_TYPE=Release \
-            -DPLUGIN_STATIC_SOUNDTOUCH=ON
-          cmake --build build-plugin --verbose
-        shell: msys2 {0}
-      - name: Package plugin
-        run: >-
-          cd build-plugin/bin &&
-          zip -r ../../bpmdetect-plugin-Release-${{matrix.sys.suffix}}.zip
-          bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
-        shell: msys2 {0}
-      - env:
-          TAG: ${{ github.ref_name }}
-        if: ${{ github.ref_type == 'tag' }}
-        name: Rename with tag
-        run: >-
-          mv -v bpmdetect-plugin-Release-${{matrix.sys.suffix}}.zip
-          bpmdetect-plugin-${TAG}-${{matrix.sys.suffix}}.zip
-        shell: msys2 {0}
-      - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
-        with:
-          if-no-files-found: error
-          name: bpmdetect-plugin-Release-${{ matrix.sys.suffix }}
-          path: |
-            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.clap
-            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.lv2
-            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.vst3
-      - name: Attest
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
-        with:
-          subject-path: ${{github.workspace}}/bpmdetect-plugin-*.zip
-      - env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
-        if: ${{ github.ref_type == 'tag' }}
-        name: Upload package
-        run: |
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --notes '' --title "$TAG" --verify-tag || true
-          gh release upload "$TAG" --clobber bpmdetect-plugin-*.zip
-        shell: bash
-    strategy:
-      fail-fast: false
-      matrix:
-        sys:
-          - name: ucrt64
-            runner: windows-latest
-            suffix: win64
-          - name: clangarm64
-            runner: windows-11-arm
-            suffix: winarm64
 name: Build
 'on':
   push:
