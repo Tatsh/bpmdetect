@@ -237,8 +237,11 @@ jobs:
         uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
           if-no-files-found: error
-          name: bpmdetect-plugin-${{ matrix.build-type }}-${{ matrix.arch.deploy_arch }}
-          path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+          name: bpmdetect-plugin-${{ matrix.build-type }}-Linux-${{ matrix.arch.deploy_arch }}
+          path: |
+            ${{github.workspace}}/build/bin/bpmdetect-plugin.clap
+            ${{github.workspace}}/build/bin/bpmdetect-plugin.lv2
+            ${{github.workspace}}/build/bin/bpmdetect-plugin.vst3
       - name: Attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
@@ -302,7 +305,10 @@ jobs:
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-Release-macos-universal
-          path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+          path: |
+            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.clap
+            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.lv2
+            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.vst3
       - name: Attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
@@ -364,7 +370,10 @@ jobs:
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-Release-${{ matrix.sys.suffix }}
-          path: ${{github.workspace}}/bpmdetect-plugin-*.zip
+          path: |
+            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.clap
+            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.lv2
+            ${{github.workspace}}/build-plugin/bin/bpmdetect-plugin.vst3
       - name: Attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
         with:
