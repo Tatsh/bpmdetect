@@ -20,6 +20,7 @@ bluray
 bpmd
 bpmdetect
 bpmdetectplugin
+bpmdetectui
 bpmtype
 bsky
 bugtracker
@@ -117,6 +118,7 @@ libcjson
 libdeflate
 libera
 libexec
+libgl
 libgme
 libgsm
 libgstreamer
@@ -133,6 +135,10 @@ libsrt
 libssh
 libtheora
 libva
+libx
+libxcursor
+libxext
+libxrandr
 libzvbi
 linuxdeploy
 lzma
@@ -144,6 +150,7 @@ modplug
 msys
 msystem
 mypy
+nanovg
 ndebug
 noncommercially
 normaloff
