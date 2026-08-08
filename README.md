@@ -70,9 +70,11 @@ Translation support has been added but there are currently no translations. This
 ## DAW plugin
 
 A tempo analyser plugin is available in CLAP, LV2, and VST3 formats. Drop it on a track and it
-reports the detected tempo through a read-only _Detected BPM_ parameter, which most hosts display
-in their generic plugin UI (Ardour and Qtractor show LV2 output ports directly; Bitwig, REAPER,
-and FL Studio display read-only CLAP parameters). Audio passes through unmodified. The _Minimum
+reports the detected tempo through a read-only _Detected BPM_ parameter and in its own UI, which
+shows the current estimate as a large readout with a reset button. The UI matters in hosts such as
+Qtractor whose generic plugin UIs do not display output parameters; many others (Ardour, Audacity,
+Bitwig, Carla, and REAPER) also show the parameter directly. Audio passes through unmodified. The
+_Minimum
 BPM_ and _Maximum BPM_ parameters control the octave folding of the raw estimate, and the _Reset_
 trigger discards the analysis so far. The estimate updates about once per second and needs a few
 seconds of audio to settle.
