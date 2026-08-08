@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+#include <algorithm>
 #include <cstdio>
 
 #include "bpmdetectui.h"
@@ -12,8 +13,10 @@ const Color kColorBackground(0.10f, 0.11f, 0.13f);
 const Color kColorReadout(0.92f, 0.95f, 1.f);
 /** Colour of secondary text. */
 const Color kColorSecondary(0.55f, 0.60f, 0.66f);
-/** Fill colour of the reset button. */
-const Color kColorButton(0.20f, 0.22f, 0.26f);
+/** Fill colour of the reset button and slider tracks. */
+const Color kColorControl(0.20f, 0.22f, 0.26f);
+/** Fill colour of the active part of a slider. */
+const Color kColorSliderFill(0.35f, 0.55f, 0.85f);
 } // namespace
 
 BpmDetectUi::BpmDetectUi() : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT) {
@@ -47,7 +50,60 @@ void BpmDetectUi::parameterChanged(uint32_t index, float value) {
 Rectangle<float> BpmDetectUi::resetButtonBounds() const {
     const auto width = static_cast<float>(getWidth());
     const auto height = static_cast<float>(getHeight());
-    return {width - width * 0.26f, height - height * 0.20f, width * 0.22f, height * 0.14f};
+    return {width * 0.76f, height * 0.83f, width * 0.19f, height * 0.11f};
+}
+
+Rectangle<float> BpmDetectUi::sliderTrackBounds(uint32_t index) const {
+    const auto width = static_cast<float>(getWidth());
+    const auto height = static_cast<float>(getHeight());
+    const auto y = index == kParameterMinimumBpm ? height * 0.56f : height * 0.70f;
+    return {width * 0.16f, y, width * 0.62f, height * 0.08f};
+}
+
+void BpmDetectUi::applySliderPosition(uint32_t index, float x) {
+    const auto track = sliderTrackBounds(index);
+    const auto position = std::clamp((x - track.getX()) / track.getWidth(), 0.f, 1.f);
+    const auto value = kBpmRangeLowerLimit + position * (kBpmRangeUpperLimit - kBpmRangeLowerLimit);
+    if (index == kParameterMinimumBpm) {
+        minimumBpm_ = value;
+    } else {
+        maximumBpm_ = value;
+    }
+    setParameterValue(index, value);
+    repaint();
+}
+
+void BpmDetectUi::drawSlider(uint32_t index, const char *label, float value) {
+    const auto track = sliderTrackBounds(index);
+    const auto height = static_cast<float>(getHeight());
+    const auto textY = track.getY() + track.getHeight() / 2;
+
+    fontSize(height * 0.09f);
+    fillColor(kColorSecondary);
+    textAlign(ALIGN_LEFT | ALIGN_MIDDLE);
+    text(static_cast<float>(getWidth()) * 0.04f, textY, label, nullptr);
+
+    beginPath();
+    roundedRect(track.getX(), track.getY(), track.getWidth(), track.getHeight(), 3.f);
+    fillColor(kColorControl);
+    fill();
+
+    const auto position =
+        (value - kBpmRangeLowerLimit) / (kBpmRangeUpperLimit - kBpmRangeLowerLimit);
+    beginPath();
+    roundedRect(track.getX(),
+                track.getY(),
+                track.getWidth() * std::clamp(position, 0.f, 1.f),
+                track.getHeight(),
+                3.f);
+    fillColor(kColorSliderFill);
+    fill();
+
+    char valueText[16];
+    std::snprintf(valueText, sizeof valueText, "%.0f", static_cast<double>(value));
+    fillColor(kColorReadout);
+    textAlign(ALIGN_RIGHT | ALIGN_MIDDLE);
+    text(static_cast<float>(getWidth()) * 0.96f, textY, valueText, nullptr);
 }
 
 void BpmDetectUi::onNanoDisplay() {
@@ -60,11 +116,11 @@ void BpmDetectUi::onNanoDisplay() {
     fill();
 
     fontFaceId(0);
-    textAlign(ALIGN_CENTER | ALIGN_MIDDLE);
 
-    fontSize(height * 0.12f);
+    fontSize(height * 0.09f);
     fillColor(kColorSecondary);
-    text(width / 2, height * 0.14f, "Detected BPM", nullptr);
+    textAlign(ALIGN_CENTER | ALIGN_MIDDLE);
+    text(width / 2, height * 0.10f, "Detected BPM", nullptr);
 
     char readout[16];
     if (detectedBpm_ > 0.f) {
@@ -72,27 +128,19 @@ void BpmDetectUi::onNanoDisplay() {
     } else {
         std::snprintf(readout, sizeof readout, "--");
     }
-    fontSize(height * 0.38f);
+    fontSize(height * 0.27f);
     fillColor(kColorReadout);
-    text(width / 2, height * 0.48f, readout, nullptr);
+    text(width / 2, height * 0.33f, readout, nullptr);
 
-    char range[32];
-    std::snprintf(range,
-                  sizeof range,
-                  "Range %.0f-%.0f",
-                  static_cast<double>(minimumBpm_),
-                  static_cast<double>(maximumBpm_));
-    fontSize(height * 0.11f);
-    fillColor(kColorSecondary);
-    textAlign(ALIGN_LEFT | ALIGN_MIDDLE);
-    text(width * 0.05f, height * 0.87f, range, nullptr);
+    drawSlider(kParameterMinimumBpm, "Min", minimumBpm_);
+    drawSlider(kParameterMaximumBpm, "Max", maximumBpm_);
 
     const auto button = resetButtonBounds();
     beginPath();
     roundedRect(button.getX(), button.getY(), button.getWidth(), button.getHeight(), 3.f);
-    fillColor(kColorButton);
+    fillColor(kColorControl);
     fill();
-    fontSize(height * 0.11f);
+    fontSize(height * 0.08f);
     fillColor(kColorReadout);
     textAlign(ALIGN_CENTER | ALIGN_MIDDLE);
     text(button.getX() + button.getWidth() / 2,
@@ -102,15 +150,41 @@ void BpmDetectUi::onNanoDisplay() {
 }
 
 bool BpmDetectUi::onMouse(const MouseEvent &event) {
-    if (event.press && event.button == 1 &&
-        resetButtonBounds().contains(static_cast<float>(event.pos.getX()),
-                                     static_cast<float>(event.pos.getY()))) {
-        editParameter(kParameterReset, true);
-        setParameterValue(kParameterReset, 1.f);
-        editParameter(kParameterReset, false);
+    const auto x = static_cast<float>(event.pos.getX());
+    const auto y = static_cast<float>(event.pos.getY());
+    if (event.press && event.button == 1) {
+        if (resetButtonBounds().contains(x, y)) {
+            editParameter(kParameterReset, true);
+            setParameterValue(kParameterReset, 1.f);
+            editParameter(kParameterReset, false);
+            return true;
+        }
+        for (const auto index : {kParameterMinimumBpm, kParameterMaximumBpm}) {
+            auto track = sliderTrackBounds(index);
+            // Give the track a little more vertical grab area.
+            track.setY(track.getY() - track.getHeight() / 2);
+            track.setHeight(track.getHeight() * 2);
+            if (track.contains(x, y)) {
+                draggedParameter_ = index;
+                editParameter(index, true);
+                applySliderPosition(index, x);
+                return true;
+            }
+        }
+    } else if (!event.press && draggedParameter_ != kParameterCount) {
+        editParameter(draggedParameter_, false);
+        draggedParameter_ = kParameterCount;
         return true;
     }
     return UI::onMouse(event);
+}
+
+bool BpmDetectUi::onMotion(const MotionEvent &event) {
+    if (draggedParameter_ != kParameterCount) {
+        applySliderPosition(draggedParameter_, static_cast<float>(event.pos.getX()));
+        return true;
+    }
+    return UI::onMotion(event);
 }
 
 /** Factory function required by DPF. */
