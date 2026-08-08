@@ -69,8 +69,9 @@ dpf_add_plugin(
   FILES_DSP bpmdetectplugin.cpp sampleringbuffer.cpp
   FILES_UI bpmdetectui.cpp)
 
-# DPF's CMake glue force-enables its web view support, whose implementation does not compile
-# without GNU extensions. The UI does not use a web view, so strip the definition.
+# DPF's CMake glue force-enables its web view support, which does not compile without GNU
+# extensions and whose Windows implementation does not compile with Clang on ARM64. The UI does
+# not use a web view, so strip the definition and the web view sources.
 foreach(property COMPILE_DEFINITIONS INTERFACE_COMPILE_DEFINITIONS)
   get_target_property(dglDefinitions dgl-opengl "${property}")
   if(dglDefinitions)
@@ -78,6 +79,16 @@ foreach(property COMPILE_DEFINITIONS INTERFACE_COMPILE_DEFINITIONS)
     set_target_properties(dgl-opengl PROPERTIES "${property}" "${dglDefinitions}")
   endif()
 endforeach()
+get_target_property(dglSources dgl-opengl SOURCES)
+list(FILTER dglSources EXCLUDE REGEX "WebView")
+set_target_properties(dgl-opengl PROPERTIES SOURCES "${dglSources}")
+
+# DPF links OpenGL through a find module variable that is empty when another OpenGL discovery ran
+# first, which the application's Qt configuration does. Link the imported target explicitly.
+if(UNIX AND NOT APPLE)
+  find_package(OpenGL REQUIRED)
+  target_link_libraries(bpmdetect-plugin PUBLIC OpenGL::GL)
+endif()
 target_include_directories(bpmdetect-plugin PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 if(PLUGIN_STATIC_SOUNDTOUCH)
   target_include_directories(bpmdetect-plugin PUBLIC "${soundtouch_SOURCE_DIR}/include")
