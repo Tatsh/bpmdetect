@@ -56,7 +56,15 @@ jobs:
           for workflow in Build Flatpak Prettier Snap Spelling Tests clang-format markdownlint; do
             run=$(gh run list --workflow "$workflow" --commit "$sha" --json status,conclusion --jq '.[0]')
             if [[ -z "$run" || "$run" == 'null' ]]; then
-              echo "Workflow '$workflow' did not run for this commit; treating as optional."
+              case " Build Flatpak Snap " in
+                *" $workflow "*)
+                  echo "Workflow '$workflow' has not run for this commit yet; it builds release assets."
+                  all_success=false
+                  ;;
+                *)
+                  echo "Workflow '$workflow' did not run for this commit; treating as optional."
+                  ;;
+              esac
               continue
             fi
             status=$(echo "$run" | jq -r '.status')
@@ -85,6 +93,62 @@ jobs:
           echo "All required workflows succeeded for ${tag}."
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "ready=true" >> "$GITHUB_OUTPUT"
+      - env:
+          GH_TOKEN: '${{ github.token }}'
+          REPO: '${{ github.repository }}'
+          TAG: '${{ steps.check.outputs.tag }}'
+        if: "steps.check.outputs.ready == 'true'"
+        name: 'Verify every expected asset is attached'
+        run: |
+          version="${TAG#v}"
+          required=(
+            "bpmdetect-${TAG}-aarch64.AppImage"
+            "bpmdetect-${TAG}-x86_64.AppImage"
+            "bpmdetect-plugin-${TAG}-aarch64.zip"
+            "bpmdetect-plugin-${TAG}-macos-universal.zip"
+            "bpmdetect-plugin-${TAG}-win64.zip"
+            "bpmdetect-plugin-${TAG}-winarm64.zip"
+            "bpmdetect-plugin-${TAG}-x86_64.zip"
+            "bpmdetect-${version}-Darwin-*-Debug.dmg"
+            "bpmdetect-${version}-Darwin-*-Debug.zip"
+            "bpmdetect-${version}-Darwin-*-Release.dmg"
+            "bpmdetect-${version}-Darwin-*-Release.zip"
+            "bpmdetect-${version}-win64-Debug.exe"
+            "bpmdetect-${version}-win64-Debug.zip"
+            "bpmdetect-${version}-win64-Release.exe"
+            "bpmdetect-${version}-win64-Release.zip"
+            "bpmdetect-${version}-winarm64-Debug.exe"
+            "bpmdetect-${version}-winarm64-Debug.zip"
+            "bpmdetect-${version}-winarm64-Release.exe"
+            "bpmdetect-${version}-winarm64-Release.zip"
+            "bpmdetect_${version}_amd64.snap"
+            "bpmdetect_${version}_arm64.snap"
+            "sh.tat.bpmdetect-${version}-aarch64.flatpak"
+            "sh.tat.bpmdetect-${version}-x86_64.flatpak"
+          )
+          mapfile -t attached < <(gh release view "$TAG" --repo "$REPO" --json assets \
+            --jq '.assets[].name')
+          echo "Release ${TAG} has ${#attached[@]} asset(s) attached."
+          missing=0
+          for pattern in "${required[@]}"; do
+            found=''
+            for asset in "${attached[@]}"; do
+              # shellcheck disable=SC2053
+              if [[ "$asset" == $pattern ]]; then
+                found="$asset"
+                break
+              fi
+            done
+            if [[ -z "$found" ]]; then
+              echo "::error::Release ${TAG} has no asset matching '${pattern}'."
+              missing=$((missing + 1))
+            fi
+          done
+          if [[ "$missing" -gt 0 ]]; then
+            echo "::error::${missing} expected asset(s) missing; ${TAG} stays a draft."
+            exit 1
+          fi
+          echo 'Every expected asset is attached.'
       - env:
           GH_TOKEN: '${{ github.token }}'
           TAG: '${{ steps.check.outputs.tag }}'
