@@ -1,6 +1,5 @@
 abstractbpmdetector
 aclocal
-Ångström
 apos
 appdir
 appimage
@@ -34,7 +33,6 @@ commitizen
 consolemain
 consolemaintest
 contrib
-cooldown
 coveragerc
 coverallsapp
 cpack
@@ -101,7 +99,6 @@ jbig
 jinja
 jsonnet
 jsonschema
-jurplel
 kissfft
 launchable
 layoutdefault
@@ -143,6 +140,7 @@ libzvbi
 linuxdeploy
 lzma
 mainpage
+mapfile
 mdfile
 metainfo
 mktemp
@@ -207,6 +205,7 @@ rtmp
 sakmar
 sampleringbuffer
 sampletype
+sbclaude
 schemafile
 sharpyuv
 shctx
@@ -216,7 +215,6 @@ shlib
 sizepolicy
 snapcore
 snapcraft
-softprops
 soundstretch
 soundtouch
 soundtouchbpmdetector
@@ -268,3 +266,4 @@ xvidcore
 yarnrc
 zizmor
 zvbi
+Ångström

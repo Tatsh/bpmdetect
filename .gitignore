@@ -44,3 +44,5 @@
 /session-recover.yaml
 /vcpkg_installed/
 node_modules/
+
+/.sbclaude-venv/

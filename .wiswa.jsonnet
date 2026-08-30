@@ -47,7 +47,7 @@ local utils = import 'utils.libsonnet';
   want_main: false,
   want_codeql: false,
   want_tests: false,
-  cmake_format_args: 'plugin/*.cpp plugin/*.h src/*.cpp src/*.h',
+  clang_format_args: 'plugin/*.cpp plugin/*.h src/*.cpp src/*.h',
   package_json+: {
     cspell+: {
       ignorePaths+: [
@@ -155,17 +155,17 @@ local utils = import 'utils.libsonnet';
     dependencies: [
       {
         name: 'ecm',
-        'version>=': '6.28.0',
+        'version>=': utils.latestVcpkgPortVersion('ecm'),
       },
       {
         features: ['network', 'widgets'],
         name: 'qtbase',
-        'version>=': '6.11.1#1',
+        'version>=': utils.latestVcpkgPortVersion('qtbase'),
       },
       {
         features: [{ name: 'ffmpeg', platform: 'linux' }],
         name: 'qtmultimedia',
-        'version>=': '6.11.1',
+        'version>=': utils.latestVcpkgPortVersion('qtmultimedia'),
       },
       'ffmpeg',
       'soundtouch',
@@ -175,6 +175,13 @@ local utils = import 'utils.libsonnet';
     publish_winget: {
       identifier: 'Tatsh.BPMDetect',
       max_versions_to_keep: 1,
+    },
+    zizmor+: {
+      rules+: {
+        'dangerous-triggers'+: {
+          ignore: std.sort(super.ignore + ['publish-gentoo-ebuild.yml', 'publish-msys2.yml']),
+        },
+      },
     },
   },
 }
