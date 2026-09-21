@@ -99,6 +99,7 @@ jbig
 jinja
 jsonnet
 jsonschema
+jurplel
 kissfft
 launchable
 layoutdefault

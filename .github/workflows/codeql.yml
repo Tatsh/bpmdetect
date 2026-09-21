@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules libavcodec-dev libavformat-dev libavutil-dev libsoundtouch-dev
       - name: Install Qt
-        uses: Tatsh/install-qt-action@c06aab43ae9bf6a28175c9cf45dd5936d44e21e9
+        uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125
         with:
           modules: qtmultimedia
       - name: Initialize CodeQL
