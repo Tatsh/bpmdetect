@@ -10,7 +10,7 @@
         "widgets"
       ],
       "name": "qtbase",
-      "version>=": "6.11.1#2"
+      "version>=": "6.11.1#3"
     },
     {
       "features": [
