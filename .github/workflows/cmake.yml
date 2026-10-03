@@ -117,6 +117,40 @@ jobs:
         shell: msys2 {0}
       - env:
           OUT: ${{ steps.fixed_workspace.outputs.out }}
+        if: matrix.build-type == 'Release'
+        name: Check for debug runtime linkage
+        run: |
+          $markers = @(
+            'VCRUNTIME140D',
+            'MSVCP140D',
+            'VCOMP140D',
+            'CONCRT140D',
+            'VCCORLIB140D',
+            'ucrtbased',
+            'MSVCRTD',
+            'MSVCPRTD'
+          )
+          $failed = $false
+          $paths = @("$env:OUT/build/prefix")
+          if (Test-Path "$env:OUT/build/bin") {
+            $paths += "$env:OUT/build/bin"
+          }
+          $files = Get-ChildItem $paths -File -Recurse -Include *.clap, *.dll, *.exe, *.vst3
+          foreach ($file in $files) {
+            $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
+            $text = [System.Text.Encoding]::ASCII.GetString($bytes)
+            foreach ($marker in $markers) {
+              if ($text.Contains($marker)) {
+                Write-Host "::error::$($file.Name) references debug runtime $marker."
+                $failed = $true
+              }
+            }
+          }
+          if ($failed) {
+            exit 1
+          }
+      - env:
+          OUT: ${{ steps.fixed_workspace.outputs.out }}
         name: Package
         run: >-
           cpack -C ${{matrix.build-type}}

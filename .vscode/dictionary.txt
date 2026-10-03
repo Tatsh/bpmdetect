@@ -30,6 +30,7 @@ clangarm
 codecpar
 color
 commitizen
+concrt
 consolemain
 consolemaintest
 contrib
@@ -146,6 +147,9 @@ mdfile
 metainfo
 mktemp
 modplug
+msvcp
+msvcprtd
+msvcrtd
 msys
 msystem
 mypy
@@ -242,11 +246,15 @@ tracktest
 trofimovich
 ttsh
 ucrt
+ucrtbased
 udvare
 undraft
 undrafted
 unistring
 utilstest
+vccorlib
+vcomp
+vcruntime
 vedantmgoyal
 vendored
 venv
