@@ -153,9 +153,11 @@ nanovg
 ndebug
 nogdi
 noncommercially
+noone
 normaloff
 nsis
 nullptr
+numpydoc
 offscreen
 oformat
 oneline
@@ -206,7 +208,6 @@ rtmp
 sakmar
 sampleringbuffer
 sampletype
-sbclaude
 schemafile
 sharpyuv
 shctx
@@ -255,12 +256,12 @@ vorbisenc
 vsizetype
 webp
 webpmux
+werror
 weverything
 winarm
 winget
 wiswa
 wiswa's
-worktree
 wswitch
 wunsafe
 xvidcore
