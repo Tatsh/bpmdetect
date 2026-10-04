@@ -214,6 +214,7 @@ rtmp
 sakmar
 sampleringbuffer
 sampletype
+sbclaude
 schemafile
 sharpyuv
 shctx
