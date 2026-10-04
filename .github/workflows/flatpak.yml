@@ -1,19 +1,30 @@
+concurrency:
+  cancel-in-progress: false
+  group: '${{ github.workflow }}-${{ github.ref }}'
+  queue: 'max'
 jobs:
   build:
     container:
-      image: 'ghcr.io/flathub-infra/flatpak-github-actions:kde-6.9'
+      image: 'ghcr.io/flathub-infra/flatpak-github-actions:kde-6.9@sha256:da914fcb8e6dc77aa33c04b9507143717d3cd74c05d907780abe1090c0d4e54a'
       options: '--privileged'
+    name: 'Build'
+    permissions:
+      attestations: 'write'
+      contents: 'write'
+      id-token: 'write'
     runs-on: '${{ matrix.system.image }}'
     steps:
       - uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         with:
           persist-credentials: false
-      - id: 'flatpak_bundle'
+      - env:
+          ARCH: '${{ matrix.system.arch }}'
+        id: 'flatpak_bundle'
         name: 'Set Flatpak bundle filename'
         run: |
           version=$(jq -r '.version' package.json)
           echo "version=${version}" >> "$GITHUB_OUTPUT"
-          echo "filename=sh.tat.bpmdetect-${version}-${{ matrix.system.arch }}.flatpak" >> "$GITHUB_OUTPUT"
+          echo "filename=sh.tat.bpmdetect-${version}-${ARCH}.flatpak" >> "$GITHUB_OUTPUT"
       - name: 'Build Flatpak'
         uses: 'flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3'
         with:
@@ -62,7 +73,4 @@ name: 'Flatpak'
       - 'vcpkg.json'
     tags:
       - 'v*.*.*'
-permissions:
-  attestations: 'write'
-  contents: 'write'
-  id-token: 'write'
+permissions: {}

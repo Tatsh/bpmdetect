@@ -1,4 +1,7 @@
 ---
+concurrency:
+  cancel-in-progress: true
+  group: '${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}'
 env:
   CODEQL_EXTRACTOR_CPP_AUTOINSTALL_DEPENDENCIES: 'false'
 jobs:
@@ -45,3 +48,4 @@ name: CodeQL
     branches: ['master']
   schedule:
     - cron: 42 10 * * 4
+permissions: {}

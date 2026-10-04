@@ -1,6 +1,10 @@
 ---
+concurrency:
+  cancel-in-progress: true
+  group: '${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}'
 jobs:
   tests:
+    name: 'Tests'
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -17,27 +21,33 @@ jobs:
         uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125
         with:
           modules: qtmultimedia
-      - name: Configure
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Configure
         run: >-
-          cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build
-          --install-prefix ${{github.workspace}}/build/prefix
+          cmake -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -B "${GITHUB_WORKSPACE}"/build
+          --install-prefix "${GITHUB_WORKSPACE}"/build/prefix
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
           -DBUILD_TESTS=ON
           -DCOVERAGE=ON
           -DFHS=ON
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
-      - name: Install
-        run: cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Build
+        run: cmake --build "${GITHUB_WORKSPACE}"/build --verbose --config "${BUILD_TYPE}"
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Install
+        run: cmake --install "${GITHUB_WORKSPACE}"/build --config "${BUILD_TYPE}" --verbose
       - name: Run tests
-        run: ctest --test-dir ${{github.workspace}}/build/tests
+        run: ctest --test-dir "${GITHUB_WORKSPACE}"/build/tests
         env:
           QT_QPA_PLATFORM: offscreen
           QT_QUICK_BACKEND: software
       - if: ${{ matrix.build-type == 'Debug' }}
         name: Generate coverage information
         run: >-
-          lcov -c -d ${{github.workspace}}/build -o coverage1.lcov
+          lcov -c -d "${GITHUB_WORKSPACE}"/build -o coverage1.lcov
           --exclude build
           --omit-lines '^\}$'
           --exclude tests

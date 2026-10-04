@@ -1,6 +1,14 @@
 ---
+concurrency:
+  cancel-in-progress: false
+  group: '${{ github.workflow }}-${{ github.event.workflow_run.head_sha }}'
+  queue: 'max'
 jobs:
   publish-release:
+    name: 'Publish release'
+    permissions:
+      actions: 'write'
+      contents: 'write'
     runs-on: 'ubuntu-latest'
     steps:
       - uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
@@ -56,15 +64,12 @@ jobs:
           for workflow in Build Flatpak Prettier Snap Spelling Tests clang-format markdownlint; do
             run=$(gh run list --workflow "$workflow" --commit "$sha" --json status,conclusion --jq '.[0]')
             if [[ -z "$run" || "$run" == 'null' ]]; then
-              case " Build Flatpak Snap " in
-                *" $workflow "*)
-                  echo "Workflow '$workflow' has not run for this commit yet; it builds release assets."
-                  all_success=false
-                  ;;
-                *)
-                  echo "Workflow '$workflow' did not run for this commit; treating as optional."
-                  ;;
-              esac
+              if [[ " Build Flatpak Snap " == *" $workflow "* ]]; then
+                echo "Workflow '$workflow' has not run for this commit yet; it builds release assets."
+                all_success=false
+              else
+                echo "Workflow '$workflow' did not run for this commit; treating as optional."
+              fi
               continue
             fi
             status=$(echo "$run" | jq -r '.status')
@@ -215,6 +220,4 @@ name: 'Release'
       - 'Tests'
       - 'clang-format'
       - 'markdownlint'
-permissions:
-  actions: 'write'
-  contents: 'write'
+permissions: {}

@@ -1,6 +1,11 @@
 ---
+concurrency:
+  cancel-in-progress: false
+  group: '${{ github.workflow }}-${{ github.ref }}'
+  queue: 'max'
 jobs:
   build-macos:
+    name: 'Build (macOS)'
     permissions:
       attestations: write
       contents: write
@@ -13,15 +18,19 @@ jobs:
           persist-credentials: false
       - name: Install deps
         run: brew install extra-cmake-modules ffmpeg qt sound-touch
-      - run: |
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=${{matrix.build-type}} \
-            --install-prefix ${{github.workspace}}/build/prefix
-          cmake --build build --config ${{matrix.build-type}} --verbose
-          cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
-      - name: Package
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        run: |
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
+            --install-prefix "${GITHUB_WORKSPACE}"/build/prefix
+          cmake --build build --config "${BUILD_TYPE}" --verbose
+          cmake --install "${GITHUB_WORKSPACE}"/build --config "${BUILD_TYPE}" --verbose
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Package
         run: >-
-          cpack -C ${{matrix.build-type}}
-          --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
+          cpack -C "${BUILD_TYPE}"
+          --config "${GITHUB_WORKSPACE}"/build/CPackConfig.cmake --verbose
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
@@ -51,6 +60,7 @@ jobs:
         build-type: [Debug, Release]
         os: [macos-latest, macos-15-intel]
   build-msys:
+    name: 'Build (MSYS2)'
     permissions:
       attestations: write
       contents: write
@@ -60,13 +70,15 @@ jobs:
       - id: fixed_workspace
         name: Fix path
         run: >-
-          echo out=$("${{github.workspace}}" -Replace "\\","/") | Out-File
+          echo out=$("$env:GITHUB_WORKSPACE" -Replace "\\","/") | Out-File
           -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        shell: 'pwsh'
       - if: matrix.sys.name == 'clangarm64'
         name: Install NSIS via Chocolatey
         run: |
           choco install nsis -y --no-progress
           'C:\Program Files (x86)\NSIS' | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_PATH
+        shell: 'pwsh'
       - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884
         with:
           install: >-
@@ -92,14 +104,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - env:
+          BUILD_PLUGIN: "${{ matrix.sys.release && 'ON' || 'OFF' }}"
+          BUILD_TYPE: '${{ matrix.build-type }}'
+          CPACK_SYSTEM: '${{ matrix.sys.cpack_system }}'
           OUT: ${{ steps.fixed_workspace.outputs.out }}
         name: Configure
         run: >-
           cmake -G Ninja -B ${OUT}/build
           --install-prefix ${OUT}/build/prefix
-          -DBUILD_PLUGIN=${{ matrix.sys.release && 'ON' || 'OFF' }}
-          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
-          -DCPACK_SYSTEM_NAME=${{matrix.sys.cpack_system}}
+          -DBUILD_PLUGIN="${BUILD_PLUGIN}"
+          -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+          -DCPACK_SYSTEM_NAME="${CPACK_SYSTEM}"
           -DFHS=OFF
           -DPLUGIN_STATIC_SOUNDTOUCH=ON
         shell: msys2 {0}
@@ -109,11 +124,12 @@ jobs:
         run: cmake --build ${OUT}/build --verbose
         shell: msys2 {0}
       - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
           OUT: ${{ steps.fixed_workspace.outputs.out }}
         name: Install
         run: >-
           cmake --install ${OUT}/build
-          --config ${{matrix.build-type}} --verbose
+          --config "${BUILD_TYPE}" --verbose
         shell: msys2 {0}
       - env:
           OUT: ${{ steps.fixed_workspace.outputs.out }}
@@ -149,27 +165,32 @@ jobs:
           if ($failed) {
             exit 1
           }
+        shell: 'pwsh'
       - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
           OUT: ${{ steps.fixed_workspace.outputs.out }}
         name: Package
         run: >-
-          cpack -C ${{matrix.build-type}}
+          cpack -C "${BUILD_TYPE}"
           --config ${OUT}/build/CPackConfig.cmake --verbose
         shell: msys2 {0}
-      - if: ${{ matrix.sys.release && matrix.build-type == 'Release' }}
+      - env:
+          CPACK_SYSTEM: '${{ matrix.sys.cpack_system }}'
+        if: ${{ matrix.sys.release && matrix.build-type == 'Release' }}
         name: Package plugin
         run: >-
           cd build/bin &&
-          zip -r ../../bpmdetect-plugin-Release-${{matrix.sys.cpack_system}}.zip
+          zip -r ../../bpmdetect-plugin-Release-"${CPACK_SYSTEM}".zip
           bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
         shell: msys2 {0}
       - env:
+          CPACK_SYSTEM: '${{ matrix.sys.cpack_system }}'
           TAG: ${{ github.ref_name }}
         if: ${{ github.ref_type == 'tag' && matrix.sys.release && matrix.build-type == 'Release' }}
         name: Rename plugin with tag
         run: >-
-          mv -v bpmdetect-plugin-Release-${{matrix.sys.cpack_system}}.zip
-          bpmdetect-plugin-${TAG}-${{matrix.sys.cpack_system}}.zip
+          mv -v bpmdetect-plugin-Release-"${CPACK_SYSTEM}".zip
+          bpmdetect-plugin-${TAG}-"${CPACK_SYSTEM}".zip
         shell: msys2 {0}
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
@@ -227,6 +248,7 @@ jobs:
             release: true
             runner: windows-11-arm
   build-linux:
+    name: 'Build (Linux)'
     permissions:
       attestations: write
       contents: write
@@ -245,30 +267,42 @@ jobs:
         uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125
         with:
           modules: qtmultimedia
-      - name: Configure
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Configure
         run: >-
-          cmake -DCMAKE_BUILD_TYPE=${{matrix.build-type}} -B ${{github.workspace}}/build
-          --install-prefix ${{github.workspace}}/build/AppDir/usr
+          cmake -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -B "${GITHUB_WORKSPACE}"/build
+          --install-prefix "${GITHUB_WORKSPACE}"/build/AppDir/usr
           -DBUILD_PLUGIN=ON
           -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
           -DFHS=ON
           -DPLUGIN_STATIC_SOUNDTOUCH=ON
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build --verbose --config ${{matrix.build-type}}
-      - name: Install
-        run: cmake --install ${{github.workspace}}/build --config ${{matrix.build-type}} --verbose
-      - name: Package
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Build
+        run: cmake --build "${GITHUB_WORKSPACE}"/build --verbose --config "${BUILD_TYPE}"
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Install
+        run: cmake --install "${GITHUB_WORKSPACE}"/build --config "${BUILD_TYPE}" --verbose
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+        name: Package
         run: >-
-          cpack -C ${{matrix.build-type}}
-          --config ${{github.workspace}}/build/CPackConfig.cmake --verbose
-      - name: Package plugin
+          cpack -C "${BUILD_TYPE}"
+          --config "${GITHUB_WORKSPACE}"/build/CPackConfig.cmake --verbose
+      - env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
+          DEPLOY_ARCH: '${{ matrix.arch.deploy_arch }}'
+        name: Package plugin
         run: >-
-          cd ${{github.workspace}}/build/bin &&
+          cd "${GITHUB_WORKSPACE}"/build/bin &&
           zip -r
-          ${{github.workspace}}/bpmdetect-plugin-${{matrix.build-type}}-${{matrix.arch.deploy_arch}}.zip
+          "${GITHUB_WORKSPACE}"/bpmdetect-plugin-"${BUILD_TYPE}"-"${DEPLOY_ARCH}".zip
           bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
       - name: Create AppImage
         env:
+          BUILD_TYPE: '${{ matrix.build-type }}'
           DEPLOY_ARCH: ${{ matrix.arch.deploy_arch }}
           EXTRA_PLATFORM_PLUGINS: 'libqwayland-generic.so;libqwayland-egl.so'
           EXTRA_QT_PLUGINS: 'wayland-decoration-client;wayland-graphics-integration-client;wayland-shell-integration'
@@ -278,16 +312,17 @@ jobs:
           chmod +x "linuxdeploy-${DEPLOY_ARCH}.AppImage" "linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
           QMAKE="$(command -v qmake6)"
           export QMAKE
-          "./linuxdeploy-${DEPLOY_ARCH}.AppImage" --appdir ${{github.workspace}}/build/AppDir --plugin qt --output appimage
+          "./linuxdeploy-${DEPLOY_ARCH}.AppImage" --appdir "${GITHUB_WORKSPACE}"/build/AppDir --plugin qt --output appimage
           rm "./linuxdeploy-${DEPLOY_ARCH}.AppImage" "./linuxdeploy-plugin-qt-${DEPLOY_ARCH}.AppImage"
-          mv -v ${{github.workspace}}/*.AppImage "${{github.workspace}}/bpmdetect-${{matrix.build-type}}-${DEPLOY_ARCH}.AppImage"
+          mv -v "${GITHUB_WORKSPACE}"/*.AppImage "${GITHUB_WORKSPACE}/bpmdetect-${BUILD_TYPE}-${DEPLOY_ARCH}.AppImage"
       - env:
+          DEPLOY_ARCH: '${{ matrix.arch.deploy_arch }}'
           TAG: ${{ github.ref_name }}
         if: ${{ github.ref_type == 'tag' && matrix.build-type == 'Release' }}
         name: Rename with tag
         run: |
-          mv -v ${{github.workspace}}/bpmdetect-*.AppImage ${{github.workspace}}/bpmdetect-${TAG}-${{matrix.arch.deploy_arch}}.AppImage
-          mv -v ${{github.workspace}}/bpmdetect-plugin-*.zip ${{github.workspace}}/bpmdetect-plugin-${TAG}-${{matrix.arch.deploy_arch}}.zip
+          mv -v "${GITHUB_WORKSPACE}"/bpmdetect-*.AppImage "${GITHUB_WORKSPACE}/bpmdetect-${TAG}-${DEPLOY_ARCH}.AppImage"
+          mv -v "${GITHUB_WORKSPACE}"/bpmdetect-plugin-*.zip "${GITHUB_WORKSPACE}/bpmdetect-plugin-${TAG}-${DEPLOY_ARCH}.zip"
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:
@@ -331,6 +366,7 @@ jobs:
             runner: ubuntu-latest
         build-type: [Debug, Release]
   build-plugin-macos:
+    name: 'Build plugin (macOS)'
     permissions:
       attestations: write
       contents: write
@@ -348,6 +384,7 @@ jobs:
           ./PawPaw/.github/workflows/bootstrap-deps.sh macos-universal
       - name: Build
         run: |
+          # shellcheck source=/dev/null
           source PawPaw/local.env macos-universal
           cmake -S plugin -B build-plugin -DCMAKE_BUILD_TYPE=Release \
             -DPLUGIN_STATIC_SOUNDTOUCH=ON
@@ -355,15 +392,15 @@ jobs:
       - name: Package plugin
         run: >-
           cd build-plugin/bin &&
-          zip -r ${{github.workspace}}/bpmdetect-plugin-Release-macos-universal.zip
+          zip -r "${GITHUB_WORKSPACE}"/bpmdetect-plugin-Release-macos-universal.zip
           bpmdetect-plugin.clap bpmdetect-plugin.lv2 bpmdetect-plugin.vst3
       - env:
           TAG: ${{ github.ref_name }}
         if: ${{ github.ref_type == 'tag' }}
         name: Rename with tag
         run: >-
-          mv -v ${{github.workspace}}/bpmdetect-plugin-Release-macos-universal.zip
-          ${{github.workspace}}/bpmdetect-plugin-${TAG}-macos-universal.zip
+          mv -v "${GITHUB_WORKSPACE}"/bpmdetect-plugin-Release-macos-universal.zip
+          "${GITHUB_WORKSPACE}/bpmdetect-plugin-${TAG}-macos-universal.zip"
       - name: 'Upload Artifacts'
         uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         with:

@@ -1,10 +1,15 @@
 ---
+concurrency:
+  cancel-in-progress: false
+  group: '${{ github.workflow }}-${{ github.event.workflow_run.head_sha }}'
+  queue: 'max'
 jobs:
   create-ebuild-pr:
     if: >-
       ${{ github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       startsWith(github.event.workflow_run.head_branch, 'v') }}
+    name: 'Create ebuild pull request'
     runs-on: ubuntu-latest
     steps:
       - name: Extract version
@@ -25,14 +30,14 @@ jobs:
           token: ${{ secrets.GENTOO_TOKEN }}
       - name: Configure git
         run: |
-          cd gentoo
+          cd gentoo || exit 1
           git config user.name "Andrew Udvare"
           git config user.email "audvare@gmail.com"
       - name: Create new ebuild
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          cd gentoo
+          cd gentoo || exit 1
           EBUILD_DIR=media-sound/bpmdetect
           LATEST=$(find "$EBUILD_DIR" -name 'bpmdetect-*.ebuild' 2>/dev/null | sort -V | tail -1)
           cp "$LATEST" "${EBUILD_DIR}/bpmdetect-${VERSION}.ebuild"
