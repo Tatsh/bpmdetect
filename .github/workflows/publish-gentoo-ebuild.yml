@@ -8,6 +8,7 @@ jobs:
     if: "github.event.workflow_run.conclusion == 'success'"
     name: 'Find Release'
     outputs:
+      has_gentoo_token: '${{ steps.check_secret.outputs.has_gentoo_token }}'
       tag: '${{ steps.release.outputs.tag }}'
     permissions:
       contents: 'read'
@@ -47,8 +48,19 @@ jobs:
           fi
           echo "Found published release ${tag}."
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+      - env:
+          GENTOO_TOKEN: '${{ secrets.GENTOO_TOKEN }}'
+        id: 'check_secret'
+        name: 'Check GENTOO_TOKEN is set'
+        run: |
+          if [[ -n "$GENTOO_TOKEN" ]]; then
+            echo 'has_gentoo_token=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'has_gentoo_token=false' >> "$GITHUB_OUTPUT"
+            echo '::warning::GENTOO_TOKEN secret is empty; the create-ebuild-pr job will be skipped.'
+          fi
   create-ebuild-pr:
-    if: "needs.check.outputs.tag != ''"
+    if: "needs.check.outputs.tag != '' && needs.check.outputs.has_gentoo_token == 'true'"
     name: 'Create ebuild pull request'
     needs:
       - 'check'
