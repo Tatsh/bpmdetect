@@ -47,6 +47,7 @@ local utils = import 'utils.libsonnet';
   want_main: false,
   want_codeql: false,
   want_tests: false,
+  want_msys2: true,
   clang_format_args: 'plugin/*.cpp plugin/*.h src/*.cpp src/*.h',
   package_json+: {
     cspell+: {
@@ -172,14 +173,20 @@ local utils = import 'utils.libsonnet';
     ],
   },
   github+: {
-    publish_winget: {
-      identifier: 'Tatsh.BPMDetect',
-      max_versions_to_keep: 1,
+    workflows+: {
+      publish_msys2+: {
+        fork: 'Tatsh/MINGW-packages',
+        package_name: 'bpmdetect',
+      },
+      publish_winget+: {
+        identifier: 'Tatsh.BPMDetect',
+        max_versions_to_keep: 1,
+      },
     },
     zizmor+: {
       rules+: {
         'dangerous-triggers'+: {
-          ignore: std.sort(super.ignore + ['publish-gentoo-ebuild.yml', 'publish-msys2.yml']),
+          ignore: std.sort(super.ignore + ['publish-gentoo-ebuild.yml']),
         },
       },
     },

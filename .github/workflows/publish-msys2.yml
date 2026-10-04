@@ -1,34 +1,72 @@
----
 jobs:
-  update-pkgbuild:
-    if: >-
-      ${{ github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      startsWith(github.event.workflow_run.head_branch, 'v') }}
-    runs-on: ubuntu-latest
+  check:
+    if: "github.event.workflow_run.conclusion == 'success'"
+    outputs:
+      tag: '${{ steps.release.outputs.tag }}'
+    runs-on: 'ubuntu-latest'
     steps:
-      - name: Extract version
-        id: version
-        env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+      - env:
+          GH_TOKEN: '${{ github.token }}'
+          HEAD_SHA: '${{ github.event.workflow_run.head_sha }}'
+          REPO: '${{ github.repository }}'
+        id: 'release'
+        name: 'Find the published release for this commit'
         run: |
-          TAG="$HEAD_BRANCH"
+          tag=''
+          while IFS=$'\t' read -r ref obj_type obj_sha; do
+            [[ -z "$ref" ]] && continue
+            if [[ "$obj_type" == 'commit' ]]; then
+              target_sha="$obj_sha"
+            else
+              target_sha=$(gh api "repos/${REPO}/git/tags/${obj_sha}" \
+                --jq '.object.sha' 2>/dev/null || echo '')
+            fi
+            if [[ "$target_sha" == "$HEAD_SHA" ]]; then
+              tag="${ref#refs/tags/}"
+              break
+            fi
+          done < <(gh api "repos/${REPO}/git/matching-refs/tags/v" \
+            --jq '.[] | [.ref, .object.type, .object.sha] | @tsv')
+          if [[ -z "$tag" ]]; then
+            echo "No v* tag points at ${HEAD_SHA}, nothing to do."
+            exit 0
+          fi
+          unpublished=$(gh release view "$tag" --repo "$REPO" --json isDraft,isPrerelease \
+            --jq '.isDraft or .isPrerelease' 2>/dev/null || echo 'true')
+          if [[ "$unpublished" != 'false' ]]; then
+            echo "Release ${tag} is not published, nothing to do."
+            exit 0
+          fi
+          echo "Found published release ${tag}."
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+  update-pkgbuild:
+    if: "needs.check.outputs.tag != ''"
+    needs:
+      - 'check'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - env:
+          TAG_NAME: '${{ needs.check.outputs.tag }}'
+        id: 'version'
+        name: 'Extract version'
+        run: |
+          TAG="$TAG_NAME"
           VERSION="${TAG#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-      - name: Checkout MINGW-packages repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: 'Checkout MINGW-packages repository'
+        uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         with:
           persist-credentials: false
-          repository: msys2/MINGW-packages
-          token: ${{ secrets.MSYS2_TOKEN }}
-      - name: Configure git
+          repository: 'msys2/MINGW-packages'
+          token: '${{ secrets.MSYS2_TOKEN }}'
+      - name: 'Configure git'
         run: |
           git config user.name "Andrew Udvare"
           git config user.email "audvare@gmail.com"
-      - name: Update PKGBUILD
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
+      - env:
+          VERSION: '${{ steps.version.outputs.version }}'
+        name: 'Update PKGBUILD'
         run: |
           git remote add upstream https://github.com/msys2/MINGW-packages.git
           git fetch upstream
@@ -39,24 +77,23 @@ jobs:
           sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
           NEW_SUM=$(curl -L "https://github.com/Tatsh/bpmdetect/archive/refs/tags/v${VERSION}.tar.gz" | sha256sum | awk '{print $1}')
           sed -i "s/^sha256sums=.*/sha256sums=('${NEW_SUM}')/" PKGBUILD
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
+      - name: 'Create Pull Request'
+        uses: 'peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1'
         with:
-          base: master
-          branch: bpmdetect-${{ steps.version.outputs.version }}
-          commit-message: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
-          title: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
-          token: ${{ secrets.MSYS2_TOKEN }}
+          base: 'master'
           body: |
-            This PR was automatically created by the [BPM Detect release workflow](${{ github.event.workflow_run.html_url }}).
-
-            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
-          push-to-fork: Tatsh/MINGW-packages
-name: Update MSYS2 PKGBUILD
+            This PR was automatically created from the [bpmdetect ${{ steps.version.outputs.tag }} release](https://github.com/Tatsh/bpmdetect/releases/tag/${{ steps.version.outputs.tag }}).
+          branch: 'bpmdetect-${{ steps.version.outputs.version }}'
+          commit-message: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
+          push-to-fork: 'Tatsh/MINGW-packages'
+          title: 'mingw-w64-bpmdetect: update to ${{ steps.version.outputs.version }}'
+          token: '${{ secrets.MSYS2_TOKEN }}'
+name: 'Update MSYS2 PKGBUILD'
 'on':
   workflow_run:
-    workflows:
-      - 'Release'
     types:
       - 'completed'
-permissions: {}
+    workflows:
+      - 'Release'
+permissions:
+  contents: 'read'

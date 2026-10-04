@@ -147,6 +147,7 @@ mdfile
 metainfo
 mktemp
 modplug
+msix
 msvcp
 msvcprtd
 msvcrtd
