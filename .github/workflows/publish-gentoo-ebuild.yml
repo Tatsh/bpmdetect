@@ -58,29 +58,48 @@ jobs:
           echo "$NEW_LINE" >> "${MANIFEST}.tmp"
           LC_ALL=C sort -o "$MANIFEST" "${MANIFEST}.tmp"
           rm "${MANIFEST}.tmp"
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
-        with:
-          base: master
-          branch: bpmdetect-${{ steps.version.outputs.version }}
-          commit-message: 'media-sound/bpmdetect: add ${{ steps.version.outputs.version }}'
-          committer: 'Andrew Udvare <audvare@gmail.com>'
-          path: gentoo
-          signoff: true
-          title: 'media-sound/bpmdetect: add ${{ steps.version.outputs.version }}'
-          token: ${{ secrets.GENTOO_TOKEN }}
-          body: |
-            This PR was automatically created by the [BPM Detect release workflow](${{ github.event.workflow_run.html_url }}).
-
-            Signed-off-by: Andrew Udvare <audvare@gmail.com>
-
-            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
-
-            * [x] I can submit this contribution in agreement with the [Copyright Policy](https://www.gentoo.org/glep/glep-0076.html#certificate-of-origin).
-            * [x] I have certified the above via adding a `Signed-off-by` line to _every_ commit in the pull request.
-            * [x] This contribution has not been created with the assistance of Natural Language Processing artificial intelligence tools, in accordance with the [AI policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy).
-            * [x] I have run `pkgcheck scan --commits --net` to check for issues with my commits.
-          push-to-fork: Tatsh/gentoo
+      - name: Create pull request
+        env:
+          GH_TOKEN: ${{ secrets.GENTOO_TOKEN }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cd gentoo || exit 1
+          base_repo='gentoo/gentoo'
+          fork='Tatsh/gentoo'
+          branch="bpmdetect-${VERSION}"
+          title="media-sound/bpmdetect: add ${VERSION}"
+          git checkout -B "$branch"
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'The ebuild is already present.'
+            exit 0
+          fi
+          git commit -s -m "$title"
+          gh auth setup-git
+          git push --force "https://github.com/${fork}.git" "HEAD:refs/heads/${branch}"
+          existing=$(gh pr list --repo "$base_repo" --head "$branch" --state open \
+            --json number --jq '.[0].number // empty')
+          if [[ -n "$existing" ]]; then
+            echo "Pull request #${existing} exists; its branch was updated."
+            exit 0
+          fi
+          body_file="${RUNNER_TEMP}/pr-body.md"
+          {
+            printf 'This PR was automatically created by the [BPM Detect release workflow](%s).\n\n' \
+              "$RUN_URL"
+            printf 'Signed-off-by: Andrew Udvare <audvare@gmail.com>\n\n'
+            printf 'Release: https://github.com/%s/releases/tag/%s\n\n' "$GITHUB_REPOSITORY" "$TAG"
+            cat <<'EOF'
+          * [x] I can submit this contribution in agreement with the [Copyright Policy](https://www.gentoo.org/glep/glep-0076.html#certificate-of-origin).
+          * [x] I have certified the above via adding a `Signed-off-by` line to _every_ commit in the pull request.
+          * [x] This contribution has not been created with the assistance of Natural Language Processing artificial intelligence tools, in accordance with the [AI policy](https://wiki.gentoo.org/wiki/Project:Council/AI_policy).
+          * [x] I have run `pkgcheck scan --commits --net` to check for issues with my commits.
+          EOF
+          } > "$body_file"
+          gh pr create --repo "$base_repo" --base master --head "${fork%%/*}:${branch}" \
+            --title "$title" --body-file "$body_file"
 name: Add new ebuild to Portage
 'on':
   workflow_run:
