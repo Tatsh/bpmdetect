@@ -81,7 +81,7 @@ jobs:
       - 'check'
     runs-on: 'windows-latest'
     steps:
-      - uses: 'vedantmgoyal9/winget-releaser@4ffc7888bffd451b357355dc214d43bb9f23917e'
+      - uses: 'vedantmgoyal9/winget-releaser@8e1180065275ff8d815d981788ee8592c8735b8c'
         with:
           identifier: 'Tatsh.BPMDetect'
           max-versions-to-keep: 1
