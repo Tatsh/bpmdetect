@@ -32,7 +32,7 @@ jobs:
           cpack -C "${BUILD_TYPE}"
           --config "${GITHUB_WORKSPACE}"/build/CPackConfig.cmake --verbose
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        uses: 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-${{ matrix.os }}
@@ -193,7 +193,7 @@ jobs:
           bpmdetect-plugin-${TAG}-"${CPACK_SYSTEM}".zip
         shell: msys2 {0}
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        uses: 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-${{ matrix.sys.name }}
@@ -203,7 +203,7 @@ jobs:
             !${{github.workspace}}/bpmdetect-plugin-*.zip
       - if: ${{ matrix.sys.release }}
         name: 'Upload plugin artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        uses: 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-${{ matrix.build-type }}-${{ matrix.sys.cpack_system }}
@@ -324,7 +324,7 @@ jobs:
           mv -v "${GITHUB_WORKSPACE}"/bpmdetect-*.AppImage "${GITHUB_WORKSPACE}/bpmdetect-${TAG}-${DEPLOY_ARCH}.AppImage"
           mv -v "${GITHUB_WORKSPACE}"/bpmdetect-plugin-*.zip "${GITHUB_WORKSPACE}/bpmdetect-plugin-${TAG}-${DEPLOY_ARCH}.zip"
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        uses: 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         with:
           if-no-files-found: error
           name: bpmdetect-${{ matrix.build-type }}-Linux-${{ matrix.arch.deploy_arch }}
@@ -333,7 +333,7 @@ jobs:
             ${{github.workspace}}/bpmdetect-*.zip
             !${{github.workspace}}/bpmdetect-plugin-*.zip
       - name: 'Upload plugin artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        uses: 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-${{ matrix.build-type }}-Linux-${{ matrix.arch.deploy_arch }}
@@ -402,7 +402,7 @@ jobs:
           mv -v "${GITHUB_WORKSPACE}"/bpmdetect-plugin-Release-macos-universal.zip
           "${GITHUB_WORKSPACE}/bpmdetect-plugin-${TAG}-macos-universal.zip"
       - name: 'Upload Artifacts'
-        uses: 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
+        uses: 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         with:
           if-no-files-found: error
           name: bpmdetect-plugin-Release-macos-universal
