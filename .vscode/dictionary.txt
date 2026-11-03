@@ -179,6 +179,7 @@ pangoft
 pangowin
 parlant
 pathlib
+pipefail
 pipx
 pixbuf
 pixman
