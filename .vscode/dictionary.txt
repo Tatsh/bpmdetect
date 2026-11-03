@@ -1,5 +1,6 @@
 abstractbpmdetector
 aclocal
+analyzer
 apos
 appdir
 appimage
@@ -64,6 +65,7 @@ dlgtestbpmplayertest
 dlgtestbpmtest
 docstrings
 dplugin
+elif
 endforeach
 endfunction
 esac
@@ -95,6 +97,7 @@ iconset
 ifndef
 instdir
 interprocedural
+iterdir
 iwyu
 jbig
 jinja
@@ -157,6 +160,7 @@ mypy
 nanovg
 ndebug
 nogdi
+nojekyll
 noncommercially
 noone
 normaloff
@@ -174,6 +178,7 @@ pangocairo
 pangoft
 pangowin
 parlant
+pathlib
 pipx
 pixbuf
 pixman
