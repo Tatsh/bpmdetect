@@ -45,7 +45,7 @@ local utils = import 'utils.libsonnet';
   ],
   keywords: ['bpm', 'dj', 'music', 'tempo'],
   want_main: false,
-  want_codeql: false,
+  want_codeql: true,
   want_tests: false,
   want_msys2: true,
   clang_format_args: 'plugin/*.cpp plugin/*.h src/*.cpp src/*.h',
@@ -173,6 +173,11 @@ local utils = import 'utils.libsonnet';
     ],
   },
   github+: {
+    codeql+: {
+      languages: ['actions'],
+      runs_on: 'ubuntu-latest',
+      workflow_file: 'codeql-actions.yml',
+    },
     workflows+: {
       publish_msys2+: {
         fork: 'Tatsh/MINGW-packages',

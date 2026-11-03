@@ -11,6 +11,9 @@ workflows:
         - 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
         - 'jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125'
         - 'msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e'
+    '.github/workflows/codeql-actions.yml':
+        - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+        - 'github/codeql-action@9b3254085494b55a0f7c4c2b3d2d52cc712ce370'
     '.github/workflows/codeql.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'github/codeql-action@9b3254085494b55a0f7c4c2b3d2d52cc712ce370'
