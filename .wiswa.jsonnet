@@ -241,7 +241,6 @@ local utils = import 'utils.libsonnet';
           },
         },
       ],
-      workflow_file: 'pages.yml',
     },
   } },
 }
