@@ -211,6 +211,7 @@ qtmultimedia
 qtractor
 qtwidgets
 qverify
+rdparty
 rect
 reflow
 regen
@@ -221,6 +222,7 @@ rtmp
 sakmar
 sampleringbuffer
 sampletype
+sarif
 sbclaude
 schemafile
 sharpyuv

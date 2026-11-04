@@ -245,3 +245,4 @@ local utils = import 'utils.libsonnet';
     },
   } },
 }
++ { static_analysis_paths: ['src', 'tests', 'plugin'] }
