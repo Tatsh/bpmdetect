@@ -18,7 +18,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y extra-cmake-modules lcov libavcodec-dev libavformat-dev libavutil-dev libsoundtouch-dev
       - name: Install Qt
-        uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125
+        uses: jurplel/install-qt-action@b344308e4483fc892e0d27b3cd1b173ebdd95f06
         with:
           modules: qtmultimedia
       - env:
