@@ -20,7 +20,7 @@
         }
       ],
       "name": "qtmultimedia",
-      "version>=": "6.11.2"
+      "version>=": "6.11.3"
     },
     "ffmpeg",
     "soundtouch"
