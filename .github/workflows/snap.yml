@@ -44,8 +44,6 @@ jobs:
         system:
           - arch: 'amd64'
             image: 'ubuntu-24.04'
-          - arch: 'arm64'
-            image: 'ubuntu-24.04-arm'
 name: 'Snap'
 'on':
   push:

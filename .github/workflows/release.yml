@@ -127,7 +127,6 @@ jobs:
             "bpmdetect-${version}-winarm64-Release.exe"
             "bpmdetect-${version}-winarm64-Release.zip"
             "bpmdetect_${version}_amd64.snap"
-            "bpmdetect_${version}_arm64.snap"
             "sh.tat.bpmdetect-${version}-aarch64.flatpak"
             "sh.tat.bpmdetect-${version}-x86_64.flatpak"
           )

@@ -60,8 +60,6 @@ parts:
 platforms:
   amd64:
     build-on: 'amd64'
-  arm64:
-    build-on: 'arm64'
 source-code: 'https://github.com/Tatsh/bpmdetect'
 summary: 'Automatic BPM detection tool'
 title: 'BPM Detect'
