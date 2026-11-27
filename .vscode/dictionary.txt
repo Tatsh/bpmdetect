@@ -206,6 +206,7 @@ qtmultimedia
 qtractor
 qtwidgets
 qverify
+rdparty
 rect
 reflow
 regen
