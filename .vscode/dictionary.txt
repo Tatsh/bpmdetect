@@ -1,6 +1,5 @@
 abstractbpmdetector
 aclocal
-analyzer
 apos
 appdir
 appimage
@@ -35,7 +34,6 @@ concrt
 consolemain
 consolemaintest
 contrib
-copytree
 coveragerc
 coverallsapp
 cpack
@@ -66,7 +64,6 @@ dlgtestbpmplayertest
 dlgtestbpmtest
 docstrings
 dplugin
-elif
 endforeach
 endfunction
 esac
@@ -178,8 +175,6 @@ pangocairo
 pangoft
 pangowin
 parlant
-pathlib
-pipefail
 pipx
 pixbuf
 pixman
@@ -211,12 +206,10 @@ qtmultimedia
 qtractor
 qtwidgets
 qverify
-rdparty
 rect
 reflow
 regen
 ripgreprc
-rmtree
 rsvg
 rtmp
 sakmar
@@ -230,7 +223,6 @@ shctx
 shellcheck
 shellformat
 shlib
-shutil
 sizepolicy
 snapcore
 snapcraft
